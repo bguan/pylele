@@ -81,7 +81,7 @@ class Shape:
             elif isinstance(p_or_s, list):
                 # a list of points and gradients/tangents to trace spline thru
                 splinePts = [(p[0], p[1]) for p in p_or_s]
-                tangents = [cq.Vector(p[2],p[3]) for p in p_or_s]
+                tangents = [cq.Vector(p[2], p[3]) for p in p_or_s]
                 # [tangents[0], tangents[-1]])
                 trace = trace.spline(splinePts, tangents)
         trace = trace.close()
