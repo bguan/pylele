@@ -13,10 +13,13 @@ def main():
         numStrs=4,
         sepTop=True,
         sepFretbd=True,
-        sepNeck=False,
-        sepBrdg=False,
-        sepGuide=False,
-        flatWth=40,
+        sepNeck=True,
+        sepBrdg=True,
+        sepGuide=True,
+        flatWth=0,
+        chmTck=4,
+        chmLift=2,
+        split=True,
     )
 
     # gen cuts
@@ -26,11 +29,13 @@ def main():
     fbCut = Fretboard(cfg, isCut=True)
     fCut = Frets(cfg, isCut=True)
     pegsCut = Pegs(cfg, isCut=True)
+    strCuts = Strings(cfg, isCut=True)
 
     # gen fretbd
     fretbd = Fretboard(cfg)
     frets = Frets(cfg)
-    fretbd = fretbd.join(frets)
+    fretbd = fretbd.join(frets).cut(strCuts)
+
     if cfg.sepFretbd or cfg.sepNeck:
         topCut = Top(cfg, isCut=True)
         fretbd = fretbd.cut(topCut)
@@ -39,24 +44,26 @@ def main():
     neck = Neck(cfg)
     head = Head(cfg)
     neck = neck.join(head)
-    neck = neck.cut(spCut)
+    neck = neck.cut(spCut).cut(strCuts)
     if cfg.sepFretbd or cfg.sepTop:
         neck = neck.cut(fCut).cut(fbCut)
     elif cfg.sepNeck:
         neck = neck.join(fretbd)
 
     # gen bridge
-    brdg = Bridge(cfg)
+    brdg = Bridge(cfg).cut(strCuts)
 
     # gen guide
     guide = Guide(cfg)
 
     # gen body top
     top = Top(cfg)
-    top = top.cut(chmCut).cut(shCut).cut(pegsCut)
 
-    if not cfg.sepFretbd and not cfg.sepNeck:
-        top = top.join(fretbd)
+    if not cfg.sepFretbd:
+        if cfg.sepNeck:
+            neck = neck.join(fretbd)
+        else:
+            top = top.join(fretbd)
 
     if cfg.sepBrdg:
         brdgCut = Bridge(cfg, isCut=True)
@@ -70,6 +77,8 @@ def main():
     else:
         top = top.join(guide)
 
+    top = top.cut(chmCut).cut(shCut).cut(pegsCut)
+    
     # gen body bottom
     body = Bottom(cfg)
     body = body.cut(chmCut).cut(pegsCut).cut(spCut)
@@ -83,6 +92,9 @@ def main():
     if not cfg.sepNeck:
         body = body.join(neck)
 
+    if cfg.split:
+        body = body.splitXZ()
+
     expDir = Path.cwd()/"build"
     if not expDir.exists():
         expDir.mkdir()
@@ -91,28 +103,40 @@ def main():
         sys.exit(os.EX_SOFTWARE)
 
     # if running in CQ-Editor
-    global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE
+    global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS
 
+    STRINGS = strCuts.show()
+    
     BODY = body.show()
     body.exportSTL(str(expDir/"body.stl"))
 
     if cfg.sepFretbd:
+        if cfg.split:
+            fretbd = fretbd.splitXZ()
         fretbd.exportSTL(str(expDir/"fretbd.stl"))
         FRETBD = fretbd.show()
 
     if cfg.sepTop:
+        if cfg.split:
+            top = top.splitXZ()
         TOP = top.show()
         top.exportSTL(str(expDir/"top.stl"))
 
     if cfg.sepNeck:
+        if cfg.split:
+            neck = neck.splitXZ()
         NECK = neck.show()
         neck.exportSTL(str(expDir/"neck.stl"))
 
     if cfg.sepBrdg:
+        if cfg.split:
+            brdg = brdg.splitXZ()
         BRIDGE = brdg.show()
         brdg.exportSTL(str(expDir/"brdg.stl"))
 
     if cfg.sepGuide:
+        if cfg.split:
+            guide = guide.splitXZ()
         GUIDE = guide.show()
         guide.exportSTL(str(expDir/"guide.stl"))
 

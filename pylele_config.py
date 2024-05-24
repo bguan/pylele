@@ -48,30 +48,28 @@ FRICTION_PEG_CFG = PegConfig()
 # https://gamedev.stackexchange.com/questions/1692/what-is-a-simple-algorithm-for-calculating-evenly-distributed-points-on-an-ellip
 
 class LeleConfig:
-    BOT_RATIO = .65
+    BOT_RATIO = .7
     BRIDGE_HT = 8
-    CHM_BACK_RATIO = .333  # to chmFront
+    CHM_BACK_RATIO = .5  # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
-    EXT_MID_TOP_TCK = .5
-    EXT_MID_BOT_TCK = 3
+    EXT_MID_TOP_TCK = 1
+    EXT_MID_BOT_TCK = 4
     FIT_TOL = .1
     FILLET_RAD = .4
     FRET_HT = 1
     FRETBD_RATIO = 0.675  # to scaleLen
-    FRETBD_SPINE_TCK = 1.5
+    FRETBD_SPINE_TCK = 2
     FRETBD_TCK = 2
-    FRETBD_RISE_ANG = 1.2
-    GUIDE_HT = 8
+    FRETBD_RISE_ANG = 1.5
+    GUIDE_HT = 7
     GUIDE_RAD = 1.5
-    GUIDE_SET = 1
+    GUIDE_SET = .5
     HEAD_WTH_RATIO = 1.15  # to nutWth
-    HEAD_LEN_RATIO = .35  # to nutWth
+    HEAD_LEN_RATIO = .4  # to nutWth
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
     NECK_WIDE_ANG = 1
     NUT_HT = 1.5
-    RIM_WTH = 1.5
-    RIM_TCK = 1.5
     SPINE_HT = 10.2  # give extra height to spine
     SPINE_WTH = 2.2  # give extra width to spine
     STR_RAD = 0.5
@@ -86,14 +84,17 @@ class LeleConfig:
         sepBrdg: bool = False,
         sepGuide: bool = False,
         chmTck: float = 4,
-        chmLift: float = 1,
+        chmLift: float = 2,
+        chmTilt: float = -.53,
         flatWth: float = 0,
         numStrs: int = 4,
-        strGap: float = 9,
+        nutStrGap: float = 9,
         action: float = 3,
         pegCfg: PegConfig = FRICTION_PEG_CFG,
+        split: bool = False,
     ):
         # General configs
+        self.split = split
         self.scaleLen = scaleLen
         self.sepTop = sepTop
         self.sepNeck = sepNeck
@@ -103,9 +104,9 @@ class LeleConfig:
         self.numStrs = numStrs
         self.isOddStrs = numStrs % 2 == 1
         self.flatWth = flatWth
-        self.strGap = strGap
+        self.nutStrGap = nutStrGap
         self.action = action
-        self.nutWth = numStrs * strGap
+        self.nutWth = numStrs * nutStrGap
         self.pegCfg = pegCfg
         self.brdgWth = self.nutWth + \
             2 * math.tan(radians(self.NECK_WIDE_ANG)) * self.scaleLen
@@ -121,7 +122,7 @@ class LeleConfig:
             (self.neckLen, self.neckWth/2), (0, self.nutWth/2)
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
-        neckDX = self.FIT_TOL
+        neckDX = 1
         neckDY = neckDX * math.tan(radians(self.NECK_WIDE_ANG))
 
         # Fretboard configs
@@ -148,35 +149,38 @@ class LeleConfig:
         # Chamber Configs
         self.chmTck = chmTck
         self.chmLift = chmLift
+        self.chmTilt = chmTilt
         self.chmFront = scaleLen - self.fretbdLen - chmTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         self.chmWth = self.brdgWth * 3
         self.chmPath = [
             [
-                (scaleLen - self.chmFront, 0, 0, -1),
-                (scaleLen - .65*self.chmFront, -.4*self.chmWth, 1, -.4),
-                (scaleLen, -self.chmWth/2, 1, 0),
-                (scaleLen + self.chmBack, 0, 0, 1),
+                (-self.chmFront, 0, 0, -1),
+                (-.65*self.chmFront, -.4*self.chmWth, 1, -.4),
+                (0, -self.chmWth/2, 1, 0),
+                (self.chmBack, 0, 0, 1),
             ]
         ]
-        self.chmOrig = (scaleLen - self.chmFront, 0)
+        self.chmOrig = (0, 0)
+        self.rimWth = chmTck/2
+        self.rimTck = 1
         def genRimPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = self.FIT_TOL if isCut else 0
             return [
                 [
-                    (scaleLen - self.chmFront -self.RIM_WTH -cutAdj, 0, 0, -1),
+                    (scaleLen - self.chmFront -self.rimWth -cutAdj, 0, 0, -1),
                     (
-                        scaleLen - .65*self.chmFront -.5*self.RIM_WTH -.5*cutAdj,
-                        -.4*self.chmWth -.5*self.RIM_WTH -.5*cutAdj, 
+                        scaleLen - .65*self.chmFront -.5*self.rimWth -.5*cutAdj,
+                        -.4*self.chmWth -.5*self.rimWth -.5*cutAdj, 
                         1, -.4,
                     ),
-                    (scaleLen, -self.chmWth/2  -self.RIM_WTH -cutAdj, 1, 0),
-                    (scaleLen + self.chmBack +self.RIM_WTH +cutAdj, 0, 0, 1),
+                    (scaleLen, -self.chmWth/2  -self.rimWth -cutAdj, 1, 0),
+                    (scaleLen + self.chmBack +self.rimWth +cutAdj, 0, 0, 1),
                 ]
             ]
-        self.rimOrig = (scaleLen - self.chmFront -self.RIM_WTH,0)
+        self.rimOrig = (scaleLen - self.chmFront -self.rimWth,0)
         self.rimPath = genRimPath()
-        self.rimCutOrig = (scaleLen - self.chmFront -self.RIM_WTH -self.FIT_TOL,0)
+        self.rimCutOrig = (scaleLen - self.chmFront -self.rimWth -self.FIT_TOL,0)
         self.rimCutPath = genRimPath(isCut=True)
 
         # Head configs
@@ -203,7 +207,7 @@ class LeleConfig:
 
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = self.FIT_TOL if isCut else 0
-            nkLen = self.neckLen - cutAdj
+            nkLen = self.neckLen
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
             bFrLen = self.bodyFrontLen + cutAdj
@@ -246,12 +250,13 @@ class LeleConfig:
             self.FRET_HT
         self.brdgZ = .5*self.bodyWth * self.TOP_RATIO + self.EXT_MID_TOP_TCK - 1
         self.brdgHt = f12Ht*2 - self.brdgZ
-        self.brdgLen = strGap
+        self.brdgLen = nutStrGap
+        self.brdgStrGap = self.brdgWth / numStrs
 
         # Spine configs
         self.spineX = -self.headLen
-        self.spineLen = self.headLen + self.scaleLen + self.chmBack + self.chmTck - 1
-        self.spineGap = strGap if self.isOddStrs else 2*strGap
+        self.spineLen = self.headLen + scaleLen + self.chmBack +self.rimWth
+        self.spineGap = nutStrGap if self.isOddStrs else 2*nutStrGap
         self.spineY1 = -self.spineGap/2
         self.spineY2 = self.spineGap/2
         self.spineCutFilletPts = [
@@ -266,7 +271,8 @@ class LeleConfig:
         self.guideWth = self.nutWth \
             + 2*math.tan(radians(self.NECK_WIDE_ANG))*self.guideX
         self.guidePostGap = self.guideWth/numStrs
-        gY = self.GUIDE_RAD + 2*self.STR_RAD if self.isOddStrs else self.guidePostGap/2
+        gY = self.GUIDE_RAD + \
+            (2*self.STR_RAD if self.isOddStrs else (self.guidePostGap/2 +self.STR_RAD))
         self.guideYs = [gY, -gY]
         for r in range((numStrs-1)//2):
             gY += self.guidePostGap
@@ -275,13 +281,15 @@ class LeleConfig:
         # Pegs config
         self.pegSetback = (pegCfg.majRad + pegCfg.btnRad)/2 -2
         # approx spline bout curve with ellipse but 'fatter'
-        xmax = self.bodyBackLen - self.pegSetback
-        ymax = .58*self.bodyWth + (.05*flatWth)**4 - self.pegSetback
+        pXMax = self.bodyBackLen - self.pegSetback
+        fatRat = .65 if flatWth == 0 else .505 + (flatWth/self.bodyWth)**1.05
+        pYMax = fatRat*self.bodyWth -self.pegSetback 
         pDist = 2*pegCfg.btnRad + 1
-        pX = xmax
+        pX = pXMax
         pY = 0 if self.isOddStrs else pegCfg.btnRad + .5
-        zBase = self.EXT_MID_TOP_TCK + 1.5
-        pZ = zBase + (math.sqrt((flatWth/2)**2 -pY**2) *self.TOP_RATIO if pY < flatWth/2 else 0)
+        pZBase = self.EXT_MID_TOP_TCK + 1.5
+        pMidZ = pZBase + (math.sqrt((flatWth/2)**2 -pY**2) *self.TOP_RATIO if pY < flatWth/2 else 0)
+        pZ = pMidZ
         # start calc from middle out
         self.pegsXYZ = [(scaleLen + pX, 0, pZ)] if self.isOddStrs \
             else [(scaleLen + pX, pY, pZ), (scaleLen + pX, -pY, pZ)]
@@ -289,7 +297,7 @@ class LeleConfig:
             if pY + pDist < flatWth/2:
                 pY += pDist
                 # pX remain same
-                pZ = zBase +math.sqrt((flatWth/2)**2 -pY**2) *self.TOP_RATIO
+                pZ = pZBase +math.sqrt((flatWth/2)**2 -pY**2) *self.TOP_RATIO
             else:
                 """
                 view as the back of ukulele, which flips XY, diff from convention & post
@@ -307,7 +315,56 @@ class LeleConfig:
                 y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
                 x' = b sqrt(1 - y'²/a²)
                 """
-                pY = pY + pDist / math.sqrt(1 + xmax**2 * pY**2 / (ymax**2 *(ymax**2 - pY**2)))
-                pX = xmax * math.sqrt(1 - pY**2/ymax**2)
-                pZ = zBase
+                pY = pY + pDist / math.sqrt(1 + pXMax**2 * pY**2 / (pYMax**2 *(pYMax**2 - pY**2)))
+                pX = pXMax * math.sqrt(1 - pY**2/pYMax**2)
+                pZ = pZBase
             self.pegsXYZ.extend([(scaleLen + pX, pY, pZ), (scaleLen + pX, -pY, pZ)])
+        
+        # Strings config
+        strOddMidPath = [
+            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
+            (0, 0, self.FRETBD_TCK +self.NUT_HT +self.STR_RAD/2),
+            (scaleLen, 0, self.brdgZ +self.brdgHt +1.5*self.STR_RAD),
+            (self.guideX , 0, self.guideZ +self.GUIDE_HT -self.GUIDE_RAD -self.STR_RAD),
+            (scaleLen +self.bodyBackLen - self.pegSetback, 0, pMidZ +self.pegCfg.holeHt)
+        ]
+        strEvenMidPathR = []
+        strEvenMidPathL = []
+        strEvenMidBrdgDY = self.brdgStrGap/2 - nutStrGap/2
+        strEvenMidAng = math.atan(strEvenMidBrdgDY/scaleLen)
+
+        # even middle string pair points is just odd middle string points with DY 
+        # following same widening angle except ending point uing pegY and pegZ + peg hole height
+        for pt in strOddMidPath:
+            strY = (pegCfg.btnRad + .5) if pt == strOddMidPath[-1] else \
+                nutStrGap/2 + pt[0]*math.tan(strEvenMidAng)
+            strZ = (pZBase + pegCfg.holeHt) if pt == strOddMidPath[-1] else pt[2]
+            strEvenMidPathR.append((pt[0], strY, strZ))
+            strEvenMidPathL.append((pt[0],-strY, strZ))
+
+        # add initial middle string if odd else middle string pairs
+        self.stringPaths = [strOddMidPath] if self.isOddStrs \
+            else [ strEvenMidPathR, strEvenMidPathL ]
+        
+        # add strings from middle out
+        for si in range((numStrs-1)//2):
+            strCnt = si+1
+            strLastPath = self.stringPaths[-1]
+            strPathR = []
+            strPathL = []
+            for pt in strLastPath:
+                if pt == strLastPath[-1]:
+                    strPegXYZ = self.pegsXYZ[2*si +(1 if self.isOddStrs else 2)]
+                    strX = strPegXYZ[0]
+                    strY = strPegXYZ[1]
+                    strZ = strPegXYZ[2] + pegCfg.holeHt
+                else:
+                    strBrdgDY = (strCnt + (0 if self.isOddStrs else .5))*(self.brdgStrGap -nutStrGap)
+                    strEvenAng = math.atan(strBrdgDY/scaleLen)
+                    strX = pt[0]
+                    strY = (strCnt + (0 if self.isOddStrs else .5))*nutStrGap + strX*math.tan(strEvenAng)
+                    strZ = pt[2]
+                strPathR.append((strX, strY, strZ))
+                strPathL.append((strX,-strY, strZ))
+            self.stringPaths.append(strPathR)
+            self.stringPaths.append(strPathL)

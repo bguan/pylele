@@ -42,6 +42,9 @@ class LelePart:
     def show(self):
         return self.shape.show()
 
+    def splitXZ(self):
+        return self.shape.splitXZ()
+
 
 class Brace(LelePart):
     MAX_FRETS = 24
@@ -70,10 +73,10 @@ class Frets(LelePart):
 
     def gen(self) -> api.Shape:
         fitTol = self.cfg.FIT_TOL
-        ntWth = self.cfg.nutWth + 1  # to be wider than fretbd
-        fWth = self.cfg.nutWth - 1  # to be narrower than fretbd
-        ntHt = self.cfg.NUT_HT
         fbTck = self.cfg.FRETBD_TCK
+        ntHt = self.cfg.NUT_HT
+        ntWth = self.cfg.nutWth + fbTck/4 +.5 # to be wider than fretbd
+        fWth = self.cfg.nutWth - 1  # to be narrower than fretbd
         scLen = self.cfg.scaleLen
         fbLen = self.cfg.fretbdLen
         fHt = self.cfg.FRET_HT
@@ -81,8 +84,10 @@ class Frets(LelePart):
         riseAng = self.cfg.FRETBD_RISE_ANG
         f0X = -fitTol if self.isCut else 0
 
-        f0Top = api.RodY(ntWth, ntHt).mv(f0X, 0, fbTck)
-        f0Bot = api.RodY(ntWth, ntHt).scale(1, 1, fbTck/ntHt)
+        f0Top = api.RndRodY(ntWth, ntHt, domeRatio=1/4)
+        f0TopCut = api.Box(2*ntHt, ntWth, fbTck).mv(0, 0, -fbTck/2)
+        f0Top = f0Top.cut(f0TopCut).mv(f0X, 0, fbTck)
+        f0Bot = api.RndRodY(ntWth, ntHt, domeRatio=1/4).scale(1, 1, fbTck/ntHt)
         f0BotCut = api.Box(2*ntHt, ntWth, fbTck).mv(0, 0, fbTck/2)
         f0Bot = f0Bot.cut(f0BotCut).mv(f0X, 0, fbTck)
         frets = f0Top.join(f0Bot)
@@ -95,7 +100,7 @@ class Frets(LelePart):
                 fx = fx + gap
                 fy = fWth / 2 + math.tan(radians(wideAng)) * fx
                 fz = fbTck + math.tan(radians(riseAng)) * fx
-                fret = api.RodY(2 * fy, fHt).mv(fx, 0, fz)
+                fret = api.RndRodY(2 * fy, fHt).mv(fx, 0, fz)
                 frets = frets.join(fret)
                 gap = gap / SEMI_RATIO
                 count += 1
@@ -120,17 +125,18 @@ class Fretboard(LelePart):
         fspTck = self.cfg.FRETBD_SPINE_TCK
         spY1 = self.cfg.spineY1
         spY2 = self.cfg.spineY2
-        spWth = self.cfg.SPINE_WTH + 2*cutAdj
-        fspLen = self.cfg.fbSpineLen + 2*cutAdj
+        joinToNeck = not self.isCut and self.cfg.sepNeck and not self.cfg.sepFretbd
+        spWth = self.cfg.SPINE_WTH + 2*cutAdj +(4*fitTol if joinToNeck else 0)
+        fspLen = self.cfg.fbSpineLen + 4*cutAdj
         fspX = self.cfg.fbSpX
 
         path = self.cfg.fbCutPath if self.isCut else self.cfg.fbPath
         fretbd = api.PolyExtrusionZ(path, fbHt)
         if self.cfg.sepFretbd or self.cfg.sepNeck or self.cfg.sepTop:
             fsp1 = api.Box(fspLen, spWth, fspTck).mv(
-                fspX + fspLen/2, spY1, -fspTck/2)
+                fspX + fspLen/2 -2*cutAdj, spY1 +(fitTol if joinToNeck else 0), -fspTck/2)
             fsp2 = api.Box(fspLen, spWth, fspTck).mv(
-                fspX + fspLen/2, spY2, -fspTck/2)
+                fspX + fspLen/2 -2*cutAdj, spY2 -(fitTol if joinToNeck else 0), -fspTck/2)
             fretbd = fretbd.join(fsp1).join(fsp2)
 
         if not self.isCut:
@@ -148,29 +154,29 @@ class Neck(LelePart):
 
     def gen(self) -> api.Shape:
         fitTol = self.cfg.FIT_TOL
+        spGap = self.cfg.spineGap if self.cfg.spineGap > 0 else 2*self.cfg.nutStrGap
+        spWth = self.cfg.SPINE_WTH
+        spHt = self.cfg.SPINE_HT
+        fspHt = self.cfg.FRETBD_SPINE_TCK
+        jntLen = self.cfg.neckJntLen 
+        jntWth = spGap - spWth -fitTol
+        jntTck = spHt + fspHt +fitTol
         ntWth = self.cfg.nutWth
         nkLen = self.cfg.neckLen
         nkWth = self.cfg.neckWth
         midTck = self.cfg.EXT_MID_BOT_TCK
         botRat = self.cfg.BOT_RATIO
-        spGap = self.cfg.spineGap
-        spWth = self.cfg.SPINE_WTH
-        spHt = self.cfg.SPINE_HT
-        fspHt = self.cfg.FRETBD_SPINE_TCK
         path = self.cfg.neckPath
         neckMid = api.PolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
         neckCone = api.ConeX(nkLen, ntWth/2, nkWth/2)
         coneCut = api.Box(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
         neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, -midTck)
         neck = neckMid.join(neckCone)
-        if self.cfg.sepNeck:
-            jntLen = self.cfg.neckJntLen
-            jntWth = spGap - spWth
-            jntTck = spHt + fspHt + fitTol
-            jnt = api.Box(jntLen, jntWth, jntTck).mv(
-                nkLen+jntLen/2, 0, -jntTck/2)
-            neck = neck.join(jnt)
 
+        if self.cfg.sepNeck:
+            jnt = api.Box(jntLen, jntWth, jntTck)\
+                .mv(nkLen+jntLen/2, 0, -jntTck/2)
+            neck = neck.join(jnt)
         return neck
 
 
@@ -179,6 +185,12 @@ class Head(LelePart):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
+        hdWth = self.cfg.headWth
+        hdLen = self.cfg.headLen
+        ntHt = self.cfg.NUT_HT
+        fbTck = self.cfg.FRETBD_TCK
+        spHt = self.cfg.SPINE_HT
+        botTck = self.cfg.EXT_MID_BOT_TCK
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.EXT_MID_BOT_TCK
         botRat = self.cfg.BOT_RATIO
@@ -195,6 +207,9 @@ class Head(LelePart):
             midR = midL.mirrorXZ()
             hd = hd.join(midL).join(midR)
 
+        topCut = api.RndRodY(2*hdWth, hdLen).mv(-ntHt, 0, .8*hdLen +fbTck +ntHt)
+        frontCut = api.RndRodY(2*hdWth, .7*spHt).scale(.5, 1, 1).mv(-hdLen, 0, -botTck -.35*spHt)
+        hd = hd.cut(frontCut).cut(topCut)
         return hd
 
 
@@ -206,33 +221,36 @@ class Top(LelePart):
         fitTol = self.cfg.FIT_TOL
         rOrig = self.cfg.rimOrig
         rPath = self.cfg.rimPath
-        rTck = self.cfg.RIM_TCK
-        nkLen = self.cfg.neckLen
+        rTck = self.cfg.rimTck
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.EXT_MID_TOP_TCK
-        spGap = self.cfg.spineGap
-        spWth = self.cfg.SPINE_WTH
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
-        jntLen = self.cfg.neckJntLen + (0 if self.isCut else 2*fitTol)
-        jntWth = spGap + spWth + (0 if self.isCut else 2*fitTol)
-        jntTck = 100  # arbitrary large value for cut
+        nkLen = self.cfg.neckLen
+        spGap = self.cfg.spineGap if self.cfg.spineGap > 0 else 2*self.cfg.nutStrGap
+        spWth = self.cfg.SPINE_WTH
+        fbJoinNeck = self.isCut and self.cfg.sepNeck and not self.cfg.sepFretbd
+        jntLen = self.cfg.neckJntLen +(2*fitTol if not self.isCut else 0)
+        jntWth = spGap +spWth +(2*fitTol if not self.isCut and fbJoinNeck else 0) \
+            +(2*fitTol if fbJoinNeck else 0)
+        jntTck = self.cfg.fretbdHt
 
         top = api.SplineRevolveX(bOrig, bPath, -180).scale(1, 1, topRat)
         if midTck > 0 or self.isCut:
-            top = top.mv(0, 0, midTck)
-            midL = api.SplineExtrusionZ(bOrig, bPath, midTck if midTck > 0 else fitTol,)
+            top = top.mv(0, 0, midTck+fitTol if self.isCut else midTck)
+            midL = api.SplineExtrusionZ(bOrig, bPath, midTck+fitTol if self.isCut else midTck)
             midR = midL.mirrorXZ()
             top = top.join(midL).join(midR)
         
-        rimL = api.SplineExtrusionZ(rOrig, rPath, rTck).mv(0, 0, -rTck)
-        rimR = rimL.mirrorXZ()
-        top = top.join(rimL).join(rimR)
+        if self.cfg.sepTop:
+            rimL = api.SplineExtrusionZ(rOrig, rPath, rTck).mv(0, 0, -rTck)
+            rimR = rimL.mirrorXZ()
+            top = top.join(rimL).join(rimR)
 
-        notch = api.Box(jntLen, jntWth, jntTck)\
-            .mv(nkLen + jntLen/2, 0, jntTck/2)
-        top = top.cut(notch)
-
+        if self.cfg.sepNeck or self.cfg.sepFretbd:
+            jnt = api.Box(jntLen, jntWth, jntTck)\
+                .mv(nkLen+jntLen/2, 0, jntTck/2)
+            top = top.cut(jnt)
         return top
 
 
@@ -247,13 +265,16 @@ class Bottom(LelePart):
         midTck = self.cfg.EXT_MID_BOT_TCK
         rcOrig = self.cfg.rimCutOrig
         rcPath = self.cfg.rimCutPath
-        rcTck = self.cfg.RIM_TCK + 2*fitTol
-        spGap = self.cfg.spineGap
+        rcTck = self.cfg.rimTck
+        bOrig = self.cfg.bodyOrig
+        bPath = self.cfg.bodyPath
+        spGap = self.cfg.spineGap if self.cfg.spineGap > 0 else 2*self.cfg.nutStrGap
         spWth = self.cfg.SPINE_WTH
         spHt = self.cfg.SPINE_HT
         fspHt = self.cfg.FRETBD_SPINE_TCK
-        bOrig = self.cfg.bodyOrig
-        bPath = self.cfg.bodyPath
+        jntLen = self.cfg.neckJntLen +2*fitTol
+        jntWth = spGap - spWth +2*fitTol
+        jntTck = spHt + fspHt +fitTol
         bot = api.SplineRevolveX(bOrig, bPath, 180).scale(1, 1, botRat)
         if midTck > 0:
             bot = bot.mv(0, 0, -midTck)
@@ -261,17 +282,15 @@ class Bottom(LelePart):
             midR = midL.mirrorXZ()
             bot = bot.join(midL).join(midR)
 
-        rimCutL = api.SplineExtrusionZ(rcOrig, rcPath, rcTck).mv(0, 0, -rcTck)
-        rimCutR = rimCutL.mirrorXZ()
-        bot = bot.cut(rimCutL).cut(rimCutR)
+        if self.cfg.sepTop:
+            rimCutL = api.SplineExtrusionZ(rcOrig, rcPath, rcTck).mv(0, 0, -rcTck)
+            rimCutR = rimCutL.mirrorXZ()
+            bot = bot.cut(rimCutL).cut(rimCutR)
 
         if self.cfg.sepNeck:
-            jntLen = self.cfg.neckJntLen + 2*fitTol
-            jntWth = spGap - spWth
-            jntTck = spHt + fspHt + fitTol
-            jnt = api.Box(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, -jntTck/2)
+            jnt = api.Box(jntLen, jntWth, jntTck)\
+                .mv(nkLen+jntLen/2, 0, -jntTck/2)
             bot = bot.cut(jnt)
-
         return bot
 
 
@@ -280,16 +299,22 @@ class Chamber(LelePart):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
+        scLen = self.cfg.scaleLen
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.chmOrig
         path = self.cfg.chmPath
         lift = self.cfg.chmLift
+        tilt = self.cfg.chmTilt
         top = api.SplineRevolveX(orig, path, -180).scale(1, 1, topRat/2)
         bot = api.SplineRevolveX(orig, path, 180).scale(1, 1, botRat)
         chm = top.join(bot)
+
+        if tilt != 0:
+            chm = chm.rotateY(tilt)
+        chm = chm.mv(scLen, 0, 0)
         if lift != 0:
-            chm.mv(0, 0, lift)
+            chm = chm.mv(0, 0, lift)
         return chm
 
 
@@ -345,6 +370,7 @@ class Guide(LelePart):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
+        isOdd = self.cfg.isOddStrs
         fitTol = self.cfg.FIT_TOL
         cutAdj = fitTol if self.isCut else 0
         sR = self.cfg.STR_RAD
@@ -353,10 +379,14 @@ class Guide(LelePart):
         gdZ = self.cfg.guideZ
         gdHt = self.cfg.GUIDE_HT
         gdWth = self.cfg.guideWth
-        guide = api.RndRodY(gdWth - gdR - sR, 1.1*gdR).mv(gdX, 0, gdZ + gdHt)
+        gdGap = self.cfg.guidePostGap
+        guide = None if self.isCut else \
+            api.RndRodY(gdWth - .5*gdGap -sR +2*gdR, 1.1*gdR)\
+            .mv(gdX, 0, gdZ + gdHt)
         for y in self.cfg.guideYs:
-            post = api.RodZ(gdHt, gdR).mv(gdX, y, gdZ + gdHt/2)
-            guide = guide.join(post)
+            post = api.RodZ(gdHt, gdR)
+            post = post.mv(gdX, y, gdZ + gdHt/2)
+            guide = post if guide == None else guide.join(post)
         return guide
 
 
@@ -416,3 +446,17 @@ class Spines(LelePart):
         sp2 = api.Box(spLen, spWth, spHt).mv(
             spX + spLen/2, spY2, -fspTck - spHt/2)
         return sp1.join(sp2)
+
+
+class Strings(LelePart):
+    def __init__(self, cfg: LeleConfig, isCut: bool = True):
+        super().__init__(cfg, isCut)
+
+    def gen(self) -> api.Shape:
+        srad = self.cfg.STR_RAD
+        paths = self.cfg.stringPaths
+        strs = None
+        for p in paths:
+            str = api.CircleXPolySweep(srad, p)
+            strs = str if strs == None else strs.join(str)
+        return strs

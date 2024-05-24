@@ -33,6 +33,26 @@ class Shape:
         self.solid = self.solid.union(joiner.solid)
         return self
 
+    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
+    def lineSplineXY(
+        self,
+        start: tuple[float, float],
+        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
+    ):
+        trace = cq.Workplane("XY").moveTo(start[0], start[1])
+        for p_or_s in path:
+            if isinstance(p_or_s, tuple):
+                # a point so draw line
+                trace = trace.lineTo(p_or_s[0], p_or_s[1])
+            elif isinstance(p_or_s, list):
+                # a list of points and gradients/tangents to trace spline thru
+                splinePts = [(p[0], p[1]) for p in p_or_s]
+                tangents = [cq.Vector(p[2], p[3]) for p in p_or_s]
+                # [tangents[0], tangents[-1]])
+                trace = trace.spline(splinePts, tangents)
+        trace = trace.close()
+        return trace
+
     def mirrorXZ(self):
         mirror = self.solid.mirror("XZ")
         dup = copy.copy(self)
@@ -66,26 +86,11 @@ class Shape:
 
     def show(self):
         return self.solid
-
-    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
-    def lineSplineXY(
-        self,
-        start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-    ):
-        trace = cq.Workplane("XY").moveTo(start[0], start[1])
-        for p_or_s in path:
-            if isinstance(p_or_s, tuple):
-                # a point so draw line
-                trace = trace.lineTo(p_or_s[0], p_or_s[1])
-            elif isinstance(p_or_s, list):
-                # a list of points and gradients/tangents to trace spline thru
-                splinePts = [(p[0], p[1]) for p in p_or_s]
-                tangents = [cq.Vector(p[2], p[3]) for p in p_or_s]
-                # [tangents[0], tangents[-1]])
-                trace = trace.spline(splinePts, tangents)
-        trace = trace.close()
-        return trace
+    
+    def splitXZ(self):
+        cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
+        self = self.cut(cutter)
+        return self
 
 
 class ConeZ(Shape):
@@ -114,10 +119,19 @@ class RndRodX(Shape):
 
 
 class RndRodY(Shape):
-    def __init__(self, ln: float, rad: float):
+    def __init__(self, ln: float, rad: float, domeRatio:float = 1):
         self.ln = ln
         self.rad = rad
-        self.solid = cq.Workplane("XZ").cylinder(ln, rad).edges().fillet(rad)
+        self.solid = cq.Workplane("XZ").cylinder(ln/domeRatio, rad).edges().fillet(rad)
+        self = self.scale(1, domeRatio, 1)
+
+
+class RndRodZ(Shape):
+    def __init__(self, ln: float, rad: float, domeRatio:float = 1):
+        self.ln = ln
+        self.rad = rad
+        self.solid = cq.Workplane("XY").cylinder(ln/domeRatio, rad).edges().fillet(rad)
+        self = self.scale(1, 1, domeRatio)
 
 
 class RodZ(Shape):
@@ -179,13 +193,16 @@ class SplineRevolveX(Shape):
 
 
 # sweep circle on XY plane along polyline path on YZ plane from origin
-class CirclePolySweepYZ(Shape):
+class CircleXPolySweep(Shape):
     def __init__(
         self,
         rad: float,
-        path: list[tuple[float, float]],
+        path: list[tuple[float, float, float]],
     ):
         self.path = path
         self.rad = rad
-        sweepAlong = cq.Workplane("YZ").polyline(path)
-        self.solid = cq.Workplane("XY").circle(rad).sweep(sweepAlong)
+        path0 = [ (p[0] -path[0][0], p[1] -path[0][1], p[2] -path[0][2]) for p in path]
+        sweepPath = cq.Wire.makePolygon(path0)
+        self.solid = cq.Workplane("YZ").circle(rad)\
+            .sweep(sweepPath, transition='round', sweepAlongWires=True)
+        self.solid = self.solid.translate(path[0])
