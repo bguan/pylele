@@ -22,11 +22,26 @@ class Shape:
             tolerance=tol,
         )
 
-    def fillet(self, nearestPts: list[tuple[float, float, float]], rad: float):
-        for p in nearestPts:
-            self.solid = self.solid.edges(
-                cq.selectors.NearestToPointSelector(p),
-            ).fillet(rad)
+    def filletByNearestEdges(self, nearestPts: list[tuple[float, float, float]], rad: float):
+        if nearestPts != None and len(nearestPts) > 0:
+            for p in nearestPts:
+                self.solid = self.solid.edges(
+                    cq.selectors.NearestToPointSelector(p),
+                ).fillet(rad)
+        else:
+            self.solid = self.solid.edges().fillet(rad)
+
+        return self
+
+    def filletByNearestFaces(self, nearestPts: list[tuple[float, float, float]], rad: float):
+        if nearestPts != None and len(nearestPts) > 0:
+            for p in nearestPts:
+                self.solid = self.solid.faces(
+                    cq.selectors.NearestToPointSelector(p),
+                ).fillet(rad)
+        else:
+            self.solid = self.solid.faces().fillet(rad)
+
         return self
 
     def join(self, joiner):
@@ -86,7 +101,7 @@ class Shape:
 
     def show(self):
         return self.solid
-    
+
     def splitXZ(self):
         cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
         self = self.cut(cutter)
@@ -107,8 +122,8 @@ class ConeX(Shape):
         self.ln = ln
         self.r1 = r1
         self.r2 = r2
-        self.solid = cq.Workplane("YZ").add(
-            cq.Solid.makeCone(r1, r2, ln, dir=(1, 0, 0)))
+        self.solid = cq.Workplane("YZ")\
+            .add(cq.Solid.makeCone(r1, r2, ln, dir=(1, 0, 0)))
 
 
 class RndRodX(Shape):
@@ -119,19 +134,33 @@ class RndRodX(Shape):
 
 
 class RndRodY(Shape):
-    def __init__(self, ln: float, rad: float, domeRatio:float = 1):
+    def __init__(self, ln: float, rad: float, domeRatio: float = 1):
         self.ln = ln
         self.rad = rad
-        self.solid = cq.Workplane("XZ").cylinder(ln/domeRatio, rad).edges().fillet(rad)
+
+        if domeRatio > 0:
+            self.solid = cq.Workplane("XZ")\
+                .cylinder(ln/domeRatio, rad).edges().fillet(rad)
+        else:
+            self.solid = cq.Workplane("XZ").cylinder(ln, rad)
+
         self = self.scale(1, domeRatio, 1)
 
 
 class RndRodZ(Shape):
-    def __init__(self, ln: float, rad: float, domeRatio:float = 1):
+    def __init__(self, ln: float, rad: float, domeRatio: float = 1):
         self.ln = ln
         self.rad = rad
-        self.solid = cq.Workplane("XY").cylinder(ln/domeRatio, rad).edges().fillet(rad)
-        self = self.scale(1, 1, domeRatio)
+
+        if domeRatio > 0:
+            self.solid = cq.Workplane("XY")\
+                .cylinder(ln/domeRatio, rad)\
+                .edges().fillet(rad)
+        else:
+            self.solid = cq.Workplane("XY").cylinder(ln, rad)
+
+        if domeRatio != 1:
+            self = self.scale(1, 1, domeRatio)
 
 
 class RodZ(Shape):
@@ -161,12 +190,12 @@ class PolyExtrusionZ(Shape):
     def __init__(self, path: list[tuple[float, float]], ht: float):
         self.path = path
         self.ht = ht
-        self.solid = cq.Workplane("XY").sketch().polygon(
-            path).finalize().extrude(ht)
+        self.solid = cq.Workplane("XY").sketch()\
+            .polygon(path).finalize().extrude(ht)
 
 
 # draw mix of straight lines from pt to pt, or draw spline with [(x,y,dx,dy), ...], then extrude on Z-axis
-class SplineExtrusionZ(Shape):
+class LineSplineExtrusionZ(Shape):
     def __init__(
         self,
         start: tuple[float, float],
@@ -179,7 +208,7 @@ class SplineExtrusionZ(Shape):
 
 
 # draw mix of straight lines from pt to pt, or draw spline with [(x,y,dx,dy), ...], then revolve on X-axis
-class SplineRevolveX(Shape):
+class LineSplineRevolveX(Shape):
     def __init__(
         self,
         start: tuple[float, float],
@@ -188,8 +217,8 @@ class SplineRevolveX(Shape):
     ):
         self.path = path
         self.deg = deg if deg > 0 else -deg
-        self.solid = self.lineSplineXY(start, path).revolve(
-            self.deg, (0, 0, 0), (1 if deg > 0 else -1, 0, 0))
+        self.solid = self.lineSplineXY(start, path)\
+            .revolve(self.deg, (0, 0, 0), (1 if deg > 0 else -1, 0, 0))
 
 
 # sweep circle on XY plane along polyline path on YZ plane from origin
@@ -201,8 +230,25 @@ class CircleXPolySweep(Shape):
     ):
         self.path = path
         self.rad = rad
-        path0 = [ (p[0] -path[0][0], p[1] -path[0][1], p[2] -path[0][2]) for p in path]
+        path0 = [(p[0] - path[0][0], p[1] - path[0][1], p[2] - path[0][2])
+                 for p in path]
         sweepPath = cq.Wire.makePolygon(path0)
         self.solid = cq.Workplane("YZ").circle(rad)\
             .sweep(sweepPath, transition='round', sweepAlongWires=True)
         self.solid = self.solid.translate(path[0])
+
+
+# Text
+class TextZ(Shape):
+    def __init__(
+        self,
+        txt: str,
+        fontSize: float = 10,
+        tck: float = 5,
+        font: str = "Arial",
+    ):
+        self.txt = txt
+        self.fontSize = fontSize
+        self.tck = tck
+        self.font = font
+        self.solid = cq.Workplane("XY").text(txt, fontSize, tck, font=font)
