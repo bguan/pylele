@@ -1,3 +1,4 @@
+import copy
 import math
 
 """
@@ -5,6 +6,8 @@ import math
 """
 
 SEMI_RATIO = 2**(1/12)
+FIT_TOL = .1
+FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
@@ -22,8 +25,22 @@ def accumDiv(x: float, n: int, div: float):
     return 0 if n <= 0 else x + accumDiv(x / div, n - 1, div)
 
 
-# Peg config
-class PegConfig:
+# Tuner config
+
+class TunerConfig:
+    def __init__(
+        self,
+        holeHt: float = 8,
+    ):
+        self.holeHt = holeHt
+    
+    def gap(self) -> float:
+        pass
+
+    def tailAllow(self) -> float:
+        pass
+        
+class PegConfig(TunerConfig):
     def __init__(
         self,
         majRad: float = 8,
@@ -33,19 +50,68 @@ class PegConfig:
         midTck: float = 10,
         holeHt: float = 8,
     ):
+        super().__init__(holeHt)
         self.majRad = majRad
         self.minRad = minRad
         self.botLen = botLen
         self.btnRad = btnRad
         self.midTck = midTck
-        self.holeHt = holeHt
-        self.maxRad = max(majRad, btnRad)
+    
+    def gap(self) -> float:
+        return 2*max(self.majRad, self.btnRad) + 1
+    
+    def tailAllow(self) -> float:
+        return self.majRad + self.btnRad
+    
 
+class WormConfig(TunerConfig):
+    def __init__(
+        self,
+        holeHt: float = 23,
+        slitLen: float = 10,
+        slitWth: float = 3,
+        diskTck: float = 5,
+        diskRad: float = 7.7,
+        axleRad: float = 3,
+        axleLen: float = 8, 
+        driveRad: float = 4,
+        driveLen: float = 14, 
+        driveOffset: float = 9.75,
+        buttonTck: float = 9.5,
+        buttonWth: float = 16,
+        buttonHt: float = 8,
+        buttonLen: float = 6,
+        buttonKeybaseRad: float = 3.8,
+        buttonKeybaseHt: float = 3,
+    ):
+        super().__init__(holeHt)
+        self.slitLen = slitLen
+        self.slitWth = slitWth
+        self.diskTck = diskTck
+        self.diskRad = diskRad
+        self.axleRad = axleRad
+        self.axleLen = axleLen
+        self.driveRad = driveRad
+        self.driveLen = driveLen 
+        self.driveOffset = driveOffset
+        self.buttonTck = buttonTck
+        self.buttonWth = buttonWth
+        self.buttonHt = buttonHt
+        self.buttonLen = buttonLen
+        self.buttonKeybaseRad = buttonKeybaseRad
+        self.buttonKeybaseHt = buttonKeybaseHt
+
+    def gap(self) -> float:
+        return max(self.diskTck, 2*self.driveRad) + self.axleLen -2
+    
+    def tailAllow(self) -> float:
+        return self.driveLen +2
 
 FRICTION_PEG_CFG = PegConfig()
+WORM_TUNER_CFG = WormConfig()
+
 
 # Parts config
-
 
 class LeleConfig:
     BOT_RATIO = .7
@@ -54,13 +120,11 @@ class LeleConfig:
     EMBOSS_DEP = .5
     EXT_MID_TOP_TCK = 1
     EXT_MID_BOT_TCK = 4
-    FIT_TOL = .1
-    FILLET_RAD = .4
     FRET_HT = 1
-    FRETBD_RATIO = 0.675  # to scaleLen
+    FRETBD_RATIO = 0.635  # to scaleLen
     FRETBD_SPINE_TCK = 2
     FRETBD_TCK = 2
-    FRETBD_RISE_ANG = 1.2
+    FRETBD_RISE_ANG = 1.25
     GUIDE_HT = 7
     GUIDE_RAD = 1.5
     GUIDE_SET = 0
@@ -68,7 +132,6 @@ class LeleConfig:
     HEAD_LEN_RATIO = .4  # to nutWth
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
-    NECK_WIDE_ANG = 1
     MAX_FRETS = 24
     NUT_HT = 1.5
     SPINE_HT = 10.2  # give extra height to spine
@@ -84,7 +147,6 @@ class LeleConfig:
         sepNeck: bool = False,
         sepFretbd: bool = False,
         sepBrdg: bool = False,
-        sepGuide: bool = False,
         chmTck: float = 4,
         chmLift: float = 2,
         chmTilt: float = -.53,
@@ -92,8 +154,8 @@ class LeleConfig:
         numStrs: int = 4,
         nutStrGap: float = 9,
         action: float = 2,
-        pegCfg: PegConfig = FRICTION_PEG_CFG,
-        split: bool = False,
+        tnrCfg: TunerConfig = FRICTION_PEG_CFG,
+        half: bool = False,
         txt1: str = "PYLELE",
         txt2: str = "mind2form.com",
         fontSize1: float = 20,
@@ -103,31 +165,45 @@ class LeleConfig:
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] = { 3:1, 5:2, 7:1, 10:1, 12:3, 15:1, 17:2, 19:1, 22:1, 24:3 }
     ):
-        # General configs
-        self.split = split
+        # Length based configs
         self.scaleLen = scaleLen
+        self.fretbdLen = scaleLen * self.FRETBD_RATIO
+        self.chmTck = chmTck
+        self.chmFront = scaleLen - self.fretbdLen - chmTck
+        self.chmBack = self.CHM_BACK_RATIO * self.chmFront
+        self.bodyBackLen = self.chmBack + chmTck + tnrCfg.tailAllow()
+        isPeg = isinstance(tnrCfg, PegConfig)
+        isWorm = isinstance(tnrCfg, WormConfig)
+        self.numStrs = numStrs
+        self.nutStrGap = nutStrGap
+        self.nutWth = numStrs * nutStrGap
+        if isPeg:
+            self.tnrSetback = tnrCfg.tailAllow()/2 -2
+            self.neckWideAng = 1
+        else:
+            self.tnrSetback = tnrCfg.tailAllow()/2 +1
+            tnrX = scaleLen +self.bodyBackLen - self.tnrSetback
+            tnrW = tnrCfg.gap() * numStrs
+            self.neckWideAng = degrees(math.atan((tnrW-self.nutWth)/2/tnrX))
+
+        self.split = half
         self.sepTop = sepTop
         self.sepNeck = sepNeck
         self.sepFretbd = sepFretbd
         self.sepBrdg = sepBrdg
-        self.sepGuide = sepGuide
-        self.numStrs = numStrs
         self.isOddStrs = numStrs % 2 == 1
         self.flatWth = flatWth
-        self.nutStrGap = nutStrGap
         self.action = action
-        self.nutWth = numStrs * nutStrGap
-        self.pegCfg = pegCfg
+        self.tnrCfg = tnrCfg
         self.brdgWth = self.nutWth + \
-            2 * math.tan(radians(self.NECK_WIDE_ANG)) * self.scaleLen
+            2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
         self.neckLen = scaleLen * self.NECK_RATIO
-        self.fretbdLen = scaleLen * self.FRETBD_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
 
         # Neck configs
         self.neckWth = self.nutWth + \
-            2 * math.tan(radians(self.NECK_WIDE_ANG)) * self.neckLen
+            2 * math.tan(radians(self.neckWideAng)) * self.neckLen
         self.neckOrig = (0, 0)
         self.neckPath = [
             (0, -self.nutWth/2), (self.neckLen, -self.neckWth/2),
@@ -135,16 +211,16 @@ class LeleConfig:
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         neckDX = 1
-        neckDY = neckDX * math.tan(radians(self.NECK_WIDE_ANG))
+        neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
         # Fretboard configs
         self.fretbdWth = self.nutWth + \
-            2 * math.tan(radians(self.NECK_WIDE_ANG)) * self.fretbdLen
+            2 * math.tan(radians(self.neckWideAng)) * self.fretbdLen
         self.fretbdHt = self.FRETBD_TCK + \
             math.tan(radians(self.FRETBD_RISE_ANG)) * self.fretbdLen
 
         def genFbPath(isCut: bool = False) -> list[tuple[float, float]]:
-            cutAdj = self.FIT_TOL if isCut else 0
+            cutAdj = FIT_TOL if isCut else 0
             return [
                 (-cutAdj, -self.nutWth/2 - cutAdj),
                 (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
@@ -153,22 +229,19 @@ class LeleConfig:
             ]
         self.fbOrig = (0, 0)
         self.fbPath = genFbPath()
-        self.fbCutOrig = (-self.FIT_TOL, 0)
+        self.fbCutOrig = (-FIT_TOL, 0)
         self.fbCutPath = genFbPath(isCut=True)
         self.fbSpX = self.NUT_HT
         self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
 
         # Chamber Configs
-        self.chmTck = chmTck
         self.chmLift = chmLift
         self.chmTilt = chmTilt
-        self.chmFront = scaleLen - self.fretbdLen - chmTck
-        self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         self.chmWth = self.brdgWth * 3
         self.chmPath = [
             [
                 (-self.chmFront, 0, 0, -1),
-                (-.65*self.chmFront, -.4*self.chmWth, 1, -.4),
+                (-.53*self.chmFront, -.44*self.chmWth, 1, -.333),
                 (0, -self.chmWth/2, 1, 0),
                 (self.chmBack, 0, 0, 1),
             ]
@@ -178,23 +251,29 @@ class LeleConfig:
         self.rimTck = 1
 
         def genRimPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
-            cutAdj = self.FIT_TOL if isCut else 0
-            return [
-                [
-                    (scaleLen - self.chmFront - self.rimWth - cutAdj, 0, 0, -1),
-                    (
-                        scaleLen - .65*self.chmFront - .5*self.rimWth - .5*cutAdj,
-                        -.4*self.chmWth - .5*self.rimWth - .5*cutAdj,
-                        1, -.4,
-                    ),
-                    (scaleLen, -self.chmWth/2 - self.rimWth - cutAdj, 1, 0),
-                    (scaleLen + self.chmBack + self.rimWth + cutAdj, 0, 0, 1),
-                ]
-            ]
-        self.rimOrig = (scaleLen - self.chmFront - self.rimWth, 0)
+            cutAdj = FIT_TOL if isCut else 0
+            cp0 = self.chmPath[0] # using chamber path as basis
+            rp = [[]]
+            rp[0].append((
+                cp0[0][0] - self.rimWth - cutAdj, cp0[0][1], cp0[0][2], cp0[0][3]
+            ))
+            rp[0].append((
+                cp0[1][0] - .5*self.rimWth - cutAdj, 
+                cp0[1][1] - .5*self.rimWth - cutAdj,
+                cp0[1][2], 
+                cp0[1][3],
+            ))
+            rp[0].append((
+                cp0[2][0], cp0[2][1] - self.rimWth - cutAdj, cp0[2][2], cp0[2][3]
+            ))
+            rp[0].append((
+                cp0[3][0] + self.rimWth + cutAdj, cp0[3][1], cp0[3][2], cp0[3][3]
+            ))
+            return rp
+        
+        self.rimOrig = (0, 0)
         self.rimPath = genRimPath()
-        self.rimCutOrig = (scaleLen - self.chmFront -
-                           self.rimWth - self.FIT_TOL, 0)
+        self.rimCutOrig = (0, 0)
         self.rimCutPath = genRimPath(isCut=True)
 
         # Head configs
@@ -215,12 +294,11 @@ class LeleConfig:
         # Body Configs
         self.bodyWth = self.chmWth + 2*chmTck
         self.bodyFrontLen = scaleLen - self.neckLen
-        self.bodyBackLen = self.chmBack + chmTck + pegCfg.majRad + pegCfg.btnRad
         self.bodyLen = self.bodyFrontLen + self.bodyBackLen
-        self.fullLen = self.headLen + self.bodyLen
+        self.fullLen = self.headLen + scaleLen + self.bodyLen
 
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
-            cutAdj = self.FIT_TOL if isCut else 0
+            cutAdj = FIT_TOL if isCut else 0
             nkLen = self.neckLen
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
@@ -229,7 +307,7 @@ class LeleConfig:
             fWth = self.flatWth + 2*cutAdj if flatWth > 0 else 0
             bodySpline = [
                 (nkLen + neckDX, -nkWth/2 - neckDY, neckDX, -neckDY),
-                (nkLen + .49*bFrLen, -.39*bWth, 1, -.41),
+                (nkLen + .34*bFrLen, -.34*bWth, 1, -.666),
                 (scaleLen, -bWth/2, 1, 0),
                 (scaleLen + bBkLen, -fWth/2, 0, 1),
             ]
@@ -245,7 +323,7 @@ class LeleConfig:
 
         self.bodyOrig = (self.neckLen, 0)
         self.bodyPath = genBodyPath()
-        self.bodyCutOrig = (self.neckLen - self.FIT_TOL, 0)
+        self.bodyCutOrig = (self.neckLen - FIT_TOL, 0)
         self.bodyCutPath = genBodyPath(isCut=True)
 
         # Soundhole Config
@@ -259,11 +337,11 @@ class LeleConfig:
 
         # Bridge configs
         f12Len = scaleLen/2
-        f12Ht = self.FRETBD_TCK + \
-            math.tan(radians(self.FRETBD_RISE_ANG)) * f12Len + \
-            self.FRET_HT
+        f12Ht = self.FRETBD_TCK \
+            + math.tan(radians(self.FRETBD_RISE_ANG)) * f12Len \
+            + self.FRET_HT
         self.brdgZ = .5*self.bodyWth * self.TOP_RATIO + self.EXT_MID_TOP_TCK - 1
-        self.brdgHt = (f12Ht + action - self.STR_RAD)*2 - self.brdgZ
+        self.brdgHt = (f12Ht + action - self.NUT_HT - self.STR_RAD/2)*2 - self.brdgZ
         self.brdgLen = nutStrGap
         self.brdgStrGap = self.brdgWth / numStrs
 
@@ -278,12 +356,12 @@ class LeleConfig:
             (0, self.spineY2, 0),
         ]
 
-        # Guide config
+        # Guide config (Only for Pegs)
         self.guideX = self.scaleLen + .9*self.chmBack
         self.guideZ = -self.GUIDE_SET + self.TOP_RATIO \
             * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
-            + 2*math.tan(radians(self.NECK_WIDE_ANG))*self.guideX
+            + 2*math.tan(radians(self.neckWideAng))*self.guideX
         self.guidePostGap = self.guideWth/numStrs
         gY = self.GUIDE_RAD + \
             (2*self.STR_RAD if self.isOddStrs else (self.guidePostGap/2 + self.STR_RAD))
@@ -292,30 +370,32 @@ class LeleConfig:
             gY += self.guidePostGap
             self.guideYs.extend([gY, -gY])
 
-        # Pegs config
-        self.pegSetback = (pegCfg.majRad + pegCfg.btnRad)/2 - 2
+        # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
-        pXMax = self.bodyBackLen - self.pegSetback
+        tXMax = self.bodyBackLen - self.tnrSetback
         fatRat = .65 if flatWth == 0 else .505 + (flatWth/self.bodyWth)**1.05
-        pYMax = fatRat*self.bodyWth - self.pegSetback
-        pDist = 2*pegCfg.btnRad + 1
-        pX = pXMax
-        pY = 0 if self.isOddStrs else pegCfg.btnRad + .5
-        pZBase = self.EXT_MID_TOP_TCK + 1.5
-        pMidZ = pZBase + (
-            (math.sqrt((flatWth/2)**2 - pY**2) *
-             self.TOP_RATIO) if pY < flatWth/2 else 0
-        )
-        pZ = pMidZ
+        tYMax = fatRat*self.bodyWth - self.tnrSetback
+        tDist = tnrCfg.gap()
+        tX = tXMax
+        tY = 0 if self.isOddStrs else tnrCfg.gap()/2
+        wCfg: WormConfig = None if isPeg else tnrCfg
+        tZBase = (self.EXT_MID_TOP_TCK + 2.5) if isPeg \
+            else (-wCfg.driveRad -wCfg.diskRad -wCfg.axleRad -1)
+        
+        def tzAdj(tY: float) -> float:
+            return 0 if isWorm or tY > flatWth/2 else \
+                ((flatWth/2)**2 - tY**2)**.4 * self.TOP_RATIO
+        
+        tMidZ = tZBase + tzAdj(tY)
+        tZ = tMidZ
         # start calc from middle out
-        self.pegsXYZ = [(scaleLen + pX, 0, pZ)] if self.isOddStrs \
-            else [(scaleLen + pX, pY, pZ), (scaleLen + pX, -pY, pZ)]
+        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.isOddStrs \
+            else [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)]
         for p in range((numStrs-1)//2):
-            if pY + pDist < flatWth/2:
-                pY += pDist
-                # pX remain same
-                pZ = pZBase + math.sqrt((flatWth/2) **
-                                        2 - pY**2) * self.TOP_RATIO
+            if tY + tDist < flatWth/2:
+                tY += tDist
+                # tX remain same
+                tZ = tZBase + tzAdj(tY)
             else:
                 """
                 Note: Ellipse points seperated by arc distance calc taken from
@@ -336,24 +416,31 @@ class LeleConfig:
                 y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
                 x' = b sqrt(1 - y'²/a²)
                 """
-                pY = pY + pDist / \
-                    math.sqrt(1 + pXMax**2 * pY**2 /
-                              (pYMax**2 * (pYMax**2 - pY**2)))
-                pX = pXMax * math.sqrt(1 - pY**2/pYMax**2)
-                pZ = pZBase
-            self.pegsXYZ.extend(
-                [(scaleLen + pX, pY, pZ), (scaleLen + pX, -pY, pZ)])
+                tY = tY + tDist \
+                    / math.sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
+                tX = tXMax * math.sqrt(1 - tY**2/tYMax**2)
+                tZ = tZBase
+            self.tnrXYZs.extend(
+                [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)])
 
         # Strings config
         strOddMidPath = [
             (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
             (0, 0, self.FRETBD_TCK + self.NUT_HT + self.STR_RAD/2),
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
-            (self.guideX, 0, self.guideZ +
-             self.GUIDE_HT - self.GUIDE_RAD - self.STR_RAD),
-            (scaleLen + self.bodyBackLen - self.pegSetback,
-             0, pMidZ + self.pegCfg.holeHt)
         ]
+
+        if isPeg: # Worm drives has no string guide
+            strOddMidPath.append(
+                (self.guideX, 0, 
+                 self.guideZ + self.GUIDE_HT - self.GUIDE_RAD - self.STR_RAD)
+            )
+        
+        strOddMidPath.append(
+            (scaleLen + self.bodyBackLen - self.tnrSetback, 0, 
+             tMidZ + self.tnrCfg.holeHt)
+        )
+        
         strEvenMidPathR = []
         strEvenMidPathL = []
         strEvenMidBrdgDY = self.brdgStrGap/2 - nutStrGap/2
@@ -362,10 +449,10 @@ class LeleConfig:
         # even middle string pair points is just odd middle string points with DY
         # following same widening angle except ending point uing pegY and pegZ + peg hole height
         for pt in strOddMidPath:
-            strY = (pegCfg.btnRad + .5) if pt == strOddMidPath[-1] \
+            strY = (tnrCfg.gap()/2) if pt == strOddMidPath[-1] \
                 else nutStrGap/2 + pt[0]*math.tan(strEvenMidAng)
             strZ = (
-                pZBase + pegCfg.holeHt) if pt == strOddMidPath[-1] else pt[2]
+                tZBase + tnrCfg.holeHt) if pt == strOddMidPath[-1] else pt[2]
             strEvenMidPathR.append((pt[0], strY, strZ))
             strEvenMidPathL.append((pt[0], -strY, strZ))
 
@@ -381,12 +468,12 @@ class LeleConfig:
             strPathL = []
             for pt in strLastPath:
                 if pt == strLastPath[-1]:
-                    strPegXYZ = self.pegsXYZ[
+                    strPegXYZ = self.tnrXYZs[
                         2*si + (1 if self.isOddStrs else 2)
                     ]
                     strX = strPegXYZ[0]
                     strY = strPegXYZ[1]
-                    strZ = strPegXYZ[2] + pegCfg.holeHt
+                    strZ = strPegXYZ[2] + tnrCfg.holeHt
                 else:
                     strBrdgDY = (strCnt + (0 if self.isOddStrs else .5))\
                         * (self.brdgStrGap - nutStrGap)

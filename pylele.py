@@ -10,24 +10,25 @@ from pylele_parts import *
 
 def main():
     cfg = LeleConfig(
-        TENOR_SCALE_LEN,
-        numStrs=4,
-        nutStrGap=10,
-        sepTop=False,
-        sepFretbd=True,
-        sepNeck=True,
-        sepBrdg=False,
-        sepGuide=False,
-        flatWth=40,
-        chmTck=3,
-        chmLift=2,
+        SOPRANO_SCALE_LEN,
+        action = 3,
+        numStrs = 4,
+        nutStrGap = 9.5,
+        sepTop = True,
+        sepFretbd = True,
+        sepNeck = True,
+        sepBrdg = False,
+        flatWth = 50,
+        chmTck = 3,
+        chmLift = 2,
         txt1 = "元琴",
         fontSize1 = 48,
         txt1Font = "Arial Unicode MS",
         txt2 = "mind2form.com © 2024",
         fontSize2 = 9,
         txt2Font = "Arial",
-        split=False,
+        half=False,
+        tnrCfg=WORM_TUNER_CFG,
     )
 
     # gen cuts
@@ -36,7 +37,7 @@ def main():
     spCut = Spines(cfg, isCut=True)
     fbCut = Fretboard(cfg, isCut=True)
     fCut = Frets(cfg, isCut=True)
-    pegsCut = Pegs(cfg, isCut=True)
+    tnrsCut = Tuners(cfg, isCut=True)
     strCuts = Strings(cfg, isCut=True)
     txtsCut = Texts(cfg, isCut=True)
     fbDotsCut = FretboardDots(cfg, isCut=True)
@@ -48,10 +49,10 @@ def main():
 
     if cfg.sepFretbd or cfg.sepNeck:
         topCut = Top(cfg, isCut=True)
-        fretbd = fretbd.cut(topCut)\
-            .filletByNearestEdges([
-                (cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)
-            ], cfg.FILLET_RAD)
+        fretbd = fretbd.cut(topCut).filletByNearestEdges(
+            [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)], 
+            FILLET_RAD,
+        )
 
     # gen neck
     neck = Neck(cfg)
@@ -66,8 +67,8 @@ def main():
     # gen bridge
     brdg = Bridge(cfg).cut(strCuts)
 
-    # gen guide
-    guide = Guide(cfg)
+    # gen guide if using tuning pegs rather than worm drive
+    guide = Guide(cfg) if isinstance(cfg.tnrCfg, PegConfig) else None
 
     # gen body top
     top = Top(cfg)
@@ -84,17 +85,18 @@ def main():
     else:
         top = top.join(brdg)
 
-    if cfg.sepGuide:
-        gdCut = Guide(cfg, isCut=True)
-        top = top.cut(gdCut)
-    else:
-        top = top.join(guide)
+    if guide != None:
+        if cfg.sepBrdg:
+            gdCut = Guide(cfg, isCut=True)
+            top = top.cut(gdCut)
+        else:
+            top = top.join(guide)
 
-    top = top.cut(chmCut).cut(shCut).cut(pegsCut)
+    top = top.cut(chmCut).cut(shCut).cut(tnrsCut)
 
     # gen body bottom
     body = Bottom(cfg)
-    body = body.cut(chmCut).cut(pegsCut).cut(spCut).cut(txtsCut)
+    body = body.cut(chmCut).cut(tnrsCut).cut(spCut).cut(txtsCut)
 
     if cfg.sepFretbd or cfg.sepTop:
         body = body.cut(fCut).cut(fbCut)
@@ -106,7 +108,7 @@ def main():
         body = body.join(neck)
 
     if cfg.split:
-        body = body.splitXZ()
+        body = body.half()
 
     expDir = Path.cwd()/"build"
     if not expDir.exists():
@@ -116,40 +118,47 @@ def main():
         sys.exit(os.EX_SOFTWARE)
 
     # if running in CQ-Editor
-    global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS
+    global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS, TUNERS
 
+    tnrs = Tuners(cfg, isCut=False)
+    
+    if cfg.split:
+        strCuts = strCuts.half()
+        tnrs = tnrs.half()
+        
     STRINGS = strCuts.show()
+    TUNERS = tnrs.show()
 
     BODY = body.show()
     body.exportSTL(str(expDir/"body.stl"))
 
     if cfg.sepFretbd:
         if cfg.split:
-            fretbd = fretbd.splitXZ()
+            fretbd = fretbd.half()
         fretbd.exportSTL(str(expDir/"fretbd.stl"))
         FRETBD = fretbd.show()
 
     if cfg.sepTop:
         if cfg.split:
-            top = top.splitXZ()
+            top = top.half()
         TOP = top.show()
         top.exportSTL(str(expDir/"top.stl"))
 
     if cfg.sepNeck:
         if cfg.split:
-            neck = neck.splitXZ()
+            neck = neck.half()
         NECK = neck.show()
         neck.exportSTL(str(expDir/"neck.stl"))
 
     if cfg.sepBrdg:
         if cfg.split:
-            brdg = brdg.splitXZ()
+            brdg = brdg.half()
         BRIDGE = brdg.show()
         brdg.exportSTL(str(expDir/"brdg.stl"))
 
-    if cfg.sepGuide:
+    if guide != None and cfg.sepBrdg:
         if cfg.split:
-            guide = guide.splitXZ()
+            guide = guide.half()
         GUIDE = guide.show()
         guide.exportSTL(str(expDir/"guide.stl"))
 

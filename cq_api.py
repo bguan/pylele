@@ -44,6 +44,11 @@ class Shape:
 
         return self
 
+    def half(self):
+        cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
+        self = self.cut(cutter)
+        return self
+
     def join(self, joiner):
         self.solid = self.solid.union(joiner.solid)
         return self
@@ -102,11 +107,6 @@ class Shape:
     def show(self):
         return self.solid
 
-    def splitXZ(self):
-        cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
-        self = self.cut(cutter)
-        return self
-
 
 class ConeZ(Shape):
     def __init__(self, ln: float, r1: float, r2: float):
@@ -163,11 +163,11 @@ class RndRodZ(Shape):
             self = self.scale(1, 1, domeRatio)
 
 
-class RodZ(Shape):
+class RodX(Shape):
     def __init__(self, ln: float, rad: float):
         self.ln = ln
         self.rad = rad
-        self.solid = cq.Workplane("XY").cylinder(ln, rad)
+        self.solid = cq.Workplane("YZ").cylinder(ln, rad)
 
 
 class RodY(Shape):
@@ -175,6 +175,13 @@ class RodY(Shape):
         self.ln = ln
         self.rad = rad
         self.solid = cq.Workplane("XZ").cylinder(ln, rad)
+
+
+class RodZ(Shape):
+    def __init__(self, ln: float, rad: float):
+        self.ln = ln
+        self.rad = rad
+        self.solid = cq.Workplane("XY").cylinder(ln, rad)
 
 
 class Box(Shape):
