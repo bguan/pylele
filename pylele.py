@@ -1,34 +1,43 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 from pathlib import Path
 from pylele_parts import *
+from pylele_cli import pylele_cli, TUNER_TYPES
 
 """
     Main Logic of Pylele, assembling the parts together
 """
 
 
-def main():
+def pylele_main(args=[]):
+
+    # parse inputs
+    cli = pylele_cli(args)
+    print(cli)
+
+    # generate configurations
     cfg = LeleConfig(
-        SOPRANO_SCALE_LEN,
-        action = 3,
-        numStrs = 4,
-        nutStrGap = 9.5,
-        sepTop = True,
-        sepFretbd = True,
-        sepNeck = True,
-        sepBrdg = False,
-        flatWth = 50,
-        chmTck = 3,
-        chmLift = 2,
-        txt1 = "元琴",
-        fontSize1 = 48,
-        txt1Font = "Arial Unicode MS",
-        txt2 = "mind2form.com © 2024",
-        fontSize2 = 9,
-        txt2Font = "Arial",
-        half=False,
-        tnrCfg=WORM_TUNER_CFG,
+        scaleLen = cli.scale_len, # SOPRANO_SCALE_LEN,
+        action = cli.action,
+        numStrs = cli.nstrings,
+        nutStrGap = cli.nut_string_gap,
+        sepTop = cli.separate_top,
+        sepFretbd = cli.separate_fretboard,
+        sepNeck = cli.separate_neck,
+        sepBrdg = cli.separate_bridge,
+        flatWth = cli.flat_width,
+        chmTck = cli.chamber_thickness,
+        chmLift = cli.chamber_lift,
+        txt1 = cli.text1, # "元琴",
+        fontSize1 = cli.text1_size, # 48,
+        txt1Font = cli.text1_font, # "Arial Unicode MS",
+        txt2 = cli.text2, # "mind2form.com © 2024",
+        fontSize2 = cli.text2_size, # 9,
+        txt2Font = cli.text2_font, # "Arial",
+        half=cli.half,
+        tnrCfg=TUNER_TYPES[cli.tuners_type] # WORM_TUNER_CFG,
     )
 
     # gen cuts
@@ -164,4 +173,5 @@ def main():
 
 
 if __name__ == '__main__' or __name__ == '__cq_main__':
-    main()
+    pylele_main()
+
