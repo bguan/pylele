@@ -102,6 +102,15 @@ def pylele_main(args=[]):
             top = top.join(guide)
 
     top = top.cut(chmCut).cut(shCut).cut(tnrsCut)
+    if cfg.isWorm:
+        wcfg: WormConfig = cfg.tnrCfg
+        top = top.filletByNearestEdges(
+            [
+                (xyz[0] -wcfg.slitLen, xyz[1], xyz[2] +wcfg.holeHt) 
+                    for xyz in cfg.tnrXYZs
+            ], 
+            2*cfg.STR_RAD,
+        )
 
     # gen body bottom
     body = Bottom(cfg)

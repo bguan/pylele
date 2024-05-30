@@ -126,7 +126,7 @@ class LeleConfig:
     FRETBD_TCK = 2
     FRETBD_RISE_ANG = 1.25
     GUIDE_HT = 7
-    GUIDE_RAD = 1.5
+    GUIDE_RAD = 1.55
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.15  # to nutWth
     HEAD_LEN_RATIO = .4  # to nutWth
@@ -172,14 +172,14 @@ class LeleConfig:
         self.chmFront = scaleLen - self.fretbdLen - chmTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         self.bodyBackLen = self.chmBack + chmTck + tnrCfg.tailAllow()
-        isPeg = isinstance(tnrCfg, PegConfig)
-        isWorm = isinstance(tnrCfg, WormConfig)
+        self.isPeg = isinstance(tnrCfg, PegConfig)
+        self.isWorm = isinstance(tnrCfg, WormConfig)
         self.numStrs = numStrs
         self.nutStrGap = nutStrGap
         self.nutWth = numStrs * nutStrGap
-        if isPeg:
+        if self.isPeg:
             self.tnrSetback = tnrCfg.tailAllow()/2 -2
-            self.neckWideAng = 1
+            self.neckWideAng = 1.1
         else:
             self.tnrSetback = tnrCfg.tailAllow()/2 +1
             tnrX = scaleLen +self.bodyBackLen - self.tnrSetback
@@ -241,7 +241,7 @@ class LeleConfig:
         self.chmPath = [
             [
                 (-self.chmFront, 0, 0, -1),
-                (-.53*self.chmFront, -.44*self.chmWth, 1, -.333),
+                (-.53*self.chmFront, -.44*self.chmWth, 1, -.35),
                 (0, -self.chmWth/2, 1, 0),
                 (self.chmBack, 0, 0, 1),
             ]
@@ -258,8 +258,8 @@ class LeleConfig:
                 cp0[0][0] - self.rimWth - cutAdj, cp0[0][1], cp0[0][2], cp0[0][3]
             ))
             rp[0].append((
-                cp0[1][0] - .5*self.rimWth - cutAdj, 
-                cp0[1][1] - .5*self.rimWth - cutAdj,
+                cp0[1][0] - .8*self.rimWth - cutAdj, 
+                cp0[1][1] - .6*self.rimWth - cutAdj,
                 cp0[1][2], 
                 cp0[1][3],
             ))
@@ -307,7 +307,7 @@ class LeleConfig:
             fWth = self.flatWth + 2*cutAdj if flatWth > 0 else 0
             bodySpline = [
                 (nkLen + neckDX, -nkWth/2 - neckDY, neckDX, -neckDY),
-                (nkLen + .34*bFrLen, -.34*bWth, 1, -.666),
+                (nkLen + .34*bFrLen, -.34*bWth, 1, -.65),
                 (scaleLen, -bWth/2, 1, 0),
                 (scaleLen + bBkLen, -fWth/2, 0, 1),
             ]
@@ -378,12 +378,12 @@ class LeleConfig:
         tDist = tnrCfg.gap()
         tX = tXMax
         tY = 0 if self.isOddStrs else tnrCfg.gap()/2
-        wCfg: WormConfig = None if isPeg else tnrCfg
-        tZBase = (self.EXT_MID_TOP_TCK + 2.5) if isPeg \
+        wCfg: WormConfig = None if self.isPeg else tnrCfg
+        tZBase = (self.EXT_MID_TOP_TCK + 2.5) if self.isPeg \
             else (-wCfg.driveRad -wCfg.diskRad -wCfg.axleRad -1)
         
         def tzAdj(tY: float) -> float:
-            return 0 if isWorm or tY > flatWth/2 else \
+            return 0 if self.isWorm or tY > flatWth/2 else \
                 ((flatWth/2)**2 - tY**2)**.4 * self.TOP_RATIO
         
         tMidZ = tZBase + tzAdj(tY)
@@ -430,7 +430,7 @@ class LeleConfig:
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
         ]
 
-        if isPeg: # Worm drives has no string guide
+        if self.isPeg: # Worm drives has no string guide
             strOddMidPath.append(
                 (self.guideX, 0, 
                  self.guideZ + self.GUIDE_HT - self.GUIDE_RAD - self.STR_RAD)
