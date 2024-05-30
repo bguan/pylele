@@ -9,7 +9,7 @@ TUNER_TYPES = {
     'worm': WORM_TUNER_CFG,
 }
 
-def pylele_cli(args=[]):  # pylint: disable=W0102
+def pylele_cli():  # pylint: disable=W0102
     """
     Pylele Command Line Interface
     """
@@ -83,7 +83,7 @@ def pylele_cli(args=[]):  # pylint: disable=W0102
     parser.add_argument("-txt2_size", "--text2_size", help="Text #2 font size",
                         type=float, default=10)
 
-    return parser.parse_args(args)
+    return parser.parse_args()
                      
 if __name__ == '__main__':
     print(pylele_cli(sys.argv[1:]))

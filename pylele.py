@@ -11,10 +11,10 @@ from pylele_cli import pylele_cli, TUNER_TYPES
 """
 
 
-def pylele_main(args=[]):
+def pylele_main():
 
     # parse inputs
-    cli = pylele_cli(args)
+    cli = pylele_cli()
     print(cli)
 
     # generate configurations
