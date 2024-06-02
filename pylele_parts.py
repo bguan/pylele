@@ -363,7 +363,7 @@ class Chamber(LelePart):
         orig = self.cfg.chmOrig
         path = self.cfg.chmPath
         lift = self.cfg.chmLift
-        tilt = self.cfg.chmTilt
+        tilt = self.cfg.chmRot
         top = api.LineSplineRevolveX(orig, path, -180).scale(1, 1, topRat/2)
         bot = api.LineSplineRevolveX(orig, path, 180).scale(1, 1, botRat)
         chm = top.join(bot)
@@ -611,14 +611,15 @@ class Texts(LelePart):
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.EXT_MID_BOT_TCK
-        txt1 = self.cfg.txt1
-        txt2 = self.cfg.txt2
-        fontSize1 = self.cfg.fontSize1
-        fontSize2 = self.cfg.fontSize2
+        tsz = self.cfg.txtSzFonts
+        txt1 = tsz[0][0]
+        txt2 = tsz[1][0]
+        fontSize1 = tsz[0][1]
+        fontSize2 = tsz[1][1]
         txtTck = self.cfg.TEXT_TCK
         txtZ = -botRat * bodyWth/2 -midBotTck - 1
-        txt1Font = self.cfg.txt1Font
-        txt2Font = self.cfg.txt1Font
+        txt1Font = tsz[0][2]
+        txt2Font = tsz[1][2]
         dep = self.cfg.EMBOSS_DEP
         txt1 = api.TextZ(txt1, fontSize1, txtTck, txt1Font)\
             .rotateZ(90)\

@@ -108,7 +108,25 @@ class WormConfig(TunerConfig):
         return self.driveLen +2
 
 FRICTION_PEG_CFG = PegConfig()
+GOTOH_PEG_CFG = PegConfig(
+    majRad = 7.7,
+    minRad = 4.8,
+    botLen = 15,
+    btnRad = 9.5,
+    midTck = 11,
+    holeHt = 10,
+)
 WORM_TUNER_CFG = WormConfig()
+BIGWORM_TUNER_CFG = WormConfig(
+    slitLen = 10,
+    diskTck = 5 * 1.5,
+    diskRad = 7.7 * 1.5,
+    axleRad = 3 * 1.5,
+    axleLen = 8 + 1, 
+    driveRad = 4 * 1.5,
+    driveLen = 14 * 1.5, 
+    driveOffset = 9.75 * 1.5,
+)
 
 
 # Parts config
@@ -147,31 +165,28 @@ class LeleConfig:
         sepNeck: bool = False,
         sepFretbd: bool = False,
         sepBrdg: bool = False,
-        chmTck: float = 4,
+        sepEnd: bool = False,
+        wallTck: float = 4,
         chmLift: float = 2,
-        chmTilt: float = -.53,
-        flatWth: float = 0,
+        chmRot: float = -.53,
+        endWth: float = 0,
         numStrs: int = 4,
         nutStrGap: float = 9,
         action: float = 2,
         tnrCfg: TunerConfig = FRICTION_PEG_CFG,
         half: bool = False,
-        txt1: str = "PYLELE",
-        txt2: str = "mind2form.com",
-        fontSize1: float = 20,
-        fontSize2: float = 10,
-        txt1Font: str = "Arial",
-        txt2Font: str = "Arial",
+        txtSzFonts: list[tuple[str,float,str]] = 
+            [('Pylele',20,'Arial'), ('mind2form.com © 2024',10,'Arial')],
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] = { 3:1, 5:2, 7:1, 10:1, 12:3, 15:1, 17:2, 19:1, 22:1, 24:3 }
     ):
         # Length based configs
         self.scaleLen = scaleLen
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
-        self.chmTck = chmTck
-        self.chmFront = scaleLen - self.fretbdLen - chmTck
+        self.wallTck = wallTck
+        self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        self.bodyBackLen = self.chmBack + chmTck + tnrCfg.tailAllow()
+        self.bodyBackLen = self.chmBack + wallTck + tnrCfg.tailAllow()
         self.isPeg = isinstance(tnrCfg, PegConfig)
         self.isWorm = isinstance(tnrCfg, WormConfig)
         self.numStrs = numStrs
@@ -191,8 +206,9 @@ class LeleConfig:
         self.sepNeck = sepNeck
         self.sepFretbd = sepFretbd
         self.sepBrdg = sepBrdg
+        self.sepEnd = sepEnd
         self.isOddStrs = numStrs % 2 == 1
-        self.flatWth = flatWth
+        self.endWth = endWth
         self.action = action
         self.tnrCfg = tnrCfg
         self.brdgWth = self.nutWth + \
@@ -236,7 +252,7 @@ class LeleConfig:
 
         # Chamber Configs
         self.chmLift = chmLift
-        self.chmTilt = chmTilt
+        self.chmRot = chmRot
         self.chmWth = self.brdgWth * 3
         self.chmPath = [
             [
@@ -247,7 +263,7 @@ class LeleConfig:
             ]
         ]
         self.chmOrig = (0, 0)
-        self.rimWth = chmTck/2
+        self.rimWth = wallTck/2
         self.rimTck = 1
 
         def genRimPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
@@ -292,7 +308,7 @@ class LeleConfig:
         self.headOrig = (0, 0)
 
         # Body Configs
-        self.bodyWth = self.chmWth + 2*chmTck
+        self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
         self.bodyLen = self.bodyFrontLen + self.bodyBackLen
         self.fullLen = self.headLen + scaleLen + self.bodyLen
@@ -304,10 +320,10 @@ class LeleConfig:
             bWth = self.bodyWth + 2*cutAdj
             bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = self.bodyBackLen + cutAdj
-            fWth = self.flatWth + 2*cutAdj if flatWth > 0 else 0
+            fWth = self.endWth + 2*cutAdj if endWth > 0 else 0
             bodySpline = [
                 (nkLen + neckDX, -nkWth/2 - neckDY, neckDX, -neckDY),
-                (nkLen + .34*bFrLen, -.34*bWth, 1, -.65),
+                (nkLen + .36*bFrLen, -.36*bWth, 1, -.7),
                 (scaleLen, -bWth/2, 1, 0),
                 (scaleLen + bBkLen, -fWth/2, 0, 1),
             ]
@@ -373,7 +389,7 @@ class LeleConfig:
         # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
         tXMax = self.bodyBackLen - self.tnrSetback
-        fatRat = .65 if flatWth == 0 else .505 + (flatWth/self.bodyWth)**1.05
+        fatRat = .65 if endWth == 0 else .505 + (endWth/self.bodyWth)**1.05
         tYMax = fatRat*self.bodyWth - self.tnrSetback
         tDist = tnrCfg.gap()
         tX = tXMax
@@ -383,8 +399,8 @@ class LeleConfig:
             else (-wCfg.driveRad -wCfg.diskRad -wCfg.axleRad -1)
         
         def tzAdj(tY: float) -> float:
-            return 0 if self.isWorm or tY > flatWth/2 else \
-                ((flatWth/2)**2 - tY**2)**.4 * self.TOP_RATIO
+            return 0 if self.isWorm or tY > endWth/2 else \
+                ((endWth/2)**2 - tY**2)**.4 * self.TOP_RATIO
         
         tMidZ = tZBase + tzAdj(tY)
         tZ = tMidZ
@@ -392,7 +408,7 @@ class LeleConfig:
         self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.isOddStrs \
             else [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)]
         for p in range((numStrs-1)//2):
-            if tY + tDist < flatWth/2:
+            if tY + tDist < endWth/2:
                 tY += tDist
                 # tX remain same
                 tZ = tZBase + tzAdj(tY)
@@ -488,9 +504,4 @@ class LeleConfig:
             self.stringPaths.append(strPathL)
 
         # Text Config
-        self.txt1 = txt1
-        self.txt2 = txt2
-        self.fontSize1 = fontSize1
-        self.fontSize2 = fontSize2
-        self.txt1Font = txt1Font
-        self.txt2Font = txt2Font
+        self.txtSzFonts = txtSzFonts
