@@ -608,26 +608,21 @@ class Texts(LelePart):
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
+        backRat = self.cfg.CHM_BACK_RATIO
+        dep = self.cfg.EMBOSS_DEP
+        tsf = self.cfg.txtSzFonts
+        txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.EXT_MID_BOT_TCK
-        tsz = self.cfg.txtSzFonts
-        txt1 = tsz[0][0]
-        txt2 = tsz[1][0]
-        fontSize1 = tsz[0][1]
-        fontSize2 = tsz[1][1]
-        txtTck = self.cfg.TEXT_TCK
         txtZ = -botRat * bodyWth/2 -midBotTck - 1
-        txt1Font = tsz[0][2]
-        txt2Font = tsz[1][2]
-        dep = self.cfg.EMBOSS_DEP
-        txt1 = api.TextZ(txt1, fontSize1, txtTck, txt1Font)\
-            .rotateZ(90)\
-            .mirrorXZ()\
-            .mv(scLen - .6*fontSize1, 0, txtZ)
-        txt2 = api.TextZ(txt2, fontSize2, txtTck, txt2Font)\
-            .rotateZ(90)\
-            .mirrorXZ()\
-            .mv(scLen + .6*fontSize2, 0, txtZ)
+        allHt = sum([ 1.2*size for _, size, _ in tsf ])
+        tx = scLen - allHt/(1+backRat)
+        ls = None
+        for txt, sz, fnt in tsf:
+            l = api.TextZ(txt, sz, txtTck, fnt) \
+                .rotateZ(90).mirrorXZ().mv(tx +sz/2, 0, txtZ)
+            ls = l if ls is None else ls.join(l)
+            tx += sz
         botCut = Bottom(self.cfg, isCut = True)
-        return txt1.join(txt2).cut(botCut.shape).mv(0, 0, dep)
+        return ls.cut(botCut.shape).mv(0, 0, dep)
