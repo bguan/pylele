@@ -12,7 +12,7 @@ TUNER_TYPES = {
 }
 
 
-def pylele_cli():  # pylint: disable=W0102
+def pylele_cli():
     """
     Pylele Command Line Interface
     """

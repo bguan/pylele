@@ -1,5 +1,6 @@
 import copy
 import cadquery as cq
+from __future__ import annotations
 from typing import Union
 
 """
@@ -10,7 +11,7 @@ class Shape:
     def __init__(self):
         self.solid = None
 
-    def cut(self, cutter):
+    def cut(self, cutter: Shape) -> Shape:
         self.solid = self.solid.cut(cutter.solid)
         return self
 
@@ -22,7 +23,10 @@ class Shape:
             tolerance=tol,
         )
 
-    def filletByNearestEdges(self, nearestPts: list[tuple[float, float, float]], rad: float):
+    def filletByNearestEdges(self, 
+        nearestPts: list[tuple[float, float, float]], 
+        rad: float,
+    ) -> Shape:
         if nearestPts != None and len(nearestPts) > 0:
             for p in nearestPts:
                 self.solid = self.solid.edges(
@@ -33,7 +37,10 @@ class Shape:
 
         return self
 
-    def filletByNearestFaces(self, nearestPts: list[tuple[float, float, float]], rad: float):
+    def filletByNearestFaces(self, 
+        nearestPts: list[tuple[float, float, float]], 
+        rad: float,
+    ) -> Shape:
         if nearestPts != None and len(nearestPts) > 0:
             for p in nearestPts:
                 self.solid = self.solid.faces(
@@ -44,12 +51,12 @@ class Shape:
 
         return self
 
-    def half(self):
+    def half(self) -> Shape:
         cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
         self = self.cut(cutter)
         return self
 
-    def join(self, joiner):
+    def join(self, joiner: Shape) -> Shape:
         self.solid = self.solid.union(joiner.solid)
         return self
 
@@ -58,7 +65,7 @@ class Shape:
         self,
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-    ):
+    ) -> cq.Workplane:
         trace = cq.Workplane("XY").moveTo(start[0], start[1])
         for p_or_s in path:
             if isinstance(p_or_s, tuple):
@@ -73,25 +80,25 @@ class Shape:
         trace = trace.close()
         return trace
 
-    def mirrorXZ(self):
+    def mirrorXZ(self) -> Shape:
         mirror = self.solid.mirror("XZ")
         dup = copy.copy(self)
         dup.solid = mirror
         return dup
 
-    def mv(self, x: float, y: float, z: float):
+    def mv(self, x: float, y: float, z: float) -> Shape:
         self.solid = self.solid.translate((x, y, z))
         return self
 
-    def rotateY(self, ang: float):
+    def rotateY(self, ang: float) -> Shape:
         self.solid = self.solid.rotate((0, -1, 0), (0, 1, 0), ang)
         return self
 
-    def rotateZ(self, ang: float):
+    def rotateZ(self, ang: float) -> Shape:
         self.solid = self.solid.rotate((0, 0, -1), (0, 0, 1), ang)
         return self
 
-    def scale(self, x: float, y: float, z: float):
+    def scale(self, x: float, y: float, z: float) -> Shape:
         t = cq.Matrix([
             [x, 0, 0, 0],
             [0, y, 0, 0],

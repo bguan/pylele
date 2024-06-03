@@ -1,5 +1,6 @@
 import math
 import cq_api as api
+from __future__ import annotations
 from pylele_config import *
 
 """
@@ -17,7 +18,7 @@ class LelePart:
         self.isCut = isCut
         self.shape = self.gen()
 
-    def cut(self, cutter):
+    def cut(self, cutter: LelePart) -> LelePart:
         self.shape = self.shape.cut(cutter.shape)
         return self
 
@@ -28,7 +29,7 @@ class LelePart:
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
-    ):
+    ) -> LelePart:
         self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
         return self
 
@@ -36,22 +37,22 @@ class LelePart:
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
-    ):
+    ) -> LelePart:
         self.shape = self.shape.filletByNearestFaces(nearestPts, rad)
         return self
 
-    def half(self):
+    def half(self) -> LelePart:
         return self.shape.half()
 
-    def join(self, joiner):
+    def join(self, joiner: LelePart) -> LelePart:
         self.shape = self.shape.join(joiner.shape)
         return self
 
-    def mirrorXZ(self):
+    def mirrorXZ(self) -> LelePart:
         mirror = self.shape.mirrorXZ()
         return mirror
 
-    def mv(self, x: float, y: float, z: float):
+    def mv(self, x: float, y: float, z: float) -> LelePart:
         self.shape = self.shape.mv(x, y, z)
         return self
 
@@ -276,7 +277,6 @@ class Top(LelePart):
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
-        scLen = self.cfg.scaleLen
         rOrig = self.cfg.rimOrig
         rPath = self.cfg.rimPath
         rTck = self.cfg.rimTck
@@ -320,7 +320,6 @@ class Bottom(LelePart):
 
     def gen(self):
         fitTol = FIT_TOL
-        scLen = self.cfg.scaleLen
         nkLen = self.cfg.neckLen
         botRat = self.cfg.BOT_RATIO
         midTck = self.cfg.EXT_MID_BOT_TCK
@@ -434,7 +433,6 @@ class Guide(LelePart):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
-        isOdd = self.cfg.isOddStrs
         fitTol = FIT_TOL
         cutAdj = fitTol if self.isCut else 0
         sR = self.cfg.STR_RAD
