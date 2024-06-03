@@ -24,17 +24,19 @@ class LelePart:
     def exportSTL(self, path: str, tolerance: float = 0.0001):
         self.shape.exportSTL(path, tolerance)
 
-    def filletByNearestEdges(self, 
-            nearestPts: list[tuple[float, float, float]], 
-            rad: float,
-        ):
+    def filletByNearestEdges(
+        self,
+        nearestPts: list[tuple[float, float, float]],
+        rad: float,
+    ):
         self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
         return self
 
-    def filletByNearestFaces(self, 
-            nearestPts: list[tuple[float, float, float]], 
-            rad: float,
-        ):
+    def filletByNearestFaces(
+        self,
+        nearestPts: list[tuple[float, float, float]],
+        rad: float,
+    ):
         self.shape = self.shape.filletByNearestFaces(nearestPts, rad)
         return self
 
@@ -122,7 +124,7 @@ class Frets(LelePart):
 
 
 class FretboardDots(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool=True):
+    def __init__(self, cfg: LeleConfig, isCut: bool = True):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
@@ -138,7 +140,8 @@ class FretboardDots(LelePart):
         fret2Dots = self.cfg.fret2Dots
         dots = None
         sgap = nutSGap
-        flen = .5 * scLen / accumDiv(1, 12, SEMI_RATIO) # half length of fret 1
+        # half length of fret 1
+        flen = .5 * scLen / accumDiv(1, 12, SEMI_RATIO)
         n = 1
         acclen = flen
         while acclen < fbLen and n <= maxFrets:
@@ -148,9 +151,10 @@ class FretboardDots(LelePart):
                     else [-.5, .5] if fret2Dots[n] == 2 \
                     else [-1, 0, 1]
                 for p in pos:
-                    dot = api.RodZ(2 * dep, dotRad).mv(acclen -.5*flen, p*sgap, ht)
+                    dot = api.RodZ(
+                        2 * dep, dotRad).mv(acclen - .5*flen, p*sgap, ht)
                     dots = dot if dots == None else dots.join(dot)
-            
+
             sgap = .5 * acclen * math.tan(radians(wideAng)) + nutSGap
             flen /= SEMI_RATIO
             acclen += flen
@@ -299,7 +303,7 @@ class Top(LelePart):
             top = top.join(midL).join(midR)
 
         if self.cfg.sepTop:
-            rimL = api.LineSplineExtrusionZ(rOrig, rPath, rTck).mv(scLen, 0, -rTck)
+            rimL = api.LineSplineExtrusionZ(rOrig, rPath, rTck).mv(0, 0, -rTck)
             rimR = rimL.mirrorXZ()
             top = top.join(rimL).join(rimR)
 
@@ -341,7 +345,7 @@ class Bottom(LelePart):
 
         if self.cfg.sepTop:
             rimCutL = api.LineSplineExtrusionZ(rcOrig, rcPath, rcTck)\
-                .mv(scLen, 0, -rcTck)
+                .mv(0, 0, -rcTck)
             rimCutR = rimCutL.mirrorXZ()
             bot = bot.cut(rimCutL).cut(rimCutR)
 
@@ -357,22 +361,24 @@ class Chamber(LelePart):
         super().__init__(cfg, isCut)
 
     def gen(self) -> api.Shape:
-        scLen = self.cfg.scaleLen
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.chmOrig
         path = self.cfg.chmPath
         lift = self.cfg.chmLift
-        tilt = self.cfg.chmRot
+        rotY = self.cfg.chmRot
         top = api.LineSplineRevolveX(orig, path, -180).scale(1, 1, topRat/2)
         bot = api.LineSplineRevolveX(orig, path, 180).scale(1, 1, botRat)
         chm = top.join(bot)
 
-        if tilt != 0:
-            chm = chm.rotateY(tilt)
-        chm = chm.mv(scLen, 0, 0)
+        if rotY != 0:
+            chm = chm.mv(-orig[0], -orig[1], 0)
+            chm = chm.rotateY(rotY)
+            chm = chm.mv(orig[0], orig[1], 0)
+
         if lift != 0:
             chm = chm.mv(0, 0, lift)
+
         return chm
 
 
@@ -462,7 +468,7 @@ class Peg(LelePart):
         midTck = cfg.midTck
         botLen = cfg.botLen
         btnRad = cfg.btnRad + cutAdj
-        topCutTck = 100 if self.isCut else 2 # big value for cutting
+        topCutTck = 100 if self.isCut else 2  # big value for cutting
         botCutTck = 100 if self.isCut else 2  # big value for cutting
         top = api.RodZ(topCutTck, majRad).mv(0, 0, topCutTck/2)
 
@@ -474,13 +480,13 @@ class Peg(LelePart):
             top = top.join(stem)
 
         mid = api.RodZ(midTck, minRad).mv(0, 0, -midTck/2)
-        
+
         if self.isCut:
             btnConeTck = botLen - midTck - 2*cutAdj
             btn = api.ConeZ(btnConeTck, btnRad, majRad)\
                 .mv(0, 0, -midTck - btnConeTck)
             bot = api.RodZ(botCutTck, btnRad)\
-                .mv(0, 0, -botLen - botCutTck/2 +2*cutAdj)
+                .mv(0, 0, -botLen - botCutTck/2 + 2*cutAdj)
         else:
             bot = api.RodZ(botCutTck, majRad)\
                 .mv(0, 0, -midTck - botCutTck/2)
@@ -490,7 +496,7 @@ class Peg(LelePart):
             btn = api.Box(btnRad*2, btnRad/2, btnRad)\
                 .mv(0, 0, -midTck - botLen - botCutTck/2 + btnRad/2)\
                 .filletByNearestEdges([], 2)
-        
+
         peg = top.join(mid).join(btn).join(bot)
 
         return peg
@@ -511,29 +517,31 @@ class Worm(LelePart):
         axlRad = cfg.axleRad + cutAdj
         axlLen = cfg.axleLen + 2*cutAdj
         offset = cfg.driveOffset
-        drvLen = cfg.driveLen+ 2*cutAdj
+        drvLen = cfg.driveLen + 2*cutAdj
 
         # Note: Origin is middle of slit, near tip of axle
 
         axlX = 0
-        axlY = sltWth -axlLen/2
+        axlY = -.5  # sltWth/2 -axlLen/2
         axlZ = 0
         axl = api.RodY(axlLen, axlRad).mv(axlX, axlY, axlZ)
         if self.isCut:
-            axlExtCut = api.Box(100, axlLen, 2*axlRad).mv(50 + axlX, axlY, axlZ)
+            axlExtCut = api.Box(
+                100, axlLen, 2*axlRad).mv(50 + axlX, axlY, axlZ)
             axl = axl.join(axlExtCut)
-        
+
         dskX = axlX
-        dskY = axlY -axlLen/2 -dskTck/2 
+        dskY = axlY - axlLen/2 - dskTck/2
         dskZ = axlZ
         dsk = api.RodY(dskTck, dskRad).mv(dskX, dskY, dskZ)
         if self.isCut:
-            dskExtCut = api.Box(100, dskTck, 2*dskRad).mv(50 + dskX, dskY, dskZ)
+            dskExtCut = api.Box(
+                100, dskTck, 2*dskRad).mv(50 + dskX, dskY, dskZ)
             dsk = dsk.join(dskExtCut)
-        
+
         drvX = dskX
         drvY = dskY
-        drvZ = dskZ +offset
+        drvZ = dskZ + offset
         drv = api.RodX(drvLen, drvRad).mv(drvX, drvY, drvZ)
         if self.isCut:
             drvExtCut = api.RodX(100, drvRad).mv(50 + drvX, drvY, drvZ)
@@ -542,9 +550,9 @@ class Worm(LelePart):
         worm = axl.join(dsk).join(drv)
 
         if self.isCut:
-            slit = api.Box(sltLen, sltWth, 100).mv(0, 0, 50 -2*axlRad)
+            slit = api.Box(sltLen, sltWth, 100).mv(0, 0, 50 - 2*axlRad)
             worm = worm.join(slit)
-        
+
         return worm
 
 
@@ -615,14 +623,14 @@ class Texts(LelePart):
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.EXT_MID_BOT_TCK
-        txtZ = -botRat * bodyWth/2 -midBotTck - 1
-        allHt = sum([ 1.2*size for _, size, _ in tsf ])
+        txtZ = -botRat * bodyWth/2 - midBotTck - 1
+        allHt = sum([1.2*size for _, size, _ in tsf])
         tx = scLen - allHt/(1+backRat)
         ls = None
         for txt, sz, fnt in tsf:
             l = api.TextZ(txt, sz, txtTck, fnt) \
-                .rotateZ(90).mirrorXZ().mv(tx +sz/2, 0, txtZ)
+                .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
             ls = l if ls is None else ls.join(l)
             tx += sz
-        botCut = Bottom(self.cfg, isCut = True)
+        botCut = Bottom(self.cfg, isCut=True)
         return ls.cut(botCut.shape).mv(0, 0, dep)

@@ -19,23 +19,23 @@ def pylele_main():
 
     # generate configurations
     cfg = LeleConfig(
-        scaleLen = cli.scale_len, # SOPRANO_SCALE_LEN,
-        action = cli.action,
-        numStrs = cli.nstrings,
-        nutStrGap = cli.nut_string_gap,
-        sepTop = cli.separate_top,
-        sepFretbd = cli.separate_fretboard,
-        sepNeck = cli.separate_neck,
-        sepBrdg = cli.separate_bridge,
-        sepEnd = cli.separate_end,
-        endWth = cli.end_flat_width,
-        wallTck = cli.wall_thickness,
-        chmLift = cli.chamber_lift,
-        chmRot = cli.chamber_rotate,
-        fret2Dots = cli.dot_frets,
-        txtSzFonts = cli.texts_size_font,
+        scaleLen=cli.scale_len,
+        action=cli.action,
+        numStrs=cli.nstrings,
+        nutStrGap=cli.nut_string_gap,
+        sepTop=cli.separate_top,
+        sepFretbd=cli.separate_fretboard,
+        sepNeck=cli.separate_neck,
+        sepBrdg=cli.separate_bridge,
+        sepEnd=cli.separate_end,
+        endWth=cli.end_flat_width,
+        wallTck=cli.wall_thickness,
+        chmLift=cli.chamber_lift,
+        chmRot=cli.chamber_rotate,
+        fret2Dots=cli.dot_frets,
+        txtSzFonts=cli.texts_size_font,
         half=cli.half,
-        tnrCfg=TUNER_TYPES[cli.tuners_type] # WORM_TUNER_CFG,
+        tnrCfg=TUNER_TYPES[cli.tuners_type]
     )
 
     # gen cuts
@@ -57,7 +57,7 @@ def pylele_main():
     if cfg.sepFretbd or cfg.sepNeck:
         topCut = Top(cfg, isCut=True)
         fretbd = fretbd.cut(topCut).filletByNearestEdges(
-            [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)], 
+            [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)],
             FILLET_RAD,
         )
 
@@ -104,9 +104,9 @@ def pylele_main():
         wcfg: WormConfig = cfg.tnrCfg
         top = top.filletByNearestEdges(
             [
-                (xyz[0] -wcfg.slitLen, xyz[1], xyz[2] +wcfg.holeHt) 
-                    for xyz in cfg.tnrXYZs
-            ], 
+                (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
+                for xyz in cfg.tnrXYZs
+            ],
             2*cfg.STR_RAD,
         )
 
@@ -123,7 +123,7 @@ def pylele_main():
     if not cfg.sepNeck:
         body = body.join(neck)
 
-    if cfg.split:
+    if cfg.half:
         body = body.half()
 
     expDir = Path.cwd()/"build"
@@ -137,11 +137,11 @@ def pylele_main():
     global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS, TUNERS
 
     tnrs = Tuners(cfg, isCut=False)
-    
-    if cfg.split:
+
+    if cfg.half:
         strCuts = strCuts.half()
         tnrs = tnrs.half()
-        
+
     STRINGS = strCuts.show()
     TUNERS = tnrs.show()
 
@@ -149,31 +149,31 @@ def pylele_main():
     body.exportSTL(str(expDir/"body.stl"))
 
     if cfg.sepFretbd:
-        if cfg.split:
+        if cfg.half:
             fretbd = fretbd.half()
         fretbd.exportSTL(str(expDir/"fretbd.stl"))
         FRETBD = fretbd.show()
 
     if cfg.sepTop:
-        if cfg.split:
+        if cfg.half:
             top = top.half()
         TOP = top.show()
         top.exportSTL(str(expDir/"top.stl"))
 
     if cfg.sepNeck:
-        if cfg.split:
+        if cfg.half:
             neck = neck.half()
         NECK = neck.show()
         neck.exportSTL(str(expDir/"neck.stl"))
 
     if cfg.sepBrdg:
-        if cfg.split:
+        if cfg.half:
             brdg = brdg.half()
         BRIDGE = brdg.show()
         brdg.exportSTL(str(expDir/"brdg.stl"))
 
     if guide != None and cfg.sepBrdg:
-        if cfg.split:
+        if cfg.half:
             guide = guide.half()
         GUIDE = guide.show()
         guide.exportSTL(str(expDir/"guide.stl"))
@@ -181,4 +181,3 @@ def pylele_main():
 
 if __name__ == '__main__' or __name__ == '__cq_main__':
     pylele_main()
-
