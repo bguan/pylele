@@ -1,22 +1,36 @@
+from __future__ import annotations
+
 import math
 import cq_api as api
-from __future__ import annotations
 from pylele_config import *
 
 """
-    Base class for all Gugulele parts
+    Abstract Base and Concrete Classes for all Gugulele parts
 """
-
 
 class LelePart:
 
     def gen(self) -> api.Shape:
         pass
 
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[float, list[tuple[float, float, float]]] = {},
+    ):
         self.cfg = cfg
         self.isCut = isCut
+        self.joiners = joiners
+        self.cutters = cutters
         self.shape = self.gen()
+        for j in self.joiners:
+            self.shape = self.shape.join(j.shape)
+        for c in self.cutters:
+            self.shape = self.shape.cut(c.shape)
+        for rad in fillets:
+            self.shape = self.shape.filletByNearestEdges(fillets[rad], rad)
 
     def cut(self, cutter: LelePart) -> LelePart:
         self.shape = self.shape.cut(cutter.shape)
@@ -63,8 +77,14 @@ class LelePart:
 class Brace(LelePart):
     MAX_FRETS = 24
 
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -81,8 +101,14 @@ class Brace(LelePart):
 
 class Frets(LelePart):
 
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -125,8 +151,14 @@ class Frets(LelePart):
 
 
 class FretboardDots(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -164,8 +196,14 @@ class FretboardDots(LelePart):
 
 
 class Fretboard(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -203,8 +241,14 @@ class Fretboard(LelePart):
 
 
 class Neck(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -235,8 +279,14 @@ class Neck(LelePart):
 
 
 class Head(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         hdWth = self.cfg.headWth
@@ -272,14 +322,20 @@ class Head(LelePart):
 
 
 class Top(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
         rOrig = self.cfg.rimOrig
         rPath = self.cfg.rimPath
-        rTck = self.cfg.rimTck
+        rTck = self.cfg.RIM_TCK
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.EXT_MID_TOP_TCK
         bOrig = self.cfg.bodyOrig
@@ -315,8 +371,14 @@ class Top(LelePart):
 
 
 class Bottom(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self):
         fitTol = FIT_TOL
@@ -325,7 +387,7 @@ class Bottom(LelePart):
         midTck = self.cfg.EXT_MID_BOT_TCK
         rcOrig = self.cfg.rimCutOrig
         rcPath = self.cfg.rimCutPath
-        rcTck = self.cfg.rimTck
+        rcTck = self.cfg.RIM_TCK
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
         spGap = self.cfg.spineGap if self.cfg.spineGap > 0 else 2*self.cfg.nutStrGap
@@ -356,8 +418,14 @@ class Bottom(LelePart):
 
 
 class Chamber(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self,
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         topRat = self.cfg.TOP_RATIO
@@ -382,8 +450,14 @@ class Chamber(LelePart):
 
 
 class Soundhole(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         x = self.cfg.sndholeX
@@ -400,8 +474,14 @@ class Soundhole(LelePart):
 
 
 class Bridge(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -429,8 +509,14 @@ class Bridge(LelePart):
 
 
 class Guide(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = False):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -453,8 +539,14 @@ class Guide(LelePart):
 
 
 class Peg(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -501,8 +593,14 @@ class Peg(LelePart):
 
 
 class Worm(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -555,8 +653,13 @@ class Worm(LelePart):
 
 
 class Tuners(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+    ):
+        super().__init__(cfg, isCut, joiners, cutters)
 
     def gen(self) -> api.Shape:
         tXYZs = self.cfg.tnrXYZs
@@ -574,12 +677,17 @@ class Tuners(LelePart):
 
 
 class Spines(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
-        fitTol = FIT_TOL
-        cutAdj = fitTol if self.isCut else 0
+        cutAdj = FIT_TOL if self.isCut else 0
         spX = self.cfg.spineX
         spLen = self.cfg.spineLen
         spY1 = self.cfg.spineY1
@@ -595,11 +703,18 @@ class Spines(LelePart):
 
 
 class Strings(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
-        srad = self.cfg.STR_RAD
+        cutAdj = FIT_TOL if self.isCut else 0
+        srad = self.cfg.STR_RAD + cutAdj
         paths = self.cfg.stringPaths
         strs = None
         for p in paths:
@@ -609,8 +724,14 @@ class Strings(LelePart):
 
 
 class Texts(LelePart):
-    def __init__(self, cfg: LeleConfig, isCut: bool = True):
-        super().__init__(cfg, isCut)
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -624,11 +745,12 @@ class Texts(LelePart):
         txtZ = -botRat * bodyWth/2 - midBotTck - 1
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = scLen - allHt/(1+backRat)
-        ls = None
+        ls: api.Shape = None
         for txt, sz, fnt in tsf:
-            l = api.TextZ(txt, sz, txtTck, fnt) \
-                .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
-            ls = l if ls is None else ls.join(l)
+            if not txt is None and not fnt is None:
+                l = api.TextZ(txt, sz, txtTck, fnt) \
+                    .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
+                ls = l if ls is None else ls.join(l)
             tx += sz
         botCut = Bottom(self.cfg, isCut=True)
         return ls.cut(botCut.shape).mv(0, 0, dep)

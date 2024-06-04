@@ -1,6 +1,6 @@
+from __future__ import annotations
 import copy
 import cadquery as cq
-from __future__ import annotations
 from typing import Union
 
 """

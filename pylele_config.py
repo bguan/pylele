@@ -1,3 +1,4 @@
+import datetime
 import math
 
 """
@@ -10,7 +11,10 @@ FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
-
+DEFAULT_LABEL_SIZE = 12
+DEFAULT_LABEL_SIZE_BIG = 28
+DEFAULT_LABEL_SIZE_SMALL = 8
+DEFAULT_LABEL_FONT = 'Arial'
 
 def radians(deg: float = 0) -> float:
     return deg * math.pi / 180
@@ -30,8 +34,10 @@ class TunerConfig:
     def __init__(
         self,
         holeHt: float = 8,
+        code: str = '?',
     ):
         self.holeHt = holeHt
+        self.code = code
 
     def minGap(self) -> float:
         pass
@@ -49,8 +55,9 @@ class PegConfig(TunerConfig):
         btnRad: float = 11.5,
         midTck: float = 10,
         holeHt: float = 8,
+        code: str = 'F',
     ):
-        super().__init__(holeHt)
+        super().__init__(holeHt, code = code)
         self.majRad = majRad
         self.minRad = minRad
         self.botLen = botLen
@@ -84,8 +91,9 @@ class WormConfig(TunerConfig):
         buttonLen: float = 6,
         buttonKeybaseRad: float = 3.8,
         buttonKeybaseHt: float = 3,
+        code: str = 'W',
     ):
-        super().__init__(holeHt)
+        super().__init__(holeHt, code = code)
         self.slitLen = slitLen
         self.slitWth = slitWth
         self.diskTck = diskTck
@@ -118,6 +126,7 @@ GOTOH_PEG_CFG = PegConfig(
     btnRad=9.5,
     midTck=11,
     holeHt=10,
+    code = 'G',
 )
 WORM_TUNER_CFG = WormConfig()
 BIGWORM_TUNER_CFG = WormConfig(
@@ -131,6 +140,7 @@ BIGWORM_TUNER_CFG = WormConfig(
     driveLen=14 * 1.5,
     driveOffset=9.75 * 1.5,
     gapAdj=1.5,
+    code = 'B',
 )
 
 
@@ -145,7 +155,7 @@ class LeleConfig:
     EXT_MID_BOT_TCK = 4
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
-    FRETBD_SPINE_TCK = 2
+    FRETBD_SPINE_TCK = 1
     FRETBD_TCK = 2
     FRETBD_RISE_ANG = 1.35
     GUIDE_HT = 7
@@ -158,6 +168,7 @@ class LeleConfig:
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
     NUT_HT = 1.5
+    RIM_TCK = 1
     SPINE_HT = 10.2  # give extra height to spine
     SPINE_WTH = 2.2  # give extra width to spine
     STR_RAD = 0.5
@@ -183,6 +194,7 @@ class LeleConfig:
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] =
             [('Pylele', 20, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')],
+        noModelTxt: bool = False,
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] =
             {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1, 24: 3}
@@ -218,6 +230,7 @@ class LeleConfig:
         self.sepFretbd = sepFretbd
         self.sepBrdg = sepBrdg
         self.sepEnd = sepEnd
+        self.noModelTxt = noModelTxt
         self.isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
         self.action = action
@@ -275,7 +288,6 @@ class LeleConfig:
         ]]
         self.chmOrig = (scaleLen, 0)
         self.rimWth = wallTck/2
-        self.rimTck = 1
 
         def genRimPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = FIT_TOL if isCut else 0
@@ -525,3 +537,23 @@ class LeleConfig:
 
         # Text Config
         self.txtSzFonts = txtSzFonts
+        if not noModelTxt:
+            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
+            self.txtSzFonts.append(
+                (self.genModelStr(), DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT)
+            )
+
+    def genModelStr(self) -> str:
+        model = f"{self.scaleLen}{self.tnrCfg.code}"
+        if self.sepTop:
+            model += 'T'
+        if self.sepNeck:
+            model += 'N'
+        if self.sepFretbd:
+            model += 'F'
+        if self.sepBrdg:
+            model += 'B'
+        if self.sepEnd:
+            model += 'E'
+        model += "-" + datetime.date.today().strftime("%y%m%d")
+        return model

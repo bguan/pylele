@@ -4,18 +4,17 @@ import os
 import sys
 from pathlib import Path
 from pylele_parts import *
-from pylele_cli import pylele_cli, TUNER_TYPES
+from pylele_assemble import *
+from pylele_cli import parseCLI, TUNER_TYPES
 
 """
-    Main Logic of Pylele, assembling the parts together
+    Main Logic of Pylele
 """
-
 
 def pylele_main():
 
     # parse inputs
-    cli = pylele_cli()
-    print(cli)
+    cli = parseCLI()
 
     # generate configurations
     cfg = LeleConfig(
@@ -34,97 +33,12 @@ def pylele_main():
         chmRot=cli.chamber_rotate,
         fret2Dots=cli.dot_frets,
         txtSzFonts=cli.texts_size_font,
+        noModelTxt=cli.no_model_text,
         half=cli.half,
         tnrCfg=TUNER_TYPES[cli.tuners_type]
     )
 
-    # gen cuts
-    chmCut = Chamber(cfg, isCut=True).cut(Brace(cfg))
-    shCut = Soundhole(cfg, isCut=True)
-    spCut = Spines(cfg, isCut=True)
-    fbCut = Fretboard(cfg, isCut=True)
-    fCut = Frets(cfg, isCut=True)
-    tnrsCut = Tuners(cfg, isCut=True)
-    strCuts = Strings(cfg, isCut=True)
-    txtsCut = Texts(cfg, isCut=True)
-    fbDotsCut = FretboardDots(cfg, isCut=True)
-
-    # gen fretbd
-    fretbd = Fretboard(cfg)
-    frets = Frets(cfg)
-    fretbd = fretbd.join(frets).cut(strCuts).cut(fbDotsCut)
-
-    if cfg.sepFretbd or cfg.sepNeck:
-        topCut = Top(cfg, isCut=True)
-        fretbd = fretbd.cut(topCut).filletByNearestEdges(
-            [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)],
-            FILLET_RAD,
-        )
-
-    # gen neck
-    neck = Neck(cfg)
-    head = Head(cfg)
-    neck = neck.join(head)
-    neck = neck.cut(spCut).cut(strCuts)
-    if cfg.sepFretbd or cfg.sepTop:
-        neck = neck.cut(fCut).cut(fbCut)
-    elif cfg.sepNeck:
-        neck = neck.join(fretbd)
-
-    # gen bridge
-    brdg = Bridge(cfg).cut(strCuts)
-
-    # gen guide if using tuning pegs rather than worm drive
-    guide = Guide(cfg) if isinstance(cfg.tnrCfg, PegConfig) else None
-
-    # gen body top
-    top = Top(cfg)
-
-    if not cfg.sepFretbd:
-        if cfg.sepNeck:
-            neck = neck.join(fretbd)
-        else:
-            top = top.join(fretbd)
-
-    if cfg.sepBrdg:
-        brdgCut = Bridge(cfg, isCut=True)
-        top = top.cut(brdgCut)
-    else:
-        top = top.join(brdg)
-
-    if guide != None:
-        if cfg.sepBrdg:
-            gdCut = Guide(cfg, isCut=True)
-            top = top.cut(gdCut)
-        else:
-            top = top.join(guide)
-
-    top = top.cut(chmCut).cut(shCut).cut(tnrsCut)
-    if cfg.isWorm:
-        wcfg: WormConfig = cfg.tnrCfg
-        top = top.filletByNearestEdges(
-            [
-                (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
-                for xyz in cfg.tnrXYZs
-            ],
-            2*cfg.STR_RAD,
-        )
-
-    # gen body bottom
-    body = Bottom(cfg)
-    body = body.cut(chmCut).cut(tnrsCut).cut(spCut).cut(txtsCut)
-
-    if cfg.sepFretbd or cfg.sepTop:
-        body = body.cut(fCut).cut(fbCut)
-
-    if not cfg.sepTop:
-        body = body.join(top)
-
-    if not cfg.sepNeck:
-        body = body.join(neck)
-
-    if cfg.half:
-        body = body.half()
+    parts = assemble(cfg)
 
     expDir = Path.cwd()/"build"
     if not expDir.exists():
@@ -135,49 +49,37 @@ def pylele_main():
 
     # if running in CQ-Editor
     global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS, TUNERS
-
+    strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False)
 
     if cfg.half:
-        strCuts = strCuts.half()
+        strs = strs.half()
         tnrs = tnrs.half()
 
-    STRINGS = strCuts.show()
+    STRINGS = strs.show()
     TUNERS = tnrs.show()
 
-    BODY = body.show()
-    body.exportSTL(str(expDir/"body.stl"))
-
-    if cfg.sepFretbd:
+    for p in parts:
         if cfg.half:
-            fretbd = fretbd.half()
-        fretbd.exportSTL(str(expDir/"fretbd.stl"))
-        FRETBD = fretbd.show()
-
-    if cfg.sepTop:
-        if cfg.half:
-            top = top.half()
-        TOP = top.show()
-        top.exportSTL(str(expDir/"top.stl"))
-
-    if cfg.sepNeck:
-        if cfg.half:
-            neck = neck.half()
-        NECK = neck.show()
-        neck.exportSTL(str(expDir/"neck.stl"))
-
-    if cfg.sepBrdg:
-        if cfg.half:
-            brdg = brdg.half()
-        BRIDGE = brdg.show()
-        brdg.exportSTL(str(expDir/"brdg.stl"))
-
-    if guide != None and cfg.sepBrdg:
-        if cfg.half:
-            guide = guide.half()
-        GUIDE = guide.show()
-        guide.exportSTL(str(expDir/"guide.stl"))
-
+            p = p.half()
+        if isinstance(p, Bottom):
+            BODY = p.show()
+            p.exportSTL(str(expDir/"body.stl"))
+        elif isinstance(p, Top):
+            TOP = p.show()
+            p.exportSTL(str(expDir/"top.stl"))
+        elif isinstance(p, Fretboard):
+            FRETBD = p.show()
+            p.exportSTL(str(expDir/"fretbd.stl"))
+        elif isinstance(p, Neck):
+            NECK = p.show()
+            p.exportSTL(str(expDir/"neck.stl"))
+        elif isinstance(p, Bridge):
+            BRIDGE = p.show()
+            p.exportSTL(str(expDir/"brdg.stl"))
+        elif isinstance(p, Guide):
+            GUIDE = p.show()
+            p.exportSTL(str(expDir/"guide.stl"))
 
 if __name__ == '__main__' or __name__ == '__cq_main__':
     pylele_main()

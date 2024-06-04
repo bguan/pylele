@@ -12,7 +12,7 @@ TUNER_TYPES = {
 }
 
 
-def pylele_cli():
+def parseCLI():
     """
     Pylele Command Line Interface
     """
@@ -42,7 +42,7 @@ def pylele_cli():
     ## Non-Numeric config options #######################################
 
     parser.add_argument("-t", "--tuners_type", help="Type of tuners",
-                        type=str, default='friction', choices=TUNER_TYPES.keys())
+                        type=str, default='worm', choices=TUNER_TYPES.keys())
 
     parser.add_argument("-d", "--dot_frets",
                         help="Comma-separated fret[:dots] pairs, e.g. 3,5:2,7,10,12:3",
@@ -76,16 +76,25 @@ def pylele_cli():
     ## text options ######################################################
 
     parser.add_argument("-x", "--texts_size_font",
-                        help="Comma-separated text[:size[:font]] tuples, e.g. Love:36,'Summer 2024':12:Times",
+                        help="Comma-separated text[:size[:font]] tuples. "\
+                            + "e.g. Love:36,'Summer 2024':12:Times",
                         type=lambda x: [
                             (l[0], 10 if len(l) < 2 else int(l[1]),
                              'Arial' if len(l) < 3 else l[2])
                             for l in (tsfs.split(':') for tsfs in x.split(','))
                         ],
-                        default=[('PYLELE', 30, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')])
+                        default=[
+                            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
+                            ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
+                            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
+                        ])
 
+    parser.add_argument("-X", "--no_model_text",
+                        help="Do not add model text to label",
+                        action='store_true')
+    
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    print(pylele_cli(sys.argv[1:]))
+    print(parseCLI(sys.argv[1:]))
