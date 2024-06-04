@@ -56,7 +56,8 @@ class LelePart:
         return self
 
     def half(self) -> LelePart:
-        return self.shape.half()
+        self.shape = self.shape.half()
+        return self
 
     def join(self, joiner: LelePart) -> LelePart:
         self.shape = self.shape.join(joiner.shape)
