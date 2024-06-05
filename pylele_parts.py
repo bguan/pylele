@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from random import randint
 import cq_api as api
 from pylele_config import *
 
@@ -24,6 +25,8 @@ class LelePart:
         self.isCut = isCut
         self.joiners = joiners
         self.cutters = cutters
+        self.fileNameBase = self.__class__.__name__
+        self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
         self.shape = self.gen()
         for j in self.joiners:
             self.shape = self.shape.join(j.shape)
@@ -38,7 +41,7 @@ class LelePart:
 
     def exportSTL(self, path: str, tolerance: float = 0.0001):
         self.shape.exportSTL(path, tolerance)
-
+    
     def filletByNearestEdges(
         self,
         nearestPts: list[tuple[float, float, float]],
@@ -86,6 +89,7 @@ class Brace(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 255)
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -110,6 +114,7 @@ class Frets(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (48, 48, 48)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -160,6 +165,7 @@ class FretboardDots(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 255)
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -205,6 +211,7 @@ class Fretboard(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (48, 48, 48)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -250,6 +257,7 @@ class Neck(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 128)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -288,6 +296,7 @@ class Head(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 128)
 
     def gen(self) -> api.Shape:
         hdWth = self.cfg.headWth
@@ -331,6 +340,7 @@ class Top(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 255)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -380,6 +390,7 @@ class Bottom(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 128)
 
     def gen(self):
         fitTol = FIT_TOL
@@ -518,6 +529,7 @@ class Guide(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (128, 128, 128)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -548,6 +560,7 @@ class Peg(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (128, 128, 128)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -602,6 +615,7 @@ class Worm(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (128, 128, 128)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -661,6 +675,7 @@ class Tuners(LelePart):
         cutters: list[LelePart] = [],
     ):
         super().__init__(cfg, isCut, joiners, cutters)
+        self.color = (128, 128, 128)
 
     def gen(self) -> api.Shape:
         tXYZs = self.cfg.tnrXYZs
@@ -686,6 +701,7 @@ class Spines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (0, 0, 0)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -712,6 +728,7 @@ class Strings(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = (255, 255, 255)
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0

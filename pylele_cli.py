@@ -89,9 +89,8 @@ def parseCLI():
                             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
                         ])
 
-    parser.add_argument("-X", "--no_model_text",
-                        help="Do not add model text to label",
-                        action='store_true')
+    parser.add_argument("-m", "--model_label", help="Model labeling choices",
+                        type=ModelLabel, choices=list(ModelLabel), default='long')
     
     return parser.parse_args()
 

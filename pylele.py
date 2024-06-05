@@ -33,7 +33,7 @@ def pylele_main():
         chmRot=cli.chamber_rotate,
         fret2Dots=cli.dot_frets,
         txtSzFonts=cli.texts_size_font,
-        noModelTxt=cli.no_model_text,
+        modelLbl=cli.model_label,
         half=cli.half,
         tnrCfg=TUNER_TYPES[cli.tuners_type]
     )
@@ -48,38 +48,23 @@ def pylele_main():
         sys.exit(os.EX_SOFTWARE)
 
     # if running in CQ-Editor
-    global FRETBD, TOP, BODY, NECK, BRIDGE, GUIDE, STRINGS, TUNERS
-    strs = Strings(cfg, isCut=False)
-    tnrs = Tuners(cfg, isCut=False)
-
-    if cfg.half:
-        strs = strs.half()
-        tnrs = tnrs.half()
-
-    STRINGS = strs.show()
-    TUNERS = tnrs.show()
-
     for p in parts:
         if cfg.half:
             p = p.half()
-        if isinstance(p, Bottom):
-            BODY = p.show()
-            p.exportSTL(str(expDir/"body.stl"))
-        elif isinstance(p, Top):
-            TOP = p.show()
-            p.exportSTL(str(expDir/"top.stl"))
-        elif isinstance(p, Fretboard):
-            FRETBD = p.show()
-            p.exportSTL(str(expDir/"fretbd.stl"))
-        elif isinstance(p, Neck):
-            NECK = p.show()
-            p.exportSTL(str(expDir/"neck.stl"))
-        elif isinstance(p, Bridge):
-            BRIDGE = p.show()
-            p.exportSTL(str(expDir/"brdg.stl"))
-        elif isinstance(p, Guide):
-            GUIDE = p.show()
-            p.exportSTL(str(expDir/"guide.stl"))
+        p.exportSTL(str(expDir/"{p.fileNameBase}.stl"))
 
-if __name__ == '__main__' or __name__ == '__cq_main__':
+if __name__ == '__main__':
     pylele_main()
+elif __name__ == '__cq_main__':
+    cfg = LeleConfig(sepTop=True, sepFretbd=True, tnrCfg=WORM_TUNER_CFG)
+    strs = Strings(cfg, isCut=False)
+    tnrs = Tuners(cfg, isCut=False)
+    if cfg.half:
+        strs = strs.half()
+        tnrs = tnrs.half()
+    parts = assemble(cfg)
+    parts.extend([strs, tnrs])
+    for p in parts:
+        if cfg.half:
+            p = p.half()
+        show_object(p.show(), name=p.fileNameBase, options={'color':p.color}) # type: ignore

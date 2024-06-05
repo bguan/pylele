@@ -1,5 +1,6 @@
 import datetime
 import math
+from enum import Enum
 
 """
     Global Constants, Util Functions, Config classes
@@ -55,7 +56,7 @@ class PegConfig(TunerConfig):
         btnRad: float = 11.5,
         midTck: float = 10,
         holeHt: float = 8,
-        code: str = 'F',
+        code: str = 'P',
     ):
         super().__init__(holeHt, code = code)
         self.majRad = majRad
@@ -146,6 +147,14 @@ BIGWORM_TUNER_CFG = WormConfig(
 
 # Parts config
 
+class ModelLabel(Enum):
+    NONE = 'none'
+    SHORT = 'short' # without date
+    LONG = 'long' # with date
+
+    def __str__(self):
+        return self.value
+
 class LeleConfig:
     BOT_RATIO = .7
     CHM_BACK_RATIO = .5  # to chmFront
@@ -177,7 +186,7 @@ class LeleConfig:
 
     def __init__(
         self,
-        scaleLen: float,
+        scaleLen: float = SOPRANO_SCALE_LEN,
         sepTop: bool = False,
         sepNeck: bool = False,
         sepFretbd: bool = False,
@@ -193,8 +202,8 @@ class LeleConfig:
         tnrCfg: TunerConfig = FRICTION_PEG_CFG,
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] =
-            [('Pylele', 20, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')],
-        noModelTxt: bool = False,
+            [('PYLELE', 28, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')],
+        modelLbl: ModelLabel = ModelLabel.LONG,
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] =
             {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1, 24: 3}
@@ -230,7 +239,7 @@ class LeleConfig:
         self.sepFretbd = sepFretbd
         self.sepBrdg = sepBrdg
         self.sepEnd = sepEnd
-        self.noModelTxt = noModelTxt
+        self.modelLbl = modelLbl
         self.isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
         self.action = action
@@ -537,13 +546,12 @@ class LeleConfig:
 
         # Text Config
         self.txtSzFonts = txtSzFonts
-        if not noModelTxt:
+        if modelLbl != ModelLabel.NONE:
+            lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
             self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
-            self.txtSzFonts.append(
-                (self.genModelStr(), DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT)
-            )
+            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
 
-    def genModelStr(self) -> str:
+    def genModelStr(self, inclDate: bool = True) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}"
         if self.sepTop:
             model += 'T'
@@ -555,5 +563,6 @@ class LeleConfig:
             model += 'B'
         if self.sepEnd:
             model += 'E'
-        model += "-" + datetime.date.today().strftime("%y%m%d")
+        if inclDate:
+            model += "-" + datetime.date.today().strftime("%y%m%d")
         return model
