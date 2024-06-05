@@ -257,7 +257,7 @@ class Neck(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 128)
+        self.color = (255, 255, 64)
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -296,7 +296,7 @@ class Head(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 128)
+        self.color = (255, 255, 64)
 
     def gen(self) -> api.Shape:
         hdWth = self.cfg.headWth
@@ -390,7 +390,7 @@ class Bottom(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 128)
+        self.color = (255, 255, 64)
 
     def gen(self):
         fitTol = FIT_TOL

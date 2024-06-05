@@ -56,7 +56,8 @@ def pylele_main():
 if __name__ == '__main__':
     pylele_main()
 elif __name__ == '__cq_main__':
-    cfg = LeleConfig(sepTop=True, sepFretbd=True, tnrCfg=WORM_TUNER_CFG)
+    cfg = LeleConfig(numStrs=5, endWth=70, tnrCfg=WORM_TUNER_CFG,
+        sepTop=True, sepFretbd=True, sepNeck=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False)
     if cfg.half:

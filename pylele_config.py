@@ -225,7 +225,7 @@ class LeleConfig:
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
             self.tnrGap = tnrCfg.minGap()
         else:
-            self.tnrSetback = tnrCfg.tailAllow()/2 + 1
+            self.tnrSetback = tnrCfg.tailAllow()/2 + 2
             tnrX = scaleLen + self.bodyBackLen - self.tnrSetback
             tnrW = tnrCfg.minGap() * numStrs
             tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
@@ -432,7 +432,7 @@ class LeleConfig:
         tYMax = fatRat*self.bodyWth - self.tnrSetback
         tDist = self.tnrGap
         tX = tXMax
-        tY = 0 if self.isOddStrs else tnrCfg.minGap()/2
+        tY = 0
         wCfg: WormConfig = None if self.isPeg else tnrCfg
         tZBase = (self.EXT_MID_TOP_TCK + 2.5) if self.isPeg \
             else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad - 1)
@@ -444,11 +444,10 @@ class LeleConfig:
         tMidZ = tZBase + tzAdj(tY)
         tZ = tMidZ
         # start calc from middle out
-        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.isOddStrs \
-            else [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)]
-        for p in range((numStrs-1)//2):
+        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.isOddStrs else []
+        for p in range(numStrs//2):
             if tY + tDist < endWth/2:
-                tY += tDist
+                tY += tDist if self.isOddStrs or p > 0 else tDist/2
                 # tX remain same
                 tZ = tZBase + tzAdj(tY)
             else:
@@ -471,7 +470,7 @@ class LeleConfig:
                 y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
                 x' = b sqrt(1 - y'²/a²)
                 """
-                tY = tY + tDist \
+                tY = tY + (tDist if self.isOddStrs or p > 0 else tDist/2) \
                     / math.sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
                 tX = tXMax * math.sqrt(1 - tY**2/tYMax**2)
                 tZ = tZBase
@@ -552,7 +551,7 @@ class LeleConfig:
             self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
 
     def genModelStr(self, inclDate: bool = True) -> str:
-        model = f"{self.scaleLen}{self.tnrCfg.code}"
+        model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
         if self.sepTop:
             model += 'T'
         if self.sepNeck:
