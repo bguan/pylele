@@ -51,20 +51,18 @@ def pylele_main():
     for p in parts:
         if cfg.half:
             p = p.half()
-        p.exportSTL(str(expDir/"{p.fileNameBase}.stl"))
+        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
 
 if __name__ == '__main__':
     pylele_main()
 elif __name__ == '__cq_main__':
-    cfg = LeleConfig(numStrs=5, endWth=70, tnrCfg=WORM_TUNER_CFG,
-        sepTop=True, sepFretbd=True, sepNeck=True)
+    cfg = LeleConfig(numStrs=4, endWth=70, tnrCfg=WORM_TUNER_CFG,
+        sepFretbd=False, sepNeck=True, half=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False)
-    if cfg.half:
-        strs = strs.half()
-        tnrs = tnrs.half()
+    sps = Spines(cfg, isCut=False)
     parts = assemble(cfg)
-    parts.extend([strs, tnrs])
+    parts.extend([strs, tnrs, sps])
     for p in parts:
         if cfg.half:
             p = p.half()

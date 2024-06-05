@@ -10,30 +10,44 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     parts = []
 
     # gen cuts
-    chmCut = Chamber(cfg, isCut=True).cut(Brace(cfg))
+    chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
     spCut = Spines(cfg, isCut=True)
-    fbCut = Fretboard(cfg, isCut=True) if cfg.sepFretbd or cfg.sepTop else None
-    fCut = Frets(cfg, isCut=True) if cfg.sepFretbd or cfg.sepTop else None
+    fbspCut = FretboardSpines(cfg, isCut=True) \
+        if cfg.sepFretbd or cfg.sepNeck or cfg.sepTop else None
+    fCut = Frets(cfg, isCut=True) \
+        if cfg.sepFretbd or cfg.sepTop else None
+    fbJntCut = FretbdJoint(cfg, isCut=True) \
+        if cfg.sepFretbd or cfg.sepNeck else None
+    nkJntCut = NeckJoint(cfg, isCut=True) if cfg.sepNeck else None
     tnrsCut = Tuners(cfg, isCut=True)
     strCuts = Strings(cfg, isCut=True)
+    txtCut = Texts(cfg, isCut=True)
 
     # gen fretbd
+    fbJoiners = [Frets(cfg)]
     fbCutters = [strCuts, FretboardDots(cfg, isCut=True)]
     fbFillets = {}
     if cfg.sepFretbd or cfg.sepNeck:
         fbCutters.append(Top(cfg, isCut=True))
         fbFillets[FILLET_RAD] = [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)]
-    fretbd = Fretboard(cfg, False, [Frets(cfg)], fbCutters, fbFillets)
+    fretbd = Fretboard(cfg, False, fbJoiners, fbCutters, fbFillets)
+    # Can't use joiners for fretbd joint, as fbCutters would remove it 
+    # as joins happen before cuts
+    if cfg.sepFretbd or cfg.sepNeck:
+        fretbd = fretbd.join(FretbdJoint(cfg, isCut=False))\
+            .join(FretboardSpines(cfg, isCut=False))
 
     # gen neck
     neckJoiners = [Head(cfg)]
     neckCutters = [spCut, strCuts]
-    neckFillets = {}
-    if cfg.sepNeck and not cfg.sepFretbd:
-        neckJoiners.append(fretbd)
+    if cfg.sepNeck: 
+        neckJoiners.append(NeckJoint(cfg, isCut=False))
+        if not cfg.sepFretbd:
+            neckJoiners.append(fretbd)
+
     if cfg.sepFretbd or cfg.sepTop:
-        neckCutters.extend([fCut, fbCut])
-    neck = Neck(cfg, False, neckJoiners, neckCutters, neckFillets)
+        neckCutters.extend([fCut, fbspCut])
+    neck = Neck(cfg, False, neckJoiners, neckCutters)
 
     # gen bridge
     brdg = Bridge(cfg, cutters=[strCuts])
@@ -45,6 +59,9 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     topJoiners = []
     topCutters = [chmCut, tnrsCut, Soundhole(cfg, isCut=True)]
 
+    if cfg.sepFretbd or cfg.sepNeck:
+        topCutters.append(fbJntCut)
+    
     if not cfg.sepFretbd and not cfg.sepNeck:
         topJoiners.append(fretbd)
 
@@ -71,18 +88,20 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen body bottom
     bodyJoiners = []
-    bodyCutters = [chmCut, tnrsCut, spCut, Texts(cfg, isCut=True)]
-
-    if cfg.sepFretbd or cfg.sepTop:
-        bodyCutters.extend([fCut, fbCut])
+    bodyCutters = [chmCut, tnrsCut, spCut, txtCut]
 
     if not cfg.sepTop:
         bodyJoiners.append(top)
 
-    if not cfg.sepNeck:
+    if cfg.sepNeck:
+        bodyCutters.append(nkJntCut)
+    else:
         bodyJoiners.append(neck)
 
-    body = Bottom(cfg, False, bodyJoiners, bodyCutters, {})
+    if cfg.sepFretbd or cfg.sepTop:
+        bodyCutters.append(fbspCut)
+
+    body = Body(cfg, False, bodyJoiners, bodyCutters, {})
 
     parts.append(body)
     if cfg.sepFretbd:

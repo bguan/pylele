@@ -156,7 +156,7 @@ class ModelLabel(Enum):
         return self.value
 
 class LeleConfig:
-    BOT_RATIO = .7
+    BOT_RATIO = .6
     CHM_BACK_RATIO = .5  # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
@@ -178,8 +178,8 @@ class LeleConfig:
     MAX_FRETS = 24
     NUT_HT = 1.5
     RIM_TCK = 1
-    SPINE_HT = 10.2  # give extra height to spine
-    SPINE_WTH = 2.2  # give extra width to spine
+    SPINE_HT = 10
+    SPINE_WTH = 2
     STR_RAD = 0.5
     TEXT_TCK = 20
     TOP_RATIO = .1
@@ -260,6 +260,7 @@ class LeleConfig:
             (self.neckLen, self.neckWth/2), (0, self.nutWth/2)
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
+        self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         neckDX = 1
         neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
@@ -410,6 +411,8 @@ class LeleConfig:
             (0, self.spineY1, 0),
             (0, self.spineY2, 0),
         ]
+
+        self.neckJntWth = self.spineGap + self.SPINE_WTH
 
         # Guide config (Only for Pegs)
         self.guideX = self.scaleLen + .9*self.chmBack
