@@ -8,6 +8,9 @@ from typing import Union
 """
 
 class Shape:
+
+    _halfCutter: cq.Workplane = None
+
     def __init__(self):
         self.solid = None
 
@@ -15,7 +18,7 @@ class Shape:
         self.solid = self.solid.cut(cutter.solid)
         return self
 
-    def exportSTL(self, path: str, tol: float = 0.0001):
+    def exportSTL(self, path: str, tol: float = 0.000125):
         cq.exporters.export(
             self.solid,
             path,
@@ -52,8 +55,9 @@ class Shape:
         return self
 
     def half(self) -> Shape:
-        cutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
-        self = self.cut(cutter)
+        if self._halfCutter == None:
+            self._halfCutter = Box(2000, 2000, 2000).mv(0, 1000, 0)
+        self = self.cut(self._halfCutter)
         return self
 
     def join(self, joiner: Shape) -> Shape:

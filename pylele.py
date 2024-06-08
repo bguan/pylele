@@ -56,13 +56,19 @@ def pylele_main():
 if __name__ == '__main__':
     pylele_main()
 elif __name__ == '__cq_main__':
-    cfg = LeleConfig(numStrs=4, endWth=70, tnrCfg=WORM_TUNER_CFG,
-        sepFretbd=False, sepNeck=True, half=True)
+    cfg = LeleConfig(scaleLen=330, numStrs=3, nutStrGap=9, endWth=66,
+        tnrCfg=WORM_TUNER_CFG, modelLbl=ModelLabel.SHORT,
+        half=False, sepFretbd=True, sepNeck=True, sepTop=True, sepBrdg=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False)
-    sps = Spines(cfg, isCut=False)
+    key = None if not cfg.isWorm else WormKey(cfg, isCut=False)
+    sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
-    parts.extend([strs, tnrs, sps])
+    parts.extend([strs, tnrs])
+    if not sps is None:
+        parts.append(sps)
+    if not key is None:
+        parts.append(key)
     for p in parts:
         if cfg.half:
             p = p.half()

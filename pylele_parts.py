@@ -39,7 +39,7 @@ class LelePart:
         self.shape = self.shape.cut(cutter.shape)
         return self
 
-    def exportSTL(self, path: str, tolerance: float = 0.0001):
+    def exportSTL(self, path: str, tolerance: float = 0.000125):
         self.shape.exportSTL(path, tolerance)
     
     def filletByNearestEdges(
@@ -89,7 +89,7 @@ class Brace(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 255)
+        self.color = WHITE
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -114,7 +114,7 @@ class Frets(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (48, 48, 48)
+        self.color = DARK_GRAY
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -127,7 +127,7 @@ class Frets(LelePart):
         fHt = self.cfg.FRET_HT
         maxFrets = self.cfg.MAX_FRETS
         wideAng = self.cfg.neckWideAng
-        riseAng = self.cfg.FRETBD_RISE_ANG
+        riseAng = self.cfg.fretbdRiseAng
         f0X = -fitTol if self.isCut else 0
 
         f0Top = api.RndRodY(ntWth, ntHt, domeRatio=1/4)
@@ -165,7 +165,7 @@ class FretboardDots(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 255)
+        self.color = WHITE
 
     def gen(self) -> api.Shape:
         scLen = self.cfg.scaleLen
@@ -174,7 +174,7 @@ class FretboardDots(LelePart):
         maxFrets = self.cfg.MAX_FRETS
         dep = self.cfg.EMBOSS_DEP
         wideAng = self.cfg.neckWideAng
-        riseAng = self.cfg.FRETBD_RISE_ANG
+        riseAng = self.cfg.fretbdRiseAng
         nutSGap = self.cfg.nutStrGap
         dotRad = self.cfg.dotRad
         fret2Dots = self.cfg.fret2Dots
@@ -211,7 +211,7 @@ class Fretboard(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (48, 48, 48)
+        self.color = DARK_GRAY
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -220,7 +220,7 @@ class Fretboard(LelePart):
         fbWth = self.cfg.fretbdWth + 2*cutAdj
         fbTck = self.cfg.FRETBD_TCK + 2*cutAdj
         fbHt = self.cfg.fretbdHt + 2*cutAdj
-        riseAng = self.cfg.FRETBD_RISE_ANG
+        riseAng = self.cfg.fretbdRiseAng
 
         path = self.cfg.fbCutPath if self.isCut else self.cfg.fbPath
         fretbd = api.PolyExtrusionZ(path, fbHt)
@@ -243,7 +243,8 @@ class FretboardSpines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (48, 48, 48)
+        self.color = DARK_GRAY
+
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
         cutAdj = fitTol if self.isCut else 0
@@ -268,7 +269,7 @@ class FretbdJoint(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (48, 48, 48)
+        self.color = DARK_GRAY
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -278,7 +279,7 @@ class FretbdJoint(LelePart):
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
         jntWth = self.cfg.neckJntWth + 2*cutAdj # to align with spine cuts
-        jntTck = (fbTck+fbHt)/2 + 2*cutAdj
+        jntTck = .9*fbHt + 2*cutAdj
         jnt = api.Box(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, jntTck/2)
         return jnt
 
@@ -291,20 +292,22 @@ class Neck(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 64)
+        self.color = ORANGE
 
     def gen(self) -> api.Shape:
         ntWth = self.cfg.nutWth
         nkLen = self.cfg.neckLen
         nkWth = self.cfg.neckWth
-        midTck = self.cfg.EXT_MID_BOT_TCK
+        midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         path = self.cfg.neckPath
-        neckMid = api.PolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
+        neck = None
+        if midTck > 0:
+            neck = api.PolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
         neckCone = api.ConeX(nkLen, ntWth/2, nkWth/2)
         coneCut = api.Box(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
         neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, -midTck)
-        neck = neckMid.join(neckCone)
+        neck = neckCone if neck == None else neck.join(neckCone)
         return neck
 
 
@@ -317,7 +320,7 @@ class NeckJoint(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 64)
+        self.color = ORANGE
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -339,17 +342,17 @@ class Head(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 64)
+        self.color = ORANGE
 
     def gen(self) -> api.Shape:
         hdWth = self.cfg.headWth
-        hdLen = self.cfg.headLen
+        hdLen = self.cfg.HEAD_LEN
         ntHt = self.cfg.NUT_HT
         fbTck = self.cfg.FRETBD_TCK
         spHt = self.cfg.SPINE_HT
-        botTck = self.cfg.EXT_MID_BOT_TCK
+        fspTck = self.cfg.FRETBD_SPINE_TCK
         topRat = self.cfg.TOP_RATIO
-        midTck = self.cfg.EXT_MID_BOT_TCK
+        midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig
         path = self.cfg.headPath
@@ -367,9 +370,9 @@ class Head(LelePart):
             hd = hd.join(midL).join(midR)
 
         topCut = api.RndRodY(2*hdWth, hdLen)\
-            .mv(-ntHt, 0, .8*hdLen + fbTck + ntHt)
-        frontCut = api.RndRodY(2*hdWth, .7*spHt)\
-            .scale(.5, 1, 1).mv(-hdLen, 0, -botTck - .35*spHt)
+            .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
+        frontCut = api.RndRodY(2*hdWth, .6*spHt)\
+            .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .6*spHt +.5)
         hd = hd.cut(frontCut).cut(topCut)
         return hd
 
@@ -383,7 +386,7 @@ class Top(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 255)
+        self.color = WHITE
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -419,11 +422,11 @@ class Body(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 64)
+        self.color = ORANGE
 
     def gen(self):
         botRat = self.cfg.BOT_RATIO
-        midTck = self.cfg.EXT_MID_BOT_TCK
+        midTck = self.cfg.extMidBotTck
         rcOrig = self.cfg.rimCutOrig
         rcPath = self.cfg.rimCutPath
         rcTck = self.cfg.RIM_TCK
@@ -509,6 +512,7 @@ class Bridge(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = DARK_GRAY
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
@@ -544,20 +548,21 @@ class Guide(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (128, 128, 128)
+        self.color = DARK_GRAY
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
         cutAdj = fitTol if self.isCut else 0
+        nStrs = self.cfg.numStrs
         sR = self.cfg.STR_RAD
         gdR = self.cfg.GUIDE_RAD + cutAdj
         gdX = self.cfg.guideX
         gdZ = self.cfg.guideZ
-        gdHt = self.cfg.GUIDE_HT
+        gdHt = self.cfg.guideHt
         gdWth = self.cfg.guideWth
         gdGap = self.cfg.guidePostGap
         guide = None if self.isCut else \
-            api.RndRodY(gdWth - .5*gdGap - sR + 2*gdR, 1.1*gdR)\
+            api.RndRodY((gdWth - .5*gdGap + sR + gdR) if nStrs > 1 else 6*gdR, 1.2*gdR)\
             .mv(gdX, 0, gdZ + gdHt)
         for y in self.cfg.guideYs:
             post = api.RodZ(gdHt, gdR)
@@ -575,7 +580,7 @@ class Peg(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (128, 128, 128)
+        self.color = GRAY
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -630,7 +635,7 @@ class Worm(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (128, 128, 128)
+        self.color = GRAY
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -681,6 +686,43 @@ class Worm(LelePart):
 
         return worm
 
+class WormKey(LelePart):
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = GRAY
+
+    def gen(self) -> api.Shape:
+        tailX = self.cfg.tailX
+        txyzs = self.cfg.tnrXYZs
+        botTck = self.cfg.extMidBotTck
+        wcfg: WormConfig = self.cfg.tnrCfg
+        cutAdj = FIT_TOL if self.isCut else 0
+        btnHt =wcfg.buttonHt + 2*cutAdj
+        btnWth = wcfg.buttonWth + 2*cutAdj
+        btnTck = wcfg.buttonTck + 2*cutAdj
+        kbHt = wcfg.buttonKeybaseHt + 2*cutAdj
+        kbRad = wcfg.buttonKeybaseRad + cutAdj
+        kyRad = wcfg.buttonKeyRad + cutAdj
+        kyLen = wcfg.buttonKeyLen + 2*cutAdj
+        key = api.RodX(kyLen, kyRad).mv(-kyLen/2 -kbHt -btnHt, 0, 0)
+        base = api.RodX(kbHt, kbRad).mv(-kbHt/2 -btnHt, 0, 0)
+        btn = api.Box(btnHt, btnTck, btnWth).mv(-btnHt/2, 0, 0)
+        if self.isCut:
+            btnExtCut = api.RodX(btnHt, btnWth/2)\
+                .scale(1, .5, 1)\
+                .mv(-btnHt/2, btnTck/2, 0)
+            btn = btn.join(btnExtCut)
+        btn = btn.join(base).join(key).filletByNearestEdges([], FILLET_RAD)
+        maxTnrY = max([y for _, y, _ in txyzs])
+        btn = btn.mv(tailX, maxTnrY + btnTck, -botTck -btnWth/2 -1)
+        return btn
+
 
 class Tuners(LelePart):
     def __init__(self, 
@@ -716,7 +758,7 @@ class Spines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (24, 24, 24)
+        self.color = CARBON
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -743,7 +785,7 @@ class Strings(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (255, 255, 255)
+        self.color = LITE_GRAY
 
     def gen(self) -> api.Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -774,7 +816,7 @@ class Texts(LelePart):
         txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
-        midBotTck = self.cfg.EXT_MID_BOT_TCK
+        midBotTck = self.cfg.extMidBotTck
         txtZ = -botRat * bodyWth/2 - midBotTck - 1
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = scLen - allHt/(1+backRat)

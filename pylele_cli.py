@@ -28,7 +28,7 @@ def parseCLI():
     parser.add_argument("-g", "--nut_string_gap", help="Nut to String gap [mm]",
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm]",
-                        type=float, default=40)
+                        type=float, default=0)
 
     ## Chamber config options ###########################################
 

@@ -16,6 +16,12 @@ DEFAULT_LABEL_SIZE = 12
 DEFAULT_LABEL_SIZE_BIG = 28
 DEFAULT_LABEL_SIZE_SMALL = 8
 DEFAULT_LABEL_FONT = 'Arial'
+WHITE = (255, 255, 255)
+LITE_GRAY = (192, 192, 192)
+GRAY = (128, 128, 128)
+DARK_GRAY = (64, 64, 64)
+ORANGE = (255, 165, 0)
+CARBON = (32, 32, 32)
 
 def radians(deg: float = 0) -> float:
     return deg * math.pi / 180
@@ -89,7 +95,8 @@ class WormConfig(TunerConfig):
         buttonTck: float = 9.5,
         buttonWth: float = 16,
         buttonHt: float = 8,
-        buttonLen: float = 6,
+        buttonKeyLen: float = 6,
+        buttonKeyRad: float = 2.25,
         buttonKeybaseRad: float = 3.8,
         buttonKeybaseHt: float = 3,
         code: str = 'W',
@@ -108,7 +115,8 @@ class WormConfig(TunerConfig):
         self.buttonTck = buttonTck
         self.buttonWth = buttonWth
         self.buttonHt = buttonHt
-        self.buttonLen = buttonLen
+        self.buttonKeyRad = buttonKeyRad
+        self.buttonKeyLen = buttonKeyLen
         self.buttonKeybaseRad = buttonKeybaseRad
         self.buttonKeybaseHt = buttonKeybaseHt
 
@@ -161,18 +169,15 @@ class LeleConfig:
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     EXT_MID_TOP_TCK = 1
-    EXT_MID_BOT_TCK = 4
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
     FRETBD_SPINE_TCK = 1
     FRETBD_TCK = 2
-    FRETBD_RISE_ANG = 1.35
-    GUIDE_HT = 7
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.15  # to nutWth
-    HEAD_LEN_RATIO = .4  # to nutWth
-    MIN_NECK_WIDE_ANG = 1.2
+    HEAD_LEN = 12
+    MIN_NECK_WIDE_ANG = 2 #1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
@@ -211,15 +216,17 @@ class LeleConfig:
         # Length based configs
         self.scaleLen = scaleLen
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
+        self.fretbdRiseAng = 1 + numStrs/10
         self.wallTck = wallTck
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         self.bodyBackLen = self.chmBack + wallTck + tnrCfg.tailAllow()
+        self.tailX = scaleLen + self.bodyBackLen
         self.isPeg = isinstance(tnrCfg, PegConfig)
         self.isWorm = isinstance(tnrCfg, WormConfig)
         self.numStrs = numStrs
         self.nutStrGap = nutStrGap
-        self.nutWth = numStrs * nutStrGap
+        self.nutWth = max(2,numStrs) * nutStrGap
         if self.isPeg:
             self.tnrSetback = tnrCfg.tailAllow()/2 - 2
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
@@ -244,12 +251,13 @@ class LeleConfig:
         self.endWth = endWth
         self.action = action
         self.tnrCfg = tnrCfg
-        self.brdgWth = nutStrGap*(numStrs-.5) + \
+        self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
         self.brdgStrGap = self.brdgWth / (numStrs-.5)
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
+        self.extMidBotTck = max(0, 9 - numStrs**1.25)
 
         # Neck configs
         self.neckWth = self.nutWth + \
@@ -261,6 +269,7 @@ class LeleConfig:
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
+        self.neckJntWth = (1 if self.isOddStrs else 2)*nutStrGap + self.SPINE_WTH
         neckDX = 1
         neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
@@ -268,7 +277,7 @@ class LeleConfig:
         self.fretbdWth = self.nutWth + \
             2 * math.tan(radians(self.neckWideAng)) * self.fretbdLen
         self.fretbdHt = self.FRETBD_TCK + \
-            math.tan(radians(self.FRETBD_RISE_ANG)) * self.fretbdLen
+            math.tan(radians(self.fretbdRiseAng)) * self.fretbdLen
 
         def genFbPath(isCut: bool = False) -> list[tuple[float, float]]:
             cutAdj = FIT_TOL if isCut else 0
@@ -334,14 +343,13 @@ class LeleConfig:
 
         # Head configs
         self.headWth = self.nutWth * self.HEAD_WTH_RATIO
-        self.headLen = self.nutWth * self.HEAD_LEN_RATIO
         self.headPath = [
             (0, -self.nutWth/2),
             (-neckDX, -self.nutWth/2 + neckDY),
             [
                 (-neckDX, -self.nutWth/2 + neckDY, -neckDX, neckDY),
-                (-self.headLen/2, -self.headWth/2, -1, 0),
-                (-self.headLen, 0, 0, 1),
+                (-self.HEAD_LEN/2, -self.headWth/2, -1, 0),
+                (-self.HEAD_LEN, 0, 0, 1),
             ],
             (0, 0)
         ]
@@ -351,7 +359,7 @@ class LeleConfig:
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
         self.bodyLen = self.bodyFrontLen + self.bodyBackLen
-        self.fullLen = self.headLen + scaleLen + self.bodyLen
+        self.fullLen = self.HEAD_LEN + scaleLen + self.bodyLen
 
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = FIT_TOL if isCut else 0
@@ -394,7 +402,7 @@ class LeleConfig:
         # Bridge configs
         f12Len = scaleLen/2
         f12Ht = self.FRETBD_TCK \
-            + math.tan(radians(self.FRETBD_RISE_ANG)) * f12Len \
+            + math.tan(radians(self.fretbdRiseAng)) * f12Len \
             + self.FRET_HT
         self.brdgZ = self.bodyWth/2 * self.TOP_RATIO + self.EXT_MID_TOP_TCK - 1
         self.brdgHt = 2*(f12Ht + action - self.NUT_HT - self.STR_RAD/2) \
@@ -402,31 +410,30 @@ class LeleConfig:
         self.brdgLen = nutStrGap
 
         # Spine configs
-        self.spineX = -self.headLen
-        self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
-        self.spineGap = nutStrGap if self.isOddStrs else 2*nutStrGap
+        self.spineX = -self.HEAD_LEN
+        self.spineLen = self.HEAD_LEN + scaleLen + self.chmBack + self.rimWth
+        self.spineGap = 0 if numStrs == 2 else (1 if self.isOddStrs else 2)*nutStrGap
         self.spineY1 = -self.spineGap/2
         self.spineY2 = self.spineGap/2
-        self.spineCutFilletPts = [
-            (0, self.spineY1, 0),
-            (0, self.spineY2, 0),
-        ]
-
-        self.neckJntWth = self.spineGap + self.SPINE_WTH
 
         # Guide config (Only for Pegs)
+        self.guideHt = 6 + numStrs/2
         self.guideX = self.scaleLen + .9*self.chmBack
         self.guideZ = -self.GUIDE_SET \
             + self.TOP_RATIO * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
             + 2*math.tan(radians(self.neckWideAng))*self.guideX
-        self.guidePostGap = self.guideWth/numStrs
-        gY = self.GUIDE_RAD \
-            + (2*self.STR_RAD if self.isOddStrs else (self.guidePostGap/2 + self.STR_RAD))
-        self.guideYs = [gY, -gY]
-        for r in range((numStrs-1)//2):
-            gY += self.guidePostGap
-            self.guideYs.extend([gY, -gY])
+        gGap = self.guideWth/numStrs
+        self.guidePostGap = gGap
+        gGapAdj = self.GUIDE_RAD
+
+        # start calc from middle out
+        gY = gGapAdj if self.isOddStrs else gGap/2 + gGapAdj
+        self.guideYs = [gGapAdj +2*self.STR_RAD, -gGapAdj -2*self.STR_RAD] \
+            if self.isOddStrs else [gY + self.STR_RAD, -gY - self.STR_RAD]
+        for _ in range((numStrs-1)//2):
+            gY += gGap
+            self.guideYs.extend([gY + gGapAdj, -gY -gGapAdj])
 
         # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
@@ -484,7 +491,7 @@ class LeleConfig:
 
         # Strings config
         strOddMidPath = [
-            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
+            (-self.HEAD_LEN, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
             (0, 0, self.FRETBD_TCK + self.NUT_HT + self.STR_RAD/2),
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
         ]
@@ -492,7 +499,7 @@ class LeleConfig:
         if self.isPeg:  # Worm drives has no string guide
             strOddMidPath.append(
                 (self.guideX, 0,
-                 self.guideZ + self.GUIDE_HT - self.GUIDE_RAD - self.STR_RAD)
+                 self.guideZ + self.guideHt - self.GUIDE_RAD - self.STR_RAD)
             )
 
         strOddMidPath.append(

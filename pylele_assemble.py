@@ -11,7 +11,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen cuts
     chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
-    spCut = Spines(cfg, isCut=True)
+    spCut = Spines(cfg, isCut=True) if cfg.numStrs > 1 else None
     fbspCut = FretboardSpines(cfg, isCut=True) \
         if cfg.sepFretbd or cfg.sepNeck or cfg.sepTop else None
     fCut = Frets(cfg, isCut=True) \
@@ -39,7 +39,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen neck
     neckJoiners = [Head(cfg)]
-    neckCutters = [spCut, strCuts]
+    neckCutters = [strCuts] if spCut is None else [spCut, strCuts]
     if cfg.sepNeck: 
         neckJoiners.append(NeckJoint(cfg, isCut=False))
         if not cfg.sepFretbd:
@@ -88,7 +88,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen body bottom
     bodyJoiners = []
-    bodyCutters = [chmCut, tnrsCut, spCut, txtCut]
+    bodyCutters = [chmCut, tnrsCut, txtCut] if spCut is None else [spCut, chmCut, tnrsCut, txtCut]
 
     if not cfg.sepTop:
         bodyJoiners.append(top)
@@ -100,6 +100,10 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     if cfg.sepFretbd or cfg.sepTop:
         bodyCutters.append(fbspCut)
+
+    if cfg.isWorm:
+        wcfg: WormConfig = cfg.tnrCfg
+        bodyCutters.append(WormKey(cfg, isCut=True))
 
     body = Body(cfg, False, bodyJoiners, bodyCutters, {})
 
