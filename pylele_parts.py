@@ -39,7 +39,7 @@ class LelePart:
         self.shape = self.shape.cut(cutter.shape)
         return self
 
-    def exportSTL(self, path: str, tolerance: float = 0.000125):
+    def exportSTL(self, path: str, tolerance: float = 0.0001):
         self.shape.exportSTL(path, tolerance)
     
     def filletByNearestEdges(
@@ -390,9 +390,6 @@ class Top(LelePart):
 
     def gen(self) -> api.Shape:
         fitTol = FIT_TOL
-        rOrig = self.cfg.rimOrig
-        rPath = self.cfg.rimPath
-        rTck = self.cfg.RIM_TCK
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.EXT_MID_TOP_TCK
         bOrig = self.cfg.bodyOrig
@@ -405,11 +402,6 @@ class Top(LelePart):
                 bOrig, bPath, midTck+fitTol if self.isCut else midTck)
             midR = midL.mirrorXZ()
             top = top.join(midL).join(midR)
-
-        if self.cfg.sepTop:
-            rimL = api.LineSplineExtrusionZ(rOrig, rPath, rTck).mv(0, 0, -rTck)
-            rimR = rimL.mirrorXZ()
-            top = top.join(rimL).join(rimR)
         return top
 
 
@@ -427,9 +419,6 @@ class Body(LelePart):
     def gen(self):
         botRat = self.cfg.BOT_RATIO
         midTck = self.cfg.extMidBotTck
-        rcOrig = self.cfg.rimCutOrig
-        rcPath = self.cfg.rimCutPath
-        rcTck = self.cfg.RIM_TCK
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
         bot = api.LineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, botRat)
@@ -438,15 +427,29 @@ class Body(LelePart):
             midL = api.LineSplineExtrusionZ(bOrig, bPath, -midTck)
             midR = midL.mirrorXZ()
             bot = bot.join(midL).join(midR)
-
-        if self.cfg.sepTop:
-            rimCutL = api.LineSplineExtrusionZ(rcOrig, rcPath, rcTck)\
-                .mv(0, 0, -rcTck)
-            rimCutR = rimCutL.mirrorXZ()
-            bot = bot.cut(rimCutL).cut(rimCutR)
         return bot
 
-
+class Rim(LelePart):
+    def __init__(self,
+        cfg: LeleConfig, 
+        isCut: bool = False, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = WHITE
+        
+    def gen(self):
+        cutAdj = FIT_TOL if self.isCut else 0
+        orig = self.cfg.rimCutOrig if self.isCut else self.cfg.rimOrig
+        path = self.cfg.rimCutPath if self.isCut else self.cfg.rimPath
+        tck = self.cfg.RIM_TCK + 2*cutAdj
+        rimL = api.LineSplineExtrusionZ(orig, path, tck)\
+            .mv(0, 0, -tck)
+        rimR = rimL.mirrorXZ()
+        return rimL.join(rimR)
+    
 class Chamber(LelePart):
     def __init__(self,
         cfg: LeleConfig, 
@@ -700,7 +703,6 @@ class WormKey(LelePart):
     def gen(self) -> api.Shape:
         tailX = self.cfg.tailX
         txyzs = self.cfg.tnrXYZs
-        botTck = self.cfg.extMidBotTck
         wcfg: WormConfig = self.cfg.tnrCfg
         cutAdj = FIT_TOL if self.isCut else 0
         btnHt =wcfg.buttonHt + 2*cutAdj
@@ -720,7 +722,7 @@ class WormKey(LelePart):
             btn = btn.join(btnExtCut)
         btn = btn.join(base).join(key).filletByNearestEdges([], FILLET_RAD)
         maxTnrY = max([y for _, y, _ in txyzs])
-        btn = btn.mv(tailX, maxTnrY + btnTck, -botTck -btnWth/2 -1)
+        btn = btn.mv(tailX, maxTnrY + btnTck, -1 -btnWth/2)
         return btn
 
 
@@ -829,3 +831,44 @@ class Texts(LelePart):
             tx += sz
         botCut = Body(self.cfg, isCut=True)
         return ls.cut(botCut.shape).mv(0, 0, dep)
+
+class TailEnd(LelePart):
+    def __init__(self, 
+        cfg: LeleConfig, 
+        isCut: bool = True, 
+        joiners: list[LelePart] = [], 
+        cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
+    ):
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
+        self.color = DARK_GRAY
+
+    def gen(self) -> api.Shape:
+        cfg = self.cfg
+        cutAdj = FIT_TOL if self.isCut else 0
+        tailX = cfg.tailX
+        chmBackX = cfg.scaleLen + cfg.chmBack
+        tailLen = tailX - chmBackX + 2*cutAdj
+        endWth = cfg.endWth + 2*cutAdj
+        botRat = cfg.BOT_RATIO
+        midBotTck = cfg.extMidBotTck + 2*cutAdj
+        rimWth = cfg.rimWth + 2*cutAdj
+        top = None
+        if midBotTck > 0:
+            extTop = api.Box(100 if self.isCut else rimWth, endWth, midBotTck)\
+                .mv(tailX + (50 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
+            inrTop = api.Box(2*tailLen, endWth -2*rimWth, midBotTck)\
+                .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
+            top = extTop.join(inrTop)
+        
+        extBot = api.RodX(100 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
+            .mv(tailX + (50 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
+        inrBot = api.RodX(2*tailLen, endWth/2 - rimWth).scale(1, 1, botRat)\
+            .mv(tailX - rimWth -tailLen, 0, -midBotTck)
+        topCut = api.Box(2000, 2000, 2000).mv(0,0,1000)
+        bot = extBot.join(inrBot).cut(topCut)
+        if top is None:
+            tail = bot
+        else:
+            tail = top.join(bot)
+        return tail

@@ -18,7 +18,7 @@ class Shape:
         self.solid = self.solid.cut(cutter.solid)
         return self
 
-    def exportSTL(self, path: str, tol: float = 0.000125):
+    def exportSTL(self, path: str, tol: float = 0.0001):
         cq.exporters.export(
             self.solid,
             path,

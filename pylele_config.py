@@ -165,7 +165,7 @@ class ModelLabel(Enum):
 
 class LeleConfig:
     BOT_RATIO = .6
-    CHM_BACK_RATIO = .5  # to chmFront
+    CHM_BACK_RATIO = 1/3  # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     EXT_MID_TOP_TCK = 1
@@ -177,7 +177,7 @@ class LeleConfig:
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.15  # to nutWth
     HEAD_LEN = 12
-    MIN_NECK_WIDE_ANG = 2 #1.2
+    MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
@@ -204,7 +204,7 @@ class LeleConfig:
         numStrs: int = 4,
         nutStrGap: float = 9,
         action: float = 2,
-        tnrCfg: TunerConfig = FRICTION_PEG_CFG,
+        tnrCfg: TunerConfig = WORM_TUNER_CFG,
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] =
             [('PYLELE', 28, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')],
@@ -445,7 +445,7 @@ class LeleConfig:
         tY = 0
         wCfg: WormConfig = None if self.isPeg else tnrCfg
         tZBase = (self.EXT_MID_TOP_TCK + 2.5) if self.isPeg \
-            else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad - 1)
+            else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
         def tzAdj(tY: float) -> float:
             return 0 if self.isWorm or tY > endWth/2 else \

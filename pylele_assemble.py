@@ -22,6 +22,8 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     tnrsCut = Tuners(cfg, isCut=True)
     strCuts = Strings(cfg, isCut=True)
     txtCut = Texts(cfg, isCut=True)
+    tailCut = TailEnd(cfg, isCut=True) if cfg.sepEnd else None
+    rimCut = Rim(cfg, isCut=True) if cfg.sepTop else None
 
     # gen fretbd
     fbJoiners = [Frets(cfg)]
@@ -59,6 +61,9 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     topJoiners = []
     topCutters = [chmCut, tnrsCut, Soundhole(cfg, isCut=True)]
 
+    if cfg.sepTop:
+        topJoiners.append(Rim(cfg, isCut=False)) 
+
     if cfg.sepFretbd or cfg.sepNeck:
         topCutters.append(fbJntCut)
     
@@ -88,9 +93,13 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen body bottom
     bodyJoiners = []
-    bodyCutters = [chmCut, tnrsCut, txtCut] if spCut is None else [spCut, chmCut, tnrsCut, txtCut]
+    bodyCutters = [chmCut, txtCut] 
+    if spCut is not None:
+        bodyCutters.append(spCut)
 
-    if not cfg.sepTop:
+    if cfg.sepTop:
+        bodyCutters.append(rimCut) 
+    else:
         bodyJoiners.append(top)
 
     if cfg.sepNeck:
@@ -100,10 +109,13 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     if cfg.sepFretbd or cfg.sepTop:
         bodyCutters.append(fbspCut)
-
-    if cfg.isWorm:
-        wcfg: WormConfig = cfg.tnrCfg
-        bodyCutters.append(WormKey(cfg, isCut=True))
+    
+    if tailCut is not None:
+        bodyCutters.append(tailCut)
+    else:
+        bodyCutters.append(tnrsCut)
+        if cfg.isWorm:
+            bodyCutters.append(WormKey(cfg, isCut=True))
 
     body = Body(cfg, False, bodyJoiners, bodyCutters, {})
 
@@ -122,5 +134,14 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     if guide != None and cfg.sepBrdg:
         parts.append(guide)
+
+    if cfg.sepEnd:
+        tailCutters = [tnrsCut, chmCut, spCut]
+        if cfg.sepTop:
+            tailCutters.append(rimCut) 
+        if cfg.isWorm:
+            tailCutters.append(WormKey(cfg, isCut=True))
+        tail = TailEnd(cfg, isCut=False, joiners=[], cutters=tailCutters)
+        parts.append(tail)
 
     return parts
