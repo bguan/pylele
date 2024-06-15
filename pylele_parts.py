@@ -146,7 +146,7 @@ class Frets(LelePart):
                 fx = fx + gap
                 fy = fWth / 2 + math.tan(radians(wideAng)) * fx
                 fz = fbTck + math.tan(radians(riseAng)) * fx
-                fret = api.RndRodY(2 * fy, fHt).mv(fx, 0, fz)
+                fret = api.RodY(2 * fy, fHt).mv(fx, 0, fz)
                 frets = frets.join(fret)
                 gap = gap / SEMI_RATIO
                 count += 1
@@ -230,7 +230,6 @@ class Fretboard(LelePart):
                 .rotateY(-riseAng)\
                 .mv(0, 0, fbTck + fbHt/2)
             fretbd = fretbd.cut(topCut)
-            fretbd = fretbd.filletByNearestEdges([(fbLen, 0, fbHt)], fbTck)
 
         return fretbd
 
@@ -279,7 +278,7 @@ class FretbdJoint(LelePart):
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
         jntWth = self.cfg.neckJntWth + 2*cutAdj # to align with spine cuts
-        jntTck = .9*fbHt + 2*cutAdj
+        jntTck = .8*fbHt + 2*cutAdj
         jnt = api.Box(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, jntTck/2)
         return jnt
 
@@ -565,7 +564,8 @@ class Guide(LelePart):
         gdWth = self.cfg.guideWth
         gdGap = self.cfg.guidePostGap
         guide = None if self.isCut else \
-            api.RndRodY((gdWth - .5*gdGap + sR + gdR) if nStrs > 1 else 6*gdR, 1.2*gdR)\
+            api.RndRodY((gdWth - .5*gdGap + sR + 2*gdR) if nStrs > 1 \
+                        else 6*gdR, 1.1*gdR)\
             .mv(gdX, 0, gdZ + gdHt)
         for y in self.cfg.guideYs:
             post = api.RodZ(gdHt, gdR)
@@ -596,7 +596,7 @@ class Peg(LelePart):
         botLen = cfg.botLen
         btnRad = cfg.btnRad + cutAdj
         topCutTck = 100 if self.isCut else 2  # big value for cutting
-        botCutTck = 100 if self.isCut else 2  # big value for cutting
+        botCutTck = botLen - midTck/3 if self.isCut else 2 
         top = api.RodZ(topCutTck, majRad).mv(0, 0, topCutTck/2)
 
         if not self.isCut:
@@ -614,6 +614,10 @@ class Peg(LelePart):
                 .mv(0, 0, -midTck - btnConeTck)
             bot = api.RodZ(botCutTck, btnRad)\
                 .mv(0, 0, -botLen - botCutTck/2 + 2*cutAdj)
+            botEnd = api.Ball(btnRad)\
+                .scale(1, 1, .5 if self.cfg.sepEnd else 1)\
+                .mv(0, 0, -botLen - botCutTck)
+            bot = bot.join(botEnd)
         else:
             bot = api.RodZ(botCutTck, majRad)\
                 .mv(0, 0, -midTck - botCutTck/2)
@@ -621,8 +625,7 @@ class Peg(LelePart):
                 .mv(0, 0, -midTck - botLen/2)
             bot = bot.join(stem)
             btn = api.Box(btnRad*2, btnRad/2, btnRad)\
-                .mv(0, 0, -midTck - botLen - botCutTck/2 + btnRad/2)\
-                .filletByNearestEdges([], 2)
+                .mv(0, 0, -midTck - botLen - botCutTck/2 + btnRad/2)
 
         peg = top.join(mid).join(btn).join(bot)
 
@@ -714,13 +717,14 @@ class WormKey(LelePart):
         kyLen = wcfg.buttonKeyLen + 2*cutAdj
         key = api.RodX(kyLen, kyRad).mv(-kyLen/2 -kbHt -btnHt, 0, 0)
         base = api.RodX(kbHt, kbRad).mv(-kbHt/2 -btnHt, 0, 0)
-        btn = api.Box(btnHt, btnTck, btnWth).mv(-btnHt/2, 0, 0)
+        btn = api.Box(100 if self.isCut else btnHt, btnTck, btnWth)\
+            .mv(50 -btnHt if self.isCut else -btnHt/2, 0, 0)
         if self.isCut:
-            btnExtCut = api.RodX(btnHt, btnWth/2)\
+            btnExtCut = api.RodX(100 if self.isCut else btnHt, btnWth/2)\
                 .scale(1, .5, 1)\
-                .mv(-btnHt/2, btnTck/2, 0)
+                .mv(50 -btnHt if self.isCut else -btnHt/2, btnTck/2, 0)
             btn = btn.join(btnExtCut)
-        btn = btn.join(base).join(key).filletByNearestEdges([], FILLET_RAD)
+        btn = btn.join(base).join(key)
         maxTnrY = max([y for _, y, _ in txyzs])
         btn = btn.mv(tailX, maxTnrY + btnTck, -1 -btnWth/2)
         return btn
@@ -732,8 +736,9 @@ class Tuners(LelePart):
         isCut: bool = True, 
         joiners: list[LelePart] = [], 
         cutters: list[LelePart] = [],
+        fillets: dict[tuple[float, float, float], float] = {},
     ):
-        super().__init__(cfg, isCut, joiners, cutters)
+        super().__init__(cfg, isCut, joiners, cutters, fillets)
         self.color = (128, 128, 128)
 
     def gen(self) -> api.Shape:
@@ -852,17 +857,17 @@ class TailEnd(LelePart):
         endWth = cfg.endWth + 2*cutAdj
         botRat = cfg.BOT_RATIO
         midBotTck = cfg.extMidBotTck + 2*cutAdj
-        rimWth = cfg.rimWth + 2*cutAdj
+        rimWth = cfg.rimWth+ 2*cutAdj
         top = None
         if midBotTck > 0:
-            extTop = api.Box(100 if self.isCut else rimWth, endWth, midBotTck)\
-                .mv(tailX + (50 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
+            extTop = api.Box(10 if self.isCut else rimWth, endWth, midBotTck)\
+                .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
             inrTop = api.Box(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
         
-        extBot = api.RodX(100 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
-            .mv(tailX + (50 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
+        extBot = api.RodX(10 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
+            .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
         inrBot = api.RodX(2*tailLen, endWth/2 - rimWth).scale(1, 1, botRat)\
             .mv(tailX - rimWth -tailLen, 0, -midBotTck)
         topCut = api.Box(2000, 2000, 2000).mv(0,0,1000)

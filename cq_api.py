@@ -119,6 +119,12 @@ class Shape:
         return self.solid
 
 
+class Ball(Shape):
+    def __init__(self, rad: float):
+        self.rad = rad
+        self.solid = cq.Workplane("XY").sphere(rad)
+
+
 class ConeZ(Shape):
     def __init__(self, ln: float, r1: float, r2: float):
         self.ln = ln

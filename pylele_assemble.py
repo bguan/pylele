@@ -32,8 +32,9 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepFretbd or cfg.sepNeck:
         fbCutters.append(Top(cfg, isCut=True))
         fbFillets[FILLET_RAD] = [(cfg.fretbdLen - 1, 0, cfg.FRETBD_TCK)]
+        fbFillets[cfg.FRETBD_TCK] = [(cfg.fretbdLen, 0, cfg.fretbdHt)]
     fretbd = Fretboard(cfg, False, fbJoiners, fbCutters, fbFillets)
-    # Can't use joiners for fretbd joint, as fbCutters would remove it 
+    # Can't use joiners for fretbd joint & spines, as fbCutters will remove them 
     # as joins happen before cuts
     if cfg.sepFretbd or cfg.sepNeck:
         fretbd = fretbd.join(FretbdJoint(cfg, isCut=False))\
@@ -81,7 +82,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         else:
             topJoiners.append(guide)
 
-    topFillets = {}
+    topFillets = { FILLET_RAD: [(cfg.sndholeX, cfg.sndholeY, cfg.fretbdHt)] }
     if cfg.isWorm:
         wcfg: WormConfig = cfg.tnrCfg
         topFillets[4*cfg.STR_RAD] = [

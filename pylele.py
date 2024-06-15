@@ -53,13 +53,12 @@ def pylele_main():
             p = p.half()
         p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
 
-if __name__ == '__main__':
-    pylele_main()
-elif __name__ == '__cq_main__':
-    cfg = LeleConfig(endWth=90, sepEnd=True, sepTop=True)
+def cqeditor_main():
+    cfg = LeleConfig(endWth=90, tnrCfg=WORM_TUNER_CFG,
+            sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
-    tnrs = Tuners(cfg, isCut=False)
-    key = None if not cfg.isWorm else WormKey(cfg, isCut=False)
+    tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
+    key = None if not cfg.isWorm else WormKey(cfg, isCut=False, fillets={FILLET_RAD:[]})
     sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
     parts.extend([strs, tnrs])
@@ -71,3 +70,8 @@ elif __name__ == '__cq_main__':
         if cfg.half:
             p = p.half()
         show_object(p.show(), name=p.fileNameBase, options={'color':p.color}) # type: ignore
+
+if __name__ == '__main__':
+    pylele_main()
+elif __name__ == '__cq_main__':
+    cqeditor_main()

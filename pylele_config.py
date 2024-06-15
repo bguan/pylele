@@ -124,7 +124,7 @@ class WormConfig(TunerConfig):
         return self.diskTck + self.axleLen + self.gapAdj
 
     def tailAllow(self) -> float:
-        return self.driveLen + 2
+        return self.driveLen
 
 
 FRICTION_PEG_CFG = PegConfig()
@@ -164,18 +164,18 @@ class ModelLabel(Enum):
         return self.value
 
 class LeleConfig:
-    BOT_RATIO = .6
+    BOT_RATIO = .65
     CHM_BACK_RATIO = 1/3  # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
-    EXT_MID_TOP_TCK = 1
+    EXT_MID_TOP_TCK = .5
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
-    FRETBD_SPINE_TCK = 1
+    FRETBD_SPINE_TCK = 2 # need to be > 1mm more than RIM_TCK for fillets
     FRETBD_TCK = 2
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
-    HEAD_WTH_RATIO = 1.15  # to nutWth
+    HEAD_WTH_RATIO = 1.1  # to nutWth
     HEAD_LEN = 12
     MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
@@ -232,7 +232,7 @@ class LeleConfig:
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
             self.tnrGap = tnrCfg.minGap()
         else:
-            self.tnrSetback = tnrCfg.tailAllow()/2 + 2
+            self.tnrSetback = tnrCfg.tailAllow()/2 + 1
             tnrX = scaleLen + self.bodyBackLen - self.tnrSetback
             tnrW = tnrCfg.minGap() * numStrs
             tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
@@ -270,7 +270,7 @@ class LeleConfig:
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         self.neckJntWth = (1 if self.isOddStrs else 2)*nutStrGap + self.SPINE_WTH
-        neckDX = 1
+        neckDX = 3
         neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
         # Fretboard configs
@@ -368,21 +368,21 @@ class LeleConfig:
             bWth = self.bodyWth + 2*cutAdj
             bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = self.bodyBackLen + cutAdj
-            fWth = self.endWth + 2*cutAdj if endWth > 0 else 0
+            eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             bodySpline = [
                 (nkLen + neckDX, -nkWth/2 - neckDY, neckDX, -neckDY),
                 (scaleLen - (.7)*bFrLen, -(1/3)*bWth, 1, -(2/3)*(bWth/bFrLen)),
                 (scaleLen, -bWth/2, 1, 0),
-                (scaleLen + bBkLen, -fWth/2, 0, 1),
+                (scaleLen + bBkLen, -eWth/2, .5*eWth/bWth, 1),
             ]
-            if fWth > 0:
-                bodySpline.append((scaleLen + bBkLen, 0, 0, 1))
             bodyPath = [
                 (nkLen, -nkWth/2),
                 (nkLen + neckDX, -nkWth/2 - neckDY),
                 bodySpline,
                 (nkLen, 0)
             ]
+            if eWth > 0:
+                bodyPath.insert(3,(scaleLen + bBkLen, 0))
             return bodyPath
 
         self.bodyOrig = (self.neckLen, 0)
@@ -444,12 +444,12 @@ class LeleConfig:
         tX = tXMax
         tY = 0
         wCfg: WormConfig = None if self.isPeg else tnrCfg
-        tZBase = (self.EXT_MID_TOP_TCK + 2.5) if self.isPeg \
+        tZBase = (self.EXT_MID_TOP_TCK + .5) if self.isPeg \
             else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
         def tzAdj(tY: float) -> float:
             return 0 if self.isWorm or tY > endWth/2 else \
-                ((endWth/2)**2 - tY**2)**.4 * self.TOP_RATIO
+                ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
 
         tMidZ = tZBase + tzAdj(tY)
         tZ = tMidZ
@@ -573,5 +573,5 @@ class LeleConfig:
         if self.sepEnd:
             model += 'E'
         if inclDate:
-            model += "-" + datetime.date.today().strftime("%y%m%d")
+            model += "-" + datetime.date.today().strftime("%m%d")
         return model
