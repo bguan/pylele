@@ -8,6 +8,13 @@ Python based Ukulele and other String Instrument 3D Model Generator similar to m
 
 Implemented by clean portable wrapper around one of the following Python 3D Modeling Library:
 * [CadQuery](https://github.com/CadQuery/cadquery)
+  * Linux installation (I use Ubuntu)
+    * In a terminal shell inside a python 3.11+ virtual env: 
+      ```
+      > pip install cadquery
+      > pip install PyQt5 spyder pyqtgraph logbook
+      > pip install git+https://github.com/CadQuery/CQ-editor.git
+      ```
 * [Blender](https://github.com/blender/blender) - **Coming Soon!**
 * [SolidPython](https://github.com/SolidCode/SolidPython) - *may be one day in the future...*
 
