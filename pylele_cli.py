@@ -19,9 +19,9 @@ def parseCLI():
     parser = argparse.ArgumentParser(description='Pylele Configuration')
 
     ## Numeric config options ###########################################
-    parser.add_argument("-s", "--scale_len", help="Scale Length [mm]",
+    parser.add_argument("-s", "--scale_length", help="Scale Length [mm]",
                         type=int, default=SOPRANO_SCALE_LEN)
-    parser.add_argument("-n", "--nstrings", help="Number of strings",
+    parser.add_argument("-n", "--num_strings", help="Number of strings",
                         type=int, default=4)
     parser.add_argument("-a", "--action", help="Strings action [mm]",
                         type=float, default=2)
@@ -91,6 +91,13 @@ def parseCLI():
 
     parser.add_argument("-m", "--model_label", help="Model labeling choices",
                         type=ModelLabel, choices=list(ModelLabel), default='long')
+    
+    ## file export options ######################################################
+
+    parser.add_argument("-f", "--file_tolerance", help="Mesh tolerance for STL file export",
+                        type=float, default=0.01)
+    
+    ## parse arguments ##########################################################
     
     return parser.parse_args()
 

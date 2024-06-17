@@ -18,9 +18,9 @@ def pylele_main():
 
     # generate configurations
     cfg = LeleConfig(
-        scaleLen=cli.scale_len,
+        scaleLen=cli.scale_length,
         action=cli.action,
-        numStrs=cli.nstrings,
+        numStrs=cli.num_strings,
         nutStrGap=cli.nut_string_gap,
         sepTop=cli.separate_top,
         sepFretbd=cli.separate_fretboard,
@@ -51,7 +51,7 @@ def pylele_main():
     for p in parts:
         if cfg.half:
             p = p.half()
-        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
+        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"), cli.file_tolerance)
 
 def cqeditor_main():
     cfg = LeleConfig(endWth=90, tnrCfg=WORM_TUNER_CFG,
