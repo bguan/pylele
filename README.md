@@ -8,9 +8,27 @@ Python based Ukulele and other String Instrument 3D Model Generator similar to m
 
 Implemented by clean portable wrapper around one of the following Python 3D Modeling Library:
 * [CadQuery](https://github.com/CadQuery/cadquery)
-  * Linux installation (I use Ubuntu)
+   * ***Note***: if you ever get error messages about bool8 missing from numpy, downgrapde from numpy 2.x back to numpy 1.26.4 e.g.
+     ```
+     > pip install --force-reinstall numpy==1.26.4
+     ```
+  * Linux installation of dependencies (I tried on Intel I7 Asus laptop running Ubuntu 24.04 Noble Numbat)
     * In a terminal shell inside a python 3.11+ virtual env: 
       ```
+      > pip install cadquery
+      > pip install PyQt5 spyder pyqtgraph logbook
+      > pip install git+https://github.com/CadQuery/CQ-editor.git
+      ```
+  * MacOS Apple Silicon installation (I tried on M2 Macbook Air running Sonoma 14.5)
+    * Due to perculiar build magic for CAD Query OCP wrapper for OCCT not yet working with pip
+      (reason why CQ devs encourage using conda instead of pip, but I prefer pip for other reasons),
+      I needed to download and install prebuilt wheels for caquery_ocp and nlopt
+    * In a terminal shell inside a python 3.11+ virtual env: 
+      ```
+      > wget https://github.com/biggestT/cadquery-dist-macos-arm64/releases/download/v0.0.1/cadquery_ocp-7.7.0.1-cp311-cp311-macosx_11_0_arm64.whl
+      > wget https://github.com/biggestT/cadquery-dist-macos-arm64/releases/download/v0.0.1/nlopt-2.7.1-cp311-cp311-macosx_14_0_arm64.whl
+      > pip install cadquery_ocp-7.7.0.1-cp311-cp311-macosx_11_0_arm64.whl
+      > pip install nlopt-2.7.1-cp311-cp311-macosx_14_0_arm64.whl
       > pip install cadquery
       > pip install PyQt5 spyder pyqtgraph logbook
       > pip install git+https://github.com/CadQuery/CQ-editor.git
