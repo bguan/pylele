@@ -39,4 +39,7 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
 
 Code and view generated models in your favorite development environment!
 
-![Pylele Screenshot ](https://github.com/bguan/pylele/assets/1054657/2c089b16-d2ea-4ce2-85fa-f7d800cc4280)
+![image](https://github.com/bguan/pylele/assets/1054657/0a9001a3-1a84-4bf9-a439-4f9434c259a3)
+
+![image](https://github.com/bguan/pylele/assets/1054657/6e3b11f1-08fd-4d8d-aaa9-e8e563bf0d08)
+
