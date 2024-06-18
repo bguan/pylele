@@ -29,6 +29,7 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
       > wget https://github.com/biggestT/cadquery-dist-macos-arm64/releases/download/v0.0.1/nlopt-2.7.1-cp311-cp311-macosx_14_0_arm64.whl
       > pip install cadquery_ocp-7.7.0.1-cp311-cp311-macosx_11_0_arm64.whl
       > pip install nlopt-2.7.1-cp311-cp311-macosx_14_0_arm64.whl
+      > pip install --force-reinstall numpy==1.26.4
       > pip install cadquery
       > pip install PyQt5 spyder pyqtgraph logbook
       > pip install git+https://github.com/CadQuery/CQ-editor.git
