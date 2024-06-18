@@ -8,7 +8,7 @@ Python based Ukulele and other String Instrument 3D Model Generator similar to m
 
 Implemented by clean portable wrapper around one of the following Python 3D Modeling Library:
 * [CadQuery](https://github.com/CadQuery/cadquery)
-   * ***Note***: if you ever get error messages about bool8 missing from numpy, downgrapde from numpy 2.x back to numpy 1.26.4 e.g.
+   * ***Note***: if you ever get error messages about bool8 missing from numpy, downgrade from numpy 2.x back to numpy 1.26.4 e.g.
      ```
      > pip install --force-reinstall numpy==1.26.4
      ```
