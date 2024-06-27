@@ -35,6 +35,7 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
       > pip install git+https://github.com/CadQuery/CQ-editor.git
       ```
 * [Blender](https://github.com/blender/blender) - **Coming Soon!**
+* [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
 * [SolidPython](https://github.com/SolidCode/SolidPython) - *may be one day in the future...*
 
 Code and view generated models in your favorite development environment!
