@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import sys
-from pylele_config import *
-
-TUNER_TYPES = {
-    'friction': FRICTION_PEG_CFG,
-    'gotoh': GOTOH_PEG_CFG,
-    'worm': WORM_TUNER_CFG,
-    'bigWorm': BIGWORM_TUNER_CFG,
-}
+from pylele_config import \
+    SOPRANO_SCALE_LEN, DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL, \
+    Implementation, Fidelity, ModelLabel, TunerType
 
 
 def parseCLI():
@@ -19,38 +13,38 @@ def parseCLI():
     parser = argparse.ArgumentParser(description='Pylele Configuration')
 
     ## Numeric config options ###########################################
-    parser.add_argument("-s", "--scale_length", help="Scale Length [mm]",
+    parser.add_argument("-s", "--scale_length", help="Scale Length [mm], default 330",
                         type=int, default=SOPRANO_SCALE_LEN)
-    parser.add_argument("-n", "--num_strings", help="Number of strings",
+    parser.add_argument("-n", "--num_strings", help="Number of strings, default 4",
                         type=int, default=4)
-    parser.add_argument("-a", "--action", help="Strings action [mm]",
+    parser.add_argument("-a", "--action", help="Strings action [mm], default 2",
                         type=float, default=2)
-    parser.add_argument("-g", "--nut_string_gap", help="Nut to String gap [mm]",
+    parser.add_argument("-g", "--nut_string_gap", help="Nut to String gap [mm], default 9",
                         type=float, default=9)
-    parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm]",
+    parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
                         type=float, default=0)
 
     ## Chamber config options ###########################################
 
-    parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm]",
+    parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
                         type=float, default=4)
-    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm]",
-                        type=float, default=2)
-    parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg]",
-                        type=float, default=-0.5)
+    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 0",
+                        type=float, default=0)
+    parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg], default 0°",
+                        type=float, default=-0)
 
     ## Non-Numeric config options #######################################
 
-    parser.add_argument("-t", "--tuners_type", help="Type of tuners",
-                        type=str, default='worm', choices=TUNER_TYPES.keys())
+    parser.add_argument("-t", "--tuner_type", help="Type of tuners, default friction",
+                        type=TunerType, choices=list(TunerType), default='friction')
 
     parser.add_argument("-d", "--dot_frets",
-                        help="Comma-separated fret[:dots] pairs, e.g. 3,5:2,7,10,12:3",
+                        help="Comma-separated fret[:dots] pairs, default 3,5:2,7,10,12:3,15,17:2,19,22",
                         type=lambda d: {
                             int(l[0]): 1 if len(l) < 2 else int(l[1])
                             for l in (fns.split(':') for fns in d.split(','))
                         },
-                        default={3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1, 24: 3})
+                        default={3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1})
 
     ## Cut options ######################################################
 
@@ -76,8 +70,8 @@ def parseCLI():
     ## text options ######################################################
 
     parser.add_argument("-x", "--texts_size_font",
-                        help="Comma-separated text[:size[:font]] tuples. "\
-                            + "e.g. Love:36,'Summer 2024':12:Times",
+                        help="Comma-separated text[:size[:font]] tuples, "\
+                            + "default Pylele:28:Arial,:8,'mind2form.com © 2024':8:Arial",
                         type=lambda x: [
                             (l[0], 10 if len(l) < 2 else int(l[1]),
                              'Arial' if len(l) < 3 else l[2])
@@ -89,13 +83,16 @@ def parseCLI():
                             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
                         ])
 
-    parser.add_argument("-m", "--model_label", help="Model labeling choices",
+    parser.add_argument("-m", "--model_label", help="Model labeling choices, default long",
                         type=ModelLabel, choices=list(ModelLabel), default='long')
     
-    ## file export options ######################################################
+    ## other options ######################################################
 
-    parser.add_argument("-f", "--file_tolerance", help="Mesh tolerance for STL file export",
-                        type=float, default=0.01)
+    parser.add_argument("-i", "--implementation", help="Underlying engine implementation, default cadquery",
+                        type=Implementation, choices=list(Implementation), default='cadquery')
+    
+    parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
+                        type=Fidelity, choices=list(Fidelity), default='low')
     
     ## parse arguments ##########################################################
     
@@ -103,4 +100,4 @@ def parseCLI():
 
 
 if __name__ == '__main__':
-    print(parseCLI(sys.argv[1:]))
+    print(parseCLI())

@@ -3,9 +3,10 @@
 import os
 import sys
 from pathlib import Path
-from pylele_parts import *
-from pylele_assemble import *
-from pylele_cli import parseCLI, TUNER_TYPES
+from pylele_assemble import assemble, test
+from pylele_cli import parseCLI
+from pylele_config import Implementation, LeleConfig, FILLET_RAD, WORM_TUNER_CFG
+from pylele_parts import Strings, Tuners, WormKey, Spines
 
 """
     Main Logic of Pylele
@@ -35,10 +36,12 @@ def pylele_main():
         txtSzFonts=cli.texts_size_font,
         modelLbl=cli.model_label,
         half=cli.half,
-        tnrCfg=TUNER_TYPES[cli.tuners_type]
+        tnrType=cli.tuner_type,
+        fidelity=cli.fidelity,
+        impl=cli.implementation,
     )
 
-    parts = assemble(cfg)
+    parts = assemble(cfg) # or test(cfg) to test the parts
 
     expDir = Path.cwd()/"build"
     if not expDir.exists():
@@ -47,14 +50,13 @@ def pylele_main():
         print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
         sys.exit(os.EX_SOFTWARE)
 
-    # if running in CQ-Editor
     for p in parts:
         if cfg.half:
             p = p.half()
-        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"), cli.file_tolerance)
+        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
 
 def cqeditor_main():
-    cfg = LeleConfig(endWth=90, tnrCfg=WORM_TUNER_CFG,
+    cfg = LeleConfig(impl=Implementation.CAD_QUERY, endWth=90, tnrCfg=WORM_TUNER_CFG,
             sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
