@@ -5,13 +5,13 @@ import bmesh
 import math
 from mathutils import Vector
 from pylele_api import Shape, ShapeAPI
-from pylele_config import Fidelity
+from pylele_config import Fidelity, Implementation
 from pylele_utils import radians
 from typing import Union
 
 class BlenderShapeAPI(ShapeAPI):
-    def __init__(self, smoothSegs: int):
-        self.smoothSegs = smoothSegs
+    def __init__(self, fidel: Fidelity):
+        self.fidelity = fidel
 
     def exportSTL(self, shape: BlenderShape, path: str) -> None:
         bpy.ops.object.select_all(action='DESELECT')
@@ -68,17 +68,20 @@ class BlenderShapeAPI(ShapeAPI):
             deg: float,
         ) -> BlenderShape:
         return BlenderLineSplineRevolveX(start, path, deg, self)
+    
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> BlenderShape:
         return BlenderCirclePolySweep(rad, path, self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
+    def getJoinCutTol(self) -> float:
+        return Implementation.BLENDER.joinCutTol()
 
 class BlenderShape(Shape):
 
     MAX_DIM = 10000 # for max and min dimensions
-    REPAIR_MIN_REZ = 0.00005
+    REPAIR_MIN_REZ = 0.0001
     
     def __init__(self, api: BlenderShapeAPI):
         super().__init__()
@@ -200,14 +203,32 @@ class BlenderShape(Shape):
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
     ) -> bpy.types.Object:
-        lastX, lastY = start
+        
+        def adjustX(
+            path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]], 
+            x: float,
+        ) -> list[Union[tuple[float, float], list[tuple[float, float, float, float]]]]:
+            if x == 0:
+                return path
+            newPath = []
+            for p in path:
+                if isinstance(p, tuple):
+                    newPath.append((p[0] + x, p[1]))
+                else:
+                    newSpline = [(px + x, py, dx, dy) for px, py, dx, dy in p]
+                    newPath.append(newSpline)
+            return newPath
+        
+        origX, origY = start
+        path = adjustX(path, -origX)
+        
+        lastX, lastY = (0, origY)
         dimX, dimY = BlenderShape.dimXY(start, path)
         segsX, segsY = self.segsByDim(dimX), self.segsByDim(dimY)
         lineData = bpy.data.curves.new('LineSpline', type='CURVE')
         lineData.dimensions = '2D'
         lineData.fill_mode = 'BOTH'
         spline = lineData.splines.new('BEZIER')
-        # spline.bezier_points.add(1)
         bp = spline.bezier_points[-1]
         bp.co = (lastX, lastY, 0)
         bp.handle_left_type = 'VECTOR'
@@ -258,6 +279,7 @@ class BlenderShape(Shape):
         lineData.resolution_u = segsX
         lineData.resolution_v = segsY
         obj = bpy.data.objects.new('LineSplineObj', lineData)
+        obj.location.x = origX
         return obj
 
     def mirrorXZ(self) -> BlenderShape:
@@ -288,14 +310,19 @@ class BlenderShape(Shape):
 
         # recover from extreme right shift
         cp.obj.location.y = cp.obj.location.y + self.MAX_DIM
-        return cp
+        return cp.repairMesh()
 
     def mv(self, x: float, y: float, z: float) -> BlenderShape:
         if x == 0 and y == 0 and z == 0:
             return self
+        bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = self.obj
         self.obj.select_set(True)
-        bpy.ops.transform.translate(value=(x, y, z))
+        bpy.ops.transform.translate(
+            value=(x, y, z),
+            use_accurate=True,
+            use_automerge_and_split=True,
+        )
         return self
 
     def remove(self) -> None:
@@ -311,24 +338,23 @@ class BlenderShape(Shape):
         bm = bmesh.from_edit_mesh(self.obj.data)
         non_manifold_edges = [e for e in bm.edges if not e.is_manifold]
         loop = 0
-        while non_manifold_edges and loop < 3:
+        while non_manifold_edges and loop < 2:
             print(f"Loop {loop}: found {len(non_manifold_edges)} non-manifold edges. Attempting to fix...")
             bpy.ops.mesh.select_all(action='DESELECT')
             bpy.ops.mesh.select_non_manifold()
             bpy.ops.mesh.remove_doubles(
                 threshold=minRez, 
-                # use_sharp_edge_from_normals=True,
-                # use_unselected=True,
+                use_sharp_edge_from_normals=True,
+                use_unselected=True,
             ) 
             bpy.ops.mesh.fill_holes(sides=0)  # 'sides=0' fills all holes
-            bpy.ops.mesh.dissolve_degenerate() #threshold=minRez)
-            bpy.ops.mesh.delete_loose() #use_faces=True, use_edges=True, use_verts=True)
-            bpy.ops.mesh.normals_make_consistent() #inside=False)
+            bpy.ops.mesh.dissolve_degenerate(threshold=minRez)
+            bpy.ops.mesh.delete_loose(use_faces=True, use_edges=True, use_verts=True)
+            bpy.ops.mesh.normals_make_consistent(inside=True)
             bm = bmesh.from_edit_mesh(self.obj.data)
             non_manifold_edges = [e for e in bm.edges if not e.is_manifold]
-            minRez *= 2
+            minRez *= 1.2
             loop += 1
-            
         bpy.ops.object.mode_set(mode='OBJECT')
         return self
         
@@ -374,6 +400,7 @@ class BlenderShape(Shape):
     def scale(self, x: float, y: float, z: float) -> BlenderShape:
         if x == 1 and y == 1 and z == 1:
             return self
+        bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = self.obj
         self.obj.select_set(True)
         bpy.context.scene.cursor.location = (0,0,0)
@@ -392,7 +419,7 @@ class BlenderShape(Shape):
         self.obj.select_set(True)
 
     def segsByDim(self, dim: float) -> int:
-        return math.ceil(dim**.5 * self.api.smoothSegs)
+        return math.ceil(math.sqrt(abs(dim)) * self.api.fidelity.smoothingSegments())
 
 class BlenderBall(BlenderShape):
     def __init__(self, rad: float, api: BlenderShapeAPI):
@@ -539,30 +566,11 @@ class BlenderLineSplineRevolveX(BlenderShape):
         deg: float,
         api: BlenderShapeAPI,
     ):
-        def adjustX(
-            path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]], 
-            x: float,
-        ) -> list[Union[tuple[float, float], list[tuple[float, float, float, float]]]]:
-            if x == 0:
-                return path
-            
-            newPath = []
-            for p in path:
-                if isinstance(p, tuple):
-                    newPath.append((p[0] + x, p[1]))
-                else:
-                    newSpline = [(px + x, py, dx, dy) for px, py, dx, dy in p]
-                    newPath.append(newSpline)
-            return newPath
-        
         super().__init__(api)
-
-        origX, origY = start
         _, dimY = BlenderShape.dimXY(start, path)
-        segs = self.segsByDim(dimY)
-        path = adjustX(path, -origX)
+        segs = self.segsByDim(abs(dimY * deg/360))
         bpy.ops.object.select_all(action='DESELECT')
-        self.obj = self.lineSplineXY((0, origY), path)
+        self.obj = self.lineSplineXY(start, path)
         bpy.context.collection.objects.link(self.obj)
         bpy.context.view_layer.objects.active = self.obj
         self.obj.select_set(True)
@@ -570,11 +578,13 @@ class BlenderLineSplineRevolveX(BlenderShape):
         bpy.ops.object.convert(target='MESH')
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.spin(axis=(1,0,0), angle=radians(-deg), steps=segs)
-        self.obj.location.x = origX
+        # HACK: spin only produce correct mesh when axis and deg are opposite sign, so forcing it here
+        bpy.ops.mesh.spin(axis=(1, 0, 0), angle=radians(-abs(deg)), steps=segs)
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.context.scene.cursor.location = (0, 0, 0)
         bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+        if deg < 0: # HACK: since spin hack above, rotate if deg is same sign as axis
+            self.obj.rotation_euler[0] = radians(180)
         self.repairMesh()
 
 class BlenderCirclePolySweep(BlenderShape):
@@ -608,6 +618,5 @@ if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.object.shade_smooth()
     bpy.ops.object.select_all(action='DESELECT')
-    segs = Fidelity.LOW.smoothingSegments()
-    api = BlenderShapeAPI(segs)
+    api = BlenderShapeAPI(Fidelity.LOW)
     api.test("build/bpy-all.stl")

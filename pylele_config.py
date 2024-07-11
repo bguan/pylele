@@ -178,7 +178,7 @@ class Implementation(Enum):
 
     # for joins to have a little overlap
     def joinCutTol(self) -> float:
-        return 0 if self == Implementation.CAD_QUERY else 0.025
+        return 0 if self == Implementation.CAD_QUERY else 0.01
     
 class Fidelity(Enum):
     LOW = 'low'
@@ -200,11 +200,11 @@ class Fidelity(Enum):
     def smoothingSegments(self) -> int:
         match self:
             case Fidelity.LOW:
-                return 24
+                return 17
             case Fidelity.MEDIUM:
-                return 36
+                return 34
             case Fidelity.HIGH:
-                return 48
+                return 51
 
 class ModelLabel(Enum):
     NONE = 'none'
@@ -215,11 +215,11 @@ class ModelLabel(Enum):
         return self.value
 
 class LeleConfig:
-    BOT_RATIO = .666
+    TOP_RATIO = 1/8 #.1
+    BOT_RATIO = 2/3 #.666
     CHM_BACK_RATIO = 1/2  # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
-    EXT_MID_TOP_TCK = 1 
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
     FRETBD_SPINE_TCK = 2 # need to be > 1mm more than RIM_TCK for fillets
@@ -238,7 +238,6 @@ class LeleConfig:
     SPINE_WTH = 2
     STR_RAD = 0.5
     TEXT_TCK = 20
-    TOP_RATIO = .1
 
     def __init__(
         self,
@@ -315,6 +314,7 @@ class LeleConfig:
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
+        self.extMidTopTck = 1
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
@@ -360,10 +360,10 @@ class LeleConfig:
         self.chmPath = [
             (scaleLen - self.chmFront, 0),
             [
-                (scaleLen - self.chmFront, -.1, 0, -15),
-                (scaleLen-.5*self.chmFront, -.45*self.chmWth, 10, -2),
-                (scaleLen, -self.chmWth/2, 20, 0),
-                (scaleLen + self.chmBack, -.1, 0, 20),
+                (scaleLen - self.chmFront, .1, 0, 15),
+                (scaleLen-.5*self.chmFront, .45*self.chmWth, 10, 2),
+                (scaleLen, self.chmWth/2, 20, 0),
+                (scaleLen + self.chmBack, .1, 0, -20),
             ],
             (scaleLen + self.chmBack, 0),
         ]
@@ -384,12 +384,12 @@ class LeleConfig:
             ))
             pi = 1
             rp[1].append((
-                cp1[pi][0], cp1[pi][1] - self.rimWth - cutAdj, 
+                cp1[pi][0], cp1[pi][1] + self.rimWth + cutAdj, 
                 cp1[pi][2], cp1[pi][3],
             ))
             pi = 2
             rp[1].append((
-                cp1[pi][0], cp1[pi][1] - self.rimWth - cutAdj, 
+                cp1[pi][0], cp1[pi][1] + self.rimWth + cutAdj, 
                 cp1[pi][2], cp1[pi][3],
             ))
             pi = 3
@@ -410,11 +410,11 @@ class LeleConfig:
         headDY = headDX * math.tan(radians(self.neckWideAng))
         self.headOrig = (0, 0)
         self.headPath = [
-            (0, -self.nutWth/2),
+            (0, self.nutWth/2),
             [
-                (-headDX, -self.nutWth/2 + headDY, -headDX, headDY),
-                (-self.HEAD_LEN/2, -self.headWth/2, -1.5, .1),
-                (-self.HEAD_LEN +.1, -self.headWth/6, -.1, 1.5),
+                (-headDX, self.nutWth/2 + headDY, -headDX, -headDY),
+                (-self.HEAD_LEN/2, self.headWth/2, -1.5, -.1),
+                (-self.HEAD_LEN +.1, self.headWth/6, -.1, -1.5),
             ],
             (-self.HEAD_LEN, 0),
         ]
@@ -434,17 +434,17 @@ class LeleConfig:
             bBkLen = self.bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             bodySpline = [
-                (nkLen + neckDX, -nkWth/2 - neckDY, 2*neckDX, -2*neckDY),
-                (scaleLen - .7*bFrLen, -.33*bWth, 10, -8),
-                (scaleLen, -bWth/2, 15, 0),
-                (scaleLen + bBkLen, -eWth/2 -.1, 
+                (nkLen + neckDX, nkWth/2 - neckDY, 2*neckDX, 2*neckDY),
+                (scaleLen - .7*bFrLen, .33*bWth, 10, 8),
+                (scaleLen, bWth/2, 15, 0),
+                (scaleLen + bBkLen, eWth/2 +.1, 
                  0 if endWth < self.tnrGap * numStrs else 5, 
-                 30 if endWth < self.tnrGap * numStrs else 15), 
+                 -30 if endWth < self.tnrGap * numStrs else -15), 
             ]
             bodyPath = [
-                (nkLen, -nkWth/2),
+                (nkLen, nkWth/2),
                 bodySpline,
-                (scaleLen + bBkLen, -eWth/2),
+                (scaleLen + bBkLen, eWth/2),
             ]
             if eWth > 0:
                 bodyPath.insert(3,(scaleLen + bBkLen, 0))
@@ -467,7 +467,7 @@ class LeleConfig:
         f12Ht = self.FRETBD_TCK \
             + math.tan(radians(self.fretbdRiseAng)) * f12Len \
             + self.FRET_HT
-        self.brdgZ = self.bodyWth/2 * self.TOP_RATIO + self.EXT_MID_TOP_TCK - 1
+        self.brdgZ = self.bodyWth/2 * self.TOP_RATIO + self.extMidTopTck - 1
         self.brdgHt = 2*(f12Ht + action - self.NUT_HT - self.STR_RAD/2) \
             - self.brdgZ
         self.brdgLen = nutStrGap
@@ -506,7 +506,7 @@ class LeleConfig:
         tX = tXMax
         tY = 0
         wCfg: WormConfig = None if self.isPeg else self.tnrCfg
-        tZBase = (self.EXT_MID_TOP_TCK + .5) if self.isPeg \
+        tZBase = (self.extMidTopTck + .5) if self.isPeg \
             else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
         def tzAdj(tY: float) -> float:

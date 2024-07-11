@@ -2,6 +2,57 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union
 
+class Shape(ABC):
+    @abstractmethod
+    def cut(self, cutter: Shape) -> Shape:
+        ...
+
+    @abstractmethod
+    def filletByNearestEdges(self, 
+        nearestPts: list[tuple[float, float, float]], 
+        rad: float,
+    ) -> Shape:
+        ...
+
+    @abstractmethod
+    def half(self) -> Shape:
+        ...
+
+    @abstractmethod
+    def join(self, joiner: Shape) -> Shape:
+        ...
+
+    @abstractmethod
+    def mirrorXZ(self) -> Shape:
+        ...
+
+    @abstractmethod
+    def mv(self, x: float, y: float, z: float) -> Shape:
+        ...
+
+    @abstractmethod
+    def remove(self):
+        ...
+    
+    @abstractmethod
+    def rotateX(self, ang: float) -> Shape:
+        ...
+
+    @abstractmethod
+    def rotateY(self, ang: float) -> Shape:
+        ...
+
+    @abstractmethod
+    def rotateZ(self, ang: float) -> Shape:
+        ...
+
+    @abstractmethod
+    def scale(self, x: float, y: float, z: float) -> Shape:
+        ...
+
+    @abstractmethod
+    def show(self):
+        ...
 class ShapeAPI(ABC):
 
     @abstractmethod
@@ -89,8 +140,14 @@ class ShapeAPI(ABC):
         font: str,
     ):
         ...
+        
+    @abstractmethod
+    def getJoinCutTol(self):
+        ...
 
     def test(self, path: str):
+        objs = []
+
         box = self.genBox(10, 10, 2).mv(0, 0, -10)
         ball = self.genBall(5).scale(1, 2, 1)
         coneZ = self.genConeZ(10, 10, 5).mv(0, 0, 10)
@@ -99,37 +156,37 @@ class ShapeAPI(ABC):
         obj1 = box.join(ball).join(coneZ).join(rod).cut(coneX)
         coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
-        all = obj1
+        objs.append(obj1)
 
         rx = self.genRodX(10, 3)
         ry = self.genRodY(10, 3)
         rz = self.genRodZ(10, 3)
         obj2 = rx.join(ry).join(rz).mv(10, -10, 5)
-        all = all.join(obj2)
+        objs.append(obj2)
 
         rr1 = self.genRndRodX(10, 3).scale(.5, 1, 1).mv(0, -20, 0)
         rr2 = self.genRndRodX(10, 3).scale(1, .5, 1).mv(0, 0, 0)
         rr3 = self.genRndRodX(10, 3).scale(1, 1, .5).mv(0, 20, 0)
         rr4 = self.genRndRodY(50, 1)
         obj3 = rr1.join(rr2).join(rr3).join(rr4).mv(0, 0, -20)
-        all = all.join(obj3)
+        objs.append(obj3)
 
         rrx = self.genRndRodX(10, 3, .25)
         rry = self.genRndRodY(10, 3, .5)
         rrz = self.genRndRodZ(10, 3)
         obj4 = rrx.join(rry).join(rrz).half().mv(-10, 10, 5)
-        all = all.join(obj4)
+        objs.append(obj4)
 
         pe = self.genPolyExtrusionZ([(-10, -30), (10, -30), (10, 30), (-10, 30)], 10)
         tz = self.genTextZ("Hello World", 10, 5, "Arial").rotateZ(90).mv(0, 0, 10)
         obj5 = pe.join(tz).mv(30, -30, 0)
         mirror = obj5.mirrorXZ().mv(10, 0, 0)
         obj5 = obj5.join(mirror)
-        all = all.join(obj5)
+        objs.append(obj5)
 
         rndBox = self.genBox(10, 10, 10).filletByNearestEdges([(5, 0, 5)], 1)
         obj6 = rndBox.mv(-10, -10, 5)
-        all = all.join(obj6)
+        objs.append(obj6)
 
         dome = self.genLineSplineExtrusionZ(
             start = (0, 0),
@@ -147,79 +204,26 @@ class ShapeAPI(ABC):
             ht = 5,
         )
         obj7 = dome.rotateY(-45).mv(-10, 15, 0)
-        all = all.join(obj7)
+        objs.append(obj7)
 
-        dome2 = self.genLineSplineRevolveX(
-            start = (60, 1),
-            path = [
-                (60, 10), 
-                (61, 10),
-                [
-                    (62, 10, 1, 0),
-                    (65, 5, 0, -1),
-                    (62, 1, -1, 0),
-                ],
-                (61, 1),
+        donutStart = (60, .1)
+        donutPath = [
+            (60, 10), 
+            (61, 10),
+            [
+                (62, 10, 1, 0),
+                (65, 5, 0, -1),
+                (62, .1, -1, 0),
             ],
-            deg = 180,
-        )
-        obj8 = dome2.mv(0, 0, -10) #.scale(1, 1, .5)
-        all = all.join(obj8)
+            (60, .1),
+        ]
+        dome2 = self.genLineSplineRevolveX(donutStart, donutPath, 180).scale(1, 1, .5)
+        dome3 = self.genLineSplineRevolveX(donutStart, donutPath, -180).mv(0, 0, self.getJoinCutTol())
+        obj8 = dome2.join(dome3).mv(0, 0, -10)
+        objs.append(obj8)
 
-        sweep = self.genCirclePolySweep(1, [(-20,0,0), (20,0,40), (40,20,40), (60,20,0)])
-        obj9 = sweep
-        all = all.join(obj9)
+        obj9 = self.genCirclePolySweep(1, [(-20,0,0), (20,0,40), (40,20,40), (60,20,0)])
+        objs.append(obj9)
 
-        self.exportSTL(all, path)
-
-class Shape(ABC):
-    @abstractmethod
-    def cut(self, cutter: Shape) -> Shape:
-        ...
-
-    @abstractmethod
-    def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
-        rad: float,
-    ) -> Shape:
-        ...
-
-    @abstractmethod
-    def half(self) -> Shape:
-        ...
-
-    @abstractmethod
-    def join(self, joiner: Shape) -> Shape:
-        ...
-
-    @abstractmethod
-    def mirrorXZ(self) -> Shape:
-        ...
-
-    @abstractmethod
-    def mv(self, x: float, y: float, z: float) -> Shape:
-        ...
-
-    @abstractmethod
-    def remove(self):
-        ...
-    
-    @abstractmethod
-    def rotateX(self, ang: float) -> Shape:
-        ...
-
-    @abstractmethod
-    def rotateY(self, ang: float) -> Shape:
-        ...
-
-    @abstractmethod
-    def rotateZ(self, ang: float) -> Shape:
-        ...
-
-    @abstractmethod
-    def scale(self, x: float, y: float, z: float) -> Shape:
-        ...
-
-    @abstractmethod
-    def show(self):
-        ...
+        joined = None; [joined := obj if joined is None else joined.join(obj) for obj in objs]
+        self.exportSTL(joined, path)

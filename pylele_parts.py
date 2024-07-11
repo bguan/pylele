@@ -18,11 +18,11 @@ def getShapeAPI(impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
     match impl:
         case Implementation.CAD_QUERY:
             if _cq_api == None:
-                _cq_api = cq_api.CQShapeAPI(fidelity.exportTol())
+                _cq_api = cq_api.CQShapeAPI(fidelity)
             return _cq_api
         case Implementation.BLENDER:
             if _blender_api == None:
-                _blender_api = bpy_api.BlenderShapeAPI(fidelity.smoothingSegments())
+                _blender_api = bpy_api.BlenderShapeAPI(fidelity)
             return _blender_api
         case Implementation.TRIMESH:
             return None
@@ -232,8 +232,7 @@ class Fretboard(LelePart):
         self.color = DARK_GRAY
 
     def gen(self) -> Shape:
-        fitTol = FIT_TOL
-        cutAdj = fitTol if self.isCut else 0
+        cutAdj = FIT_TOL if self.isCut else 0
         fbLen = self.cfg.fretbdLen + 2*cutAdj
         fbWth = self.cfg.fretbdWth + 2*cutAdj
         fbTck = self.cfg.FRETBD_TCK + 2*cutAdj
@@ -243,7 +242,9 @@ class Fretboard(LelePart):
         path = self.cfg.fbCutPath if self.isCut else self.cfg.fbPath
         fretbd = self.api.genPolyExtrusionZ(path, fbHt)
 
-        if not self.isCut:
+        if self.isCut:
+            fretbd = fretbd.mv(0, 0, -self.cfg.joinCutTol)
+        else:
             topCut = self.api.genBox(fbLen * 2, fbWth, fbHt)\
                 .rotateY(-riseAng)\
                 .mv(0, 0, fbTck + fbHt/2)
@@ -264,13 +265,12 @@ class FretboardSpines(LelePart):
         self.color = DARK_GRAY
 
     def gen(self) -> Shape:
-        fitTol = FIT_TOL
-        cutAdj = fitTol if self.isCut else 0
-        fspTck = self.cfg.FRETBD_SPINE_TCK
+        cutAdj = FIT_TOL if self.isCut else 0
+        fspTck = self.cfg.FRETBD_SPINE_TCK + 2*(self.cfg.joinCutTol if self.isCut else 0)
         spY1 = self.cfg.spineY1
         spY2 = self.cfg.spineY2
         spWth = self.cfg.SPINE_WTH + 2*cutAdj # to align with spine cuts
-        fspLen = self.cfg.fbSpineLen + 2*cutAdj
+        fspLen = self.cfg.fbSpineLen + 2*cutAdj + 2*(self.cfg.joinCutTol if self.isCut else 0)
         fspX = self.cfg.fbSpX
 
         fsp1 = self.api.genBox(fspLen, spWth, fspTck)\
@@ -375,18 +375,18 @@ class Head(LelePart):
         orig = self.cfg.headOrig
         path = self.cfg.headPath
 
-        hd = self.api.genLineSplineRevolveX(orig, path, 180)\
+        hd = self.api.genLineSplineRevolveX(orig, path, -180)\
             .scale(1, 1, botRat).mv(0, 0, -midTck)
 
         if topRat > 0:
-            top = self.api.genLineSplineRevolveX(orig, path, -180)\
+            top = self.api.genLineSplineRevolveX(orig, path, 180)\
                 .scale(1, 1, topRat)
             hd = hd.join(top)
 
         if midTck > 0:
-            midL = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
+            midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
                 .mv(0, 0, -midTck)
-            midR = midL.mirrorXZ()
+            midL = midR.mirrorXZ()
             hd = hd.join(midL).join(midR)
 
         topCut = self.api.genRndRodY(2*hdWth, hdLen, 1)\
@@ -412,16 +412,15 @@ class Top(LelePart):
         fitTol = FIT_TOL
         joinTol = self.cfg.joinCutTol
         topRat = self.cfg.TOP_RATIO
-        midTck = self.cfg.EXT_MID_TOP_TCK
+        midTck = self.cfg.extMidTopTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
-
-        top = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, topRat)
-        if midTck > 0 or self.isCut:
+        top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
+        if midTck > 0:
             top = top.mv(0, 0, (midTck+fitTol if self.isCut else midTck) -joinTol)
-            midL = self.api.genLineSplineExtrusionZ(
+            midR = self.api.genLineSplineExtrusionZ(
                 bOrig, bPath, midTck+fitTol if self.isCut else midTck)
-            midR = midL.mirrorXZ()
+            midL = midR.mirrorXZ()
             top = top.join(midL.mv(0, joinTol/2, 0)).join(midR.mv(0, -joinTol/2, 0))
         return top
 
@@ -444,12 +443,12 @@ class Body(LelePart):
         bPath = self.cfg.bodyPath
         joinTol = self.cfg.joinCutTol
 
-        bot = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, botRat)
+        bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
         if midTck > 0:
             bot = bot.mv(0, 0, -midTck + joinTol)
-            midL = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
-            midR = midL.mirrorXZ()
-            bot = bot.join(midL.mv(0, joinTol/2, 0)).join(midR.mv(0, -joinTol/2, 0))
+            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
+            midL = midR.mirrorXZ()
+            bot = bot.join(midL.mv(0, joinTol/2, -midTck)).join(midR.mv(0, -joinTol/2, -midTck))
         return bot
 
 class Rim(LelePart):
@@ -493,8 +492,8 @@ class Chamber(LelePart):
         rotY = self.cfg.chmRot
         joinTol = self.cfg.joinCutTol
 
-        top = self.api.genLineSplineRevolveX(orig, path, -180).scale(1, 1, topRat/2)
-        bot = self.api.genLineSplineRevolveX(orig, path, 180).scale(1, 1, botRat)
+        top = self.api.genLineSplineRevolveX(orig, path, 180).scale(1, 1, topRat)#/2)
+        bot = self.api.genLineSplineRevolveX(orig, path, -180).scale(1, 1, botRat)
         chm = top.join(bot.mv(0, 0, joinTol))
 
         if rotY != 0:
@@ -521,7 +520,7 @@ class Soundhole(LelePart):
     def gen(self) -> Shape:
         x = self.cfg.sndholeX
         y = self.cfg.sndholeY
-        midTck = self.cfg.EXT_MID_TOP_TCK
+        midTck = self.cfg.extMidTopTck
         minRad = self.cfg.sndholeMinRad
         maxRad = self.cfg.sndholeMaxRad
         ang = self.cfg.sndholeAng
@@ -800,7 +799,7 @@ class Spines(LelePart):
         self.color = CARBON
 
     def gen(self) -> Shape:
-        cutAdj = FIT_TOL if self.isCut else 0
+        cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
         spX = self.cfg.spineX
         spLen = self.cfg.spineLen+ 2*cutAdj
         spY1 = self.cfg.spineY1

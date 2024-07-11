@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from pylele_assemble import assemble, test
 from pylele_cli import parseCLI
-from pylele_config import Implementation, LeleConfig, FILLET_RAD, WORM_TUNER_CFG
+from pylele_config import Implementation, LeleConfig, FILLET_RAD, TunerType
 from pylele_parts import Strings, Tuners, WormKey, Spines
 
 """
@@ -41,7 +41,7 @@ def pylele_main():
         impl=cli.implementation,
     )
 
-    parts = assemble(cfg) # or test(cfg) to test the parts
+    parts = assemble(cfg)
 
     expDir = Path.cwd()/"build"
     if not expDir.exists():
@@ -56,8 +56,9 @@ def pylele_main():
         p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
 
 def cqeditor_main():
-    cfg = LeleConfig(impl=Implementation.CAD_QUERY, endWth=90, tnrCfg=WORM_TUNER_CFG,
-            sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
+    cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=2,
+        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM_TUNER,
+        sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
     key = None if not cfg.isWorm else WormKey(cfg, isCut=False, fillets={FILLET_RAD:[]})

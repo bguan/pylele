@@ -4,19 +4,21 @@ import cadquery as cq
 from pylele_api import ShapeAPI, Shape
 from typing import Union
 
+from pylele_config import Fidelity, Implementation
+
 """
     Encapsulate CAD Query implementation specific calls
 """
 class CQShapeAPI(ShapeAPI):
-    def __init__(self, tolerance: float = 0.001):
-        self.tolerance = tolerance
+    def __init__(self, fidel: Fidelity):
+        self.fidelity = fidel
 
     def exportSTL(self, shape: CQShape, path: str) -> None:
         cq.exporters.export(
             shape.solid,
             path,
             cq.exporters.ExportTypes.STL,
-            tolerance=self.tolerance,
+            tolerance=self.fidelity.exportTol(),
         )
 
     def genBall(self, rad: float) -> CQShape:
@@ -75,6 +77,8 @@ class CQShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font)
 
+    def getJoinCutTol(self):
+        return Implementation.CAD_QUERY.joinCutTol()
 
 
 class CQShape(Shape):
@@ -292,5 +296,5 @@ class CQTextZ(CQShape):
 
 
 if __name__ == '__main__':
-    api = CQShapeAPI(tolerance=0.01)
+    api = CQShapeAPI(Fidelity.LOW)
     api.test("build/cq-all.stl")
