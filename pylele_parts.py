@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import bpy_api
-import cq_api
 import math
 from abc import ABC, abstractmethod
 from pylele_api import ShapeAPI, Shape
@@ -9,23 +7,6 @@ from pylele_config import Fidelity, Implementation, LeleConfig, WormConfig, PegC
     FIT_TOL, SEMI_RATIO, CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE, accumDiv
 from pylele_utils import radians
 from random import randint
-
-_cq_api: ShapeAPI = None
-_blender_api: ShapeAPI = None
-_trimesh_api: ShapeAPI = None
-def getShapeAPI(impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
-    global _cq_api, _blender_api, _trimesh_api
-    match impl:
-        case Implementation.CAD_QUERY:
-            if _cq_api == None:
-                _cq_api = cq_api.CQShapeAPI(fidelity)
-            return _cq_api
-        case Implementation.BLENDER:
-            if _blender_api == None:
-                _blender_api = bpy_api.BlenderShapeAPI(fidelity)
-            return _blender_api
-        case Implementation.TRIMESH:
-            return None
 
 """
     Abstract Base and Concrete Classes for all Gugulele parts
@@ -49,7 +30,7 @@ class LelePart(ABC):
         self.cutters = cutters
         self.fileNameBase = self.__class__.__name__
         self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
-        self.api = getShapeAPI(cfg.impl, cfg.fidelity)
+        self.api = ShapeAPI.get(cfg.impl, cfg.fidelity)
 
         self.shape = self.gen()
         

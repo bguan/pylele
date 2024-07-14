@@ -1,6 +1,11 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Union
+
+from pylele_config import Fidelity, Implementation
+
+import importlib
 
 class Shape(ABC):
     @abstractmethod
@@ -53,7 +58,31 @@ class Shape(ABC):
     @abstractmethod
     def show(self):
         ...
+
+        
 class ShapeAPI(ABC):
+
+    _cq_api: ShapeAPI = None
+    _blender_api: ShapeAPI = None
+    _trimesh_api: ShapeAPI = None
+
+    @classmethod
+    def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
+        match impl:
+            case Implementation.CAD_QUERY:
+                if cls._cq_api == None:
+                    cq_mod_name = 'cq_api'
+                    cq_mod = importlib.import_module(cq_mod_name)
+                    cls._cq_api = cq_mod.CQShapeAPI(fidelity)
+                return cls._cq_api
+            case Implementation.BLENDER:
+                if cls._blender_api == None:
+                    bpy_mod_name = 'bpy_api'
+                    bpy_mod = importlib.import_module(bpy_mod_name)
+                    cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
+                return cls._blender_api
+            case Implementation.TRIMESH:
+                return None
 
     @abstractmethod
     def exportSTL(self, shape: Shape, path: str) -> None:
