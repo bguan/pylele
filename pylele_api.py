@@ -142,6 +142,14 @@ class ShapeAPI(ABC):
         ...
         
     @abstractmethod
+    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool):
+        ...
+        
+    @abstractmethod
+    def genHalfDisc(self, radius: float, pickFront: bool, tck: float):
+        ...
+        
+    @abstractmethod
     def getJoinCutTol(self):
         ...
 
@@ -224,6 +232,12 @@ class ShapeAPI(ABC):
 
         obj9 = self.genCirclePolySweep(1, [(-20,0,0), (20,0,40), (40,20,40), (60,20,0)])
         objs.append(obj9)
+
+        obj10 = self.genQuarterBall(10, True, True).scale(2, 1, .5).mv(-30, -20, 0)
+        objs.append(obj10)
+
+        obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
+        objs.append(obj11)
 
         joined = None; [joined := obj if joined is None else joined.join(obj) for obj in objs]
         self.exportSTL(joined, path)

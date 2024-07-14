@@ -75,6 +75,12 @@ class BlenderShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
+    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool) -> BlenderShape:
+        return BlenderQuarterBall(radius, pickTop, pickFront, self)
+        
+    def genHalfDisc(self, radius: float, pickFront: bool, tck: float) -> BlenderShape:
+        return BlenderHalfDisc(radius, pickFront, tck, self)
+        
     def getJoinCutTol(self) -> float:
         return Implementation.BLENDER.joinCutTol()
 
@@ -157,7 +163,7 @@ class BlenderShape(Shape):
         bpy.context.view_layer.objects.active = self.obj
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.bisect(plane_no=(0, 1, 0), use_fill=True, clear_outer=True)
+        bpy.ops.mesh.bisect(plane_no=(0, 1, 0), use_fill=True, clear_outer=True, clear_inner=False)
         bpy.ops.object.mode_set(mode='OBJECT')
         return self.repairMesh()
 
@@ -353,7 +359,7 @@ class BlenderShape(Shape):
             bpy.ops.mesh.normals_make_consistent(inside=True)
             bm = bmesh.from_edit_mesh(self.obj.data)
             non_manifold_edges = [e for e in bm.edges if not e.is_manifold]
-            minRez *= 1.2
+            minRez *= 1.5
             loop += 1
         bpy.ops.object.mode_set(mode='OBJECT')
         return self
@@ -614,9 +620,51 @@ class BlenderTextZ(BlenderShape):
         self.obj.location = (0, 0, 0)
         self.extrudeZ(tck)
 
+class BlenderQuarterBall(BlenderShape):
+    def __init__(self, rad: float, pickTop: bool, pickFront: bool, api: BlenderShapeAPI):
+        super().__init__(api)
+        bpy.ops.object.select_all(action='DESELECT')
+        segs = self.segsByDim(rad)
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=rad, segments=segs, ring_count=segs)
+        ball =  bpy.context.object
+        bpy.context.view_layer.objects.active = ball
+
+        # Bisect the sphere in the Z plane
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.bisect(plane_no=(0, 0, 1), use_fill=True, clear_outer=not pickTop, clear_inner=pickTop)
+        halfedBall = bpy.context.object
+        
+        # Clear existing objects, reselect the now halfed ball
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.context.view_layer.objects.active = halfedBall
+
+        # Bisect the sphere in the X plane
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.bisect(plane_no=(1, 0, 0), use_fill=True, clear_outer=pickFront, clear_inner=not pickFront)
+        quarteredBall = bpy.context.object
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        self.obj = quarteredBall
+
+class BlenderHalfDisc(BlenderShape):
+    def __init__(self, rad: float, pickFront: bool, tck: float, api: BlenderShapeAPI):
+        super().__init__(api)
+        verts = self.segsByDim(rad)
+        bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=tck, vertices=verts, location=(0, 0, 0))
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.bisect(plane_no=(1, 0, 0), use_fill=True, clear_outer=pickFront, clear_inner=not pickFront)
+        halfDisc = bpy.context.object
+        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        self.obj = halfDisc
+
+# Optionally, you can apply transformations or move the object as needed
+disc = bpy.context.object
+
 if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    bpy.ops.object.shade_smooth()
-    bpy.ops.object.select_all(action='DESELECT')
-    api = BlenderShapeAPI(Fidelity.LOW)
-    api.test("build/bpy-all.stl")
+    BlenderShapeAPI(Fidelity.LOW).test("build/bpy-all.stl")

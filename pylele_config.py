@@ -197,14 +197,14 @@ class Fidelity(Enum):
             case Fidelity.HIGH:
                 return 0.0001
     
-    def smoothingSegments(self) -> int:
+    def smoothingSegments(self) -> float:
         match self:
             case Fidelity.LOW:
-                return 17
+                return 7 
             case Fidelity.MEDIUM:
-                return 34
+                return 20
             case Fidelity.HIGH:
-                return 51
+                return 35
 
 class ModelLabel(Enum):
     NONE = 'none'
@@ -233,10 +233,10 @@ class LeleConfig:
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
     NUT_HT = 1.5
-    RIM_TCK = 1
+    RIM_TCK = 1.5
     SPINE_HT = 10
     SPINE_WTH = 2
-    STR_RAD = 0.5
+    STR_RAD = .7
     TEXT_TCK = 20
 
     def __init__(
@@ -248,7 +248,7 @@ class LeleConfig:
         sepBrdg: bool = False,
         sepEnd: bool = False,
         wallTck: float = 4,
-        chmLift: float = 0,
+        chmLift: float = 1,
         chmRot: float = 0,
         endWth: float = 0,
         numStrs: int = 4,
@@ -314,7 +314,7 @@ class LeleConfig:
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
-        self.extMidTopTck = 1
+        self.extMidTopTck = .5
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
@@ -356,53 +356,7 @@ class LeleConfig:
         self.chmLift = chmLift
         self.chmRot = chmRot
         self.chmWth = self.brdgWth * 3
-        self.chmOrig = (scaleLen, 0)
-        self.chmPath = [
-            (scaleLen - self.chmFront, 0),
-            [
-                (scaleLen - self.chmFront, .1, 0, 15),
-                (scaleLen-.5*self.chmFront, .45*self.chmWth, 10, 2),
-                (scaleLen, self.chmWth/2, 20, 0),
-                (scaleLen + self.chmBack, .1, 0, -20),
-            ],
-            (scaleLen + self.chmBack, 0),
-        ]
         self.rimWth = wallTck/2
-
-        def genRimPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
-            cutAdj = FIT_TOL if isCut else 0
-            cp1 = self.chmPath[1]  # using chamber path as basis
-            rp = [
-                (self.chmPath[0][0] - self.rimWth - cutAdj, self.chmPath[0][1]),
-                [],
-                (self.chmPath[2][0] + self.rimWth - cutAdj, self.chmPath[2][1]),
-            ]
-            pi = 0
-            rp[1].append((
-                cp1[pi][0] - self.rimWth - cutAdj, 
-                cp1[pi][1], cp1[pi][2], cp1[pi][3],
-            ))
-            pi = 1
-            rp[1].append((
-                cp1[pi][0], cp1[pi][1] + self.rimWth + cutAdj, 
-                cp1[pi][2], cp1[pi][3],
-            ))
-            pi = 2
-            rp[1].append((
-                cp1[pi][0], cp1[pi][1] + self.rimWth + cutAdj, 
-                cp1[pi][2], cp1[pi][3],
-            ))
-            pi = 3
-            rp[1].append((
-                cp1[pi][0] + self.rimWth + cutAdj, 
-                cp1[pi][1], cp1[pi][2], cp1[pi][3],
-            ))
-            return rp
-
-        self.rimOrig = self.chmOrig
-        self.rimPath = genRimPath()
-        self.rimCutOrig = self.rimOrig
-        self.rimCutPath = genRimPath(isCut=True)
 
         # Head configs
         self.headWth = self.nutWth * self.HEAD_WTH_RATIO
@@ -434,12 +388,12 @@ class LeleConfig:
             bBkLen = self.bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             bodySpline = [
-                (nkLen + neckDX, nkWth/2 - neckDY, 2*neckDX, 2*neckDY),
-                (scaleLen - .7*bFrLen, .33*bWth, 10, 8),
+                (nkLen + neckDX, nkWth/2 + neckDY, 2*neckDX, 2*neckDY),
+                (scaleLen - .62*bFrLen, .32*bWth, 10, 8),
                 (scaleLen, bWth/2, 15, 0),
                 (scaleLen + bBkLen, eWth/2 +.1, 
                  0 if endWth < self.tnrGap * numStrs else 5, 
-                 -30 if endWth < self.tnrGap * numStrs else -15), 
+                 -34 if endWth < self.tnrGap * numStrs else -17), 
             ]
             bodyPath = [
                 (nkLen, nkWth/2),
@@ -638,3 +592,7 @@ class LeleConfig:
         if inclDate:
             model += "-" + datetime.date.today().strftime("%m%d")
         return model
+
+    def __repr__(self):
+        properties = ',\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
+        return f"{self.__class__.__name__}\n\n{properties}"

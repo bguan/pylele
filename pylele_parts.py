@@ -291,8 +291,7 @@ class FretbdJoint(LelePart):
         self.color = DARK_GRAY
 
     def gen(self) -> Shape:
-        fitTol = FIT_TOL
-        cutAdj = fitTol if self.isCut else 0
+        cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
         fbHt = self.cfg.fretbdHt
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
@@ -319,12 +318,13 @@ class Neck(LelePart):
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         path = self.cfg.neckPath
+        joinTol = self.cfg.joinCutTol
         neck = None
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
         neckCone = self.api.genConeX(nkLen, ntWth/2, nkWth/2)
         coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
-        neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, -midTck)
+        neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
         neck = neckCone if neck == None else neck.join(neckCone)
         return neck
 
@@ -341,12 +341,11 @@ class NeckJoint(LelePart):
         self.color = ORANGE
 
     def gen(self) -> Shape:
-        fitTol = FIT_TOL
-        cutAdj = fitTol if self.isCut else 0
+        cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
         jntWth = self.cfg.neckJntWth + 2*cutAdj
-        jntTck = self.cfg.neckJntTck + 2*fitTol # to match cut grooves for spines
+        jntTck = self.cfg.neckJntTck + 2*FIT_TOL + 2*self.cfg.joinCutTol # to match cut grooves for spines
         jnt = self.api.genBox(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, -jntTck/2)
         return jnt
 
@@ -374,20 +373,21 @@ class Head(LelePart):
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig
         path = self.cfg.headPath
+        joinTol = self.cfg.joinCutTol
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
-            .scale(1, 1, botRat).mv(0, 0, -midTck)
-
-        if topRat > 0:
-            top = self.api.genLineSplineRevolveX(orig, path, 180)\
-                .scale(1, 1, topRat)
-            hd = hd.join(top)
-
+            .scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
+        
         if midTck > 0:
             midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
                 .mv(0, 0, -midTck)
             midL = midR.mirrorXZ()
             hd = hd.join(midL).join(midR)
+
+        if topRat > 0:
+            top = self.api.genLineSplineRevolveX(orig, path, 180)\
+                .scale(1, 1, topRat).mv(0, 0, -joinTol)
+            hd = hd.join(top)
 
         topCut = self.api.genRndRodY(2*hdWth, hdLen, 1)\
             .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
@@ -411,17 +411,19 @@ class Top(LelePart):
     def gen(self) -> Shape:
         fitTol = FIT_TOL
         joinTol = self.cfg.joinCutTol
+        cutAdj = (fitTol + joinTol) if self.isCut else 0
         topRat = self.cfg.TOP_RATIO
-        midTck = self.cfg.extMidTopTck
+        midTck = self.cfg.extMidTopTck + cutAdj
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
         top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
         if midTck > 0:
-            top = top.mv(0, 0, (midTck+fitTol if self.isCut else midTck) -joinTol)
+            top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ(
-                bOrig, bPath, midTck+fitTol if self.isCut else midTck)
+                bOrig, bPath, midTck if self.isCut else midTck)
             midL = midR.mirrorXZ()
             top = top.join(midL.mv(0, joinTol/2, 0)).join(midR.mv(0, -joinTol/2, 0))
+
         return top
 
 
@@ -451,6 +453,7 @@ class Body(LelePart):
             bot = bot.join(midL.mv(0, joinTol/2, -midTck)).join(midR.mv(0, -joinTol/2, -midTck))
         return bot
 
+    
 class Rim(LelePart):
     def __init__(self,
         cfg: LeleConfig, 
@@ -463,15 +466,18 @@ class Rim(LelePart):
         self.color = WHITE
         
     def gen(self):
-        cutAdj = FIT_TOL if self.isCut else 0
-        orig = self.cfg.rimCutOrig if self.isCut else self.cfg.rimOrig
-        path = self.cfg.rimCutPath if self.isCut else self.cfg.rimPath
+        cutAdj = (FIT_TOL +self.cfg.joinCutTol) if self.isCut else 0
+        scLen = self.cfg.scaleLen
+        joinTol = self.cfg.joinCutTol
+        rad = self.cfg.chmWth/2 + self.cfg.rimWth
         tck = self.cfg.RIM_TCK + 2*cutAdj
+        frontWthRatio = (self.cfg.chmFront + self.cfg.rimWth)/rad
+        backWthRatio = (self.cfg.chmBack + self.cfg.rimWth)/rad
+        rimFront = self.api.genHalfDisc(rad, True, tck).scale(frontWthRatio, 1, 1)
+        rimBack = self.api.genHalfDisc(rad, False, tck).scale(backWthRatio, 1, 1)
+        return rimFront.mv(scLen, 0, -tck/2).join(rimBack.mv(scLen-joinTol, 0, -tck/2))
+    
 
-        rimL = self.api.genLineSplineExtrusionZ(orig, path, tck)\
-            .mv(0, 0, -tck)
-        rimR = rimL.mirrorXZ()
-        return rimL.join(rimR)
     
 class Chamber(LelePart):
     def __init__(self,
@@ -484,27 +490,33 @@ class Chamber(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
+        scLen = self.cfg.scaleLen
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
-        orig = self.cfg.chmOrig
-        path = self.cfg.chmPath
         lift = self.cfg.chmLift
         rotY = self.cfg.chmRot
         joinTol = self.cfg.joinCutTol
+        rad = self.cfg.chmWth/2
+        frontRat = self.cfg.chmFront/rad
+        backRat = self.cfg.chmBack/rad
 
-        top = self.api.genLineSplineRevolveX(orig, path, 180).scale(1, 1, topRat)#/2)
-        bot = self.api.genLineSplineRevolveX(orig, path, -180).scale(1, 1, botRat)
-        chm = top.join(bot.mv(0, 0, joinTol))
+        topFront = self.api.genQuarterBall(rad, True, True)\
+            .scale(frontRat, 1, topRat*2/3).mv(joinTol, 0, 0)
+        topBack = self.api.genQuarterBall(rad, True, False)\
+            .scale(backRat, 1, topRat*2/3)
+        botFront = self.api.genQuarterBall(rad, False, True)\
+            .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
+        botBack = self.api.genQuarterBall(rad, False, False)\
+            .scale(backRat, 1, botRat)
+        chm = topFront.join(topBack).join(botFront).join(botBack)
 
         if rotY != 0:
-            chm = chm.mv(-orig[0], -orig[1], 0)
             chm = chm.rotateY(rotY)
-            chm = chm.mv(orig[0], orig[1], 0)
 
         if lift != 0:
             chm = chm.mv(0, 0, lift)
 
-        return chm
+        return chm.mv(scLen, 0, 0)
 
 
 class Soundhole(LelePart):
@@ -806,7 +818,7 @@ class Spines(LelePart):
         spY2 = self.cfg.spineY2
         spHt = self.cfg.SPINE_HT + 2*cutAdj
         spWth = self.cfg.SPINE_WTH + 2*cutAdj
-        fspTck = self.cfg.FRETBD_SPINE_TCK
+        fspTck = self.cfg.FRETBD_SPINE_TCK  + 2*self.cfg.joinCutTol
 
         sp1 = self.api.genBox(spLen, spWth, spHt)\
             .mv(spX + spLen/2, spY1, -fspTck - spHt/2)

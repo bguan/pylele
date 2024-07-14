@@ -77,6 +77,12 @@ class CQShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font)
 
+    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool) -> CQShape:
+        return CQQuarterBall(radius, pickTop, pickFront)
+        
+    def genHalfDisc(self, radius: float, pickFront: bool, tck: float) -> CQShape:
+        return CQHalfDisc(radius, pickFront, tck)
+    
     def getJoinCutTol(self):
         return Implementation.CAD_QUERY.joinCutTol()
 
@@ -295,6 +301,25 @@ class CQTextZ(CQShape):
         self.solid = cq.Workplane("XY").text(txt, fontSize, tck, font=font)
 
 
+class CQQuarterBall(CQShape):
+    def __init__(self, rad: float, pickTop: bool, pickFront: bool):
+        self.pickTop = pickTop
+        self.pickFront = pickFront
+        self.rad = rad
+        ball = cq.Workplane("XY").sphere(rad)
+        topCut = cq.Workplane("XY").box(2000, 2000, 2000).translate((0, 0, -1000 if pickTop else 1000))
+        frontCut = cq.Workplane("XY").box(2000, 2000, 2000).translate((1000 if pickFront else -1000, 0, 0))
+        self.solid = ball.cut(topCut).cut(frontCut)
+
+class CQHalfDisc(CQShape):
+    def __init__(self, rad: float, pickFront: bool, tck: float):
+        self.pickFront = pickFront
+        self.tck = tck
+        self.rad = rad
+        rod = cq.Workplane("XY").cylinder(tck, rad)
+        cutter = cq.Workplane("XY").box(2000, 2000, 2000).translate((1000 if pickFront else -1000, 0, 0))
+        self.solid = rod.cut(cutter)
+
+
 if __name__ == '__main__':
-    api = CQShapeAPI(Fidelity.LOW)
-    api.test("build/cq-all.stl")
+    CQShapeAPI(Fidelity.LOW).test("build/cq-all.stl")

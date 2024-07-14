@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import os
 import sys
 from pathlib import Path
@@ -41,14 +42,21 @@ def pylele_main():
         impl=cli.implementation,
     )
 
-    parts = assemble(cfg)
-
     expDir = Path.cwd()/"build"
     if not expDir.exists():
         expDir.mkdir()
     elif not expDir.is_dir():
         print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
         sys.exit(os.EX_SOFTWARE)
+
+    expDir = expDir / datetime.datetime.now().strftime("%y%m%d-%H%M")
+    if not expDir.exists():
+        expDir.mkdir()
+
+    with open(expDir / 'config.txt', 'w') as f:
+        f.write(repr(cfg))
+    
+    parts = assemble(cfg)
 
     for p in parts:
         if cfg.half:

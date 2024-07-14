@@ -89,7 +89,7 @@ def parseCLI():
     ## other options ######################################################
 
     parser.add_argument("-i", "--implementation", help="Underlying engine implementation, default cadquery",
-                        type=Implementation, choices=list(Implementation), default='cadquery')
+                        type=Implementation, choices=list(Implementation), default='blender')
     
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default='low')
