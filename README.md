@@ -34,9 +34,18 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
       > pip install PyQt5 spyder pyqtgraph logbook
       > pip install git+https://github.com/CadQuery/CQ-editor.git
       ```
-* [Blender](https://github.com/blender/blender) - **Coming Soon!**
+* [Blender](https://github.com/blender/blender) (*Still a little buggy...*)
+  * Linux installation of dependencies (I tried on Intel I7 Asus laptop running Ubuntu 24.04 Noble Numbat)
+    * In a terminal shell inside a python 3.11+ virtual env: 
+      ```
+      > pip install bpy
+      ```
+  * MacOS Apple Silicon installation (I tried on M2 Macbook Air running Sonoma 14.5)
+    * In a terminal shell inside a python 3.11+ virtual env: 
+      ```
+      > pip install bpy
+      ```
 * [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
-* [SolidPython](https://github.com/SolidCode/SolidPython) - *may be one day in the future...*
 
 Code and view generated models in your favorite development environment!
 
