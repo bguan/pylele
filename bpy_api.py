@@ -88,6 +88,7 @@ class BlenderShape(Shape):
 
     MAX_DIM = 10000 # for max and min dimensions
     REPAIR_MIN_REZ = 0.0001
+    REPAIR_LOOPS = 2
     
     def __init__(self, api: BlenderShapeAPI):
         super().__init__()
@@ -202,7 +203,6 @@ class BlenderShape(Shape):
         span_x = max_x - min_x
         span_y = max_y - min_y
         return (span_x, span_y)
-
 
     def lineSplineXY(
         self,
@@ -344,7 +344,7 @@ class BlenderShape(Shape):
         bm = bmesh.from_edit_mesh(self.obj.data)
         non_manifold_edges = [e for e in bm.edges if not e.is_manifold]
         loop = 0
-        while non_manifold_edges and loop < 2:
+        while non_manifold_edges and loop < self.REPAIR_LOOPS:
             print(f"Loop {loop}: found {len(non_manifold_edges)} non-manifold edges. Attempting to fix...")
             bpy.ops.mesh.select_all(action='DESELECT')
             bpy.ops.mesh.select_non_manifold()
@@ -661,9 +661,6 @@ class BlenderHalfDisc(BlenderShape):
         bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
         self.obj = halfDisc
-
-# Optionally, you can apply transformations or move the object as needed
-disc = bpy.context.object
 
 if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)

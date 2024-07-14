@@ -328,7 +328,7 @@ class LeleConfig:
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         self.neckJntWth = (1 if self.isOddStrs else 2)*nutStrGap + self.SPINE_WTH
-        neckDX = 3
+        neckDX = 1
         neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
         # Fretboard configs
@@ -389,7 +389,7 @@ class LeleConfig:
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             bodySpline = [
                 (nkLen + neckDX, nkWth/2 + neckDY, 2*neckDX, 2*neckDY),
-                (scaleLen - .62*bFrLen, .32*bWth, 10, 8),
+                (scaleLen - .63*bFrLen, .32*bWth, 10, 8),
                 (scaleLen, bWth/2, 15, 0),
                 (scaleLen + bBkLen, eWth/2 +.1, 
                  0 if endWth < self.tnrGap * numStrs else 5, 
