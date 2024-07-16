@@ -28,8 +28,8 @@ def parseCLI():
 
     parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
                         type=float, default=4)
-    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 1",
-                        type=float, default=1)
+    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 2",
+                        type=float, default=2)
     parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg], default 0°",
                         type=float, default=0)
 

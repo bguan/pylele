@@ -109,6 +109,18 @@ class ShapeAPI(ABC):
         ...
 
     @abstractmethod
+    def genPolyRodX(self, ln: float, rad: float, sides: int) -> Shape:
+        ...
+
+    @abstractmethod
+    def genPolyRodY(self, ln: float, rad: float, sides: int) -> Shape:
+        ...
+
+    @abstractmethod
+    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> Shape:
+        ...
+
+    @abstractmethod
     def genRodX(self, ln: float, rad: float) -> Shape:
         ...
 

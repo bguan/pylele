@@ -34,6 +34,15 @@ class BlenderShapeAPI(ShapeAPI):
     def genConeZ(self, ln: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeZ(ln, r1, r2, self).mv(0, 0, ln/2)
 
+    def genPolyRodX(self, ln: float, rad: float, sides: int) -> BlenderShape:
+        return BlenderPolyRodX(ln, rad, sides, self)
+
+    def genPolyRodY(self, ln: float, rad: float, sides: int) -> BlenderShape:
+        return BlenderPolyRodY(ln, rad, sides, self)
+
+    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> BlenderShape:
+        return BlenderPolyRodZ(ln, rad, sides, self)
+
     def genRodX(self, ln: float, rad: float) -> BlenderShape:
         return BlenderRodX(ln, rad, self)
 
@@ -143,21 +152,27 @@ class BlenderShape(Shape):
         nearestPts: list[tuple[float, float, float]], 
         rad: float,
     ) -> BlenderShape:
-        if rad <= 0 or nearestPts is None or len(nearestPts) == 0:
+        if rad <= 0:
             return self
-        segs = self.segsByDim(rad)
-        wth = rad/2
+        segs = self.segsByDim(rad/4)
         bpy.context.view_layer.objects.active = self.obj
-        for p in nearestPts:
+        if nearestPts is None or len(nearestPts) == 0:
             bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.select_all(action='DESELECT')
             bpy.ops.mesh.select_mode(type="EDGE")
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
             bpy.ops.object.mode_set(mode='OBJECT')
-            idx = self.findNearestEdgeIndex(p)
-            self.obj.data.edges[idx].select = True
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.bevel(offset=wth, segments=segs)
-            bpy.ops.object.mode_set(mode='OBJECT')
+        else:
+            for p in nearestPts:
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.select_all(action='DESELECT')
+                bpy.ops.mesh.select_mode(type="EDGE")
+                bpy.ops.object.mode_set(mode='OBJECT')
+                idx = self.findNearestEdgeIndex(p)
+                self.obj.data.edges[idx].select = True
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
+                bpy.ops.object.mode_set(mode='OBJECT')
         return self.repairMesh()
     
     def half(self) -> BlenderShape:
@@ -359,7 +374,7 @@ class BlenderShape(Shape):
             bpy.ops.mesh.normals_make_consistent(inside=True)
             bm = bmesh.from_edit_mesh(self.obj.data)
             non_manifold_edges = [e for e in bm.edges if not e.is_manifold]
-            minRez *= 1.5
+            minRez *= 1.4
             loop += 1
         bpy.ops.object.mode_set(mode='OBJECT')
         return self
@@ -375,7 +390,7 @@ class BlenderShape(Shape):
             constraint_axis=(True, False, False),  # Constrain to Z-axis
             orient_type='GLOBAL',        # Orientation type
         )
-        return self #.repairMesh()
+        return self
 
     def rotateY(self, ang: float) -> BlenderShape:
         if ang == 0:
@@ -388,7 +403,7 @@ class BlenderShape(Shape):
             constraint_axis=(False, True, False),  # Constrain to Z-axis
             orient_type='GLOBAL',        # Orientation type
         )
-        return self #.repairMesh()
+        return self
 
     def rotateZ(self, ang: float) -> BlenderShape:
         if ang == 0:
@@ -401,7 +416,7 @@ class BlenderShape(Shape):
             constraint_axis=(False, False, True),  # Constrain to Z-axis
             use_accurate=True,
         )
-        return self #.repairMesh()
+        return self
 
     def scale(self, x: float, y: float, z: float) -> BlenderShape:
         if x == 1 and y == 1 and z == 1:
@@ -483,6 +498,25 @@ class BlenderRndRodY(BlenderShape):
     def __init__(self, ln: float, rad: float, domeRatio: float, api: BlenderShapeAPI):
         super().__init__(api)
         self.obj = BlenderRndRodZ(ln, rad, domeRatio, api).rotateX(90).obj
+
+
+class BlenderPolyRodZ(BlenderShape):
+    def __init__(self, ln: float, rad: float, sides: int, api: BlenderShapeAPI):
+        super().__init__(api)
+        bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=ln, vertices=sides)
+        self.obj = bpy.context.object
+
+
+class BlenderPolyRodX(BlenderShape):
+    def __init__(self, ln: float, rad: float, sides:int, api: BlenderShapeAPI):
+        super().__init__(api)
+        self.obj = BlenderPolyRodZ(ln, rad, sides, api).rotateY(90).obj
+
+
+class BlenderPolyRodY(BlenderShape):
+    def __init__(self, ln: float, rad: float, sides: int,api: BlenderShapeAPI):
+        super().__init__(api)
+        self.obj = BlenderRodZ(ln, rad, sides, api).rotateX(90).obj
 
 
 class BlenderRodZ(BlenderShape):

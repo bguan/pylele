@@ -1,5 +1,6 @@
 from __future__ import annotations
 import copy
+import math
 import cadquery as cq
 from pylele_api import ShapeAPI, Shape
 from typing import Union
@@ -35,6 +36,15 @@ class CQShapeAPI(ShapeAPI):
 
     def genConeZ(self, ln: float, r1: float, r2: float) -> CQShape:
         return CQCone(ln, r1, r2, (0,0,1))
+
+    def genPolyRodX(self, ln: float, rad: float, sides: int) -> CQShape:
+        return CQPolyRod(ln, rad, sides, "YZ")
+
+    def genPolyRodY(self, ln: float, rad: float, sides: int) -> CQShape:
+        return CQPolyRod(ln, rad, sides, "XZ")
+
+    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> CQShape:
+        return CQPolyRod(ln, rad, sides, "XY")
 
     def genRodX(self, ln: float, rad: float) -> CQShape:
         return CQRod(ln, rad, "YZ")
@@ -153,6 +163,8 @@ class CQShape(Shape):
         return dup
 
     def mv(self, x: float, y: float, z: float) -> CQShape:
+        if x == 0 and y == 0 and z == 0:
+            return self
         self.solid = self.solid.translate((x, y, z))
         return self
 
@@ -160,18 +172,27 @@ class CQShape(Shape):
         pass
     
     def rotateX(self, ang: float) -> CQShape:
+        if ang == 0:
+            return self
         self.solid = self.solid.rotate((-1, 0, 0), (1, 0, 1), ang)
         return self
 
     def rotateY(self, ang: float) -> CQShape:
+        if ang == 0:
+            return self
         self.solid = self.solid.rotate((0, -1, 0), (0, 1, 0), ang)
         return self
 
     def rotateZ(self, ang: float) -> CQShape:
+        if ang == 0:
+            return self
         self.solid = self.solid.rotate((0, 0, -1), (0, 0, 1), ang)
         return self
 
     def scale(self, x: float, y: float, z: float) -> CQShape:
+        if x == 1 and y == 1 and z == 1:
+            return self
+        
         t = cq.Matrix([
             [x, 0, 0, 0],
             [0, y, 0, 0],
@@ -216,6 +237,18 @@ class CQRndRod(CQShape):
                 domeRatio if plane == "XZ" else 1, 
                 domeRatio if plane == "XY" else 1,
             )
+
+class CQPolyRod(CQShape):
+    def __init__(self, ln: float, rad: float, sides: int, plane: str = "YZ"):
+        self.ln = ln
+        self.rad = rad
+        sideLen = 4 * math.sin(math.pi/sides) * rad
+        polygon = cq.Workplane(plane).polygon(sides, sideLen)
+        self.solid = polygon.extrude(ln).translate((
+            -ln/2 if plane == "YZ" else 0, 
+            -ln/2 if plane == "XZ" else 0, 
+            -ln/2 if plane == "XY" else 0,
+        ))
 
 
 class CQRod(CQShape):

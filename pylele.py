@@ -49,7 +49,7 @@ def pylele_main():
         print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
         sys.exit(os.EX_SOFTWARE)
 
-    expDir = expDir / datetime.datetime.now().strftime("%y%m%d-%H%M")
+    expDir = expDir / (datetime.datetime.now().strftime("%y%m%d-%H%M-")+cfg.genModelStr())
     if not expDir.exists():
         expDir.mkdir()
 
@@ -69,7 +69,7 @@ def cqeditor_main():
         sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
-    key = None if not cfg.isWorm else WormKey(cfg, isCut=False, fillets={FILLET_RAD:[]})
+    key = None if not cfg.isWorm else WormKey(cfg, isCut=False)
     sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
     parts.extend([strs, tnrs])

@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from abc import ABC, abstractmethod
 from pylele_api import ShapeAPI, Shape
-from pylele_config import Fidelity, Implementation, LeleConfig, WormConfig, PegConfig, \
+from pylele_config import FILLET_RAD, Fidelity, Implementation, LeleConfig, WormConfig, PegConfig, \
     FIT_TOL, SEMI_RATIO, CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE, accumDiv
 from pylele_utils import radians
 from random import randint
@@ -427,11 +427,13 @@ class Body(LelePart):
         joinTol = self.cfg.joinCutTol
 
         bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
+
         if midTck > 0:
             bot = bot.mv(0, 0, -midTck + joinTol)
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
             midL = midR.mirrorXZ()
             bot = bot.join(midL.mv(0, joinTol/2, -midTck)).join(midR.mv(0, -joinTol/2, -midTck))
+
         return bot
 
     
@@ -447,16 +449,16 @@ class Rim(LelePart):
         self.color = WHITE
         
     def gen(self):
-        cutAdj = (FIT_TOL +self.cfg.joinCutTol) if self.isCut else 0
-        scLen = self.cfg.scaleLen
         joinTol = self.cfg.joinCutTol
+        cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
+        scLen = self.cfg.scaleLen
         rad = self.cfg.chmWth/2 + self.cfg.rimWth
         tck = self.cfg.RIM_TCK + 2*cutAdj
         frontWthRatio = (self.cfg.chmFront + self.cfg.rimWth)/rad
         backWthRatio = (self.cfg.chmBack + self.cfg.rimWth)/rad
         rimFront = self.api.genHalfDisc(rad, True, tck).scale(frontWthRatio, 1, 1)
         rimBack = self.api.genHalfDisc(rad, False, tck).scale(backWthRatio, 1, 1)
-        return rimFront.mv(scLen, 0, -tck/2).join(rimBack.mv(scLen-joinTol, 0, -tck/2))
+        return rimFront.mv(scLen, 0, joinTol-tck/2).join(rimBack.mv(scLen-joinTol, 0, joinTol-tck/2))
     
 
     
@@ -480,11 +482,12 @@ class Chamber(LelePart):
         rad = self.cfg.chmWth/2
         frontRat = self.cfg.chmFront/rad
         backRat = self.cfg.chmBack/rad
+        topChmRat = topRat * 3/4
 
         topFront = self.api.genQuarterBall(rad, True, True)\
-            .scale(frontRat, 1, topRat*2/3).mv(joinTol, 0, 0)
+            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
         topBack = self.api.genQuarterBall(rad, True, False)\
-            .scale(backRat, 1, topRat*2/3)
+            .scale(backRat, 1, topChmRat)
         botFront = self.api.genQuarterBall(rad, False, True)\
             .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
         botBack = self.api.genQuarterBall(rad, False, False)\
@@ -727,11 +730,13 @@ class WormKey(LelePart):
         self.color = GRAY
 
     def gen(self) -> Shape:
+        isBlender = self.cfg.impl == Implementation.BLENDER
+        joinTol = self.cfg.joinCutTol
         tailX = self.cfg.tailX
         txyzs = self.cfg.tnrXYZs
         wcfg: WormConfig = self.cfg.tnrCfg
-        cutAdj = FIT_TOL if self.isCut else 0
-        btnHt =wcfg.buttonHt + 2*cutAdj
+        cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
+        btnHt = wcfg.buttonHt + 2*cutAdj
         btnWth = wcfg.buttonWth + 2*cutAdj
         btnTck = wcfg.buttonTck + 2*cutAdj
         kbHt = wcfg.buttonKeybaseHt + 2*cutAdj
@@ -739,18 +744,23 @@ class WormKey(LelePart):
         kyRad = wcfg.buttonKeyRad + cutAdj
         kyLen = wcfg.buttonKeyLen + 2*cutAdj
 
-        key = self.api.genRodX(kyLen, kyRad).mv(-kyLen/2 -kbHt -btnHt, 0, 0)
-        base = self.api.genRodX(kbHt, kbRad).mv(-kbHt/2 -btnHt, 0, 0)
+        key = self.api.genPolyRodX(kyLen, kyRad, 6).mv(joinTol -kyLen/2 -kbHt -btnHt, 0, 0)
+        base = self.api.genPolyRodX(kbHt, kbRad, 36) if isBlender else self.api.genRodX(kbHt, kbRad)
+        base = base.mv(-kbHt/2 -btnHt, 0, 0)
         btn = self.api.genBox(100 if self.isCut else btnHt, btnTck, btnWth)\
             .mv(50 -btnHt if self.isCut else -btnHt/2, 0, 0)
+        
         if self.isCut:
             btnExtCut = self.api.genRodX(100 if self.isCut else btnHt, btnWth/2)\
                 .scale(1, .5, 1)\
                 .mv(50 -btnHt if self.isCut else -btnHt/2, btnTck/2, 0)
             btn = btn.join(btnExtCut)
+        else:
+            btn = btn.filletByNearestEdges([], FILLET_RAD)
+
         btn = btn.join(base).join(key)
         maxTnrY = max([y for _, y, _ in txyzs])
-        btn = btn.mv(tailX, maxTnrY + btnTck, -1 -btnWth/2)
+        btn = btn.mv(tailX - joinTol, maxTnrY + btnTck -1, -1 -btnWth/2)
         return btn
 
 
@@ -877,7 +887,8 @@ class TailEnd(LelePart):
 
     def gen(self) -> Shape:
         cfg = self.cfg
-        cutAdj = FIT_TOL if self.isCut else 0
+        joinTol = cfg.joinCutTol
+        cutAdj = (FIT_TOL + 2*joinTol) if self.isCut else 0
         tailX = cfg.tailX
         chmBackX = cfg.scaleLen + cfg.chmBack
         tailLen = tailX - chmBackX + 2*cutAdj

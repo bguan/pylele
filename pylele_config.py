@@ -13,7 +13,7 @@ FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
-DEFAULT_LABEL_SIZE = 12
+DEFAULT_LABEL_SIZE = 10
 DEFAULT_LABEL_SIZE_BIG = 28
 DEFAULT_LABEL_SIZE_SMALL = 8
 DEFAULT_LABEL_FONT = 'Arial'
@@ -69,7 +69,7 @@ class PegConfig(TunerConfig):
         return 2*max(self.majRad, self.btnRad) + 1
 
     def tailAllow(self) -> float:
-        return self.majRad + self.btnRad
+        return self.majRad + self.btnRad 
 
 
 class WormConfig(TunerConfig):
@@ -175,6 +175,15 @@ class Implementation(Enum):
 
     def __str__(self):
         return self.value
+    
+    def code(self) -> str:
+        match self: 
+            case Implementation.CAD_QUERY:
+                return 'C'
+            case Implementation.BLENDER:
+                return 'B'
+            case Implementation.TRIMESH:
+                return 'T'
 
     # for joins to have a little overlap
     def joinCutTol(self) -> float:
@@ -191,9 +200,9 @@ class Fidelity(Enum):
     def exportTol(self) -> float:
         match self:
             case Fidelity.LOW:
-                return 0.0005
+                return 0.001
             case Fidelity.MEDIUM:
-                return 0.0002
+                return 0.0005
             case Fidelity.HIGH:
                 return 0.0001
     
@@ -202,9 +211,20 @@ class Fidelity(Enum):
             case Fidelity.LOW:
                 return 7 
             case Fidelity.MEDIUM:
-                return 20
+                return 11
             case Fidelity.HIGH:
-                return 35
+                return 19
+    
+    def code(self) -> str:
+        match self: 
+            case Fidelity.LOW:
+                return "L"
+            case Fidelity.MEDIUM:
+                return "M"
+            case Fidelity.HIGH:
+                return "H"
+    
+
 
 class ModelLabel(Enum):
     NONE = 'none'
@@ -215,9 +235,9 @@ class ModelLabel(Enum):
         return self.value
 
 class LeleConfig:
-    TOP_RATIO = 1/8 #.1
-    BOT_RATIO = 2/3 #.666
-    CHM_BACK_RATIO = 1/2  # to chmFront
+    TOP_RATIO = 1/8
+    BOT_RATIO = 2/3
+    CHM_BACK_RATIO = 1/2 # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     FRET_HT = 1
@@ -233,10 +253,10 @@ class LeleConfig:
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
     NUT_HT = 1.5
-    RIM_TCK = 1.5
+    RIM_TCK = 1
     SPINE_HT = 10
     SPINE_WTH = 2
-    STR_RAD = .7
+    STR_RAD = .55
     TEXT_TCK = 20
 
     def __init__(
@@ -314,7 +334,7 @@ class LeleConfig:
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
-        self.extMidTopTck = .5
+        self.extMidTopTck = 1
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
@@ -387,13 +407,12 @@ class LeleConfig:
             bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = self.bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
+            endFactor = math.sqrt(endWth/bWth)
             bodySpline = [
                 (nkLen + neckDX, nkWth/2 + neckDY, 2*neckDX, 2*neckDY),
                 (scaleLen - .63*bFrLen, .32*bWth, 10, 8),
                 (scaleLen, bWth/2, 15, 0),
-                (scaleLen + bBkLen, eWth/2 +.1, 
-                 0 if endWth < self.tnrGap * numStrs else 5, 
-                 -34 if endWth < self.tnrGap * numStrs else -17), 
+                (scaleLen + bBkLen, eWth/2 +.1, 6*endFactor, -33*(1-endFactor)),
             ]
             bodyPath = [
                 (nkLen, nkWth/2),
@@ -435,7 +454,7 @@ class LeleConfig:
 
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2
-        self.guideX = self.scaleLen + .9*self.chmBack
+        self.guideX = self.scaleLen + self.chmBack
         self.guideZ = -self.GUIDE_SET \
             + self.TOP_RATIO * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
@@ -577,7 +596,7 @@ class LeleConfig:
             self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
             self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
 
-    def genModelStr(self, inclDate: bool = True) -> str:
+    def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
         if self.sepTop:
             model += 'T'
@@ -589,10 +608,13 @@ class LeleConfig:
             model += 'B'
         if self.sepEnd:
             model += 'E'
+        
+        model += f"{self.endWth:.0f}." + self.impl.code() + self.fidelity.code()
+
         if inclDate:
             model += "-" + datetime.date.today().strftime("%m%d")
         return model
 
     def __repr__(self):
-        properties = ',\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
+        properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
         return f"{self.__class__.__name__}\n\n{properties}"
