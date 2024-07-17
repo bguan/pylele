@@ -268,7 +268,7 @@ class LeleConfig:
         sepBrdg: bool = False,
         sepEnd: bool = False,
         wallTck: float = 4,
-        chmLift: float = 1,
+        chmLift: float = 2,
         chmRot: float = 0,
         endWth: float = 0,
         numStrs: int = 4,
@@ -276,12 +276,15 @@ class LeleConfig:
         action: float = 2,
         tnrType: TunerType = TunerType.FRICTION_PEG, 
         half: bool = False,
-        txtSzFonts: list[tuple[str, float, str]] =
-            [('PYLELE', 28, 'Arial'), ('mind2form.com © 2024', 10, 'Arial')],
-        modelLbl: ModelLabel = ModelLabel.LONG,
+        txtSzFonts: list[tuple[str, float, str]] = [
+            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
+            ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
+            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
+        ],
+        modelLbl: ModelLabel = ModelLabel.SHORT,
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] =
-            {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1, 24: 3},
+            {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
         fidelity: Fidelity = Fidelity.LOW,
         impl: Implementation = Implementation.CAD_QUERY,
     ):
@@ -594,7 +597,8 @@ class LeleConfig:
         if modelLbl != ModelLabel.NONE:
             lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
             self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
-            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
+            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
+            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT))
 
     def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
