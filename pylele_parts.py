@@ -399,11 +399,11 @@ class Top(LelePart):
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
         top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
         if midTck > 0:
-            top = top.mv(0, 0, midTck -joinTol)
+            top = top.mv(0, 0, midTck)
             midR = self.api.genLineSplineExtrusionZ(
                 bOrig, bPath, midTck if self.isCut else midTck)
             midL = midR.mirrorXZ()
-            top = top.join(midL.mv(0, joinTol/2, 0)).join(midR.mv(0, -joinTol/2, 0))
+            top = top.join(midL).join(midR)
 
         return top
 
@@ -424,15 +424,14 @@ class Body(LelePart):
         midTck = self.cfg.extMidBotTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
-        joinTol = self.cfg.joinCutTol
 
         bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
 
         if midTck > 0:
-            bot = bot.mv(0, 0, -midTck + joinTol)
+            bot = bot.mv(0, 0, -midTck)
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
             midL = midR.mirrorXZ()
-            bot = bot.join(midL.mv(0, joinTol/2, -midTck)).join(midR.mv(0, -joinTol/2, -midTck))
+            bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
 
         return bot
 
@@ -860,10 +859,11 @@ class Texts(LelePart):
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
+        cutTol = self.cfg.joinCutTol
 
-        txtZ = -botRat * bodyWth/2 - midBotTck - 1
+        txtZ = -botRat * bodyWth/2 - midBotTck - 2
         allHt = sum([1.2*size for _, size, _ in tsf])
-        tx = scLen - allHt/(1+backRat)
+        tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
@@ -871,7 +871,7 @@ class Texts(LelePart):
                     .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
                 ls = l if ls is None else ls.join(l)
             tx += sz
-        botCut = Body(self.cfg, isCut=True)
+        botCut = Body(self.cfg, isCut=True).mv(0, 0, cutTol)
         return ls.cut(botCut.shape).mv(0, 0, dep)
 
 class TailEnd(LelePart):

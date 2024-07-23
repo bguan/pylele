@@ -13,10 +13,10 @@ FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
-DEFAULT_LABEL_SIZE = 10
-DEFAULT_LABEL_SIZE_BIG = 28
-DEFAULT_LABEL_SIZE_SMALL = 8
-DEFAULT_LABEL_FONT = 'Arial'
+DEFAULT_LABEL_SIZE = 13
+DEFAULT_LABEL_SIZE_BIG = 36
+DEFAULT_LABEL_SIZE_SMALL = 6
+DEFAULT_LABEL_FONT = 'Verdana'
 WHITE = (255, 255, 255)
 LITE_GRAY = (192, 192, 192)
 GRAY = (128, 128, 128)
@@ -66,7 +66,7 @@ class PegConfig(TunerConfig):
         self.midTck = midTck
 
     def minGap(self) -> float:
-        return 2*max(self.majRad, self.btnRad) + 1
+        return 2*max(self.majRad, self.btnRad) + .5
 
     def tailAllow(self) -> float:
         return self.majRad + self.btnRad 
@@ -256,8 +256,8 @@ class LeleConfig:
     RIM_TCK = 1
     SPINE_HT = 10
     SPINE_WTH = 2
-    STR_RAD = .55
-    TEXT_TCK = 20
+    STR_RAD = .5
+    TEXT_TCK = 30
 
     def __init__(
         self,
@@ -268,18 +268,19 @@ class LeleConfig:
         sepBrdg: bool = False,
         sepEnd: bool = False,
         wallTck: float = 4,
-        chmLift: float = 2,
-        chmRot: float = 0,
+        chmLift: float = 1,
+        chmRot: float = -.5,
         endWth: float = 0,
         numStrs: int = 4,
         nutStrGap: float = 9,
         action: float = 2,
+        extMidTopTck: float = .5,
         tnrType: TunerType = TunerType.FRICTION_PEG, 
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
+            ('mind2form © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
         ],
         modelLbl: ModelLabel = ModelLabel.SHORT,
         dotRad: float = 1.5,
@@ -337,7 +338,7 @@ class LeleConfig:
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
         self.fret2Dots = fret2Dots
-        self.extMidTopTck = 1
+        self.extMidTopTck = extMidTopTck
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
@@ -457,7 +458,7 @@ class LeleConfig:
 
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2
-        self.guideX = self.scaleLen + self.chmBack
+        self.guideX = self.scaleLen + .95*self.chmBack
         self.guideZ = -self.GUIDE_SET \
             + self.TOP_RATIO * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
@@ -487,7 +488,7 @@ class LeleConfig:
 
         def tzAdj(tY: float) -> float:
             return 0 if self.isWorm or tY > endWth/2 else \
-                ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
+                 ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
 
         tMidZ = tZBase + tzAdj(tY)
         tZ = tMidZ
@@ -596,9 +597,9 @@ class LeleConfig:
         self.txtSzFonts = txtSzFonts
         if modelLbl != ModelLabel.NONE:
             lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE, None))
-            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT))
+            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
+            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
+            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
 
     def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
@@ -613,7 +614,7 @@ class LeleConfig:
         if self.sepEnd:
             model += 'E'
         
-        model += f"{self.endWth:.0f}." + self.impl.code() + self.fidelity.code()
+        model += f"{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
 
         if inclDate:
             model += "-" + datetime.date.today().strftime("%m%d")

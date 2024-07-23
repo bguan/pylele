@@ -2,7 +2,8 @@
 
 import argparse
 from pylele_config import \
-    SOPRANO_SCALE_LEN, DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL, \
+    DEFAULT_LABEL_SIZE, SOPRANO_SCALE_LEN, \
+    DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL, \
     Implementation, Fidelity, ModelLabel, TunerType
 
 
@@ -28,10 +29,10 @@ def parseCLI():
 
     parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
                         type=float, default=4)
-    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 2",
-                        type=float, default=2)
-    parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg], default 0°",
-                        type=float, default=0)
+    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 1",
+                        type=float, default=1)
+    parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg], default -.5°",
+                        type=float, default=-.5)
 
     ## Non-Numeric config options #######################################
 
@@ -80,7 +81,7 @@ def parseCLI():
                         default=[
                             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
                             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-                            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT),
+                            ('mind2form © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
                         ])
 
     parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",
@@ -89,7 +90,7 @@ def parseCLI():
     ## other options ######################################################
 
     parser.add_argument("-i", "--implementation", help="Underlying engine implementation, default cadquery",
-                        type=Implementation, choices=list(Implementation), default='blender')
+                        type=Implementation, choices=list(Implementation), default='cadquery')
     
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default='low')

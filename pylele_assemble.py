@@ -13,7 +13,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen fretbd
     strCuts = Strings(cfg, isCut=True) # use by others too
-    topCut = Top(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
+    topCut = Top(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol) if cfg.sepFretbd or cfg.sepNeck else None
     frets = Frets(cfg)
     fdotsCut = FretboardDots(cfg, isCut=True)
     fbJoiners = [frets]
@@ -108,7 +108,8 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     wormKeyCut = WormKey(cfg, isCut=True) if cfg.isWorm else None
 
     bodyJoiners = []
-    bodyCutters = [txtCut, topCut, chmCut]
+    bodyCutters = [txtCut, chmCut]
+
     if spCut is not None:
         bodyCutters.append(spCut)
 
@@ -203,21 +204,30 @@ def test(cfg: LeleConfig):
         topFillets[wcfg.slitWth] = [ 
             (wx - wcfg.slitLen/2, wy, cfg.brdgZ) for wx, wy, _ in cfg.tnrXYZs 
         ]
+
+    topJoins = [brdg, rim]
+    if cfg.isPeg:
+        topJoins.append(Guide(cfg, False))
     top = Top(cfg, 
-        joiners=[rim, brdg], 
-        cutters=[tnrsCut, shCut, fbJntCut, chmCut],
+        joiners=topJoins,
+        cutters=[fbJntCut, tnrsCut, shCut, chmCut], 
         fillets=topFillets,
     ) 
     top.exportSTL(f"build/{top.fileNameBase}.stl")
 
     rimCut = Rim(cfg, isCut=True)
-    wkCut = WormKey(cfg, isCut=True)
-    wkey = WormKey(cfg, isCut=False)
-    wkey.exportSTL(f"build/{wkey.fileNameBase}.stl")
-
     txtCut = Texts(cfg, isCut=True)
+    txtCut.exportSTL(f"build/{txtCut.fileNameBase}.stl")
+
     nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
-    body = Body(cfg, cutters=[txtCut, topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, wkCut])
+    bodyCuts = [topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, txtCut]
+    if cfg.isWorm:
+        wkCut = WormKey(cfg, isCut=True)
+        bodyCuts.append(wkCut)
+        wkey = WormKey(cfg, isCut=False)
+        wkey.exportSTL(f"build/{wkey.fileNameBase}.stl")
+
+    body = Body(cfg, cutters=bodyCuts)
     body.exportSTL(f"build/{body.fileNameBase}.stl")
 
 
@@ -225,11 +235,9 @@ if __name__ == "__main__":
     cfg = LeleConfig(
         impl=Implementation.BLENDER, 
         fidelity=Fidelity.LOW, 
-        tnrType=TunerType.WORM_TUNER,
         sepFretbd=True,
         sepNeck=True,
         sepTop=True,
-        endWth=90, # or try 56 for HIGH, 48 for MEDIUM & LOW
     )
 
     with open('build/config.txt', 'w') as f:
