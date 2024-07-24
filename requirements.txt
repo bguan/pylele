@@ -1,0 +1,3 @@
+numpy==1.26.2 # fix for cadquery, numpy==1.23.1 seems OK too
+cadquery
+bpy # blender python API
