@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-time python3 ./pylele.py $@ > pylele.log
+LOG=pylele.log
+time python3 -m cProfile -s tottime ./pylele.py $@ > $LOG
+head $LOG
