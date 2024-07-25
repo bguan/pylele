@@ -81,7 +81,7 @@ def parseCLI():
                         default=[
                             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
                             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-                            ('mind2form © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
+                            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
                         ])
 
     parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",

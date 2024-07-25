@@ -13,8 +13,8 @@ FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
-DEFAULT_LABEL_SIZE = 13
-DEFAULT_LABEL_SIZE_BIG = 36
+DEFAULT_LABEL_SIZE = 9
+DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
 WHITE = (255, 255, 255)
@@ -280,7 +280,7 @@ class LeleConfig:
         txtSzFonts: list[tuple[str, float, str]] = [
             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-            ('mind2form © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
+            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
         ],
         modelLbl: ModelLabel = ModelLabel.SHORT,
         dotRad: float = 1.5,
