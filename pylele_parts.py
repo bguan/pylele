@@ -370,9 +370,9 @@ class Head(LelePart):
                 .scale(1, 1, topRat).mv(0, 0, -joinTol)
             hd = hd.join(top)
 
-        topCut = self.api.genRndRodY(2*hdWth, hdLen, 1)\
+        topCut = self.api.genRodY(2*hdWth, hdLen)\
             .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
-        frontCut = self.api.genRndRodY(2*hdWth, .65*spHt, 1)\
+        frontCut = self.api.genRodY(2*hdWth, .65*spHt)\
             .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .6*spHt)
         hd = hd.cut(frontCut).cut(topCut)
         return hd

@@ -56,13 +56,13 @@ class CQShapeAPI(ShapeAPI):
         return CQRod(ln, rad, "XY")
 
     def genRndRodX(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRod(ln, rad, domeRatio, "YZ")
+        return CQRndRodX(ln, rad, domeRatio)
 
     def genRndRodY(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRod(ln, rad, domeRatio, "XZ")
+        return CQRndRodY(ln, rad, domeRatio)
 
     def genRndRodZ(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRod(ln, rad, domeRatio, "XY")
+        return CQRndRodZ(ln, rad, domeRatio)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> CQShape:
         return CQPolyExtrusionZ(path, ht)
@@ -223,20 +223,27 @@ class CQCone(CQShape):
         self.solid = cq.Workplane("YZ")\
             .add(cq.Solid.makeCone(r1, r2, ln, dir=dir))
 
+class CQRndRodZ(CQShape):
+    def __init__(self, ln: float, rad: float, domeRatio: float):
+        super().__init__()
+        rLen = ln - 2*rad*domeRatio
+        rod = CQRod(rLen, rad, "XY")
+        for bz in [rLen/2, -rLen/2]:
+            ball = CQBall(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
+            rod = rod.join(ball)
+        self.solid = rod.solid
 
-class CQRndRod(CQShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float = 1, plane: str = "YZ"):
-        self.ln = ln
-        self.rad = rad
-        self.solid = cq.Workplane(plane).cylinder(ln/domeRatio, rad)
-        if domeRatio > 0:
-            self.solid = self.solid.edges().fillet(rad)
-        if domeRatio != 1:
-            self = self.scale(
-                domeRatio if plane == "YZ" else 1, 
-                domeRatio if plane == "XZ" else 1, 
-                domeRatio if plane == "XY" else 1,
-            )
+class CQRndRodX(CQShape):
+    def __init__(self, ln: float, rad: float, domeRatio: float):
+        super().__init__()
+        self.solid = CQRndRodZ(ln, rad, domeRatio).rotateY(90).solid
+
+
+class CQRndRodY(CQShape):
+    def __init__(self, ln: float, rad: float, domeRatio: float):
+        super().__init__()
+        self.solid = CQRndRodX(ln, rad, domeRatio).rotateZ(90).solid
+
 
 class CQPolyRod(CQShape):
     def __init__(self, ln: float, rad: float, sides: int, plane: str = "YZ"):
