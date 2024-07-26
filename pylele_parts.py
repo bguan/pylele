@@ -390,6 +390,10 @@ class Top(LelePart):
         self.color = WHITE
 
     def gen(self) -> Shape:
+        if self.isCut:
+            origFidel = self.cfg.fidelity
+            self.api.setFidelity(Fidelity.LOW)
+
         fitTol = FIT_TOL
         joinTol = self.cfg.joinCutTol
         cutAdj = (fitTol + joinTol) if self.isCut else 0
@@ -404,6 +408,9 @@ class Top(LelePart):
                 bOrig, bPath, midTck if self.isCut else midTck)
             midL = midR.mirrorXZ()
             top = top.join(midL).join(midR)
+
+        if self.isCut:
+            self.api.setFidelity(origFidel)
 
         return top
 
@@ -472,6 +479,10 @@ class Chamber(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
+
+        origFidel = self.api.fidelity
+        self.api.setFidelity(Fidelity.LOW)
+
         scLen = self.cfg.scaleLen
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
@@ -499,7 +510,12 @@ class Chamber(LelePart):
         if lift != 0:
             chm = chm.mv(0, 0, lift)
 
-        return chm.mv(scLen, 0, 0)
+        chm = chm.mv(scLen, 0, 0)
+
+        self.api.setFidelity(origFidel)
+
+        return chm
+
 
 
 class Soundhole(LelePart):
@@ -829,6 +845,10 @@ class Strings(LelePart):
         self.color = LITE_GRAY
 
     def gen(self) -> Shape:
+        if self.isCut:
+            origFidel = self.cfg.fidelity
+            self.api.setFidelity(Fidelity.MEDIUM)
+
         cutAdj = FIT_TOL if self.isCut else 0
         srad = self.cfg.STR_RAD + cutAdj
         paths = self.cfg.stringPaths
@@ -837,6 +857,10 @@ class Strings(LelePart):
         for p in paths:
             str = self.api.genCirclePolySweep(srad, p)
             strs = str if strs == None else strs.join(str)
+
+        if self.isCut:
+            self.api.setFidelity(origFidel)
+
         return strs
 
 
@@ -851,6 +875,9 @@ class Texts(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
+        origFidel = self.api.fidelity
+        self.api.setFidelity(Fidelity.HIGH)
+
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
         dep = self.cfg.EMBOSS_DEP
@@ -872,7 +899,10 @@ class Texts(LelePart):
                 ls = l if ls is None else ls.join(l)
             tx += sz
         botCut = Body(self.cfg, isCut=True).mv(0, 0, cutTol)
-        return ls.cut(botCut.shape).mv(0, 0, dep)
+
+        txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
+        self.api.setFidelity(origFidel)
+        return txtCut
 
 class TailEnd(LelePart):
     def __init__(self, 

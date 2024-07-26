@@ -68,6 +68,9 @@ class BlenderShapeAPI(ShapeAPI):
         self.fidelity = fidel
         self._initFontMap()
 
+    def setFidelity(self, fidel: Fidelity) -> None:
+        self.fidelity = fidel
+
     def exportSTL(self, shape: BlenderShape, path: str) -> None:
         bpy.ops.object.select_all(action='DESELECT')
         shape.obj.select_set(True)

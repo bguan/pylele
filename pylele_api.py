@@ -85,6 +85,10 @@ class ShapeAPI(ABC):
                 return None
 
     @abstractmethod
+    def setFidelity(self, fidel: Fidelity) -> None:
+        ...
+
+    @abstractmethod
     def exportSTL(self, shape: Shape, path: str) -> None:
         ...
 
