@@ -39,6 +39,7 @@ class Tube(LeleSolid):
 def tube_main():
     """ Generate a Tube """
     solid = Tube()
+    solid.export_configuration()
     solid.exportSTL()
     return solid
 

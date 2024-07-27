@@ -57,6 +57,7 @@ def lele_solid_parser(parser=None):
     return parser
 
 class LeleSolid(ABC):
+
     @abstractmethod
     def gen(self) -> Shape:
         """ Generate Shape """
@@ -77,12 +78,12 @@ class LeleSolid(ABC):
         cutters: list[LeleSolid] = [],
         fillets: dict[float, list[tuple[float, float, float]]] = {},
     ):
-        cfg = self.parse_args()
+        self.cfg = self.parse_args()
 
-        self.isCut = cfg.is_cut
-        self.color = ColorEnum[cfg.color]
-        self.api = ShapeAPI.get(cfg.implementation, cfg.fidelity)
-        self.outdir = cfg.outdir
+        self.isCut = self.cfg.is_cut
+        self.color = ColorEnum[self.cfg.color]
+        self.api = ShapeAPI.get(self.cfg.implementation, self.cfg.fidelity)
+        self.outdir = self.cfg.outdir
 
         self.joiners = joiners
         self.cutters = cutters
@@ -97,7 +98,7 @@ class LeleSolid(ABC):
         for rad in fillets:
             self.shape = self.shape.filletByNearestEdges(fillets[rad], rad)
         
-        return cfg
+        return self.cfg
     
     def cut(self, cutter: LeleSolid) -> LeleSolid:
         self.shape = self.shape.cut(cutter.shape)
@@ -111,6 +112,11 @@ class LeleSolid(ABC):
         #os.makedirs(out_path)
         make_or_exist_path(out_path)
         return out_path
+    
+    def export_configuration(self):
+        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cfg.txt')
+        with open(out_fname, 'w', encoding='UTF8') as f:
+            f.write(repr(self.cfg))
         
     def exportSTL(self) -> None:
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
