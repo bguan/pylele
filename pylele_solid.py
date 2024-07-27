@@ -11,18 +11,19 @@ import argparse
 import datetime
 from pathlib import Path
 from abc import ABC, abstractmethod
+from enum import Enum
 
 from pylele_api import ShapeAPI, Shape
 from pylele_config import Fidelity, Implementation, CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE
 
-COLORS = {
-    'carbon': CARBON, 
-    'gray': GRAY, 
-    'lite_gray' : LITE_GRAY,
-    'dark_gray' : DARK_GRAY, 
-    'orange' : ORANGE, 
-    'white': WHITE
-}
+class ColorEnum(Enum):
+    """ Color Enumerator """
+    CARBON = CARBON,
+    GRAY = GRAY,
+    LITE_GRAY = LITE_GRAY,
+    DARK_GRAY = DARK_GRAY,
+    ORANGE = ORANGE,
+    WHITE = WHITE
 
 def make_or_exist_path(out_path):
     """ Check a directory exist, and generate if not """
@@ -46,7 +47,7 @@ def lele_solid_parser(parser=None):
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default=Fidelity.LOW)
     parser.add_argument("-c", "--color", help="Color.", type=str,
-                        choices = COLORS.keys(), default = COLORS['white']
+                        choices = ColorEnum._member_names_, default = 'ORANGE'
                         )
     parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default='build')
     parser.add_argument("-C", "--is_cut",
@@ -79,7 +80,7 @@ class LeleSolid(ABC):
         cfg = self.parse_args()
 
         self.isCut = cfg.is_cut
-        self.color = cfg.color
+        self.color = ColorEnum[cfg.color]
         self.api = ShapeAPI.get(cfg.implementation, cfg.fidelity)
         self.outdir = cfg.outdir
 
