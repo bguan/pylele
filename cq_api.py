@@ -14,6 +14,9 @@ class CQShapeAPI(ShapeAPI):
     def __init__(self, fidel: Fidelity):
         self.fidelity = fidel
 
+    def setFidelity(self, fidel: Fidelity) -> None:
+        self.fidelity = fidel
+
     def exportSTL(self, shape: CQShape, path: str) -> None:
         cq.exporters.export(
             shape.solid,

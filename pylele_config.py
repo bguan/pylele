@@ -211,7 +211,7 @@ class Fidelity(Enum):
             case Fidelity.LOW:
                 return 7 
             case Fidelity.MEDIUM:
-                return 11
+                return 14
             case Fidelity.HIGH:
                 return 19
     
@@ -614,7 +614,7 @@ class LeleConfig:
         if self.sepEnd:
             model += 'E'
         
-        model += f"{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
+        model += f"-{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
 
         if inclDate:
             model += "-" + datetime.date.today().strftime("%m%d")
