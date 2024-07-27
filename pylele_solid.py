@@ -45,11 +45,11 @@ def lele_solid_parser(parser=None):
                         type=Implementation, choices=list(Implementation), default=Implementation.BLENDER)
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default=Fidelity.LOW)
-    parser.add_argument("-color", "--color", help="This solid is a cutting.", type=str,
+    parser.add_argument("-c", "--color", help="Color.", type=str,
                         choices = COLORS.keys(), default = COLORS['white']
                         )
-    parser.add_argument("-outdir", "--outdir", help="Output directory.", type=str,default='build')
-    parser.add_argument("-is_cut", "--is_cut",
+    parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default='build')
+    parser.add_argument("-C", "--is_cut",
                     help="This solid is a cutting.",
                     action='store_true')
 
