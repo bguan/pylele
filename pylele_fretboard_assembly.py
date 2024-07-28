@@ -19,7 +19,7 @@ class LeleFretboardAssembly(LeleBase):
         """ Generate Fretboard Assembly """
 
         frets = LeleFrets()
-        fdotsCut = LeleFretboardDots()
+        fdotsCut = LeleFretboardDots(isCut=True)
 
         fbJoiners = [frets]
         fbCutters = [fdotsCut] #, strCuts]

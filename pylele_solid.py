@@ -67,10 +67,15 @@ class LeleSolid(ABC):
         # self.shape =  ...
         pass
 
+    def _gen_if_no_shape(self):
+        if not hasattr(self, 'shape') or self.shape is None:
+            print(f'# Generating {self.fileNameBase}... ')
+            self.shape = self.gen()
+
     def gen_full(self):
 
         # generate self.shape
-        self.gen()
+        self._gen_if_no_shape()
     
         for j in self.joiners:
             self.shape = self.shape.join(j.shape)
@@ -92,13 +97,14 @@ class LeleSolid(ABC):
         return self.gen_parser().parse_args()
 
     def __init__(self,
+        isCut: bool = False,
         joiners: list[LeleSolid] = [],
         cutters: list[LeleSolid] = [],
         fillets: dict[float, list[tuple[float, float, float]]] = {},
     ):
         self.cli = self.parse_args()
 
-        self.isCut = self.cli.is_cut
+        self.isCut = self.cli.is_cut or isCut
         self.color = ColorEnum[self.cli.color]
         self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
         self.outdir = self.cli.outdir
@@ -133,8 +139,7 @@ class LeleSolid(ABC):
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
 
-        if not hasattr(self, 'shape'):
-            self.gen()
+        self.gen_full()
 
         self.api.exportSTL(self.shape, out_fname)
     
@@ -147,32 +152,29 @@ class LeleSolid(ABC):
         return self
 
     def half(self) -> LeleSolid:
-        if not hasattr(self, 'shape'):
-            self.gen()
+        self._gen_if_no_shape()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
         if not hasattr(self, 'shape'):
-            self.gen()
+            print('# Warning: shape not existing, generating... ')
+            self.shape = self.gen()
         self.shape = self.shape.join(joiner.shape)
         return self
 
     def mirrorXZ(self) -> LeleSolid:
-        if not hasattr(self, 'shape'):
-            self.gen()
+        self._gen_if_no_shape()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
-        if not hasattr(self, 'shape'):
-            self.gen()
+        self._gen_if_no_shape()
         self.shape = self.shape.mv(x, y, z)
         return self
 
     def show(self):
-        if not hasattr(self, 'shape'):
-            self.gen()
+        self._gen_if_no_shape()
         return self.shape.show()
 
 if __name__ == '__main__':

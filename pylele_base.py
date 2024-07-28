@@ -97,13 +97,17 @@ class LeleBase(LeleSolid):
     """ Base element for Ukulele Parts """
 
     def __init__(self,
+        isCut: bool = False,
         joiners: list[LeleSolid] = [],
         cutters: list[LeleSolid] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         """ Initialization Method for Base ukuelele element """
 
-        super().__init__(joiners, cutters, fillets)
+        super().__init__(isCut=isCut,
+                         joiners=joiners, 
+                         cutters=cutters,
+                         fillets=fillets)
 
         # generate ukulele configuration
         self.cfg = LeleConfig(
