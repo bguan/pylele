@@ -43,7 +43,7 @@ def lele_solid_parser(parser=None):
 
     ## options ######################################################
     parser.add_argument("-i", "--implementation", help="Underlying engine implementation, default cadquery",
-                        type=Implementation, choices=list(Implementation), default=Implementation.BLENDER)
+                        type=Implementation, choices=list(Implementation), default=Implementation.CAD_QUERY)
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default=Fidelity.LOW)
     parser.add_argument("-c", "--color", help="Color.", type=str,
@@ -57,11 +57,29 @@ def lele_solid_parser(parser=None):
     return parser
 
 class LeleSolid(ABC):
+    """
+    Pylele Generic Solid Body
+    """
 
     @abstractmethod
     def gen(self) -> Shape:
         """ Generate Shape """
+        # self.shape =  ...
         pass
+
+    def gen_full(self):
+
+        # generate self.shape
+        self.gen()
+    
+        for j in self.joiners:
+            self.shape = self.shape.join(j.shape)
+        for c in self.cutters:
+            self.shape = self.shape.cut(c.shape)
+        for rad in self.fillets:
+            self.shape = self.shape.filletByNearestEdges(fillets[rad], rad)
+        
+        return self.shape
 
     def gen_parser(self,parser=None):
         """
@@ -78,29 +96,23 @@ class LeleSolid(ABC):
         cutters: list[LeleSolid] = [],
         fillets: dict[float, list[tuple[float, float, float]]] = {},
     ):
-        self.cfg = self.parse_args()
+        self.cli = self.parse_args()
 
-        self.isCut = self.cfg.is_cut
-        self.color = ColorEnum[self.cfg.color]
-        self.api = ShapeAPI.get(self.cfg.implementation, self.cfg.fidelity)
-        self.outdir = self.cfg.outdir
+        self.isCut = self.cli.is_cut
+        self.color = ColorEnum[self.cli.color]
+        self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
+        self.outdir = self.cli.outdir
 
         self.joiners = joiners
         self.cutters = cutters
+        self.fillets = fillets
         self.fileNameBase = self.__class__.__name__
 
-        self.shape = self.gen()
-    
-        for j in self.joiners:
-            self.shape = self.shape.join(j.shape)
-        for c in self.cutters:
-            self.shape = self.shape.cut(c.shape)
-        for rad in fillets:
-            self.shape = self.shape.filletByNearestEdges(fillets[rad], rad)
-        
-        return self.cfg
+        return self.cli
     
     def cut(self, cutter: LeleSolid) -> LeleSolid:
+        if not hasattr(self, 'shape'):
+            self.gen()
         self.shape = self.shape.cut(cutter.shape)
         return self
 
@@ -109,18 +121,21 @@ class LeleSolid(ABC):
         make_or_exist_path(main_out_path)
         
         out_path = os.path.join(main_out_path, self.fileNameBase+(datetime.datetime.now().strftime("-%y%m%d-%H%M")))
-        #os.makedirs(out_path)
         make_or_exist_path(out_path)
         return out_path
     
     def export_configuration(self):
-        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cfg.txt')
+        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cli.txt')
         with open(out_fname, 'w', encoding='UTF8') as f:
-            f.write(repr(self.cfg))
+            f.write(repr(self.cli))
         
     def exportSTL(self) -> None:
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
+
+        if not hasattr(self, 'shape'):
+            self.gen()
+
         self.api.exportSTL(self.shape, out_fname)
     
     def filletByNearestEdges(
@@ -132,22 +147,32 @@ class LeleSolid(ABC):
         return self
 
     def half(self) -> LeleSolid:
+        if not hasattr(self, 'shape'):
+            self.gen()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
+        if not hasattr(self, 'shape'):
+            self.gen()
         self.shape = self.shape.join(joiner.shape)
         return self
 
     def mirrorXZ(self) -> LeleSolid:
+        if not hasattr(self, 'shape'):
+            self.gen()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
+        if not hasattr(self, 'shape'):
+            self.gen()
         self.shape = self.shape.mv(x, y, z)
         return self
 
     def show(self):
+        if not hasattr(self, 'shape'):
+            self.gen()
         return self.shape.show()
 
 if __name__ == '__main__':
