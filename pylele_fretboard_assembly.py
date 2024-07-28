@@ -36,7 +36,7 @@ class LeleFretboardAssembly(LeleBase):
                                fillets=fbFillets)
         
         self.shape = fretbd.gen_full()
-        return fretbd
+        return self.shape
 
 def fretboard_assembly_main():
     """ Generate Fretboard Assembly """
