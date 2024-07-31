@@ -69,7 +69,7 @@ class PegConfig(TunerConfig):
         return 2*max(self.majRad, self.btnRad) + .5
 
     def tailAllow(self) -> float:
-        return self.majRad + self.btnRad 
+        return self.majRad + self.btnRad - 1.5
 
 
 class WormConfig(TunerConfig):
@@ -483,7 +483,7 @@ class LeleConfig:
         tX = tXMax
         tY = 0
         wCfg: WormConfig = None if self.isPeg else self.tnrCfg
-        tZBase = (self.extMidTopTck + .5) if self.isPeg \
+        tZBase = (self.extMidTopTck + 2) if self.isPeg \
             else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
         def tzAdj(tY: float) -> float:
