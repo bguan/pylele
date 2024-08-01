@@ -13,6 +13,7 @@ from pylele_fretboard import LeleFretboard
 from pylele_top import LeleTop
 from pylele_strings import LeleStrings
 from pylele_fretboard_spines import LeleFretboardSpines
+from pylele_fretboard_joint import LeleFretboardJoint
 class LeleFretboardAssembly(LeleBase):
     """ Pylele Fretboard Assembly Generator class """
 
@@ -44,8 +45,8 @@ class LeleFretboardAssembly(LeleBase):
         # as joins happen before cuts
         if self.cfg.sepFretbd or self.cfg.sepNeck:
             fretbd = fretbd \
-            .join(LeleFretboardSpines(isCut=False)) # \
-            # .join(FretbdJoint(cfg, isCut=False))
+            .join(LeleFretboardSpines(isCut=False)) \
+            .join(LeleFretboardJoint(isCut=False))
 
         self.shape = fretbd.shape
 
