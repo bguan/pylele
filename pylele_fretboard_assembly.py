@@ -10,7 +10,7 @@ from pylele_config import Implementation, FILLET_RAD
 from pylele_frets import LeleFrets
 from pylele_fretboard_dots import LeleFretboardDots
 from pylele_fretboard import LeleFretboard
-
+from pylele_top import LeleTop
 
 class LeleFretboardAssembly(LeleBase):
     """ Pylele Fretboard Assembly Generator class """
@@ -20,13 +20,14 @@ class LeleFretboardAssembly(LeleBase):
 
         frets = LeleFrets()
         fdotsCut = LeleFretboardDots(isCut=True)
+        topCut = LeleTop(isCut=True).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
 
         fbJoiners = [frets]
         fbCutters = [fdotsCut] #, strCuts]
         fbFillets = {}
 
         if self.cfg.sepFretbd or self.cfg.sepNeck:
-            # fbCutters.insert(0, topCut)
+            fbCutters.insert(0, topCut)
             # blender mesh based edges can't handle curves
             if self.cfg.impl == Implementation.CAD_QUERY:
                 fbFillets[FILLET_RAD] = [(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]

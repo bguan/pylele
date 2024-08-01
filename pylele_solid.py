@@ -81,8 +81,11 @@ class LeleSolid(ABC):
             self.shape = self.shape.join(j.shape)
         for c in self.cutters:
             self.shape = self.shape.cut(c.shape)
-        for rad in self.fillets:
-            self.shape = self.shape.filletByNearestEdges(fillets[rad], rad)
+        for rad in self.fillets.keys():
+            try:
+                self.shape = self.shape.filletByNearestEdges(nearestPts=self.fillets[rad], rad=rad)
+            except:
+                print(f'# WARNING: Failed Fillet in {self.fileNameBase} on nearest edges {self.fillets[rad]}, with radius {rad}')
         
         return self.shape
 
