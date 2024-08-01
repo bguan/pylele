@@ -12,6 +12,7 @@ from pylele_fretboard_dots import LeleFretboardDots
 from pylele_fretboard import LeleFretboard
 from pylele_top import LeleTop
 from pylele_strings import LeleStrings
+from pylele_fretboard_spines import LeleFretboardSpines
 class LeleFretboardAssembly(LeleBase):
     """ Pylele Fretboard Assembly Generator class """
 
@@ -37,7 +38,17 @@ class LeleFretboardAssembly(LeleBase):
                                cutters=fbCutters,
                                fillets=fbFillets)
         
-        self.shape = fretbd.gen_full()
+        fretbd.gen_full()
+
+        # Can't use joiners for fretbd joint & spines, as fbCutters will remove them 
+        # as joins happen before cuts
+        if self.cfg.sepFretbd or self.cfg.sepNeck:
+            fretbd = fretbd \
+            .join(LeleFretboardSpines(isCut=False)) # \
+            # .join(FretbdJoint(cfg, isCut=False))
+
+        self.shape = fretbd.shape
+
         return self.shape
 
 def fretboard_assembly_main():
