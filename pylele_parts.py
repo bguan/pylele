@@ -791,6 +791,10 @@ class Tuners(LelePart):
         self.color = (128, 128, 128)
 
     def gen(self) -> Shape:
+        if self.isCut:
+            origFidel = self.cfg.fidelity
+            self.api.setFidelity(Fidelity.MEDIUM)
+
         tXYZs = self.cfg.tnrXYZs
         isPeg = isinstance(self.cfg.tnrCfg, PegConfig)
         isWorm = isinstance(self.cfg.tnrCfg, WormConfig)
@@ -802,6 +806,9 @@ class Tuners(LelePart):
             if tnr != None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
                 tnrs = tnr if tnrs == None else tnrs.join(tnr)
+
+        if self.isCut:
+            self.api.setFidelity(origFidel)
         return tnrs
 
 

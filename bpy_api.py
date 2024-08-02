@@ -708,9 +708,12 @@ class BlenderTextZ(BlenderShape):
         self.obj = bpy.context.object
         self.obj.data.body = txt
         self.obj.data.size = fontSize
-        fontPath = api.font2path[fontName]
-        font = bpy.data.fonts.load(filepath=fontPath)
-        self.obj.data.font = font
+        if fontName in api.font2path:
+            fontPath = api.font2path[fontName]
+            font = bpy.data.fonts.load(filepath=fontPath)
+            self.obj.data.font = font
+        else:
+            print("WARN: font ${fontName} not found, use blender default")
         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS', center='BOUNDS')
         self.obj.location = (0, 0, 0)
         self.extrudeZ(tck)
