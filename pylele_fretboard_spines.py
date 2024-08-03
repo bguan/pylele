@@ -30,7 +30,7 @@ class LeleFretboardSpines(LeleBase):
         self.shape = fsp1.join(fsp2)
         return self.shape
 
-def top_fretboard_spines():
+def fretboard_spines_main():
     """ Generate Fretboard Spines """
     solid = LeleFretboardSpines()
     solid.export_configuration()
@@ -38,4 +38,4 @@ def top_fretboard_spines():
     return solid
 
 if __name__ == '__main__':
-    top_fretboard_spines()
+    fretboard_spines_main()

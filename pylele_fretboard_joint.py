@@ -24,7 +24,7 @@ class LeleFretboardJoint(LeleBase):
         self.shape = jnt
         return jnt
 
-def top_fretboard_joint():
+def fretboard_joint_main():
     """ Generate Fretboard Joint """
     solid = LeleFretboardJoint()
     solid.export_configuration()
@@ -32,4 +32,4 @@ def top_fretboard_joint():
     return solid
 
 if __name__ == '__main__':
-    top_fretboard_joint()
+    fretboard_joint_main()

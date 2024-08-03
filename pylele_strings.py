@@ -36,7 +36,7 @@ class LeleStrings(LeleBase):
 
         pass
 
-def top_strings():
+def strings_main():
     """ Generate Strings """
     solid = LeleStrings()
     solid.export_configuration()
@@ -44,4 +44,4 @@ def top_strings():
     return solid
 
 if __name__ == '__main__':
-    top_strings()
+    strings_main()
