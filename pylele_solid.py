@@ -67,10 +67,16 @@ class LeleSolid(ABC):
         # self.shape =  ...
         pass
 
-    def _gen_if_no_shape(self):
+    def has_shape(self) -> bool:
         if not hasattr(self, 'shape') or self.shape is None:
-            print(f'# Generating {self.fileNameBase}... ')
+            return False
+        return True
+
+    def _gen_if_no_shape(self):
+        if not self.has_shape():
+            print(f'# Shape missing: Generating {self.fileNameBase}... ')
             self.shape = self.gen()
+        assert self.has_shape()
 
     def gen_full(self):
 
@@ -78,9 +84,15 @@ class LeleSolid(ABC):
         self._gen_if_no_shape()
     
         for j in self.joiners:
+            if not j.has_shape():
+                j.gen_full()
             self.shape = self.shape.join(j.shape)
+
         for c in self.cutters:
+            if not c.has_shape():
+                c.gen_full()
             self.shape = self.shape.cut(c.shape)
+
         for rad in self.fillets.keys():
             try:
                 self.shape = self.shape.filletByNearestEdges(nearestPts=self.fillets[rad], rad=rad)
@@ -88,6 +100,10 @@ class LeleSolid(ABC):
                 print(f'# WARNING: Failed Fillet in {self.fileNameBase} on nearest edges {self.fillets[rad]}, with radius {rad}')
         
         return self.shape
+    
+    def _gen_full_if_no_shape(self):
+        if not self.has_shape():
+            self.gen_full()
 
     def gen_parser(self,parser=None):
         """
@@ -120,8 +136,7 @@ class LeleSolid(ABC):
         return self.cli
     
     def cut(self, cutter: LeleSolid) -> LeleSolid:
-        if not hasattr(self, 'shape'):
-            self.gen()
+        assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
         self.shape = self.shape.cut(cutter.shape)
         return self
 
@@ -137,14 +152,16 @@ class LeleSolid(ABC):
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cli.txt')
         with open(out_fname, 'w', encoding='UTF8') as f:
             f.write(repr(self.cli))
+        assert os.path.isfile(out_fname)
         
     def exportSTL(self) -> None:
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
 
-        self.gen_full()
+        self._gen_full_if_no_shape()
 
         self.api.exportSTL(self.shape, out_fname)
+        assert os.path.isfile(out_fname)
     
     def filletByNearestEdges(
         self,
@@ -155,29 +172,27 @@ class LeleSolid(ABC):
         return self
 
     def half(self) -> LeleSolid:
-        self._gen_if_no_shape()
+        assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
-        if not hasattr(self, 'shape'):
-            print('# Warning: shape not existing, generating... ')
-            self.shape = self.gen()
+        assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
         self.shape = self.shape.join(joiner.shape)
         return self
 
     def mirrorXZ(self) -> LeleSolid:
-        self._gen_if_no_shape()
+        assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
-        self._gen_if_no_shape()
+        assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
         self.shape = self.shape.mv(x, y, z)
         return self
 
     def show(self):
-        self._gen_if_no_shape()
+        self._gen_full_if_no_shape()
         return self.shape.show()
 
 if __name__ == '__main__':

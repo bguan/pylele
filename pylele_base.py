@@ -133,7 +133,7 @@ class LeleBase(LeleSolid):
             impl=self.cli.implementation,
         )
 
-        super().gen_full()
+        # super().gen_full()
 
     def gen_parser(self,parser=None):
         """
