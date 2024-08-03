@@ -4,11 +4,12 @@
     Pylele Fretboard Dots
 """
 
+import os
 import math
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import accumDiv, radians, SEMI_RATIO
+from pylele_config import accumDiv, radians, SEMI_RATIO, Implementation
 
 class LeleFretboardDots(LeleBase):
     """ Pylele Fretboard Dots Generator class """
@@ -52,12 +53,28 @@ class LeleFretboardDots(LeleBase):
         self.shape = dots
         return dots
 
-def fretboard_dots_main():
+def fretboard_dots_main(args = None):
     """ Generate Fretboard """
-    solid = LeleFretboardDots()
+    solid = LeleFretboardDots(args=args)
+    solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
     return solid
+
+def test_fretboard_dots():
+    """ Test Fretoard dots """
+
+    component = 'fretboard_dots'
+    tests = {
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        fretboard_dots_main(args=args)
 
 if __name__ == '__main__':
     fretboard_dots_main()

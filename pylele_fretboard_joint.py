@@ -4,9 +4,10 @@
     Pylele Fretboard Joint
 """
 
+import os
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import FIT_TOL
+from pylele_config import FIT_TOL, Implementation
 
 class LeleFretboardJoint(LeleBase):
     """ Pylele Fretboard Joint Generator class """
@@ -24,12 +25,28 @@ class LeleFretboardJoint(LeleBase):
         self.shape = jnt
         return jnt
 
-def fretboard_joint_main():
+def fretboard_joint_main(args=None):
     """ Generate Fretboard Joint """
-    solid = LeleFretboardJoint()
+    solid = LeleFretboardJoint(args=args)
+    solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
     return solid
+
+def test_fretboard_joint():
+    """ Test Fretoard Joint """
+
+    component = 'fretboard_joint'
+    tests = {
+            'cadquery': ['-i','cadquery'],
+            'blender' : ['-i','blender']
+        }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        fretboard_joint_main(args=args)
 
 if __name__ == '__main__':
     fretboard_joint_main()

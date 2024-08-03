@@ -3,10 +3,10 @@
 """
     Pylele Fretboard
 """
-
+import os
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import FIT_TOL
+from pylele_config import FIT_TOL, Implementation
 
 class LeleFretboard(LeleBase):
     """ Pylele Fretboard Generator class """
@@ -36,12 +36,31 @@ class LeleFretboard(LeleBase):
         self.shape = fretbd
         return fretbd
 
-def fretboard_main():
+def fretboard_main(args = None):
     """ Generate Fretboard """
-    solid = LeleFretboard()
+    solid = LeleFretboard(args=args)
+    solid.export_args()
+
     solid.export_configuration()
+
     solid.exportSTL()
     return solid
+
+def test_fretboard():
+    """ Test Fretboard """
+
+    component = 'fretboard'
+    tests = {
+        'cut'     : ['-C'],
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        fretboard_main(args=args)
 
 if __name__ == '__main__':
     fretboard_main()

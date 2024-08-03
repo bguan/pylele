@@ -4,6 +4,7 @@
     Pylele Top
 """
 
+import os
 from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_config import FIT_TOL, Fidelity
@@ -39,12 +40,30 @@ class LeleTop(LeleBase):
         self.shape = top
         return top
 
-def top_main():
+def top_main(args=None):
     """ Generate Top """
-    solid = LeleTop()
+    solid = LeleTop(args=args)
+    solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
     return solid
+
+def test_top():
+    """ Test Top """
+
+    component = 'Top'
+    tests = {
+        'cut'     : ['-C'],
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        top_main(args=args)
+
 
 if __name__ == '__main__':
     top_main()

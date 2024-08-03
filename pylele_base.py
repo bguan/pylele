@@ -4,6 +4,7 @@
     Pylele Base Element
 """
 
+import os
 import argparse
 from pylele_solid import LeleSolid
 from pylele_config import LeleConfig, TunerType, ModelLabel, \
@@ -101,13 +102,20 @@ class LeleBase(LeleSolid):
         joiners: list[LeleSolid] = [],
         cutters: list[LeleSolid] = [],
         fillets: dict[tuple[float, float, float], float] = {},
+        args = None,
+        cli = None
     ):
         """ Initialization Method for Base ukuelele element """
 
         super().__init__(isCut=isCut,
                          joiners=joiners, 
                          cutters=cutters,
-                         fillets=fillets)
+                         fillets=fillets,
+                         args = args,
+                         cli=cli
+                         )
+
+    def configure(self):
 
         # generate ukulele configuration
         self.cfg = LeleConfig(
@@ -133,11 +141,40 @@ class LeleBase(LeleSolid):
             impl=self.cli.implementation,
         )
 
+        super().configure()
         # super().gen_full()
+
+    def has_configuration(self):
+        """ True if pylele has configuration class """
+        if not hasattr(self, 'cfg') or self.cfg is None:
+            return False
+        return isinstance(self.cfg,LeleConfig)
+
+    def export_configuration(self):
+        """ Export Pylele Configuration """
+
+        if not self.has_configuration():
+            self.configure()
+
+        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cfg.txt')
+        with open(out_fname, 'w', encoding='UTF8') as f:
+            f.write(repr(self.cfg))
+        assert os.path.isfile(out_fname)
 
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """
         return super().gen_parser( parser=pylele_base_parser(parser=parser) )
+    
+    def exportSTL(self) -> None:
+        """ Generate .stl output file """
+        if not self.has_configuration():
+            self.configure()
+        return super().exportSTL()
 
+    def gen_full(self):
+        """ Generate full shape including joiners, cutters and fillets """
+        if not self.has_configuration():
+            self.configure()
+        return super().gen_full()

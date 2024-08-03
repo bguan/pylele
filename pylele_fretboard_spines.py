@@ -4,9 +4,10 @@
     Pylele Fretboard Spines
 """
 
+import os
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import FIT_TOL
+from pylele_config import FIT_TOL, Implementation
 
 class LeleFretboardSpines(LeleBase):
     """ Pylele Fretboard Spines Generator class """
@@ -30,12 +31,29 @@ class LeleFretboardSpines(LeleBase):
         self.shape = fsp1.join(fsp2)
         return self.shape
 
-def fretboard_spines_main():
+def fretboard_spines_main(args = None):
     """ Generate Fretboard Spines """
-    solid = LeleFretboardSpines()
+    solid = LeleFretboardSpines(args=args)
+    solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
     return solid
+
+def test_fretboard_spines():
+    """ Test Fretoard Spines """
+
+    component = 'fretboard_spines'
+
+    tests = {
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        fretboard_spines_main(args=args)
 
 if __name__ == '__main__':
     fretboard_spines_main()

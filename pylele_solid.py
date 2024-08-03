@@ -68,28 +68,56 @@ class LeleSolid(ABC):
         pass
 
     def has_shape(self) -> bool:
+        """ Return True if Solid has Shape attribute """
         if not hasattr(self, 'shape') or self.shape is None:
             return False
         return True
+    
+    def check_has_shape(self):
+        """ Assert if Solid does not have shape attribute """
+        assert self.has_shape()
+        assert isinstance(self.shape,Shape)
+
+    def has_api(self) -> bool:
+        """ Return True if Solid has api attribute """
+        if not hasattr(self, 'api') or self.api is None:
+            return False
+        return True
+    
+    def check_has_api(self):
+        """ Assert if Solid does not have api attribute """
+        assert self.has_api()
+        assert isinstance(self.api, ShapeAPI)
 
     def _gen_if_no_shape(self):
+        """ Generate shape if attribute not present """
         if not self.has_shape():
             print(f'# Shape missing: Generating {self.fileNameBase}... ')
+
+            if not self.has_api():
+                print(f'# Shape missing API: Configuring {self.fileNameBase}... ')
+                self.configure()
+                self.check_has_api()
+                print(f'# Done configuring API! {self.fileNameBase}')
+
             self.shape = self.gen()
-        assert self.has_shape()
+            print(f'# Done generating shape! {self.fileNameBase}')
+        self.check_has_shape()
 
     def gen_full(self):
-
+        """ Generate full shape including joiners, cutters, and fillets """
         # generate self.shape
         self._gen_if_no_shape()
     
         for j in self.joiners:
             if not j.has_shape():
+                print(f'# Warning: joiner {j} has no shape!')
                 j.gen_full()
             self.shape = self.shape.join(j.shape)
 
         for c in self.cutters:
             if not c.has_shape():
+                print(f'# Warning: cutter {c} has no shape!')
                 c.gen_full()
             self.shape = self.shape.cut(c.shape)
 
@@ -102,8 +130,10 @@ class LeleSolid(ABC):
         return self.shape
     
     def _gen_full_if_no_shape(self):
+        """ Generate full shape including joiners, cutters, and fillets, if shape is not already present """
         if not self.has_shape():
             self.gen_full()
+        self.check_has_shape()
 
     def gen_parser(self,parser=None):
         """
@@ -111,21 +141,25 @@ class LeleSolid(ABC):
         """
         return lele_solid_parser(parser=parser)
 
-    def parse_args(self):
+    def parse_args(self, args=None):
         """ Parse Command Line Arguments """
-        return self.gen_parser().parse_args()
+        return self.gen_parser().parse_args(args=args)
 
     def __init__(self,
         isCut: bool = False,
         joiners: list[LeleSolid] = [],
         cutters: list[LeleSolid] = [],
         fillets: dict[float, list[tuple[float, float, float]]] = {},
+        args=None,
+        cli=None
     ):
-        self.cli = self.parse_args()
+        if cli is None:
+            self.cli = self.parse_args(args=args)
+        else:
+            self.cli = cli
 
         self.isCut = self.cli.is_cut or isCut
         self.color = ColorEnum[self.cli.color]
-        self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
         self.outdir = self.cli.outdir
 
         self.joiners = joiners
@@ -135,8 +169,14 @@ class LeleSolid(ABC):
 
         return self.cli
     
+    def configure(self):        
+        self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
+        self.check_has_api()
+
     def cut(self, cutter: LeleSolid) -> LeleSolid:
-        assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
+        # assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
+        self._gen_full_if_no_shape()
+        cutter._gen_full_if_no_shape()
         self.shape = self.shape.cut(cutter.shape)
         return self
 
@@ -148,13 +188,15 @@ class LeleSolid(ABC):
         make_or_exist_path(out_path)
         return out_path
     
-    def export_configuration(self):
-        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cli.txt')
+    def export_args(self):
+        """ Export Pylele Solid input arguments """
+        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_args.txt')
         with open(out_fname, 'w', encoding='UTF8') as f:
             f.write(repr(self.cli))
         assert os.path.isfile(out_fname)
         
     def exportSTL(self) -> None:
+        """ Generate .stl output file """
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
 
@@ -168,26 +210,32 @@ class LeleSolid(ABC):
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> LeleSolid:
+        self._gen_full_if_no_shape()
         self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
         return self
 
     def half(self) -> LeleSolid:
-        assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
+        # assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
+        self._gen_full_if_no_shape()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
-        assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
+        # assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
+        self._gen_full_if_no_shape()
+        joiner._gen_full_if_no_shape()
         self.shape = self.shape.join(joiner.shape)
         return self
 
     def mirrorXZ(self) -> LeleSolid:
-        assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
+        # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
+        self._gen_full_if_no_shape()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
-        assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
+        # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
+        self._gen_full_if_no_shape()
         self.shape = self.shape.mv(x, y, z)
         return self
 

@@ -4,11 +4,12 @@
     Pylele Frets
 """
 
+import os
 import math
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import accumDiv, FIT_TOL, SEMI_RATIO
+from pylele_config import accumDiv, FIT_TOL, SEMI_RATIO, Implementation
 from pylele_utils import radians
 
 class LeleFrets(LeleBase):
@@ -57,12 +58,31 @@ class LeleFrets(LeleBase):
 
         return frets
 
-def frets_main():
+def frets_main(args = None):
     """ Generate Frets """
-    solid = LeleFrets()
+    solid = LeleFrets(args=args)
+    solid.export_args() # from cli
+    
     solid.export_configuration()
+    
     solid.exportSTL()
     return solid
+
+def test_frets():
+    """ Test Frets """
+
+    component = 'frets'
+    tests = {
+        'cut'     : ['-C'],
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        frets_main(args=args)
 
 if __name__ == '__main__':
     frets_main()

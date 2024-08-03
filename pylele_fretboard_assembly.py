@@ -4,6 +4,7 @@
     Pylele Fretboard Assembly
 """
 
+import os
 from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_config import Implementation, FILLET_RAD
@@ -20,10 +21,10 @@ class LeleFretboardAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
 
-        strCuts = LeleStrings(isCut=True) # use by others too
-        frets = LeleFrets()
-        fdotsCut = LeleFretboardDots(isCut=True)
-        topCut = LeleTop(isCut=True).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
+        strCuts = LeleStrings(isCut=True,cli=self.cli) # use by others too
+        frets = LeleFrets(cli=self.cli)
+        fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
+        topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
 
         fbJoiners = [frets]
         fbCutters = [fdotsCut, strCuts]
@@ -37,7 +38,9 @@ class LeleFretboardAssembly(LeleBase):
 
         fretbd = LeleFretboard(joiners=fbJoiners,
                                cutters=fbCutters,
-                               fillets=fbFillets)
+                               fillets=fbFillets,
+                               cli=self.cli
+                               )
         
         fretbd.gen_full()
 
@@ -45,19 +48,36 @@ class LeleFretboardAssembly(LeleBase):
         # as joins happen before cuts
         if self.cfg.sepFretbd or self.cfg.sepNeck:
             fretbd = fretbd \
-            .join(LeleFretboardSpines(isCut=False)) \
-            .join(LeleFretboardJoint(isCut=False))
+            .join(LeleFretboardSpines(cli=self.cli)) \
+            .join(LeleFretboardJoint(cli=self.cli))
 
         self.shape = fretbd.shape
 
         return self.shape
 
-def fretboard_assembly_main():
+def fretboard_assembly_main(args=None):
     """ Generate Fretboard Assembly """
-    solid = LeleFretboardAssembly()
+    solid = LeleFretboardAssembly(args=args)
+    solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
     return solid
+
+def test_fretboard_assembly():
+    """ Test Fretboard Assembly """
+
+    component = 'fretboard_assembly'
+    tests = {
+        'separate_fretboard' : ['-F'],
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        fretboard_assembly_main(args=args)
 
 if __name__ == '__main__':
     fretboard_assembly_main()
