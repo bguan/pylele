@@ -1,14 +1,14 @@
-name: TestUbuntu20p04
+name: TestUbuntu
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # ubuntu-latest
+    runs-on:  ubuntu-latest # ubuntu-20.04
     strategy:
       matrix:
         # https://github.com/actions/setup-python/issues/853
-        python-version: ["3.8", "3.8.5", "3.8.10", "3.9", "3.10"]
+        python-version: ["3.10"] #["3.8", "3.8.5", "3.8.10", "3.9", "3.10"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
