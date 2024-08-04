@@ -29,6 +29,9 @@ jobs:
     - name: test
       run: |
         python ./pylele_test.py
+    # for debugging, show all the files
+    - name: show files
+      run: find runs/test/
 
 ##############################################################
 # Downloadable results from OpenLane
@@ -50,4 +53,4 @@ jobs:
           # path depends on the tag and the module name
           name: STL
           path: |            
-            find ./test/fretboard_assembly/cadquery/
+            find run/test/fretboard_assembly/cadquery/
