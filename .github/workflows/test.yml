@@ -49,5 +49,5 @@ jobs:
       with:
           # path depends on the tag and the module name
           name: STL
-          path: |
-            test/*
+          path: |            
+            find ./test/fretboard_assembly/cadquery/
