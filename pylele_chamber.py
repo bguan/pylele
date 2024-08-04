@@ -10,7 +10,7 @@ from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_config import FIT_TOL, Fidelity
 
-class Lelechamber(LeleBase):
+class LeleChamber(LeleBase):
     """ Pylele Chamber Generator class """
 
     def gen(self) -> Shape:
@@ -56,7 +56,7 @@ class Lelechamber(LeleBase):
 
 def chamber_main(args = None):
     """ Generate Chamber """
-    solid = Lelechamber(args=args)
+    solid = LeleChamber(args=args)
     solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
