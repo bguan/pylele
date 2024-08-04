@@ -31,7 +31,9 @@ jobs:
         python ./pylele_test.py
     # for debugging, show all the files
     - name: show files
-      run: find runs/test/
+      run: |
+        ls -R
+        find ./runs/test/
 
 ##############################################################
 # Downloadable results from OpenLane
