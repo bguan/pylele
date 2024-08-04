@@ -33,7 +33,7 @@ jobs:
     - name: show files
       run: |
         ls -R
-        find ./runs/test/
+        find ./test/ | grep stl
 
 ##############################################################
 # Downloadable results from OpenLane
@@ -55,4 +55,4 @@ jobs:
           # path depends on the tag and the module name
           name: STL
           path: |            
-            find run/test/fretboard_assembly/cadquery/
+            find ./test/fretboard_assembly/cadquery/*
