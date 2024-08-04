@@ -44,13 +44,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: restore runs cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: runs
         key: ${{ runner.os }}-runs-${{ github.run_id }}
 
     - name: upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
           name: STL
