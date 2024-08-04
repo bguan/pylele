@@ -21,6 +21,7 @@ from pylele_neck_joint import test_neck_joint
 from pylele_neck import test_neck
 from pylele_bridge import test_bridge
 from pylele_guide import test_guide
+from pylele_chamber import test_chamber
 
 # assemblies
 from pylele_nut_assembly import test_nut_assembly
@@ -87,6 +88,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_guide(self):
         """ Test Guide """
         test_guide()
+
+    def test_chamber(self):
+        """ Test Chamber """
+        test_chamber()
 
     ## Assemblies
 
