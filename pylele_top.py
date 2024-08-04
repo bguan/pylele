@@ -51,7 +51,7 @@ def top_main(args=None):
 def test_top():
     """ Test Top """
 
-    component = 'Top'
+    component = 'top'
     tests = {
         'cut'     : ['-C'],
         'cadquery': ['-i','cadquery'],
