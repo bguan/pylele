@@ -19,6 +19,7 @@ from pylele_spines import test_spines
 from pylele_head import test_head
 from pylele_neck_joint import test_neck_joint
 from pylele_neck import test_neck
+from pylele_bridge import test_bridge
 
 # assemblies
 from pylele_nut_assembly import test_nut_assembly
@@ -77,6 +78,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_neck(self):
         """ Test Neck """
         test_neck()
+
+    def test_bridge(self):
+        """ Test Bridge """
+        test_bridge()
 
     ## Assemblies
 
