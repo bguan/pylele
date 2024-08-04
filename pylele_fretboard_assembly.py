@@ -6,24 +6,21 @@
 
 import os
 import argparse
-from enum import Enum
 from pylele_api import Shape
-from pylele_base import LeleBase
+from pylele_base import LeleBase, LeleStrEnum
 from pylele_config import Implementation, FILLET_RAD
 from pylele_frets import LeleFrets
+from pylele_nut_assembly import LeleNutAssembly, pylele_nut_assembly_parser, NutType
 from pylele_fretboard_dots import LeleFretboardDots
 from pylele_fretboard import LeleFretboard
 from pylele_top import LeleTop
-from pylele_strings import LeleStrings
 from pylele_fretboard_spines import LeleFretboardSpines
 from pylele_fretboard_joint import LeleFretboardJoint
 
-class FretType(Enum):
+class FretType(LeleStrEnum):
+    """ Pylele Fret Type """
     PRINT = 'print'
     NAIL = 'nail'
-
-    def __str__(self):
-        return self.value
 
 def pylele_fretboard_assembly_parser(parser = None):
     """
@@ -32,26 +29,48 @@ def pylele_fretboard_assembly_parser(parser = None):
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
+    parser = pylele_nut_assembly_parser(parser=parser)
+
     parser.add_argument("-ft", "--fret_type",
                     help="Fret Type",
                     type=FretType,
                     choices=list(FretType),
                     default=FretType.PRINT
                     )
+    parser.add_argument("-NU", "--separate_nut",
+                        help="Split nut from fretboard.",
+                        action='store_true')
     return parser
+
+def nut_is_cut(cli):
+    """ Returns True if Nut is a cutter """
+    if cli.separate_nut or \
+       (cli.nut_type == NutType.ZEROFRET and cli.fret_type == FretType.NAIL):
+        return True
+    return False
+
+def nut_is_join(cli):
+    """ Returns True if Nut is a joiner """
+    if not cli.separate_nut and (\
+        cli.nut_type == NutType.NUT or \
+        (cli.nut_type == NutType.ZEROFRET and cli.fret_type == FretType.PRINT) \
+        ):
+        return True
+    return False
+
 class LeleFretboardAssembly(LeleBase):
     """ Pylele Fretboard Assembly Generator class """
 
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
 
-        strCuts = LeleStrings(isCut=True,cli=self.cli) # use by others too
+        nut = LeleNutAssembly(cli=self.cli,isCut=nut_is_cut(self.cli))
         frets = LeleFrets(cli=self.cli)
         fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
         topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
 
         fbJoiners = []
-        fbCutters = [fdotsCut, strCuts]
+        fbCutters = [fdotsCut]
         fbFillets = {}
 
         if self.cli.fret_type == FretType.PRINT:
@@ -60,6 +79,11 @@ class LeleFretboardAssembly(LeleBase):
             fbCutters.append(frets)
         else:
             assert f'Unsupported FretType: {self.cli.fret_type} !'
+
+        if nut_is_join(self.cli):
+            fbJoiners.append(nut)
+        elif nut_is_cut(self.cli):
+            fbCutters.append(nut)
 
         if self.cfg.sepFretbd or self.cfg.sepNeck:
             fbCutters.insert(0, topCut)
@@ -107,9 +131,11 @@ def test_fretboard_assembly():
     component = 'fretboard_assembly'
     tests = {
         'separate_fretboard' : ['-F'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender'],
-        'fret_nails': ['-ft', str(FretType.NAIL) ]
+        'cadquery'           : ['-i','cadquery'],
+        'blender'            : ['-i','blender'],
+        'fret_nails'         : ['-ft', str(FretType.NAIL)],
+        'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
+        'separate_nut'       : ['-NU'],
     }
 
     for test,args in tests.items():

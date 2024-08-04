@@ -6,10 +6,15 @@
 
 import os
 import argparse
+from enum import Enum
 from pylele_solid import LeleSolid
 from pylele_config import LeleConfig, TunerType, ModelLabel, \
     SOPRANO_SCALE_LEN, DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 
+class LeleStrEnum(Enum):
+    """ Pylele Enumerator for String Types """
+    def __str__(self):
+        return self.value
 
 def pylele_base_parser(parser = None):
     """

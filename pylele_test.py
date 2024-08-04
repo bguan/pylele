@@ -17,6 +17,7 @@ from pylele_strings import test_strings
 from pylele_nut import test_nut
 
 # assemblies
+from pylele_nut_assembly import test_nut_assembly
 from pylele_fretboard_assembly import test_fretboard_assembly
 
 
@@ -57,8 +58,12 @@ class PyleleTestMethods(unittest.TestCase):
         """ Test Nut """
         test_nut()
 
-
     ## Assemblies
+
+    def test_nut_assembly(self):
+        """ Test Nut Assembly """
+        test_nut_assembly()
+
     def test_fretboard_assembly(self):
         """ Test Fretboard Assembly """
         test_fretboard_assembly()
