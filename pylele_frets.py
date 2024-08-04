@@ -43,26 +43,25 @@ class LeleFrets(LeleBase):
         else:
             frets =  None
 
-        if not self.isCut:
-            fx = 0
-            gap = (scLen / 2) / accumDiv(1, 12, SEMI_RATIO)
-            count = 0
-            while (fx < (fbLen - gap - 2 * fHt)):
-                fx = fx + gap
-                fy = fWth / 2 + math.tan(radians(wideAng)) * fx
-                fz = fbTck + math.tan(radians(riseAng)) * fx
-                fret = self.api.genRodY(2 * fy, fHt).mv(fx, 0, fz)
-                if frets is None:
-                    frets = fret
-                else:
-                    frets = frets.join(fret)
-                gap = gap / SEMI_RATIO
-                count += 1
-                if (count > maxFrets):  # prevent runaway loop
-                    break
+        # Not generating frets, if they are cut ?
+        fx = 0
+        gap = (scLen / 2) / accumDiv(1, 12, SEMI_RATIO)
+        count = 0
+        while (fx < (fbLen - gap - 2 * fHt)):
+            fx = fx + gap
+            fy = fWth / 2 + math.tan(radians(wideAng)) * fx
+            fz = fbTck + math.tan(radians(riseAng)) * fx
+            fret = self.api.genRodY(2 * fy, fHt).mv(fx, 0, fz)
+            if frets is None:
+                frets = fret
+            else:
+                frets = frets.join(fret)
+            gap = gap / SEMI_RATIO
+            count += 1
+            if (count > maxFrets):  # prevent runaway loop
+                break
 
         self.shape = frets
-
         return frets
 
 def frets_main(args = None):
@@ -80,7 +79,6 @@ def test_frets():
 
     component = 'frets'
     tests = {
-        'cut'     : ['-C'],
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender']
     }
