@@ -22,6 +22,7 @@ from pylele_neck import test_neck
 from pylele_bridge import test_bridge
 from pylele_guide import test_guide
 from pylele_chamber import test_chamber
+from pylele_peg import test_peg
 
 # assemblies
 from pylele_nut_assembly import test_nut_assembly
@@ -92,6 +93,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_chamber(self):
         """ Test Chamber """
         test_chamber()
+
+    def test_peg(self):
+        """ Test Peg """
+        test_peg()
 
     ## Assemblies
 
