@@ -119,6 +119,10 @@ class WormConfig(TunerConfig):
 
     def tailAllow(self) -> float:
         return self.driveLen
+    
+    def __repr__(self):
+        properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
+        return f"{self.__class__.__name__}\n\n{properties}"
 
 
 FRICTION_PEG_CFG = PegConfig()

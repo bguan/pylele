@@ -112,11 +112,11 @@ def pylele_worm_parser(parser = None):
 class LeleWorm(LeleBase):
     """ Pylele Worm Generator class """
 
-    def gen(self) -> Shape:
-        """ Generate Worm """
+    def configure(self):
 
-        cutAdj = FIT_TOL if self.isCut else 0
-        cfg = WormConfig(
+        super().configure()
+
+        self.cfg.tnrCfg = WormConfig(
             holeHt  = self.cli.worm_hole_heigth,
             slitLen = self.cli.worm_slit_length,
             slitWth = self.cli.worm_slit_width,
@@ -137,16 +137,21 @@ class LeleWorm(LeleBase):
             buttonKeybaseHt = self.cli.worm_button_key_base_radius,
             # code: str = 'W',
         )
+    
+    def gen(self) -> Shape:
+        """ Generate Worm """
 
-        sltLen = cfg.slitLen
-        sltWth = cfg.slitWth
-        drvRad = cfg.driveRad + cutAdj
-        dskRad = cfg.diskRad + cutAdj
-        dskTck = cfg.diskTck + 2*cutAdj
-        axlRad = cfg.axleRad + cutAdj
-        axlLen = cfg.axleLen + 2*cutAdj
-        offset = cfg.driveOffset
-        drvLen = cfg.driveLen + 2*cutAdj
+        cutAdj = FIT_TOL if self.isCut else 0
+
+        sltLen = self.cfg.tnrCfg.slitLen
+        sltWth = self.cfg.tnrCfg.slitWth
+        drvRad = self.cfg.tnrCfg.driveRad + cutAdj
+        dskRad = self.cfg.tnrCfg.diskRad + cutAdj
+        dskTck = self.cfg.tnrCfg.diskTck + 2*cutAdj
+        axlRad = self.cfg.tnrCfg.axleRad + cutAdj
+        axlLen = self.cfg.tnrCfg.axleLen + 2*cutAdj
+        offset = self.cfg.tnrCfg.driveOffset
+        drvLen = self.cfg.tnrCfg.driveLen + 2*cutAdj
 
         # Note: Origin is middle of slit, near tip of axle
         axlX = 0
