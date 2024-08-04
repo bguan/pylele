@@ -29,7 +29,7 @@ class LeleNeck(LeleBase):
         coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
         neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
         neck = neckCone if neck == None else neck.join(neckCone)
-        
+
         self.shape = neck
         return neck
 
@@ -42,7 +42,7 @@ def neck_main(args = None):
     return solid
 
 def test_neck():
-    """ Test neck_ """
+    """ Test Neck """
 
     component = 'neck'
     tests = {
