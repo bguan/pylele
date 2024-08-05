@@ -38,30 +38,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: STL
-          path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
-
-##############################################################
-# Downloadable results
-
-  artifact:
-    needs:
-    - build
-    runs-on: ubuntu-latest
-    steps:
-    - name: show files
-      run: |
-        ls -R
-        find ./test/ | grep stl
-    # - name: restore runs cache
-    #  uses: actions/cache@v4
-    #  with:
-    #    path: test/
-    #    key: ${{ runner.os }}-runs-${{ github.run_id }}
-
-    - name: upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-          # path depends on the tag and the module name
-          name: STL
+          name: pylele_test_out
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
