@@ -43,6 +43,10 @@ jobs:
     - build
     runs-on: ubuntu-latest
     steps:
+    - name: show files
+      run: |
+        ls -R
+        find ./test/ | grep stl
     # - name: restore runs cache
     #  uses: actions/cache@v4
     #  with:
