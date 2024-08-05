@@ -4,7 +4,14 @@
     Pylele Tests
 """
 
+import os
 import unittest
+from pathlib import Path
+
+# api
+from pylele_config import Fidelity
+from cq_api import CQShapeAPI
+from bpy_api import BlenderShapeAPI
 
 # parts
 from pylele_frets import test_frets
@@ -34,9 +41,33 @@ from pylele_worm_key import test_worm_key
 from pylele_nut_assembly import test_nut_assembly
 from pylele_fretboard_assembly import test_fretboard_assembly
 
+def make_api_path_and_filename(api_name,test_path='./test'):
+    """ Makes Test API folder and filename """
+    out_path = os.path.join(Path.cwd(),test_path,api_name)
+
+    if not os.path.isdir(out_path):
+        os.makedirs(out_path)
+    assert os.path.isdir(out_path)
+
+    outfname = os.path.join(out_path,api_name+'.stl')
+    print(outfname)
+    return outfname
 
 class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
+
+    ## API
+    def test_cadquery_api(self):
+        """ Test Cadquery API """
+        outfname = make_api_path_and_filename('cadquery_api')
+        api = CQShapeAPI(Fidelity.LOW)
+        api.test(outfname)
+
+    def test_blender_api(self):
+        """ Test Blender API """
+        outfname = make_api_path_and_filename('blender_api')
+        api = BlenderShapeAPI(Fidelity.LOW)
+        api.test(outfname)
 
     ## Individual Parts
     
