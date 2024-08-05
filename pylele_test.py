@@ -25,6 +25,7 @@ from pylele_chamber import test_chamber
 from pylele_peg import test_peg
 from pylele_worm import test_worm
 from pylele_tuners import test_tuners
+from pylele_body import test_body
 
 # assemblies
 from pylele_nut_assembly import test_nut_assembly
@@ -107,6 +108,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_tuners(self):
         """ Test Tuners """
         test_tuners()
+
+    def test_body(self):
+        """ Test Body """
+        test_body()
 
     ## Assemblies
 
