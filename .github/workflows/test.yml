@@ -46,7 +46,7 @@ jobs:
     - name: restore runs cache
       uses: actions/cache@v4
       with:
-        path: runs
+        path: test/
         key: ${{ runner.os }}-runs-${{ github.run_id }}
 
     - name: upload artifact
@@ -54,4 +54,4 @@ jobs:
       with:
           # path depends on the tag and the module name
           name: STL
-          path: test/ #find ./test/fretboard_assembly/cadquery/*
+          path: test/* #find ./test/fretboard_assembly/cadquery/*
