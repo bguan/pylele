@@ -34,9 +34,15 @@ jobs:
       run: |
         ls -R
         find ./test/ | grep stl
+    - name: upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: STL
+          path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
 
 ##############################################################
-# Downloadable results from OpenLane
+# Downloadable results
 
   artifact:
     needs:
