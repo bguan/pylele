@@ -48,7 +48,7 @@ def strings_main(args=None):
 def test_strings():
     """ Test String """
 
-    component = 'String'
+    component = 'strings'
 
     tests = {
         'cut'     : ['-C'],
