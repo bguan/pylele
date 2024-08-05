@@ -28,6 +28,7 @@ from pylele_tuners import test_tuners
 from pylele_body import test_body
 from pylele_texts import test_texts
 from pylele_rim import test_rim
+from pylele_worm_key import test_worm_key
 
 # assemblies
 from pylele_nut_assembly import test_nut_assembly
@@ -122,6 +123,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_rim(self):
         """ Test Rim """
         test_rim()
+
+    def test_worm_key(self):
+        """ Test Worm Key """
+        test_worm_key()
 
     ## Assemblies
 
