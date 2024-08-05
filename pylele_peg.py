@@ -16,6 +16,7 @@ class LelePeg(LeleBase):
     def gen(self) -> Shape:
         """ Generate Peg """
         cutAdj = FIT_TOL if self.isCut else 0
+        assert isinstance(self.cfg.tnrCfg, PegConfig)
         cfg: PegConfig = self.cfg.tnrCfg
         strRad = self.cfg.STR_RAD + cutAdj
         holeHt = cfg.holeHt
@@ -77,6 +78,7 @@ def test_peg():
     component = 'peg'
     tests = {
         'cut'     : ['-C'],
+        'gotoh'   : ['-t','gotoh'],
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender']
     }
