@@ -86,8 +86,6 @@ def test_nut():
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender'],
         'separate_fretboard' : ['-F'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender'],
         'zerofret': ['-nt', str(NutType.ZEROFRET)],
     }
 
