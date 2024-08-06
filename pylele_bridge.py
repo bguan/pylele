@@ -9,6 +9,7 @@ import os
 from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_config import FIT_TOL
+from pylele_strings import LeleStrings
 
 class LeleBridge(LeleBase):
     """ Pylele Bridge Generator class """
@@ -37,6 +38,10 @@ class LeleBridge(LeleBase):
                 .mv(scLen + cutRad + strRad, 0, brdgZ + brdgHt)
             brdgTop = self.api.genRodY(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt)
             brdg = brdg.cut(frontCut).cut(backCut).join(brdgTop)
+
+        # strings cut
+        strings = LeleStrings(cli=self.cli,isCut=True)
+        brdg.cut(strings.gen_full())
 
         self.shape = brdg
         return brdg
