@@ -14,9 +14,15 @@ class LeleTail(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Tail """
+        assert self.cli.separate_end
+
         cfg = self.cfg
         joinTol = cfg.joinCutTol
         cutAdj = (FIT_TOL + 2*joinTol) if self.isCut else 0
+
+        # this assertion should be verified
+        assert self.cli.end_flat_width > 4.0 + 2*cutAdj, 'end_flat_width too small! %f, should be larger than %f' % (self.cli.end_flat_width, 4+2*cutAdj)        
+
         tailX = cfg.tailX
         chmBackX = cfg.scaleLen + cfg.chmBack
         tailLen = tailX - chmBackX + 2*cutAdj
@@ -60,9 +66,9 @@ def test_tail():
 
     component = 'tail'
     tests = {
-        'cut'     : ['-C'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-E','-e','10','-C'],
+        'cadquery': ['-E','-e','4.3','-i','cadquery'],
+        'blender' : ['-E','-e','4.3','-i','blender']
     }
 
     for test,args in tests.items():
