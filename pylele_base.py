@@ -172,11 +172,11 @@ class LeleBase(LeleSolid):
         """
         return super().gen_parser( parser=pylele_base_parser(parser=parser) )
     
-    def exportSTL(self) -> None:
+    def exportSTL(self,out_path=None) -> None:
         """ Generate .stl output file """
         if not self.has_configuration():
             self.configure()
-        return super().exportSTL()
+        return super().exportSTL(out_path=out_path)
 
     def gen_full(self):
         """ Generate full shape including joiners, cutters and fillets """

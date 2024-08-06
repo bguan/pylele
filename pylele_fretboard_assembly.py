@@ -39,6 +39,9 @@ def pylele_fretboard_assembly_parser(parser = None):
                     )
     parser.add_argument("-NU", "--separate_nut",
                         help="Split nut from fretboard.",
+                        action='store_true')    
+    parser.add_argument("-FR", "--separate_frets",
+                        help="Split frets from fretboard.",
                         action='store_true')
     return parser
 
@@ -73,12 +76,20 @@ class LeleFretboardAssembly(LeleBase):
         fbCutters = [fdotsCut]
         fbFillets = {}
 
-        if self.cli.fret_type == FretType.PRINT:
+        ## frets
+        if self.cli.fret_type == FretType.PRINT and not self.cli.separate_frets:
             fbJoiners.append(frets)
-        elif self.cli.fret_type == FretType.NAIL:
+        elif self.cli.fret_type == FretType.NAIL or self.cli.separate_frets:
             fbCutters.append(frets)
         else:
             assert f'Unsupported FretType: {self.cli.fret_type} !'
+
+        if self.cli.separate_frets:
+            self.add_part(frets)
+
+        ## nut
+        if self.cli.separate_nut:
+            self.add_part(nut)
 
         if nut_is_join(self.cli):
             fbJoiners.append(nut)
@@ -136,6 +147,7 @@ def test_fretboard_assembly():
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_nut'       : ['-NU'],
+        'separate_frets'     : ['-FR'],
     }
 
     for test,args in tests.items():

@@ -89,6 +89,30 @@ class LeleSolid(ABC):
         assert self.has_api()
         assert isinstance(self.api, ShapeAPI)
 
+    def has_parts(self) -> bool:
+        """ Return True if Solid is an assembly with a list of parts attribute """
+        if hasattr(self, 'parts') and not self.shape is None:
+            return True
+        return False
+    
+    def add_part(self,part):
+        """ Add a solid part to the parts list of this assembly """
+        assert isinstance(part, LeleSolid)
+
+        if self.has_parts():
+            self.parts.append(part)
+        else:
+            self.parts = [part]
+
+    def add_parts(self,parts):
+        """ Add a list of solid parts to the parts list of this assembly """
+        assert isinstance(parts, list)
+
+        if self.has_parts():
+            self.parts += parts
+        else:
+            self.parts = parts
+
     def _gen_if_no_shape(self):
         """ Generate shape if attribute not present """
         if not self.has_shape():
@@ -122,10 +146,10 @@ class LeleSolid(ABC):
             self.shape = self.shape.cut(c.shape)
 
         for rad in self.fillets.keys():
-            try:
-                self.shape = self.shape.filletByNearestEdges(nearestPts=self.fillets[rad], rad=rad)
-            except:
-                print(f'# WARNING: Failed Fillet in {self.fileNameBase} on nearest edges {self.fillets[rad]}, with radius {rad}')
+            # try:
+            self.shape = self.shape.filletByNearestEdges(nearestPts=self.fillets[rad], rad=rad)
+            # except:
+            # print(f'# WARNING: Failed Fillet in {self.fileNameBase} on nearest edges {self.fillets[rad]}, with radius {rad}')
         
         return self.shape
     
@@ -169,11 +193,13 @@ class LeleSolid(ABC):
 
         return self.cli
     
-    def configure(self):        
+    def configure(self):
+        """ Configure Solid, and save self.cli """
         self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
         self.check_has_api()
 
     def cut(self, cutter: LeleSolid) -> LeleSolid:
+        """ Cut solid with other shape """
         # assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
         self._gen_full_if_no_shape()
         cutter._gen_full_if_no_shape()
@@ -181,6 +207,7 @@ class LeleSolid(ABC):
         return self
 
     def _make_out_path(self):
+        """ Generate an output directory """
         main_out_path = os.path.join(Path.cwd(),self.outdir)
         make_or_exist_path(main_out_path)
         
@@ -195,32 +222,43 @@ class LeleSolid(ABC):
             f.write(repr(self.cli))
         assert os.path.isfile(out_fname)
         
-    def exportSTL(self) -> None:
+    def exportSTL(self, out_path=None) -> None:
         """ Generate .stl output file """
-        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '.stl')
+        if out_path is None:
+            out_path = self._make_out_path()
+        out_fname = os.path.join(out_path,self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
 
         self._gen_full_if_no_shape()
 
         self.api.exportSTL(self.shape, out_fname)
         assert os.path.isfile(out_fname)
+
+        if self.has_parts():
+            # this is an assembly, generate other parts
+            for part in self.parts:
+                assert isinstance(part,LeleSolid)
+                part.exportSTL(out_path=out_path)
     
     def filletByNearestEdges(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> LeleSolid:
+        """ Apply fillet to solid """
         self._gen_full_if_no_shape()
         self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
         return self
 
     def half(self) -> LeleSolid:
+        """ Cut solid in half to create a sectioned view """
         # assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
         self._gen_full_if_no_shape()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
+        """ Join solid with other solid """
         # assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
         self._gen_full_if_no_shape()
         joiner._gen_full_if_no_shape()
@@ -228,18 +266,21 @@ class LeleSolid(ABC):
         return self
 
     def mirrorXZ(self) -> LeleSolid:
+        """ Mirror solid along XZ axis """
         # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
         self._gen_full_if_no_shape()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
+        """ Move solid in direction specified """
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
         self._gen_full_if_no_shape()
         self.shape = self.shape.mv(x, y, z)
         return self
 
     def show(self):
+        """ Show solid """
         self._gen_full_if_no_shape()
         return self.shape.show()
 

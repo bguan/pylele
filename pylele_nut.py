@@ -18,7 +18,7 @@ class NutType(LeleStrEnum):
 
 def pylele_nut_parser(parser = None):
     """
-    Pylele Nut Assembly Parser
+    Pylele Nut Parser
     """
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
@@ -53,7 +53,7 @@ class LeleNut(LeleBase):
         nut = f0Top.join(f0Bot)
 
         # Add strings cut
-        if not self.cli.nut_type == NutType.ZEROFRET and not self.isCut:
+        if not self.cli.nut_type == NutType.ZEROFRET: # and not self.isCut:
             strings = LeleStrings(isCut=True,cli=self.cli)
             nut = nut.cut(strings.gen_full())
 
