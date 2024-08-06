@@ -37,6 +37,7 @@ from pylele_texts import test_texts
 from pylele_rim import test_rim
 from pylele_worm_key import test_worm_key
 from pylele_tail import test_tail
+from pylele_brace import test_brace
 
 # assemblies
 from pylele_fretboard_assembly import test_fretboard_assembly
@@ -163,6 +164,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_tail(self):
         """ Test Tail """
         test_tail()
+
+    def test_brace(self):
+        """ Test Brace """
+        test_brace()
 
     ## Assemblies
 
