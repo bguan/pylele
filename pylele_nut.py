@@ -5,12 +5,31 @@
 """
 
 import os
-import math
+import argparse
 
 from pylele_api import Shape
-from pylele_base import LeleBase
+from pylele_base import LeleBase, LeleStrEnum
+from pylele_strings import LeleStrings
 from pylele_config import accumDiv, FIT_TOL, SEMI_RATIO, Implementation
-from pylele_utils import radians
+class NutType(LeleStrEnum):
+    """ Nut Type """
+    NUT = 'nut'
+    ZEROFRET = 'zerofret'
+
+def pylele_nut_parser(parser = None):
+    """
+    Pylele Nut Assembly Parser
+    """
+    if parser is None:
+        parser = argparse.ArgumentParser(description='Pylele Configuration')
+
+    parser.add_argument("-nt", "--nut_type",
+                    help="Nut Type",
+                    type=NutType,
+                    choices=list(NutType),
+                    default=NutType.NUT
+                    )
+    return parser
 
 class LeleNut(LeleBase):
     """ Pylele Nut Generator class """
@@ -33,9 +52,21 @@ class LeleNut(LeleBase):
         f0Bot = f0Bot.cut(f0BotCut).scale(1, 1, fbTck/ntHt).mv(f0X, 0, fbTck)
         nut = f0Top.join(f0Bot)
 
+        # Add strings cut
+        if not self.cli.nut_type == NutType.ZEROFRET and not self.isCut:
+            strings = LeleStrings(isCut=True,cli=self.cli)
+            nut = nut.cut(strings.gen_full())
+
         self.shape = nut
 
         return nut
+    
+    def gen_parser(self,parser=None):
+        """
+        pylele Command Line Interface
+        """
+        return super().gen_parser( parser=pylele_nut_parser(parser=parser) )
+
 
 def nut_main(args = None):
     """ Generate Nut """
@@ -53,7 +84,11 @@ def test_nut():
     component = 'nut'
     tests = {
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'separate_fretboard' : ['-F'],
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender'],
+        'zerofret': ['-nt', str(NutType.ZEROFRET)],
     }
 
     for test,args in tests.items():

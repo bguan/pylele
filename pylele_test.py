@@ -39,7 +39,6 @@ from pylele_worm_key import test_worm_key
 from pylele_tail import test_tail
 
 # assemblies
-from pylele_nut_assembly import test_nut_assembly
 from pylele_fretboard_assembly import test_fretboard_assembly
 
 def make_api_path_and_filename(api_name,test_path='./test'):
@@ -165,10 +164,6 @@ class PyleleTestMethods(unittest.TestCase):
         test_tail()        
 
     ## Assemblies
-
-    def test_nut_assembly(self):
-        """ Test Nut Assembly """
-        test_nut_assembly()
 
     def test_fretboard_assembly(self):
         """ Test Fretboard Assembly """

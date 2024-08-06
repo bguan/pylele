@@ -10,7 +10,7 @@ from pylele_api import Shape
 from pylele_base import LeleBase, LeleStrEnum
 from pylele_config import Implementation, FILLET_RAD
 from pylele_frets import LeleFrets
-from pylele_nut_assembly import LeleNutAssembly, pylele_nut_assembly_parser, NutType
+from pylele_nut import LeleNut, pylele_nut_parser, NutType
 from pylele_fretboard_dots import LeleFretboardDots
 from pylele_fretboard import LeleFretboard
 from pylele_top import LeleTop
@@ -29,7 +29,7 @@ def pylele_fretboard_assembly_parser(parser = None):
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
-    parser = pylele_nut_assembly_parser(parser=parser)
+    parser = pylele_nut_parser(parser=parser)
 
     parser.add_argument("-ft", "--fret_type",
                     help="Fret Type",
@@ -64,7 +64,7 @@ class LeleFretboardAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
 
-        nut = LeleNutAssembly(cli=self.cli,isCut=nut_is_cut(self.cli))
+        nut = LeleNut(cli=self.cli,isCut=nut_is_cut(self.cli))
         frets = LeleFrets(cli=self.cli)
         fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
         topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
