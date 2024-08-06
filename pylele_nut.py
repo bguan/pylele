@@ -10,7 +10,7 @@ import argparse
 from pylele_api import Shape
 from pylele_base import LeleBase, LeleStrEnum
 from pylele_strings import LeleStrings
-from pylele_config import accumDiv, FIT_TOL, SEMI_RATIO, Implementation
+from pylele_config import FIT_TOL
 class NutType(LeleStrEnum):
     """ Nut Type """
     NUT = 'nut'

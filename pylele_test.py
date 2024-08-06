@@ -161,7 +161,7 @@ class PyleleTestMethods(unittest.TestCase):
 
     def test_tail(self):
         """ Test Tail """
-        test_tail()        
+        test_tail()
 
     ## Assemblies
 
