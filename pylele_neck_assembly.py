@@ -77,8 +77,6 @@ def test_neck_assembly():
 
     component = 'neck_assembly'
     tests = {
-        'cadquery'           : ['-i','cadquery'],
-        'blender'            : ['-i','blender'],
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_neck'      : ['-N'],
@@ -89,11 +87,15 @@ def test_neck_assembly():
     }
 
     for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        # print(args)
-        neck_assembly_main(args=args)
+        for api in ['cadquery','blender']:
+            print(f'# Test {component} {test} {api}')
+            outdir = os.path.join('./test',component,test,api)
+            args += [
+                '-o', outdir,
+                '-i', api
+                     ]
+            # print(args)
+            neck_assembly_main(args=args)
 
 if __name__ == '__main__':
     neck_assembly_main()

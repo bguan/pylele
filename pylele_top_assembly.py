@@ -99,8 +99,6 @@ def test_top_assembly():
 
     component = 'top_assembly'
     tests = {
-        'cadquery'           : ['-i','cadquery'],
-        'blender'            : ['-i','blender'],
         'separate_bridge'    : ['-B'],
         'separate_top'       : ['-T'],
         'separate_neck'      : ['-N'],
@@ -111,11 +109,15 @@ def test_top_assembly():
     }
 
     for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        # print(args)
-        top_assembly_main(args=args)
+        for api in ['cadquery','blender']:
+            print(f'# Test {component} {test} {api}')
+            outdir = os.path.join('./test',component,test,api)
+            args += [
+                '-o', outdir,
+                '-i', api
+                     ]
+            # print(args)
+            top_assembly_main(args=args)
 
 if __name__ == '__main__':
     top_assembly_main()
