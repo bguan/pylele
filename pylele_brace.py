@@ -31,8 +31,6 @@ class LeleBrace(LeleBase):
 
         return brace
 
-        return brdg
-
 def brace_main(args = None):
     """ Generate Brace """
     solid = LeleBrace(args=args)
