@@ -91,9 +91,15 @@ class LeleSolid(ABC):
 
     def has_parts(self) -> bool:
         """ Return True if Solid is an assembly with a list of parts attribute """
-        if hasattr(self, 'parts') and not self.shape is None:
+        if hasattr(self, 'parts') and isinstance(self.parts,list):
             return True
         return False
+    
+    def get_parts(self) -> list:
+        """ Returns the parts lists of an assembly """
+        if self.has_parts():
+            return self.parts
+        return []
     
     def add_part(self,part):
         """ Add a solid part to the parts list of this assembly """
@@ -103,6 +109,9 @@ class LeleSolid(ABC):
             self.parts.append(part)
         else:
             self.parts = [part]
+
+        if part.has_parts():
+            self.parts += part.parts
 
     def add_parts(self,parts):
         """ Add a list of solid parts to the parts list of this assembly """
@@ -237,7 +246,7 @@ class LeleSolid(ABC):
         if self.has_parts():
             # this is an assembly, generate other parts
             for part in self.parts:
-                assert isinstance(part,LeleSolid)
+                assert isinstance(part,LeleSolid), f'Wrong instance class {part}'
                 part.exportSTL(out_path=out_path)
     
     def filletByNearestEdges(
