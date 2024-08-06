@@ -43,6 +43,9 @@ def pylele_fretboard_assembly_parser(parser = None):
     parser.add_argument("-FR", "--separate_frets",
                         help="Split frets from fretboard.",
                         action='store_true')
+    parser.add_argument("-D", "--separate_dots",
+                        help="Split dots from fretboard.",
+                        action='store_true')
     return parser
 
 def nut_is_cut(cli):
@@ -73,8 +76,13 @@ class LeleFretboardAssembly(LeleBase):
         topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
 
         fbJoiners = []
-        fbCutters = [fdotsCut]
+        fbCutters = []
         fbFillets = {}
+
+        ## dots
+        if self.cli.separate_dots:
+            fbCutters.append(fdotsCut)
+            self.add_part(fdotsCut)
 
         ## frets
         if self.cli.fret_type == FretType.PRINT and not self.cli.separate_frets:
@@ -142,20 +150,23 @@ def test_fretboard_assembly():
     component = 'fretboard_assembly'
     tests = {
         'separate_fretboard' : ['-F'],
-        'cadquery'           : ['-i','cadquery'],
-        'blender'            : ['-i','blender'],
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_nut'       : ['-NU'],
         'separate_frets'     : ['-FR'],
+        'separate_dots'      : ['-D'],
     }
 
     for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        # print(args)
-        fretboard_assembly_main(args=args)
+        for api in ['cadquery','blender']:
+            print(f'# Test {component} {test} {api}')
+            outdir = os.path.join('./test',component,test,api)
+            args += [
+                '-o', outdir,
+                '-i', api
+                     ]
+            # print(args)
+            fretboard_assembly_main(args=args)
 
 if __name__ == '__main__':
     fretboard_assembly_main()
