@@ -44,6 +44,7 @@ from pylele_soundhole import test_soundhole
 from pylele_fretboard_assembly import test_fretboard_assembly
 from pylele_neck_assembly import test_neck_assembly
 from pylele_top_assembly import test_top_assembly
+from pylele_bottom_assembly import test_bottom_assembly
 
 def make_api_path_and_filename(api_name,test_path='./test'):
     """ Makes Test API folder and filename """
@@ -184,10 +185,14 @@ class PyleleTestMethods(unittest.TestCase):
     def test_neck_assembly(self):
         """ Test Neck Assembly """
         test_neck_assembly()
-    
+
     def test_top_assembly(self):
-        """ Test Tops Assembly """
+        """ Test Top Assembly """
         test_top_assembly()
         
+    def test_bottom_assembly(self):
+        """ Test Bottom Assembly """
+        test_bottom_assembly()
+
 if __name__ == '__main__':
     unittest.main()
