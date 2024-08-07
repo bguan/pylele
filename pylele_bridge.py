@@ -8,7 +8,7 @@ import os
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import FIT_TOL
+from pylele_config import FIT_TOL, Implementation
 from pylele_strings import LeleStrings
 
 class LeleBridge(LeleBase):
@@ -23,6 +23,10 @@ class LeleBridge(LeleBase):
         brdgLen = self.cfg.brdgLen + (2*fitTol if self.isCut else 0)
         brdgHt = self.cfg.brdgHt
         brdgZ = self.cfg.brdgZ
+
+        if self.cli.implementation == Implementation.BLENDER and not self.isCut:
+            # increase overlap when blender backend to force join
+            brdgZ -= 1.5
 
         brdg = self.api.genBox(brdgLen, brdgWth, brdgHt).mv(
             scLen, 0, brdgZ + brdgHt/2)
