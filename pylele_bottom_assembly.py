@@ -6,7 +6,6 @@
 
 import os
 from pylele_api import Shape
-from pylele_config import FILLET_RAD, Implementation
 from pylele_base import LeleBase
 from pylele_neck_joint import LeleNeckJoint
 from pylele_texts import LeleTexts
@@ -18,19 +17,12 @@ from pylele_spines import LeleSpines
 from pylele_fretboard_spines import LeleFretboardSpines
 from pylele_top_assembly import LeleTopAssembly
 from pylele_neck_assembly import LeleNeckAssembly
-from pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser, FretType, NutType
-
-from pylele_bridge import LeleBridge
-from pylele_guide import LeleGuide
 from pylele_brace import LeleBrace
 from pylele_chamber import LeleChamber
-from pylele_fretboard_joint import LeleFretboardJoint
 from pylele_tuners import LeleTuners
-from pylele_soundhole import LeleSoundhole
 
-from pylele_worm import WormConfig, pylele_worm_parser
-from pylele_top import LeleTop
-
+from pylele_fretboard_assembly import pylele_fretboard_assembly_parser
+from pylele_worm import pylele_worm_parser
 
 class LeleBottomAssembly(LeleBase):
     """ Pylele Body Bottom Assembly Generator class """
