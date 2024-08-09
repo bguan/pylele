@@ -9,7 +9,7 @@ import argparse
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import Fidelity, ModelLabel, \
+from pylele_config import Fidelity, \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 from pylele_body import LeleBody, pylele_body_parser
 

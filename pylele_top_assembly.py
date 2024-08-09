@@ -18,7 +18,7 @@ from pylele_soundhole import LeleSoundhole
 from pylele_rim import LeleRim
 from pylele_worm import WormConfig, pylele_worm_parser
 from pylele_top import LeleTop
-from pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser, FretType, NutType
+from pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser
 
 class LeleTopAssembly(LeleBase):
     """ Pylele Body Top Assembly Generator class """
