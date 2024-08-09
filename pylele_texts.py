@@ -11,7 +11,7 @@ from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_config import Fidelity, ModelLabel, \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
-from pylele_body import LeleBody
+from pylele_body import LeleBody, pylele_body_parser
 
 def pylele_texts_parser(parser = None):
     """
@@ -20,6 +20,7 @@ def pylele_texts_parser(parser = None):
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
+    parser = pylele_body_parser(parser=parser)
     ## text options ######################################################
 
     parser.add_argument("-x", "--texts_size_font",
