@@ -11,7 +11,7 @@ from pylele_base import LeleBase, LeleStrEnum
 from pylele_config import Implementation, FILLET_RAD
 from pylele_frets import LeleFrets
 from pylele_nut import LeleNut, pylele_nut_parser, NutType
-from pylele_fretboard_dots import LeleFretboardDots
+from pylele_fretboard_dots import LeleFretboardDots, pylele_dots_parser
 from pylele_fretboard import LeleFretboard
 from pylele_top import LeleTop
 from pylele_fretboard_spines import LeleFretboardSpines
@@ -30,6 +30,7 @@ def pylele_fretboard_assembly_parser(parser = None):
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
     parser = pylele_nut_parser(parser=parser)
+    parser = pylele_dots_parser(parser=parser)
 
     parser.add_argument("-ft", "--fret_type",
                     help="Fret Type",

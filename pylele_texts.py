@@ -35,9 +35,6 @@ def pylele_texts_parser(parser = None):
                             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
                             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
                         ])
-
-    parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",
-                        type=ModelLabel, choices=list(ModelLabel), default='short')
     
     return parser
 

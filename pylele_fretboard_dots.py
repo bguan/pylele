@@ -6,10 +6,27 @@
 
 import os
 import math
+import argparse
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import accumDiv, radians, SEMI_RATIO, Implementation
+from pylele_config import accumDiv, radians, SEMI_RATIO
+
+def pylele_dots_parser(parser = None):
+    """
+    Pylele Dots Element Parser
+    """
+    if parser is None:
+        parser = argparse.ArgumentParser(description='Pylele Configuration')
+
+    parser.add_argument("-d", "--dot_frets",
+                    help="Comma-separated fret[:dots] pairs, default 3,5:2,7,10,12:3,15,17:2,19,22",
+                    type=lambda d: {
+                        int(l[0]): 1 if len(l) < 2 else int(l[1])
+                        for l in (fns.split(':') for fns in d.split(','))
+                    },
+                    default={3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1})
+    return parser
 
 class LeleFretboardDots(LeleBase):
     """ Pylele Fretboard Dots Generator class """
@@ -52,6 +69,13 @@ class LeleFretboardDots(LeleBase):
     
         self.shape = dots
         return dots
+    
+    def gen_parser(self,parser=None):
+        """
+        pylele Command Line Interface
+        """
+        parser=pylele_dots_parser( parser=parser )
+        return super().gen_parser( parser=parser )
 
 def fretboard_dots_main(args = None):
     """ Generate Fretboard """

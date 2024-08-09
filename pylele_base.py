@@ -48,14 +48,6 @@ def pylele_base_parser(parser = None):
     parser.add_argument("-t", "--tuner_type", help="Type of tuners, default friction",
                         type=TunerType, choices=list(TunerType), default='friction')
 
-    parser.add_argument("-d", "--dot_frets",
-                        help="Comma-separated fret[:dots] pairs, default 3,5:2,7,10,12:3,15,17:2,19,22",
-                        type=lambda d: {
-                            int(l[0]): 1 if len(l) < 2 else int(l[1])
-                            for l in (fns.split(':') for fns in d.split(','))
-                        },
-                        default={3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1})
-
     ## Cut options ######################################################
 
     parser.add_argument("-T", "--separate_top",
@@ -119,7 +111,7 @@ class LeleBase(LeleSolid):
             chmRot=self.cli.chamber_rotate,
             fret2Dots=self.cli.dot_frets,
             # txtSzFonts=self.cli.texts_size_font,
-            modelLbl=self.cli.model_label,
+            # modelLbl=self.cli.model_label,
             half=self.cli.half,
             tnrType=self.cli.tuner_type,
             fidelity=self.cli.fidelity,
