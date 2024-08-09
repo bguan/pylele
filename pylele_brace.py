@@ -8,9 +8,6 @@ import os
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import FIT_TOL
-from pylele_strings import LeleStrings
-
 class LeleBrace(LeleBase):
     """ Pylele Brace Generator class """
 
