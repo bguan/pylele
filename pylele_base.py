@@ -109,7 +109,7 @@ class LeleBase(LeleSolid):
             wallTck=self.cli.wall_thickness,
             chmLift=self.cli.chamber_lift,
             chmRot=self.cli.chamber_rotate,
-            fret2Dots=self.cli.dot_frets,
+            # fret2Dots=self.cli.dot_frets,
             # txtSzFonts=self.cli.texts_size_font,
             # modelLbl=self.cli.model_label,
             half=self.cli.half,

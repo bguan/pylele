@@ -26,6 +26,10 @@ def pylele_dots_parser(parser = None):
                         for l in (fns.split(':') for fns in d.split(','))
                     },
                     default={3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1})
+    
+    parser.add_argument("-fdr", "--dots_radius", help="Dots Radius [mm]",
+                        type=float, default=1.5)
+    
     return parser
 
 class LeleFretboardDots(LeleBase):
@@ -42,8 +46,10 @@ class LeleFretboardDots(LeleBase):
         wideAng = self.cfg.neckWideAng
         riseAng = self.cfg.fretbdRiseAng
         nutSGap = self.cfg.nutStrGap
-        dotRad = self.cfg.dotRad
-        fret2Dots = self.cfg.fret2Dots
+        # dotRad = self.cfg.dotRad
+        # fret2Dots = self.cfg.fret2Dots
+        dotRad = self.cli.dots_radius
+        fret2Dots = self.cli.dot_frets
 
         dots = None
         sgap = nutSGap
@@ -91,7 +97,9 @@ def test_fretboard_dots():
     component = 'fretboard_dots'
     tests = {
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'dots_position': ['-d', '1,2,3:2,4,5'],
+        'dots_radius': ['-fdr', '3'],
     }
 
     for test,args in tests.items():
