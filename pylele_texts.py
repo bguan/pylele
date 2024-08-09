@@ -22,7 +22,12 @@ class LeleTexts(LeleBase):
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
         dep = self.cfg.EMBOSS_DEP
-        tsf = self.cfg.txtSzFonts
+
+        if False:
+            tsf = self.cfg.txtSzFonts
+        else:
+            tsf = self.cli.texts_size_font
+
         txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
@@ -33,6 +38,7 @@ class LeleTexts(LeleBase):
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
+        # print(tsf)
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
                 l = self.api.genTextZ(txt, sz, txtTck, fnt) \

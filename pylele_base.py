@@ -138,7 +138,7 @@ class LeleBase(LeleSolid):
             chmLift=self.cli.chamber_lift,
             chmRot=self.cli.chamber_rotate,
             fret2Dots=self.cli.dot_frets,
-            txtSzFonts=self.cli.texts_size_font,
+            # txtSzFonts=self.cli.texts_size_font,
             modelLbl=self.cli.model_label,
             half=self.cli.half,
             tnrType=self.cli.tuner_type,
