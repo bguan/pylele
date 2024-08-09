@@ -54,19 +54,21 @@ class LeleBottomAssembly(LeleBase):
         if spCut is not None:
             bodyCutters.append(spCut)
 
+        top.gen_full()
         if self.cli.separate_top:
             bodyCutters.append(rimCut)
-            top.gen_full()
             self.add_part(top)
         else:
             bodyJoiners.append(top)
+            self.add_parts(top)
 
+        neck.gen_full()
         if self.cli.separate_neck:
             bodyCutters.append(nkJntCut)
-            neck.gen_full()
             self.add_part(neck)
         else:
             bodyJoiners.append(neck)
+            self.add_parts(neck)
 
         if self.cli.separate_fretboard or self.cli.separate_top:
             bodyCutters.append(fbspCut)

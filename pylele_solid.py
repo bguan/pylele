@@ -111,11 +111,17 @@ class LeleSolid(ABC):
             self.parts = [part]
 
         if part.has_parts():
-            self.parts += part.parts
+            self.parts.append(part.parts)
 
     def add_parts(self,parts):
         """ Add a list of solid parts to the parts list of this assembly """
-        assert isinstance(parts, list)
+        assert isinstance(parts, list) or isinstance(parts,LeleSolid), print(parts)
+
+        if isinstance(parts,LeleSolid):
+            if parts.has_parts():
+                parts = parts.parts
+            else:
+                print('# Warning: LeleSolid has no parts!')
 
         if self.has_parts():
             self.parts += parts
