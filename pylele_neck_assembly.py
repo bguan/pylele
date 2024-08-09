@@ -33,18 +33,19 @@ class LeleNeckAssembly(LeleBase):
         neckJoiners = [LeleHead(cli=self.cli)]
         neckCutters = []
 
-        if self.cfg.sepFretbd:
+        if self.cli.separate_fretboard:
             neckCutters.append(fbCut)
             self.add_part(fretbd)
         else:
-            neckJoiners.append(fretbd)
+            if not self.cli.separate_top:
+                neckJoiners.append(fretbd)
 
         neckCutters.append(spCut)
 
-        if self.cfg.sepNeck:
+        if self.cli.separate_neck:
             neckJoiners.append(LeleNeckJoint(cli=self.cli, isCut=False))
 
-        if self.cfg.sepFretbd or self.cfg.sepTop:
+        if self.cli.separate_fretboard or self.cli.separate_top:
             neckCutters.extend([fbspCut])
         # neckCutters.append(strCuts)
 
