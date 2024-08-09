@@ -8,8 +8,7 @@ import os
 import argparse
 from enum import Enum
 from pylele_solid import LeleSolid
-from pylele_config import LeleConfig, TunerType, ModelLabel, \
-    SOPRANO_SCALE_LEN, DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
+from pylele_config import LeleConfig, TunerType, SOPRANO_SCALE_LEN
 
 class LeleStrEnum(Enum):
     """ Pylele Enumerator for String Types """
@@ -78,25 +77,6 @@ def pylele_base_parser(parser = None):
                         help="Half Split",
                         action='store_true')
 
-    ## text options ######################################################
-
-    parser.add_argument("-x", "--texts_size_font",
-                        help="Comma-separated text[:size[:font]] tuples, "\
-                            + "default Pylele:28:Arial,:8,'mind2form.com © 2024':8:Arial",
-                        type=lambda x: [
-                            (l[0], 10 if len(l) < 2 else int(l[1]),
-                             'Arial' if len(l) < 3 else l[2])
-                            for l in (tsfs.split(':') for tsfs in x.split(','))
-                        ],
-                        default=[
-                            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
-                            ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-                            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
-                        ])
-
-    parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",
-                        type=ModelLabel, choices=list(ModelLabel), default='short')
-    
     return parser
 
 class LeleBase(LeleSolid):

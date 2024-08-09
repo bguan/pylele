@@ -5,11 +5,41 @@
 """
 
 import os
+import argparse
 
 from pylele_api import Shape
 from pylele_base import LeleBase
-from pylele_config import Fidelity
+from pylele_config import Fidelity, ModelLabel, \
+    DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 from pylele_body import LeleBody
+
+def pylele_texts_parser(parser = None):
+    """
+    Pylele Texts Element Parser
+    """
+    if parser is None:
+        parser = argparse.ArgumentParser(description='Pylele Configuration')
+
+    ## text options ######################################################
+
+    parser.add_argument("-x", "--texts_size_font",
+                        help="Comma-separated text[:size[:font]] tuples, "\
+                            + "default Pylele:28:Arial,:8,'mind2form.com © 2024':8:Arial",
+                        type=lambda x: [
+                            (l[0], 10 if len(l) < 2 else int(l[1]),
+                             'Arial' if len(l) < 3 else l[2])
+                            for l in (tsfs.split(':') for tsfs in x.split(','))
+                        ],
+                        default=[
+                            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
+                            ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
+                            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
+                        ])
+
+    parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",
+                        type=ModelLabel, choices=list(ModelLabel), default='short')
+    
+    return parser
 
 class LeleTexts(LeleBase):
     """ Pylele Texts Generator class """
@@ -50,6 +80,12 @@ class LeleTexts(LeleBase):
         txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
         self.api.setFidelity(origFidel)
         return txtCut
+    
+    def gen_parser(self,parser=None):
+        """
+        pylele Command Line Interface
+        """
+        return super().gen_parser( parser=pylele_texts_parser(parser=parser) )
 
 def texts_main(args = None):
     """ Generate texts """

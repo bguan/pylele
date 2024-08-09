@@ -8,7 +8,7 @@ import os
 from pylele_api import Shape
 from pylele_base import LeleBase
 from pylele_neck_joint import LeleNeckJoint
-from pylele_texts import LeleTexts
+from pylele_texts import LeleTexts, pylele_texts_parser
 from pylele_tail import LeleTail
 from pylele_rim import LeleRim
 from pylele_worm_key import LeleWormKey
@@ -92,6 +92,7 @@ class LeleBottomAssembly(LeleBase):
         pylele Command Line Interface
         """
         parser=pylele_fretboard_assembly_parser(parser=parser)
+        parser=pylele_texts_parser(parser=parser)
         parser=pylele_worm_parser(parser=parser)
         return super().gen_parser( parser=parser )
     
