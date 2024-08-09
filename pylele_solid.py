@@ -252,8 +252,10 @@ class LeleSolid(ABC):
         if self.has_parts():
             # this is an assembly, generate other parts
             for part in self.parts:
-                assert isinstance(part,LeleSolid), f'Wrong instance class {part}'
-                part.exportSTL(out_path=out_path)
+                if isinstance(part,LeleSolid):
+                    part.exportSTL(out_path=out_path)
+                else:
+                    print(f'# WARNING: Cannot export .stl of class {part} in assembly {self}')
     
     def filletByNearestEdges(
         self,
