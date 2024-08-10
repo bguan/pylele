@@ -58,8 +58,9 @@ class LeleTopAssembly(LeleBase):
             topJoiners.append(brdg)
 
         if not guide is None:
-            if self.cli.separate_bridge: # if cfg.sepBrdg:
+            if self.cli.separate_guide: # if cfg.sepBrdg:
                 topCutters.append(LeleGuide(cli=self.cli, isCut=True))
+                self.add_part(guide)
             else:
                 topJoiners.append(guide)
 
@@ -100,6 +101,7 @@ def test_top_assembly():
     component = 'top_assembly'
     tests = {
         'separate_bridge'    : ['-B'],
+        'separate_guide'     : ['-G'],
         'separate_top'       : ['-T'],
         'separate_neck'      : ['-N'],
         'separate_fretboard' : ['-F'],

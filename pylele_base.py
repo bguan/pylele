@@ -62,6 +62,9 @@ def pylele_base_parser(parser = None):
     parser.add_argument("-B", "--separate_bridge",
                         help="Split bridge from body.",
                         action='store_true')
+    parser.add_argument("-G", "--separate_guide",
+                        help="Split guide from body.",
+                        action='store_true')
     parser.add_argument("-E", "--separate_end",
                         help="Split end block from body.",
                         action='store_true')

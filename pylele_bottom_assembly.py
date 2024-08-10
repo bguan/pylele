@@ -113,7 +113,7 @@ def test_bottom_assembly():
         'separate_top'       : ['-T'],
         'separate_neck'      : ['-N'],
         'separate_fretboard' : ['-F'],
-        'separate_all'       : ['-F','-N','-T','-B','-NU','-FR'],
+        'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','G'],
         'gotoh_tuners'       : ['-t','gotoh'],
         'worm_tuners'        : ['-t','worm'],
         'big_worm_tuners'    : ['-t','bigWorm'],
