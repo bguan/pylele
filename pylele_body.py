@@ -10,7 +10,7 @@ import argparse
 from pylele_api import Shape
 from pylele_base import LeleBase, LeleStrEnum
 
-DEFAULT_FLAT_BODY_THICKNESS=25
+DEFAULT_FLAT_BODY_THICKNESS=20
 
 class BodyType(LeleStrEnum):
     """ Body Type """
