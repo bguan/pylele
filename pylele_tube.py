@@ -26,8 +26,8 @@ class Tube(LeleSolid):
     def gen(self) -> Shape:
         # outer = self.api.genRndRodX(self.cli.heigth, self.cli.out_diameter, domeRatio=self.dome_ratio)
         # inner = self.api.genRndRodX(self.cli.heigth+1, self.cli.in_diameter, domeRatio=self.dome_ratio)
-        outer = self.api.genRodX(self.cli.heigth, self.cli.out_diameter)
-        inner = self.api.genRodX(self.cli.heigth+1, self.cli.in_diameter)
+        outer = self.api.genRodX(self.cli.heigth, self.cli.out_diameter/2)
+        inner = self.api.genRodX(self.cli.heigth+1, self.cli.in_diameter/2)
         solid = outer.cut(inner)
         self.shape = solid
         return self.shape
