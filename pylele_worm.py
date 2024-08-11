@@ -107,6 +107,14 @@ def pylele_worm_parser(parser = None):
                     type=float,
                     default=3
                     )
+    parser.add_argument("-wah", "--worm_axle_hole",
+                    help="Create Hole for worm gear axle.",
+                    action='store_true')
+    parser.add_argument("-wahr", "--worm_axle_hole_radius",
+                    help="Worm Axle Radius [mm]",
+                    type=float,
+                    default=2
+                    )
     return parser
 
 class LeleWorm(LeleBase):
@@ -162,6 +170,10 @@ class LeleWorm(LeleBase):
             axlExtCut = self.api.genBox(
                 100, axlLen, 2*axlRad).mv(50 + axlX, axlY, axlZ)
             axl = axl.join(axlExtCut)
+        
+        if self.isCut and self.cli.worm_axle_hole:
+            axl2 = self.api.genRodY(100, self.cli.worm_axle_hole_radius).mv(axlX, axlY, axlZ)
+            axl = axl.join(axl2)
 
         dskX = axlX
         dskY = axlY - axlLen/2 - dskTck/2
@@ -208,7 +220,7 @@ def test_worm():
 
     component = 'worm'
     tests = {
-        'cut'     : ['-C'],
+        'cut'     : ['-C','-wah'],
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender']
     }
