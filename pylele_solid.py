@@ -205,8 +205,6 @@ class LeleSolid(ABC):
         self.cutters = cutters
         self.fillets = fillets
         self.fileNameBase = self.__class__.__name__
-
-        return self.cli
     
     def configure(self):
         """ Configure Solid, and save self.cli """

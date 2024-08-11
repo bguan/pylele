@@ -4,6 +4,7 @@
     Tube Solid
 """
 
+import os
 from pylele_solid import LeleSolid
 from pylele_api import Shape
 
@@ -22,26 +23,37 @@ class Tube(LeleSolid):
         parser.add_argument("-H", "--heigth", help="Height [mm]", type=float, default=5)
         return parser
 
-    def __init__(self):
-        cfg = self.parse_args()
-        self.out_diameter = cfg.out_diameter
-        self.in_diameter = cfg.in_diameter
-        self.heigth = cfg.heigth
-        super().__init__()
-
     def gen(self) -> Shape:
-        outer = self.api.genRndRodX(self.heigth, self.out_diameter, domeRatio=self.dome_ratio)
-        inner = self.api.genRndRodX(self.heigth+1, self.in_diameter, domeRatio=self.dome_ratio)
+        # outer = self.api.genRndRodX(self.cli.heigth, self.cli.out_diameter, domeRatio=self.dome_ratio)
+        # inner = self.api.genRndRodX(self.cli.heigth+1, self.cli.in_diameter, domeRatio=self.dome_ratio)
+        outer = self.api.genRodX(self.cli.heigth, self.cli.out_diameter)
+        inner = self.api.genRodX(self.cli.heigth+1, self.cli.in_diameter)
         solid = outer.cut(inner)
         self.shape = solid
         return self.shape
 
-def tube_main():
+def tube_main(args=None):
     """ Generate a Tube """
-    solid = Tube()
-    solid.export_configuration()
+    solid = Tube(args=args)
+    solid.export_args()
     solid.exportSTL()
     return solid
+
+def test_tube():
+    """ Test Rim """
+
+    component = 'tube'
+    tests = {
+        'cadquery': ['-i','cadquery'],
+        'blender' : ['-i','blender']
+    }
+
+    for test,args in tests.items():
+        print(f'# Test {component} {test}')
+        outdir = os.path.join('./test',component,test)
+        args += ['-o', outdir]
+        tube_main(args=args)
+
 
 if __name__ == '__main__':
     tube_main()

@@ -13,7 +13,10 @@ from pylele_config import Fidelity
 from cq_api import CQShapeAPI
 from bpy_api import BlenderShapeAPI
 
-# parts
+# solid parts
+from pylele_tube import test_tube
+
+# ukulele parts
 from pylele_frets import test_frets
 from pylele_fretboard import test_fretboard
 from pylele_fretboard_dots import test_fretboard_dots
@@ -73,8 +76,13 @@ class PyleleTestMethods(unittest.TestCase):
         outfname = make_api_path_and_filename('blender_api')
         api = BlenderShapeAPI(Fidelity.LOW)
         api.test(outfname)
+    
+    ## Solid Parts
+    def test_tube(self):
+        """ Test Tube """
+        test_tube()
 
-    ## Individual Parts
+    ## Pylele Individual Parts
     
     def test_frets(self):
         """ Test Frets """
