@@ -1,11 +1,66 @@
+
 from __future__ import annotations
 
+import importlib
+from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Union
+    
+class Fidelity(Enum):
+    LOW = 'low'
+    MEDIUM = 'medium' 
+    HIGH = 'high' 
 
-from pylele_config import Fidelity, Implementation
+    def __str__(self):
+        return self.value
+    
+    def exportTol(self) -> float:
+        match self:
+            case Fidelity.LOW:
+                return 0.001
+            case Fidelity.MEDIUM:
+                return 0.0005
+            case Fidelity.HIGH:
+                return 0.0001
+    
+    def smoothingSegments(self) -> float:
+        match self:
+            case Fidelity.LOW:
+                return 7 
+            case Fidelity.MEDIUM:
+                return 14
+            case Fidelity.HIGH:
+                return 19
+    
+    def code(self) -> str:
+        match self: 
+            case Fidelity.LOW:
+                return "L"
+            case Fidelity.MEDIUM:
+                return "M"
+            case Fidelity.HIGH:
+                return "H"
 
-import importlib
+class Implementation(Enum):
+    CAD_QUERY = 'cadquery'
+    BLENDER = 'blender' 
+    TRIMESH = 'trimesh'
+
+    def __str__(self):
+        return self.value
+    
+    def code(self) -> str:
+        match self: 
+            case Implementation.CAD_QUERY:
+                return 'C'
+            case Implementation.BLENDER:
+                return 'B'
+            case Implementation.TRIMESH:
+                return 'T'
+
+    # for joins to have a little overlap
+    def joinCutTol(self) -> float:
+        return 0 if self == Implementation.CAD_QUERY else 0.01
 
 class Shape(ABC):
     @abstractmethod

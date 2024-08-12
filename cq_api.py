@@ -2,10 +2,8 @@ from __future__ import annotations
 import copy
 import math
 import cadquery as cq
-from pylele_api import ShapeAPI, Shape
+from pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from typing import Union
-
-from pylele_config import Fidelity, Implementation
 
 """
     Encapsulate CAD Query implementation specific calls
