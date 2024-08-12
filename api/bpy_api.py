@@ -8,8 +8,8 @@ import sys
 
 from fontTools.ttLib import TTFont
 from mathutils import Vector
-from .pylele_api import Shape, ShapeAPI, Fidelity, Implementation
-from .pylele_utils import radians
+from api.pylele_api import Shape, ShapeAPI, Fidelity, Implementation
+from api.pylele_utils import radians
 from typing import Union
 
 class BlenderShapeAPI(ShapeAPI):

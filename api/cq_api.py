@@ -2,7 +2,7 @@ from __future__ import annotations
 import copy
 import math
 import cadquery as cq
-from .pylele_api import ShapeAPI, Shape, Fidelity, Implementation
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from typing import Union
 
 """
