@@ -9,45 +9,45 @@ import unittest
 from pathlib import Path
 
 # api
-from pylele_config import Fidelity
-from cq_api import CQShapeAPI
-from bpy_api import BlenderShapeAPI
+from api.pylele_api import Fidelity
+from api.cq_api import CQShapeAPI
+from api.bpy_api import BlenderShapeAPI
 
 # solid parts
-from pylele_tube import test_tube
+from parts.tube import test_tube
 
 # ukulele parts
-from pylele_frets import test_frets
-from pylele_fretboard import test_fretboard
-from pylele_fretboard_dots import test_fretboard_dots
-from pylele_fretboard_spines import test_fretboard_spines
-from pylele_fretboard_joint import test_fretboard_joint
-from pylele_top import test_top
-from pylele_strings import test_strings
-from pylele_nut import test_nut
-from pylele_spines import test_spines
-from pylele_head import test_head
-from pylele_neck_joint import test_neck_joint
-from pylele_neck import test_neck
-from pylele_bridge import test_bridge
-from pylele_guide import test_guide
-from pylele_chamber import test_chamber
-from pylele_peg import test_peg
-from pylele_worm import test_worm
-from pylele_tuners import test_tuners
-from pylele_body import test_body
-from pylele_texts import test_texts
-from pylele_rim import test_rim
-from pylele_worm_key import test_worm_key
-from pylele_tail import test_tail
-from pylele_brace import test_brace
-from pylele_soundhole import test_soundhole
+from pylele2.pylele_frets import test_frets
+from pylele2.pylele_fretboard import test_fretboard
+from pylele2.pylele_fretboard_dots import test_fretboard_dots
+from pylele2.pylele_fretboard_spines import test_fretboard_spines
+from pylele2.pylele_fretboard_joint import test_fretboard_joint
+from pylele2.pylele_top import test_top
+from pylele2.pylele_strings import test_strings
+from pylele2.pylele_nut import test_nut
+from pylele2.pylele_spines import test_spines
+from pylele2.pylele_head import test_head
+from pylele2.pylele_neck_joint import test_neck_joint
+from pylele2.pylele_neck import test_neck
+from pylele2.pylele_bridge import test_bridge
+from pylele2.pylele_guide import test_guide
+from pylele2.pylele_chamber import test_chamber
+from pylele2.pylele_peg import test_peg
+from pylele2.pylele_worm import test_worm
+from pylele2.pylele_tuners import test_tuners
+from pylele2.pylele_body import test_body
+from pylele2.pylele_texts import test_texts
+from pylele2.pylele_rim import test_rim
+from pylele2.pylele_worm_key import test_worm_key
+from pylele2.pylele_tail import test_tail
+from pylele2.pylele_brace import test_brace
+from pylele2.pylele_soundhole import test_soundhole
 
 # assemblies
-from pylele_fretboard_assembly import test_fretboard_assembly
-from pylele_neck_assembly import test_neck_assembly
-from pylele_top_assembly import test_top_assembly
-from pylele_bottom_assembly import test_bottom_assembly
+from pylele2.pylele_fretboard_assembly import test_fretboard_assembly
+from pylele2.pylele_neck_assembly import test_neck_assembly
+from pylele2.pylele_top_assembly import test_top_assembly
+from pylele2.pylele_bottom_assembly import test_bottom_assembly
 
 def make_api_path_and_filename(api_name,test_path='./test'):
     """ Makes Test API folder and filename """
