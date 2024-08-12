@@ -63,7 +63,8 @@ def test_tuners():
         'worm'    : ['-t','worm'],
         'big_worm': ['-t','bigWorm'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'tail_end': ['-t','worm','-e','60','-E','-wah','-C']
     }
 
     for test,args in tests.items():

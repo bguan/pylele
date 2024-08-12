@@ -76,12 +76,13 @@ class LeleBottomAssembly(LeleBase):
 
         if self.cli.separate_fretboard or self.cli.separate_top:
             bodyCutters.append(fbspCut)
-        
+
+        bodyCutters.append(tnrsCut)
         if tailCut is not None:
             bodyCutters.append(tailCut)
-            self.add_part(tailCut)
+            bodyCutters.append(wormKeyCut)
+            self.add_part(tailCut.cut(tnrsCut).cut(wormKeyCut))
         else:
-            bodyCutters.append(tnrsCut)
             if self.cfg.isWorm:
                 bodyCutters.append(wormKeyCut)
 
@@ -121,6 +122,8 @@ def test_bottom_assembly():
         'gotoh_tuners'       : ['-t','gotoh'],
         'worm_tuners'        : ['-t','worm'],
         'big_worm_tuners'    : ['-t','bigWorm'],
+        'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
+        'flat_body'          : ['-t','worm','-e','60','-E','-wah', '-bt', 'flat']
     }
 
     for test,args in tests.items():
