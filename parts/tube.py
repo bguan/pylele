@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_loop
+from api.pylele_solid import LeleSolid, test_loop, main_maker
 from api.pylele_api import Shape
 
 class Tube(LeleSolid):
@@ -37,10 +37,9 @@ class Tube(LeleSolid):
 
 def main(args=None):
     """ Generate a Tube """
-    solid = Tube(args=args)
-    solid.export_args()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                class_name='Tube',
+                args=args)
 
 def test_tube():
     """ Test Rim """

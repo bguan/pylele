@@ -32,6 +32,15 @@ class ColorEnum(Enum):
     ORANGE = ORANGE,
     WHITE = WHITE
 
+def main_maker(module_name,class_name,args=None):
+    """ Generate a main function for a LeleSolid instance """
+    module = importlib.import_module(module_name)
+    class_ = getattr(module, class_name)
+    solid = class_(args=args)
+    solid.export_args() # includes export_configuration for LeleBase
+    solid.exportSTL()
+    return solid
+
 def test_iteration(module,component,test,api,args=None):
     """ Helper to generate a testcase launching the main function in a module """
     mod = importlib.import_module(module)

@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 from pylele1.pylele_config import FIT_TOL
 
 class LeleTail(LeleBase):
@@ -58,16 +58,13 @@ class LeleTail(LeleBase):
 
 def main(args=None):
     """ Generate tail """
-    solid = LeleTail(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleTail',
+                    args=args)
 
 def test_tail():
     """ Test Tail """
 
-    component = 'tail'
     tests = {
         'cut'          : ['-E','-e','10','-C'],
         'separate_tail': ['-E','-e','4.3'],

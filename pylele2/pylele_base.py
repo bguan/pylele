@@ -11,7 +11,7 @@ from enum import Enum
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_iteration, test_loop
+from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker
 from pylele1.pylele_config import LeleConfig, TunerType, SOPRANO_SCALE_LEN
 
 class LeleStrEnum(Enum):
@@ -128,6 +128,10 @@ class LeleBase(LeleSolid):
         super().configure()
         # super().gen_full()
 
+    def export_args(self):
+        super().export_args()
+        self.export_configuration()
+    
     def has_configuration(self):
         """ True if pylele has configuration class """
         if not hasattr(self, 'cfg') or self.cfg is None:

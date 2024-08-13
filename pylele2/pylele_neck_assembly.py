@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_head import LeleHead
@@ -69,11 +69,9 @@ class LeleNeckAssembly(LeleBase):
     
 def main(args=None):
     """ Generate Neck Assembly """
-    solid = LeleNeckAssembly(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleNeckAssembly',
+                    args=args)
 
 def test_neck_assembly():
     """ Test Neck Assembly """

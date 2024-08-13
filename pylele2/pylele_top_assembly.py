@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from pylele1.pylele_config import FILLET_RAD, Implementation
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop,main_maker
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
@@ -91,11 +91,9 @@ class LeleTopAssembly(LeleBase):
     
 def main(args=None):
     """ Generate Body Top Assembly """
-    solid = LeleTopAssembly(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleTopAssembly',
+                    args=args)
 
 def test_top_assembly():
     """ Test Top Assembly """

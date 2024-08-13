@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 from pylele1.pylele_config import \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 from pylele2.pylele_body import LeleBody, pylele_body_parser
@@ -89,11 +89,9 @@ class LeleTexts(LeleBase):
 
 def main(args = None):
     """ Generate texts """
-    solid = LeleTexts(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleTexts',
+                    args=args)
 
 def test_texts():
     """ Test texts """

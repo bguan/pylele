@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 class LeleBrace(LeleBase):
     """ Pylele Brace Generator class """
 
@@ -32,11 +32,9 @@ class LeleBrace(LeleBase):
 
 def main(args = None):
     """ Generate Brace """
-    solid = LeleBrace(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleBrace',
+                    args=args)
 
 def test_brace():
     """ Test Brace """

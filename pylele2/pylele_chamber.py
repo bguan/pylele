@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase, test_loop
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 
 class LeleChamber(LeleBase):
     """ Pylele Chamber Generator class """
@@ -56,11 +56,9 @@ class LeleChamber(LeleBase):
 
 def main(args = None):
     """ Generate Chamber """
-    solid = LeleChamber(args=args)
-    solid.export_args() # from cli
-    solid.export_configuration()
-    solid.exportSTL()
-    return solid
+    return main_maker(module_name=__name__,
+                    class_name='LeleChamber',
+                    args=args)
 
 def test_chamber():
     """ Test Chamber """
