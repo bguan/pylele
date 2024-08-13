@@ -3,7 +3,7 @@
 """
     Pylele Bridge
 """
-
+import argparse
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
@@ -13,6 +13,35 @@ from pylele1.pylele_config import FIT_TOL
 from pylele2.pylele_base import LeleBase, test_loop, main_maker
 from pylele2.pylele_strings import LeleStrings
 
+def pylele_bridge_parser(parser = None):
+    """
+    Pylele Bridge Parser
+    """
+    if parser is None:
+        parser = argparse.ArgumentParser(description='Pylele Bridge Configuration')
+
+    parser.add_argument("-bow", "--bridge_override_width",
+                    help="Override Bridge Width [mm]",
+                    type=float,
+                    default=None
+                    )
+    parser.add_argument("-bol", "--bridge_override_length",
+                    help="Override Bridge Length [mm]",
+                    type=float,
+                    default=None
+                    )
+    parser.add_argument("-boh", "--bridge_override_heigth",
+                    help="Override Bridge Heigth [mm]",
+                    type=float,
+                    default=None
+                    )
+    parser.add_argument("-bosr", "--bridge_override_string_radius",
+                    help="Override Bridge String Radius [mm]",
+                    type=float,
+                    default=None
+                    )
+    return parser
+
 class LeleBridge(LeleBase):
     """ Pylele Bridge Generator class """
 
@@ -20,10 +49,27 @@ class LeleBridge(LeleBase):
         """ Generate Bridge """
         fitTol = FIT_TOL
         scLen = self.cfg.scaleLen
-        strRad = self.cfg.STR_RAD
-        brdgWth = self.cfg.brdgWth + (2*fitTol if self.isCut else 0)
-        brdgLen = self.cfg.brdgLen + (2*fitTol if self.isCut else 0)
-        brdgHt = self.cfg.brdgHt
+
+        if self.cli.bridge_override_string_radius is None:
+            strRad = self.cfg.STR_RAD
+        else:
+            strRad = self.cli.bridge_override_string_radius
+
+        if self.cli.bridge_override_width is None:
+            brdgWth = self.cfg.brdgWth + (2*fitTol if self.isCut else 0)
+        else:
+            brdgWth = self.cli.bridge_override_width
+
+        if self.cli.bridge_override_length is None:
+            brdgLen = self.cfg.brdgLen + (2*fitTol if self.isCut else 0)
+        else:
+            brdgLen = self.cli.bridge_override_length
+
+        if self.cli.bridge_override_heigth is None:
+            brdgHt = self.cfg.brdgHt
+        else:
+            brdgHt = self.cli.bridge_override_heigth
+
         brdgZ = self.cfg.brdgZ
 
         if self.cli.implementation == Implementation.BLENDER and not self.isCut:
@@ -51,6 +97,11 @@ class LeleBridge(LeleBase):
 
         self.shape = brdg
         return brdg
+    
+    def gen_parser(self, parser=None):
+        """ generate bridge parser """
+        parser=pylele_bridge_parser(parser=parser)
+        return super().gen_parser(parser=parser)
 
 def main(args = None):
     """ Generate Bridge """
@@ -61,7 +112,11 @@ def main(args = None):
 def test_bridge():
     """ Test Bridge """
     tests = {
-        'cut'     : ['-C']
+        'cut'     : ['-C'],
+        'override_width' : ['-bow','100'],
+        'override_length' : ['-bol','55'],
+        'override_height' : ['-boh','3'],
+        'override_string_radius' : ['-bosr','1.5'],
     }
     test_loop(module=__name__,tests=tests)
 
