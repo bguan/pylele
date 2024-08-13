@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import FIT_TOL
 
 class LeleGuide(LeleBase):
@@ -42,7 +42,7 @@ class LeleGuide(LeleBase):
         self.shape = guide
         return guide
 
-def guide_main(args = None):
+def main(args = None):
     """ Generate Guide """
     solid = LeleGuide(args=args)
     solid.export_args() # from cli
@@ -52,19 +52,10 @@ def guide_main(args = None):
 
 def test_guide():
     """ Test Guide """
-
-    component = 'guide'
     tests = {
-        'cut'     : ['-C'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-C']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        guide_main(args=args)
-
+    test_loop(module=__name__,tests=tests)
+    
 if __name__ == '__main__':
-    guide_main()
+    main()

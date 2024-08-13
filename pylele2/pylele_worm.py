@@ -9,7 +9,7 @@ import argparse
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import WormConfig, FIT_TOL
 
 def pylele_worm_parser(parser = None):
@@ -209,7 +209,7 @@ class LeleWorm(LeleBase):
         """
         return super().gen_parser( parser=pylele_worm_parser(parser=parser) )
 
-def worm_main(args = None):
+def main(args = None):
     """ Generate Worm """
     solid = LeleWorm(args=args)
     solid.export_args() # from cli
@@ -220,18 +220,10 @@ def worm_main(args = None):
 def test_worm():
     """ Test Worm """
 
-    component = 'worm'
     tests = {
-        'cut'     : ['-C','-wah'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-C','-wah']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        worm_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    worm_main()
+    main()

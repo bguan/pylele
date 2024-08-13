@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import FIT_TOL
 
 class LeleRim(LeleBase):
@@ -30,7 +30,7 @@ class LeleRim(LeleBase):
         self.shape = rimFront
         return rimFront
 
-def rim_main(args=None):
+def main(args=None):
     """ Generate Rim """
     solid = LeleRim(args=args)
     solid.export_args() # from cli
@@ -41,19 +41,10 @@ def rim_main(args=None):
 def test_rim():
     """ Test Rim """
 
-    component = 'rim'
     tests = {
-        'cut'     : ['-C'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-C']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        rim_main(args=args)
-
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    rim_main()
+    main()

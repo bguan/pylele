@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid
+from api.pylele_solid import LeleSolid, test_loop
 from api.pylele_api import Shape
 
 class Tube(LeleSolid):
@@ -35,7 +35,7 @@ class Tube(LeleSolid):
         self.shape = solid
         return self.shape
 
-def tube_main(args=None):
+def main(args=None):
     """ Generate a Tube """
     solid = Tube(args=args)
     solid.export_args()
@@ -45,18 +45,8 @@ def tube_main(args=None):
 def test_tube():
     """ Test Rim """
 
-    component = 'tube'
-    tests = {
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
-    }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        tube_main(args=args)
-
+    ## Cadquery and Blender
+    test_loop(module=__name__)
 
 if __name__ == '__main__':
-    tube_main()
+    main()

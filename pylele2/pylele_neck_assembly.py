@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_head import LeleHead
@@ -67,7 +67,7 @@ class LeleNeckAssembly(LeleBase):
         """
         return super().gen_parser( parser=pylele_fretboard_assembly_parser(parser=parser) )
     
-def neck_assembly_main(args=None):
+def main(args=None):
     """ Generate Neck Assembly """
     solid = LeleNeckAssembly(args=args)
     solid.export_args() # from cli
@@ -78,7 +78,6 @@ def neck_assembly_main(args=None):
 def test_neck_assembly():
     """ Test Neck Assembly """
 
-    component = 'neck_assembly'
     tests = {
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
@@ -88,17 +87,7 @@ def test_neck_assembly():
         'separate_frets'     : ['-FR'],
         'separate_all'       : ['-N','-FR','-NU','-F'],
     }
-
-    for test,args in tests.items():
-        for api in ['cadquery','blender']:
-            print(f'# Test {component} {test} {api}')
-            outdir = os.path.join('./test',component,test,api)
-            args += [
-                '-o', outdir,
-                '-i', api
-                     ]
-            # print(args)
-            neck_assembly_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    neck_assembly_main()
+    main()

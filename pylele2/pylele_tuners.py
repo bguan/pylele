@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import PegConfig, WormConfig
 from pylele2.pylele_peg import LelePeg
 from pylele2.pylele_worm import LeleWorm, pylele_worm_parser
@@ -45,7 +45,7 @@ class LeleTuners(LeleBase):
         """
         return super().gen_parser( parser=pylele_worm_parser(parser=parser) )
 
-def tuners_main(args = None):
+def main(args = None):
     """ Generate Tuners """
     solid = LeleTuners(args=args)
     solid.export_args() # from cli
@@ -55,23 +55,14 @@ def tuners_main(args = None):
 
 def test_tuners():
     """ Test Tuners """
-
-    component = 'tuners'
     tests = {
         'cut'     : ['-C'],
         'gotoh'   : ['-t','gotoh'],
         'worm'    : ['-t','worm'],
         'big_worm': ['-t','bigWorm'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender'],
         'tail_end': ['-t','worm','-e','60','-E','-wah','-C']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        tuners_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    tuners_main()
+    main()

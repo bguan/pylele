@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Implementation
 from pylele1.pylele_config import FIT_TOL
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele2.pylele_strings import LeleStrings
 
 class LeleBridge(LeleBase):
@@ -52,7 +52,7 @@ class LeleBridge(LeleBase):
         self.shape = brdg
         return brdg
 
-def bridge_main(args = None):
+def main(args = None):
     """ Generate Bridge """
     solid = LeleBridge(args=args)
     solid.export_args() # from cli
@@ -62,19 +62,10 @@ def bridge_main(args = None):
 
 def test_bridge():
     """ Test Bridge """
-
-    component = 'bridge'
     tests = {
-        'cut'     : ['-C'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-C']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        bridge_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    bridge_main()
+    main()

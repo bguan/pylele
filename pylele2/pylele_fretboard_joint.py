@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import FIT_TOL
 
 class LeleFretboardJoint(LeleBase):
@@ -28,7 +28,7 @@ class LeleFretboardJoint(LeleBase):
         self.shape = jnt
         return jnt
 
-def fretboard_joint_main(args=None):
+def main(args=None):
     """ Generate Fretboard Joint """
     solid = LeleFretboardJoint(args=args)
     solid.export_args() # from cli
@@ -38,18 +38,7 @@ def fretboard_joint_main(args=None):
 
 def test_fretboard_joint():
     """ Test Fretoard Joint """
-
-    component = 'fretboard_joint'
-    tests = {
-            'cadquery': ['-i','cadquery'],
-            'blender' : ['-i','blender']
-        }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        fretboard_joint_main(args=args)
+    test_loop(module=__name__)
 
 if __name__ == '__main__':
-    fretboard_joint_main()
+    main()

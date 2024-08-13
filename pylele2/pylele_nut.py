@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, LeleStrEnum
+from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop
 from pylele2.pylele_strings import LeleStrings
 from pylele1.pylele_config import FIT_TOL
 class NutType(LeleStrEnum):
@@ -70,32 +70,22 @@ class LeleNut(LeleBase):
         return super().gen_parser( parser=pylele_nut_parser(parser=parser) )
 
 
-def nut_main(args = None):
+def main(args = None):
     """ Generate Nut """
     solid = LeleNut(args=args)
     solid.export_args() # from cli
-    
     solid.export_configuration()
-    
     solid.exportSTL()
     return solid
 
 def test_nut():
     """ Test Nut """
 
-    component = 'nut'
     tests = {
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender'],
         'separate_fretboard' : ['-F'],
         'zerofret': ['-nt', str(NutType.ZEROFRET)],
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        nut_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    nut_main()
+    main()

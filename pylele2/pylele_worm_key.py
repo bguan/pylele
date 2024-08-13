@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Implementation
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import FIT_TOL, WormConfig, FILLET_RAD
 
 class LeleWormKey(LeleBase):
@@ -51,7 +51,7 @@ class LeleWormKey(LeleBase):
         self.shape = btn
         return btn
 
-def worm_key_main(args=None):
+def main(args=None):
     """ Generate Worm Key """
     solid = LeleWormKey(args=args)
     solid.export_args() # from cli
@@ -61,21 +61,11 @@ def worm_key_main(args=None):
 
 def test_worm_key():
     """ Test Worm Key """
-
-    component = 'worm_key'
     tests = {
         'cut'     : ['-t','worm','-C'],
-        'cadquery': ['-t','worm','-i','cadquery'],
-        'blender' : ['-t','worm','-i','blender'],
         'big_worm': ['-t','bigWorm'],
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        worm_key_main(args=args)
-
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    worm_key_main()
+    main()

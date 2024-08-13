@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Implementation
 from pylele1.pylele_config import FILLET_RAD
 
-from pylele2.pylele_base import LeleBase, LeleStrEnum
+from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop
 from pylele2.pylele_frets import LeleFrets
 from pylele2.pylele_nut import LeleNut, pylele_nut_parser, NutType
 from pylele2.pylele_fretboard_dots import LeleFretboardDots, pylele_dots_parser
@@ -140,10 +140,9 @@ class LeleFretboardAssembly(LeleBase):
         """
         return super().gen_parser( parser=pylele_fretboard_assembly_parser(parser=parser) )
 
-def fretboard_assembly_main(args=None):
+def main(args=None):
     """ Generate Fretboard Assembly """
     solid = LeleFretboardAssembly(args=args)
-    # solid.cli = solid.parse_args(args=args)
     solid.export_args() # from cli
     solid.export_configuration()
     solid.exportSTL()
@@ -152,7 +151,6 @@ def fretboard_assembly_main(args=None):
 def test_fretboard_assembly():
     """ Test Fretboard Assembly """
 
-    component = 'fretboard_assembly'
     tests = {
         'separate_fretboard' : ['-F'],
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
@@ -162,16 +160,7 @@ def test_fretboard_assembly():
         'separate_dots'      : ['-D'],
     }
 
-    for test,args in tests.items():
-        for api in ['cadquery','blender']:
-            print(f'# Test {component} {test} {api}')
-            outdir = os.path.join('./test',component,test,api)
-            args += [
-                '-o', outdir,
-                '-i', api
-                     ]
-            # print(args)
-            fretboard_assembly_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    fretboard_assembly_main()
+    main()

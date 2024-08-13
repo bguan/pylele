@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import PegConfig, FIT_TOL
 
 class LelePeg(LeleBase):
@@ -63,10 +63,9 @@ class LelePeg(LeleBase):
         peg = top.join(mid).join(btn).join(bot)
 
         self.shape = peg
-        return peg
-        
+        return peg    
 
-def peg_main(args = None):
+def main(args = None):
     """ Generate Peg """
     solid = LelePeg(args=args)
     solid.export_args() # from cli
@@ -81,15 +80,8 @@ def test_peg():
     tests = {
         'cut'     : ['-C'],
         'gotoh'   : ['-t','gotoh'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        peg_main(args=args)
-
+    test_loop(module=__name__,tests=tests)
+    
 if __name__ == '__main__':
-    peg_main()
+    main()

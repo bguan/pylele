@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 
 class LeleHead(LeleBase):
     """ Pylele Head Generator class """
@@ -53,30 +53,17 @@ class LeleHead(LeleBase):
         self.shape = hd
         return hd
 
-def head_main(args = None):
+def main(args = None):
     """ Generate Head """
     solid = LeleHead(args=args)
     solid.export_args() # from cli
-    
     solid.export_configuration()
-    
     solid.exportSTL()
     return solid
 
 def test_head():
     """ Test Head """
-
-    component = 'head'
-    tests = {
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
-    }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        head_main(args=args)
+    test_loop(module=__name__)
 
 if __name__ == '__main__':
-    head_main()
+    main()

@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import FIT_TOL
 
 class LeleTop(LeleBase):
@@ -42,7 +42,7 @@ class LeleTop(LeleBase):
         self.shape = top
         return top
 
-def top_main(args=None):
+def main(args=None):
     """ Generate Top """
     solid = LeleTop(args=args)
     solid.export_args() # from cli
@@ -52,20 +52,10 @@ def top_main(args=None):
 
 def test_top():
     """ Test Top """
-
-    component = 'top'
     tests = {
-        'cut'     : ['-C'],
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'cut'     : ['-C']
     }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        top_main(args=args)
-
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    top_main()
+    main()

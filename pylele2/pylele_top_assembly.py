@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from pylele1.pylele_config import FILLET_RAD, Implementation
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
@@ -89,7 +89,7 @@ class LeleTopAssembly(LeleBase):
         parser=pylele_worm_parser(parser=parser)
         return super().gen_parser( parser=parser )
     
-def top_assembly_main(args=None):
+def main(args=None):
     """ Generate Body Top Assembly """
     solid = LeleTopAssembly(args=args)
     solid.export_args() # from cli
@@ -100,7 +100,6 @@ def top_assembly_main(args=None):
 def test_top_assembly():
     """ Test Top Assembly """
 
-    component = 'top_assembly'
     tests = {
         'separate_bridge'    : ['-B'],
         'separate_guide'     : ['-G'],
@@ -111,17 +110,7 @@ def test_top_assembly():
         'worm_tuners'        : ['-t','worm'],
         'big_worm_tuners'    : ['-t','bigWorm'],
     }
-
-    for test,args in tests.items():
-        for api in ['cadquery','blender']:
-            print(f'# Test {component} {test} {api}')
-            outdir = os.path.join('./test',component,test,api)
-            args += [
-                '-o', outdir,
-                '-i', api
-                     ]
-            # print(args)
-            top_assembly_main(args=args)
+    test_loop(module=__name__,tests=tests)
 
 if __name__ == '__main__':
-    top_assembly_main()
+    main()

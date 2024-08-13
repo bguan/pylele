@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele1.pylele_config import \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 from pylele2.pylele_body import LeleBody, pylele_body_parser
@@ -87,7 +87,7 @@ class LeleTexts(LeleBase):
         """
         return super().gen_parser( parser=pylele_texts_parser(parser=parser) )
 
-def texts_main(args = None):
+def main(args = None):
     """ Generate texts """
     solid = LeleTexts(args=args)
     solid.export_args() # from cli
@@ -97,18 +97,7 @@ def texts_main(args = None):
 
 def test_texts():
     """ Test texts """
-
-    component = 'texts'
-    tests = {
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
-    }
-
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        texts_main(args=args)
-
+    test_loop(module=__name__)
+    
 if __name__ == '__main__':
-    texts_main()
+    main()
