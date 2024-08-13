@@ -11,7 +11,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, LeleStrEnum
+from pylele2.pylele_base import LeleBase, LeleStrEnum, TunerType, test_loop
 
 DEFAULT_FLAT_BODY_THICKNESS=20
 
@@ -77,7 +77,7 @@ class LeleBody(LeleBase):
         parser=pylele_body_parser( parser=parser )
         return super().gen_parser( parser=parser )
 
-def body_main(args = None):
+def main(args = None):
     """ Generate body """
     solid = LeleBody(args=args)
     solid.export_args() # from cli
@@ -88,18 +88,22 @@ def body_main(args = None):
 def test_body():
     """ Test body """
 
-    component = 'body'
+    ## Cadquery and blender
     tests = {
-        'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender'],
-        'flat_body': ['-bt',str(BodyType.FLAT),'-fbt','50']
+        'tail_end'           : ['-t',str(TunerType.WORM_TUNER),'-e','60','-E'],
     }
+    test_loop(module=__name__,
+              apis = ['cadquery','blender'],
+              tests = tests)
 
-    for test,args in tests.items():
-        print(f'# Test {component} {test}')
-        outdir = os.path.join('./test',component,test)
-        args += ['-o', outdir]
-        body_main(args=args)
+    ## flat body only works with cadquery at the moment
+    tests = {
+        'flat_body'          : ['-bt',str(BodyType.FLAT),'-fbt','50'],
+        'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',str(TunerType.WORM_TUNER),'-e','60','-E'],
+    }
+    test_loop(module=__name__,
+              apis = ['cadquery'],
+              tests = tests)
 
 if __name__ == '__main__':
-    body_main()
+    main()

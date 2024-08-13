@@ -7,14 +7,21 @@
 from __future__ import annotations
 
 import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+
 import argparse
 import datetime
+import importlib
 from pathlib import Path
 from abc import ABC, abstractmethod
 from enum import Enum
-
+                
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from pylele1.pylele_config import CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE
+
+DEFAULT_TEST_DIR='test'
+DEFAULT_BUILD_DIR='build'
 
 class ColorEnum(Enum):
     """ Color Enumerator """
@@ -24,6 +31,35 @@ class ColorEnum(Enum):
     DARK_GRAY = DARK_GRAY,
     ORANGE = ORANGE,
     WHITE = WHITE
+
+def test_iteration(module,component,test,api,args=None):
+    """ Helper to generate a testcase launching the main function in a module """
+    mod = importlib.import_module(module)
+
+    if args is None:
+        args = []
+
+    print(f'#### Test {component} {test} {api}')
+    outdir = os.path.join(DEFAULT_TEST_DIR,component,test,api)
+    args += [
+        '-o', outdir,
+        '-i', api
+                ]
+    print(args)
+    mod.main(args=args)
+    pass
+
+def test_loop(module,apis,tests): # ,component):
+    """ loop over a list of tests """
+    for test,args in tests.items():
+        for api in apis:
+            test_iteration(
+                        module=module,
+                        component=module,
+                        test=test,
+                        api=api,
+                        args=args,
+                        )
 
 def make_or_exist_path(out_path):
     """ Check a directory exist, and generate if not """
@@ -49,7 +85,7 @@ def lele_solid_parser(parser=None):
     parser.add_argument("-c", "--color", help="Color.", type=str,
                         choices = ColorEnum._member_names_, default = 'ORANGE'
                         )
-    parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default='build')
+    parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default=DEFAULT_BUILD_DIR)
     parser.add_argument("-C", "--is_cut",
                     help="This solid is a cutting.",
                     action='store_true')

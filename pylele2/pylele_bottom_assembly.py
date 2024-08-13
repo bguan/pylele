@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, test_loop
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
@@ -101,7 +101,7 @@ class LeleBottomAssembly(LeleBase):
         parser=pylele_worm_parser(parser=parser)
         return super().gen_parser( parser=parser )
     
-def bottom_assembly_main(args=None):
+def main(args=None):
     """ Generate Body Bottom Assembly """
     solid = LeleBottomAssembly(args=args)
     solid.export_args() # from cli
@@ -112,7 +112,6 @@ def bottom_assembly_main(args=None):
 def test_bottom_assembly():
     """ Test Bottom Assembly """
 
-    component = 'bottom_assembly'
     tests = {
         'separate_bridge'    : ['-B'],
         'separate_top'       : ['-T'],
@@ -123,19 +122,20 @@ def test_bottom_assembly():
         'worm_tuners'        : ['-t','worm'],
         'big_worm_tuners'    : ['-t','bigWorm'],
         'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
+    }
+    test_loop(module=__name__,
+              apis=['cadquery','blender'],
+              tests=tests
+              )
+
+    # flat body only works with cadquery at the moment
+    tests = {
         'flat_body'          : ['-t','worm','-e','60','-E','-wah', '-bt', 'flat']
     }
-
-    for test,args in tests.items():
-        for api in ['cadquery','blender']:
-            print(f'# Test {component} {test} {api}')
-            outdir = os.path.join('./test',component,test,api)
-            args += [
-                '-o', outdir,
-                '-i', api
-                     ]
-            # print(args)
-            bottom_assembly_main(args=args)
+    test_loop(module=__name__,
+              apis=['cadquery'],
+              tests=tests
+              )
 
 if __name__ == '__main__':
-    bottom_assembly_main()
+    main()

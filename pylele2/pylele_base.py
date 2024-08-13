@@ -11,7 +11,7 @@ from enum import Enum
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid
+from api.pylele_solid import LeleSolid, test_iteration, test_loop
 from pylele1.pylele_config import LeleConfig, TunerType, SOPRANO_SCALE_LEN
 
 class LeleStrEnum(Enum):
