@@ -6,12 +6,12 @@
 
 import os
 import unittest
+import importlib
 from pathlib import Path
 
 # api
 from api.pylele_api import Fidelity
-from api.cq_api import CQShapeAPI
-from api.bpy_api import BlenderShapeAPI
+from api.pylele_solid import DEFAULT_TEST_DIR
 
 # solid parts
 from parts.tube import test_tube
@@ -49,7 +49,7 @@ from pylele2.pylele_neck_assembly import test_neck_assembly
 from pylele2.pylele_top_assembly import test_top_assembly
 from pylele2.pylele_bottom_assembly import test_bottom_assembly
 
-def make_api_path_and_filename(api_name,test_path='./test'):
+def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
     """ Makes Test API folder and filename """
     out_path = os.path.join(Path.cwd(),test_path,api_name)
 
@@ -61,21 +61,24 @@ def make_api_path_and_filename(api_name,test_path='./test'):
     print(outfname)
     return outfname
 
+def test_api(module_name,class_name):
+    """ Test a Shape API """
+    module = importlib.import_module(module_name)
+    outfname = make_api_path_and_filename(module_name)
+    class_ = getattr(module, class_name)
+    api = class_(Fidelity.LOW)
+    api.test(outfname)
 class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
 
     ## API
     def test_cadquery_api(self):
         """ Test Cadquery API """
-        outfname = make_api_path_and_filename('cadquery_api')
-        api = CQShapeAPI(Fidelity.LOW)
-        api.test(outfname)
+        test_api(module_name='api.cq_api',class_name='CQShapeAPI')
 
     def test_blender_api(self):
         """ Test Blender API """
-        outfname = make_api_path_and_filename('blender_api')
-        api = BlenderShapeAPI(Fidelity.LOW)
-        api.test(outfname)
+        test_api(module_name='api.bpy_api',class_name='BlenderShapeAPI')
     
     ## Solid Parts
     def test_tube(self):
@@ -197,7 +200,7 @@ class PyleleTestMethods(unittest.TestCase):
     def test_top_assembly(self):
         """ Test Top Assembly """
         test_top_assembly()
-        
+
     def test_bottom_assembly(self):
         """ Test Bottom Assembly """
         test_bottom_assembly()
