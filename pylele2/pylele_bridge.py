@@ -50,25 +50,29 @@ class LeleBridge(LeleBase):
         fitTol = FIT_TOL
         scLen = self.cfg.scaleLen
 
-        if self.cli.bridge_override_string_radius is None:
-            strRad = self.cfg.STR_RAD
-        else:
+        if hasattr(self.cli,'bridge_override_string_radius') and \
+            not self.cli.bridge_override_string_radius is None:
             strRad = self.cli.bridge_override_string_radius
-
-        if self.cli.bridge_override_width is None:
-            brdgWth = self.cfg.brdgWth + (2*fitTol if self.isCut else 0)
         else:
+            strRad = self.cfg.STR_RAD
+
+        if hasattr(self.cli,'bridge_override_width') and \
+            not self.cli.bridge_override_width is None:
             brdgWth = self.cli.bridge_override_width
-
-        if self.cli.bridge_override_length is None:
-            brdgLen = self.cfg.brdgLen + (2*fitTol if self.isCut else 0)
         else:
+            brdgWth = self.cfg.brdgWth + (2*fitTol if self.isCut else 0)
+
+        if hasattr(self.cli,'bridge_override_length') and \
+            not self.cli.bridge_override_length is None:
             brdgLen = self.cli.bridge_override_length
-
-        if self.cli.bridge_override_heigth is None:
-            brdgHt = self.cfg.brdgHt
         else:
+            brdgLen = self.cfg.brdgLen + (2*fitTol if self.isCut else 0)
+
+        if hasattr(self.cli,'bridge_override_heigth') and \
+            not self.cli.bridge_override_heigth is None:
             brdgHt = self.cli.bridge_override_heigth
+        else:
+            brdgHt = self.cfg.brdgHt
 
         brdgZ = self.cfg.brdgZ
 
