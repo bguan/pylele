@@ -71,10 +71,12 @@ class LeleBridge(LeleBase):
         if hasattr(self.cli,'bridge_override_heigth') and \
             not self.cli.bridge_override_heigth is None:
             brdgHt = self.cli.bridge_override_heigth
+            # strings will not move, so compensate z position for different heigth
+            z_comp = brdgHt - 3.844291663553447 # + strRad
+            brdgZ = self.cfg.brdgZ - z_comp
         else:
             brdgHt = self.cfg.brdgHt
-
-        brdgZ = self.cfg.brdgZ
+            brdgZ = self.cfg.brdgZ
 
         if self.cli.implementation == Implementation.BLENDER and not self.isCut:
             # increase overlap when blender backend to force join
