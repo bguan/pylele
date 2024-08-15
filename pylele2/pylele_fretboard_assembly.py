@@ -13,18 +13,13 @@ from api.pylele_api import Shape, Implementation
 from pylele1.pylele_config import FILLET_RAD
 
 from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop, main_maker
-from pylele2.pylele_frets import LeleFrets
+from pylele2.pylele_frets import LeleFrets, pylele_frets_parser, FretType
 from pylele2.pylele_nut import LeleNut, pylele_nut_parser, NutType
 from pylele2.pylele_fretboard_dots import LeleFretboardDots, pylele_dots_parser
 from pylele2.pylele_fretboard import LeleFretboard
 from pylele2.pylele_top import LeleTop
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_fretboard_joint import LeleFretboardJoint
-
-class FretType(LeleStrEnum):
-    """ Pylele Fret Type """
-    PRINT = 'print'
-    NAIL = 'nail'
 
 def pylele_fretboard_assembly_parser(parser = None):
     """
@@ -35,13 +30,7 @@ def pylele_fretboard_assembly_parser(parser = None):
 
     parser = pylele_nut_parser(parser=parser)
     parser = pylele_dots_parser(parser=parser)
-
-    parser.add_argument("-ft", "--fret_type",
-                    help="Fret Type",
-                    type=FretType,
-                    choices=list(FretType),
-                    default=FretType.PRINT
-                    )
+    parser = pylele_frets_parser(parser=parser)
     parser.add_argument("-NU", "--separate_nut",
                         help="Split nut from fretboard.",
                         action='store_true')    
@@ -92,7 +81,8 @@ class LeleFretboardAssembly(LeleBase):
         ## frets
         if self.cli.fret_type == FretType.PRINT and not self.cli.separate_frets:
             fbJoiners.append(frets)
-        elif self.cli.fret_type == FretType.NAIL or self.cli.separate_frets:
+        elif self.cli.fret_type in [FretType.NAIL, FretType.WIRE] or \
+            self.cli.separate_frets:
             fbCutters.append(frets)
         else:
             assert f'Unsupported FretType: {self.cli.fret_type} !'
