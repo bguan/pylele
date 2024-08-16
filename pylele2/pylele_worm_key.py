@@ -8,8 +8,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Implementation
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
-from pylele1.pylele_config import FIT_TOL, WormConfig, FILLET_RAD
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD
+from pylele2.pylele_worm import WormConfig
 
 class LeleWormKey(LeleBase):
     """ Pylele Worm Key Generator class """

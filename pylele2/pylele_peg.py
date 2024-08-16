@@ -9,8 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
-from pylele1.pylele_config import PegConfig, FIT_TOL
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, PegConfig
 
 class LelePeg(LeleBase):
     """ Pylele Peg Generator class """

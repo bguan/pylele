@@ -8,8 +8,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele1.pylele_config import FILLET_RAD, Implementation
-from pylele2.pylele_base import LeleBase, test_loop,main_maker
+from api.pylele_solid import Implementation
+from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace

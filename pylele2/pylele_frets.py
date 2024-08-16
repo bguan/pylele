@@ -11,9 +11,8 @@ import argparse
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleStrEnum
-from pylele1.pylele_config import accumDiv, FIT_TOL, SEMI_RATIO
-from api.pylele_utils import radians
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleStrEnum, FIT_TOL, SEMI_RATIO
+from api.pylele_utils import radians, accumDiv
 
 FRET_WIRE_WIDTH=0.5
 

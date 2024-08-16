@@ -11,9 +11,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Fidelity
 from pylele2.pylele_base import LeleBase, test_loop, main_maker
-from pylele1.pylele_config import \
-    DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
 from pylele2.pylele_body import LeleBody, pylele_body_parser
+
+DEFAULT_LABEL_SIZE = 9
+DEFAULT_LABEL_SIZE_BIG = 24
+DEFAULT_LABEL_SIZE_SMALL = 6
+DEFAULT_LABEL_FONT = 'Verdana'
 
 def pylele_texts_parser(parser = None):
     """

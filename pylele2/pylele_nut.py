@@ -10,9 +10,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop, main_maker, FIT_TOL
 from pylele2.pylele_strings import LeleStrings
-from pylele1.pylele_config import FIT_TOL
+
 class NutType(LeleStrEnum):
     """ Nut Type """
     NUT = 'nut'

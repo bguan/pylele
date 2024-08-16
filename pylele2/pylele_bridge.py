@@ -9,8 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape, Implementation
-from pylele1.pylele_config import FIT_TOL
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL
 from pylele2.pylele_strings import LeleStrings
 
 def pylele_bridge_parser(parser = None):

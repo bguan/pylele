@@ -9,9 +9,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Fidelity
 from pylele2.pylele_base import LeleBase, test_loop, main_maker
-from pylele1.pylele_config import PegConfig, WormConfig
-from pylele2.pylele_peg import LelePeg
-from pylele2.pylele_worm import LeleWorm, pylele_worm_parser
+from pylele2.pylele_peg import LelePeg, PegConfig
+from pylele2.pylele_worm import LeleWorm, pylele_worm_parser, WormConfig
 
 class LeleTuners(LeleBase):
     """ Pylele Tuners Generator class """

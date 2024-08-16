@@ -9,8 +9,7 @@ import argparse
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
-from pylele1.pylele_config import WormConfig, FIT_TOL
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, WormConfig
 
 def pylele_worm_parser(parser = None):
     """
@@ -201,7 +200,7 @@ class LeleWorm(LeleBase):
             worm = worm.join(slit)
 
         self.shape = worm
-        return worm 
+        return worm
     
     def gen_parser(self,parser=None):
         """
