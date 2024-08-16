@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Implementation
 from pylele1.pylele_config import FILLET_RAD
 
-from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
 from pylele2.pylele_frets import LeleFrets, pylele_frets_parser, FretType
 from pylele2.pylele_nut import LeleNut, pylele_nut_parser, NutType
 from pylele2.pylele_fretboard_dots import LeleFretboardDots, pylele_dots_parser
