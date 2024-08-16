@@ -142,6 +142,7 @@ def test_fretboard_assembly():
     tests = {
         'separate_fretboard' : ['-F'],
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
+        'fret_wire'          : ['-ft', str(FretType.WIRE)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_nut'       : ['-NU'],
         'separate_frets'     : ['-FR'],

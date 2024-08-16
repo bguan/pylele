@@ -78,7 +78,7 @@ class LeleFrets(LeleBase):
             fy = fWth / 2 + math.tan(radians(wideAng)) * fx
             fz = fbTck + math.tan(radians(riseAng)) * fx
             if self.cli.fret_type == FretType.WIRE:
-                fret = self.api.genBox(FRET_WIRE_WIDTH, fy, fHt).mv(fx, 0, fz)
+                fret = self.api.genBox(FRET_WIRE_WIDTH, 2*fy, fHt).mv(fx, 0, fz)
             else:
                 fret = self.api.genRodY(2 * fy, fHt).mv(fx, 0, fz)
             if frets is None:
