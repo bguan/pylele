@@ -1,12 +1,11 @@
 import datetime
 import math
-from enum import Enum
 
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_api import Fidelity, Implementation
+from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 
@@ -64,7 +63,6 @@ class PegConfig(TunerConfig):
 
     def tailAllow(self) -> float:
         return self.majRad + self.btnRad - 1.5
-
 
 class WormConfig(TunerConfig):
     def __init__(
@@ -145,15 +143,12 @@ BIGWORM_TUNER_CFG = WormConfig(
 )
 
 
-class TunerType(Enum):
+class TunerType(LeleStrEnum):
     FRICTION_PEG = 'friction'
     GOTOH_PEG = 'gotoh'
     WORM_TUNER = 'worm'
     BIGWORM_TUNER = 'bigWorm'
-
-    def __str__(self):
-        return self.value
-    
+   
     def config(self) -> TunerConfig:
         match self: 
             case TunerType.FRICTION_PEG:
@@ -165,13 +160,10 @@ class TunerType(Enum):
             case TunerType.BIGWORM_TUNER:
                 return BIGWORM_TUNER_CFG
     
-class ModelLabel(Enum):
+class ModelLabel(LeleStrEnum):
     NONE = 'none'
     SHORT = 'short' # without date
     LONG = 'long' # with date
-
-    def __str__(self):
-        return self.value
 
 class LeleConfig:
     TOP_RATIO = 1/8
