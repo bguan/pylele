@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Fidelity, Implementation
-from api.pylele_utils import radians, degrees
+from api.pylele_utils import radians, degrees, accumDiv
 
 """
     Global Constants, Config classes
@@ -29,11 +29,6 @@ GRAY = (128, 128, 128)
 DARK_GRAY = (64, 64, 64)
 ORANGE = (255, 165, 0)
 CARBON = (32, 32, 32)
-
-
-def accumDiv(x: float, n: int, div: float) -> float:
-    return 0 if n <= 0 else x + accumDiv(x / div, n - 1, div)
-
 
 # Tuner config
 
