@@ -15,6 +15,7 @@ from api.pylele_solid import DEFAULT_TEST_DIR
 
 # solid parts
 from parts.tube import test_tube
+from parts.screw import test_screw
 
 # ukulele parts
 from pylele2.pylele_frets import test_frets
@@ -84,6 +85,10 @@ class PyleleTestMethods(unittest.TestCase):
     def test_tube(self):
         """ Test Tube """
         test_tube()
+
+    def test_screw(self):
+        """ Test Screw """
+        test_screw()
 
     ## Pylele Individual Parts
     
