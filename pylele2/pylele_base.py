@@ -11,14 +11,9 @@ from enum import Enum
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker
+from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, FIT_TOL, FILLET_RAD, LeleStrEnum
 from pylele1.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, \
-    SOPRANO_SCALE_LEN, FIT_TOL, FILLET_RAD, SEMI_RATIO
-
-class LeleStrEnum(Enum):
-    """ Pylele Enumerator for String Types """
-    def __str__(self):
-        return self.value
+    SOPRANO_SCALE_LEN, SEMI_RATIO
 
 def pylele_base_parser(parser = None):
     """

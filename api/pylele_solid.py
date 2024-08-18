@@ -17,20 +17,11 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from enum import Enum
                 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from pylele1.pylele_config import CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD
 
 DEFAULT_TEST_DIR='test'
 DEFAULT_BUILD_DIR='build'
-
-class ColorEnum(Enum):
-    """ Color Enumerator """
-    CARBON = CARBON,
-    GRAY = GRAY,
-    LITE_GRAY = LITE_GRAY,
-    DARK_GRAY = DARK_GRAY,
-    ORANGE = ORANGE,
-    WHITE = WHITE
 
 def main_maker(module_name,class_name,args=None):
     """ Generate a main function for a LeleSolid instance """
@@ -99,7 +90,7 @@ def lele_solid_parser(parser=None):
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default=Fidelity.LOW)
     parser.add_argument("-c", "--color", help="Color.", type=str,
-                        choices = ColorEnum._member_names_, default = 'ORANGE'
+                        choices = ColorEnum._member_names_, default = ColorEnum.ORANGE
                         )
     parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default=DEFAULT_BUILD_DIR)
     parser.add_argument("-C", "--is_cut",
@@ -250,7 +241,7 @@ class LeleSolid(ABC):
             self.cli = cli
 
         self.isCut = self.cli.is_cut or isCut
-        self.color = ColorEnum[self.cli.color]
+        self.color = self.cli.color # ColorEnum[self.cli.color]
         self.outdir = self.cli.outdir
 
         self.joiners = joiners

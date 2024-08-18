@@ -6,14 +6,16 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Union
     
-class Fidelity(Enum):
+class LeleStrEnum(Enum):
+    """ Pylele Enumerator for String Types """
+    def __str__(self):
+        return self.value
+
+class Fidelity(LeleStrEnum):
     LOW = 'low'
     MEDIUM = 'medium' 
     HIGH = 'high' 
 
-    def __str__(self):
-        return self.value
-    
     def exportTol(self) -> float:
         match self:
             case Fidelity.LOW:
@@ -41,14 +43,11 @@ class Fidelity(Enum):
             case Fidelity.HIGH:
                 return "H"
 
-class Implementation(Enum):
+class Implementation(LeleStrEnum):
     CAD_QUERY = 'cadquery'
     BLENDER = 'blender' 
     TRIMESH = 'trimesh'
-
-    def __str__(self):
-        return self.value
-    
+   
     def code(self) -> str:
         match self: 
             case Implementation.CAD_QUERY:

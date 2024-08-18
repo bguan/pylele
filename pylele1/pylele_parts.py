@@ -8,9 +8,10 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from api.pylele_utils import radians
-from pylele1.pylele_config import FILLET_RAD, LeleConfig, WormConfig, PegConfig, \
-    FIT_TOL, SEMI_RATIO, CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE, accumDiv
+from api.pylele_utils import radians, accumDiv
+from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
+from pylele1.pylele_config import LeleConfig, WormConfig, PegConfig, \
+    SEMI_RATIO
 
 from random import randint
 

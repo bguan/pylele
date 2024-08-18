@@ -8,14 +8,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Fidelity, Implementation
 from api.pylele_utils import radians, degrees, accumDiv
+from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 
 """
     Global Constants, Config classes
 """
 
 SEMI_RATIO = 2**(1/12)
-FIT_TOL = .1
-FILLET_RAD = .4
 SOPRANO_SCALE_LEN = 330
 CONCERT_SCALE_LEN = 370
 TENOR_SCALE_LEN = 430
@@ -23,12 +22,6 @@ DEFAULT_LABEL_SIZE = 9
 DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
-WHITE = (255, 255, 255)
-LITE_GRAY = (192, 192, 192)
-GRAY = (128, 128, 128)
-DARK_GRAY = (64, 64, 64)
-ORANGE = (255, 165, 0)
-CARBON = (32, 32, 32)
 
 # Tuner config
 
