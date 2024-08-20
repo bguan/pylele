@@ -94,7 +94,7 @@ class Brace(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = WHITE
+        self.color = ColorEnum.WHITE
 
     def gen(self) -> Shape:
         scLen = self.cfg.scaleLen
@@ -119,7 +119,7 @@ class Frets(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         fitTol = FIT_TOL
@@ -170,7 +170,7 @@ class FretboardDots(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = WHITE
+        self.color = ColorEnum.WHITE
 
     def gen(self) -> Shape:
         scLen = self.cfg.scaleLen
@@ -217,7 +217,7 @@ class Fretboard(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -250,7 +250,7 @@ class FretboardSpines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -276,7 +276,7 @@ class FretbdJoint(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
@@ -297,7 +297,7 @@ class Neck(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ORANGE
+        self.color = ColorEnum.ORANGE
 
     def gen(self) -> Shape:
         ntWth = self.cfg.nutWth
@@ -326,7 +326,7 @@ class NeckJoint(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ORANGE
+        self.color = ColorEnum.ORANGE
 
     def gen(self) -> Shape:
         cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
@@ -347,7 +347,7 @@ class Head(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ORANGE
+        self.color = ColorEnum.ORANGE
 
     def gen(self) -> Shape:
         hdWth = self.cfg.headWth
@@ -394,7 +394,7 @@ class Top(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = WHITE
+        self.color = ColorEnum.WHITE
 
     def gen(self) -> Shape:
         if self.isCut:
@@ -431,7 +431,7 @@ class Body(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ORANGE
+        self.color = ColorEnum.ORANGE
 
     def gen(self):
         botRat = self.cfg.BOT_RATIO
@@ -459,7 +459,7 @@ class Rim(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = WHITE
+        self.color = ColorEnum.WHITE
         
     def gen(self):
         joinTol = self.cfg.joinCutTol
@@ -559,7 +559,7 @@ class Bridge(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         fitTol = FIT_TOL
@@ -596,7 +596,7 @@ class Guide(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         fitTol = FIT_TOL
@@ -631,7 +631,7 @@ class Peg(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = GRAY
+        self.color = ColorEnum.GRAY
 
     def gen(self) -> Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -690,7 +690,7 @@ class Worm(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = GRAY
+        self.color = ColorEnum.GRAY
 
     def gen(self) -> Shape:
         cutAdj = FIT_TOL if self.isCut else 0
@@ -749,7 +749,7 @@ class WormKey(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = GRAY
+        self.color = ColorEnum.GRAY
 
     def gen(self) -> Shape:
         isBlender = self.cfg.impl == Implementation.BLENDER
@@ -828,7 +828,7 @@ class Spines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = CARBON
+        self.color = ColorEnum.CARBON
 
     def gen(self) -> Shape:
         cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
@@ -856,7 +856,7 @@ class Strings(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = LITE_GRAY
+        self.color = ColorEnum.LITE_GRAY
 
     def gen(self) -> Shape:
         if self.isCut:
@@ -927,7 +927,7 @@ class TailEnd(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = DARK_GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         cfg = self.cfg
