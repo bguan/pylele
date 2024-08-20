@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, FIT_TOL, FILLET_RAD, LeleStrEnum
 from pylele1.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, \
-    SOPRANO_SCALE_LEN, SEMI_RATIO
+    LeleScaleEnum, type_scale_len, SEMI_RATIO
 
 def pylele_base_parser(parser = None):
     """
@@ -23,8 +23,9 @@ def pylele_base_parser(parser = None):
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
     ## Numeric config options ###########################################
-    parser.add_argument("-s", "--scale_length", help="Scale Length [mm], default 330",
-                        type=int, default=SOPRANO_SCALE_LEN)
+    parser.add_argument("-s", "--scale_length", 
+                        help=f"Scale Length [mm], or {LeleScaleEnum._member_names_}, default: {LeleScaleEnum.SOPRANO.value}",
+                        type=type_scale_len, default=LeleScaleEnum.SOPRANO)
     parser.add_argument("-n", "--num_strings", help="Number of strings, default 4",
                         type=int, default=4)
     parser.add_argument("-a", "--action", help="Strings action [mm], default 2",

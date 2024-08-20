@@ -5,6 +5,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
+from enum import Enum
+from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
@@ -14,13 +16,26 @@ from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 """
 
 SEMI_RATIO = 2**(1/12)
-SOPRANO_SCALE_LEN = 330
-CONCERT_SCALE_LEN = 370
-TENOR_SCALE_LEN = 430
+
 DEFAULT_LABEL_SIZE = 9
 DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
+
+class LeleScaleEnum(Enum):
+    SOPRANO = 330
+    CONCERT = 370
+    TENOR   = 430
+
+def type_scale_len(len):
+    """ Returns scale length in mm
+        input is a string either representing mm
+        or LeleScaleEnum member
+    """
+    ulen = len.upper()
+    if ulen in LeleScaleEnum._member_names_:
+        return LeleScaleEnum[ulen].value
+    return literal_eval(len)
 
 # Tuner config
 
@@ -192,7 +207,7 @@ class LeleConfig:
 
     def __init__(
         self,
-        scaleLen: float = SOPRANO_SCALE_LEN,
+        scaleLen: float = LeleScaleEnum.SOPRANO,
         sepTop: bool = False,
         sepNeck: bool = False,
         sepFretbd: bool = False,
