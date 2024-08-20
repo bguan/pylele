@@ -88,7 +88,7 @@ def test_body():
 
     ## Cadquery and blender
     tests = {
-        'tail_end'           : ['-t',str(TunerType.WORM_TUNER),'-e','60','-E'],
+        'tail_end'           : ['-t',TunerType.WORM.name,'-e','60','-E'],
     }
     test_loop(module=__name__,
               apis = ['cadquery','blender'],
@@ -97,7 +97,7 @@ def test_body():
     ## flat body only works with cadquery at the moment
     tests = {
         'flat_body'          : ['-bt',str(BodyType.FLAT),'-fbt','50'],
-        'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',str(TunerType.WORM_TUNER),'-e','60','-E'],
+        'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
     }
     test_loop(module=__name__,
               apis = ['cadquery'],

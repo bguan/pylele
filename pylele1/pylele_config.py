@@ -5,7 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from enum import IntEnum
+from enum import IntEnum, Enum
 from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
@@ -158,23 +158,12 @@ BIGWORM_TUNER_CFG = WormConfig(
 )
 
 
-class TunerType(LeleStrEnum):
-    FRICTION_PEG = 'friction'
-    GOTOH_PEG = 'gotoh'
-    WORM_TUNER = 'worm'
-    BIGWORM_TUNER = 'bigWorm'
-   
-    def config(self) -> TunerConfig:
-        match self: 
-            case TunerType.FRICTION_PEG:
-                return FRICTION_PEG_CFG
-            case TunerType.GOTOH_PEG:
-                return GOTOH_PEG_CFG
-            case TunerType.WORM_TUNER:
-                return WORM_TUNER_CFG
-            case TunerType.BIGWORM_TUNER:
-                return BIGWORM_TUNER_CFG
-    
+class TunerType(Enum):
+    FRICTION = FRICTION_PEG_CFG
+    GOTOH = GOTOH_PEG_CFG
+    WORM = WORM_TUNER_CFG
+    BIGWORM = BIGWORM_TUNER_CFG
+ 
 class ModelLabel(LeleStrEnum):
     NONE = 'none'
     SHORT = 'short' # without date
@@ -221,7 +210,7 @@ class LeleConfig:
         nutStrGap: float = 9,
         action: float = 2,
         extMidTopTck: float = .5,
-        tnrType: TunerType = TunerType.FRICTION_PEG, 
+        tnrType: TunerType = TunerType.FRICTION, 
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
@@ -239,7 +228,7 @@ class LeleConfig:
         self.impl = impl
         self.fidelity = fidelity
         self.joinCutTol = impl.joinCutTol()
-        self.tnrCfg = tnrType.config()
+        self.tnrCfg = tnrType
         
         # Length based configs
         self.scaleLen = scaleLen

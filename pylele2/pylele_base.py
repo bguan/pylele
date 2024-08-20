@@ -46,8 +46,8 @@ def pylele_base_parser(parser = None):
 
     ## Non-Numeric config options #######################################
 
-    parser.add_argument("-t", "--tuner_type", help="Type of tuners, default friction",
-                        type=TunerType, choices=list(TunerType), default='friction')
+    parser.add_argument("-t", "--tuner_type", help=f"Type of tuners, default; {TunerType.FRICTION.name}",
+                        type=str.upper, choices=TunerType._member_names_, default=TunerType.FRICTION.name)
 
     ## Cut options ######################################################
 
@@ -117,7 +117,7 @@ class LeleBase(LeleSolid):
             # txtSzFonts=self.cli.texts_size_font,
             # modelLbl=self.cli.model_label,
             half=self.cli.half,
-            tnrType=self.cli.tuner_type,
+            tnrType=TunerType[self.cli.tuner_type].value,
             fidelity=self.cli.fidelity,
             impl=self.cli.implementation,
         )

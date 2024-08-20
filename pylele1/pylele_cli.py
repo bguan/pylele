@@ -43,8 +43,8 @@ def parseCLI():
 
     ## Non-Numeric config options #######################################
 
-    parser.add_argument("-t", "--tuner_type", help="Type of tuners, default friction",
-                        type=TunerType, choices=list(TunerType), default='friction')
+    parser.add_argument("-t", "--tuner_type", help=f"Type of tuners, default; {TunerType.FRICTION.name}",
+                        type=str.upper, choices=TunerType._member_names_, default=TunerType.FRICTION.name)
 
     parser.add_argument("-d", "--dot_frets",
                         help="Comma-separated fret[:dots] pairs, default 3,5:2,7,10,12:3,15,17:2,19,22",

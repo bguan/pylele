@@ -42,7 +42,7 @@ def pylele_main():
         txtSzFonts=cli.texts_size_font,
         modelLbl=cli.model_label,
         half=cli.half,
-        tnrType=cli.tuner_type,
+        tnrType=TunerType[cli.tuner_type].value,
         fidelity=cli.fidelity,
         impl=cli.implementation,
     )
@@ -70,7 +70,7 @@ def pylele_main():
 
 def cqeditor_main():
     cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=2,
-        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM_TUNER,
+        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM,
         sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
