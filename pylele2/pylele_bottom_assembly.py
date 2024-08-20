@@ -103,7 +103,9 @@ class LeleBottomAssembly(LeleBase):
     
 def main(args=None):
     """ Generate Body Bottom Assembly """
-    return main_maker(module_name=__name__,
+    return main_maker(
+        module_name='pylele2.pylele_bottom_assembly',
+        # module_name=__name__,
                       class_name='LeleBottomAssembly',
                       args=args)
 
