@@ -40,3 +40,9 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_test_out
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
+    - name: test pylele.sh
+      run: |
+        ./pylele.sh
+    - name: test pylele2.sh
+      run: |
+        ./pylele2.sh
