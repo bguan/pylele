@@ -6,10 +6,14 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from typing import Union
     
-class LeleStrEnum(Enum):
+# consider update to StrEnum for python 3.11 and above 
+# https://tsak.dev/posts/python-enum/
+class LeleStrEnum(str,Enum):
     """ Pylele Enumerator for String Types """
     def __str__(self):
         return self.value
+    def list(self):
+        return list(self)
 
 class Fidelity(LeleStrEnum):
     LOW = 'low'
