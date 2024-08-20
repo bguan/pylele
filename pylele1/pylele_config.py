@@ -5,7 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from enum import Enum
+from enum import IntEnum
 from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
@@ -22,7 +22,7 @@ DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
 
-class LeleScaleEnum(Enum):
+class LeleScaleEnum(IntEnum):
     SOPRANO = 330
     CONCERT = 370
     TENOR   = 430
