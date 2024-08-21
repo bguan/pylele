@@ -1,3 +1,6 @@
+
+""" Pylele Configuration Module """
+
 import datetime
 import math
 
@@ -23,16 +26,17 @@ DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
 
 class LeleScaleEnum(IntEnum):
+    """ Enumerator for Scale Length Names """
     SOPRANO = 330
     CONCERT = 370
     TENOR   = 430
 
-def type_scale_len(len):
+def type_scale_len(length: int):
     """ Returns scale length in mm
         input is a string either representing mm
         or LeleScaleEnum member
     """
-    ulen = len.upper()
+    ulen = length.upper()
     if ulen in LeleScaleEnum._member_names_:
         return LeleScaleEnum[ulen].value
     return literal_eval(len)
@@ -40,6 +44,7 @@ def type_scale_len(len):
 # Tuner config
 
 class TunerConfig:
+    """ Tuner Configuration """
     def __init__(
         self,
         holeHt: float = 8,
@@ -56,6 +61,7 @@ class TunerConfig:
 
 
 class PegConfig(TunerConfig):
+    """ Peg Configuration """
     def __init__(
         self,
         majRad: float = 8,
@@ -80,6 +86,7 @@ class PegConfig(TunerConfig):
         return self.majRad + self.btnRad - 1.5
 
 class WormConfig(TunerConfig):
+    """ Worm Configuration """
     def __init__(
         self,
         holeHt: float = 23,
@@ -159,17 +166,20 @@ BIGWORM_TUNER_CFG = WormConfig(
 
 
 class TunerType(Enum):
+    """ Tuner Type Enumerator """
     FRICTION = FRICTION_PEG_CFG
     GOTOH = GOTOH_PEG_CFG
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
  
 class ModelLabel(LeleStrEnum):
+    """ Model Label """
     NONE = 'none'
     SHORT = 'short' # without date
     LONG = 'long' # with date
 
 class LeleConfig:
+    """ Pylele Configuration Class """
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
     CHM_BACK_RATIO = 1/2 # to chmFront
