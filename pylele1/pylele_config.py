@@ -210,7 +210,7 @@ class LeleConfig:
         nutStrGap: float = 9,
         action: float = 2,
         extMidTopTck: float = .5,
-        tnrType: TunerType = TunerType.FRICTION, 
+        tnrType: TunerType = TunerType.FRICTION.value,
         half: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
