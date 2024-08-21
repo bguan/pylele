@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -52,7 +53,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepFretbd:
         neckCutters.append(fbCut)
     neckCutters.append(spCut)
-    if cfg.sepNeck: 
+    if cfg.sepNeck:
         neckJoiners.append(NeckJoint(cfg, isCut=False))
         if not cfg.sepFretbd:
             neckJoiners.append(fretbd)
@@ -89,7 +90,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     else:
         topJoiners.append(brdg)
 
-    if guide != None:
+    if not guide is None:
         if cfg.sepBrdg:
             topCutters.append(Guide(cfg, isCut=True))
         else:
@@ -116,7 +117,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     bodyJoiners = []
     bodyCutters = [txtCut, chmCut]
 
-    if spCut is not None:
+    if not spCut is None:
         bodyCutters.append(spCut)
 
     if cfg.sepTop:
@@ -132,7 +133,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepFretbd or cfg.sepTop:
         bodyCutters.append(fbspCut)
     
-    if tailCut is not None:
+    if not tailCut is None:
         bodyCutters.append(tailCut)
     else:
         bodyCutters.append(tnrsCut)
@@ -154,7 +155,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepBrdg:
         parts.append(brdg)
 
-    if guide != None and cfg.sepBrdg:
+    if not guide is None and cfg.sepBrdg:
         parts.append(guide)
 
     if cfg.sepEnd:
@@ -186,7 +187,7 @@ def test(cfg: LeleConfig):
         [frets, fbsp], 
         [topCut, fdotsCut, strCuts],
     ).join(fbJnt)
-    fretbd.exportSTL(f"{DEFAULT_TEST_DIR}/{fretbd.fileNameBase}.stl")
+    fretbd.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{fretbd.fileNameBase}.stl"))
 
     head = Head(cfg)
     fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
@@ -196,7 +197,7 @@ def test(cfg: LeleConfig):
     nkJnt = NeckJoint(cfg, isCut=False)
 
     neck = Neck(cfg, False, [head, nkJnt], [spCut, fbCut, f0Cut, strCuts, fbspCut])
-    neck.exportSTL(f"{DEFAULT_TEST_DIR}/{neck.fileNameBase}.stl")
+    neck.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{neck.fileNameBase}.stl"))
 
     brdg = Bridge(cfg, isCut=False, cutters=[strCuts])
     rim = Rim(cfg, isCut=False)
@@ -218,12 +219,12 @@ def test(cfg: LeleConfig):
         joiners=topJoins,
         cutters=[fbJntCut, tnrsCut, shCut, chmCut], 
         fillets=topFillets,
-    ) 
-    top.exportSTL(f"{DEFAULT_TEST_DIR}/{top.fileNameBase}.stl")
+    )
+    top.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{top.fileNameBase}.stl"))
 
     rimCut = Rim(cfg, isCut=True)
     txtCut = Texts(cfg, isCut=True)
-    txtCut.exportSTL(f"{DEFAULT_TEST_DIR}{txtCut.fileNameBase}.stl")
+    txtCut.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{txtCut.fileNameBase}.stl"))
 
     nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
     bodyCuts = [topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, txtCut]
@@ -231,10 +232,10 @@ def test(cfg: LeleConfig):
         wkCut = WormKey(cfg, isCut=True)
         bodyCuts.append(wkCut)
         wkey = WormKey(cfg, isCut=False)
-        wkey.exportSTL(f"{DEFAULT_TEST_DIR}/{wkey.fileNameBase}.stl")
+        wkey.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{wkey.fileNameBase}.stl"))
 
     body = Body(cfg, cutters=bodyCuts)
-    body.exportSTL(f"{DEFAULT_TEST_DIR}/{body.fileNameBase}.stl")
+    body.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{body.fileNameBase}.stl"))
 
 
 if __name__ == "__main__":
@@ -246,7 +247,7 @@ if __name__ == "__main__":
         sepTop=True,
     )
 
-    with open(f'{DEFAULT_TEST_DIR}/config.txt', 'w') as f:
+    with open(os.path.join(DEFAULT_TEST_DIR,'config.txt'), 'w') as f:
         f.write(repr(cfg))
 
     test(cfg)
