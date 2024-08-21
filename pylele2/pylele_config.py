@@ -20,11 +20,6 @@ from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 
 SEMI_RATIO = 2**(1/12)
 
-DEFAULT_LABEL_SIZE = 9
-DEFAULT_LABEL_SIZE_BIG = 24
-DEFAULT_LABEL_SIZE_SMALL = 6
-DEFAULT_LABEL_FONT = 'Verdana'
-
 class LeleScaleEnum(IntEnum):
     """ Enumerator for Scale Length Names """
     SOPRANO = 330
@@ -222,11 +217,6 @@ class LeleConfig:
         extMidTopTck: float = .5,
         tnrType: TunerType = TunerType.FRICTION.value,
         half: bool = False,
-        txtSzFonts: list[tuple[str, float, str]] = [
-            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
-            ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
-            ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
-        ],
         modelLbl: ModelLabel = ModelLabel.SHORT,
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] =
@@ -537,14 +527,6 @@ class LeleConfig:
                 strPathL.append((strX, -strY, strZ))
             self.stringPaths.append(strPathR)
             self.stringPaths.append(strPathL)
-
-        # Text Config
-        self.txtSzFonts = txtSzFonts
-        if modelLbl != ModelLabel.NONE:
-            lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
-            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
 
     def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
