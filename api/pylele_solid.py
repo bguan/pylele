@@ -18,10 +18,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
                 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
-from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD
-
-DEFAULT_TEST_DIR='test'
-DEFAULT_BUILD_DIR='build'
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 
 def main_maker(module_name,class_name,args=None):
     """ Generate a main function for a LeleSolid instance """
