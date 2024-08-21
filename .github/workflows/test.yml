@@ -43,6 +43,9 @@ jobs:
     - name: test pylele.sh
       run: |
         source pylele.sh
+    - name: test pylele_assembly.py
+      run: |
+        python3 ./pylele1/pylele_assembly.py
     - name: test pylele2.sh
       run: |
         source pylele2.sh
