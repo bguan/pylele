@@ -13,52 +13,18 @@ from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
+from pylele_config_common import SEMI_RATIO, LeleScaleEnum, type_scale_len, TunerConfig
 
 """
     Global Constants, Config classes
 """
-
-SEMI_RATIO = 2**(1/12)
 
 DEFAULT_LABEL_SIZE = 9
 DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
 
-class LeleScaleEnum(IntEnum):
-    """ Enumerator for Scale Length Names """
-    SOPRANO = 330
-    CONCERT = 370
-    TENOR   = 430
-
-def type_scale_len(length: int):
-    """ Returns scale length in mm
-        input is a string either representing mm
-        or LeleScaleEnum member
-    """
-    ulen = length.upper()
-    if ulen in LeleScaleEnum._member_names_:
-        return LeleScaleEnum[ulen].value
-    return literal_eval(len)
-
 # Tuner config
-
-class TunerConfig:
-    """ Tuner Configuration """
-    def __init__(
-        self,
-        holeHt: float = 8,
-        code: str = '?',
-    ):
-        self.holeHt = holeHt
-        self.code = code
-
-    def minGap(self) -> float:
-        pass
-
-    def tailAllow(self) -> float:
-        pass
-
 
 class PegConfig(TunerConfig):
     """ Peg Configuration """
