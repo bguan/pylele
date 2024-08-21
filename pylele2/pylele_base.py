@@ -12,7 +12,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, FIT_TOL, FILLET_RAD, LeleStrEnum
-from pylele1.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, \
+from pylele2.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, \
     LeleScaleEnum, type_scale_len, SEMI_RATIO
 
 def pylele_base_parser(parser = None):
