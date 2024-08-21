@@ -8,6 +8,7 @@ from pylele1.pylele_parts import LelePart, Body, Brace, Bridge, Chamber, \
     Fretboard, FretboardDots, FretboardSpines, Frets, FretbdJoint, \
     Guide, Head, Neck, NeckJoint, Rim, \
     Soundhole, Spines, Strings, Texts, TailEnd, Top, Tuners, WormKey
+from api.pylele_api_constants import DEFAULT_TEST_DIR
 
 """
     Assembling the parts together
@@ -185,7 +186,7 @@ def test(cfg: LeleConfig):
         [frets, fbsp], 
         [topCut, fdotsCut, strCuts],
     ).join(fbJnt)
-    fretbd.exportSTL(f"build/{fretbd.fileNameBase}.stl")
+    fretbd.exportSTL(f"{DEFAULT_TEST_DIR}/{fretbd.fileNameBase}.stl")
 
     head = Head(cfg)
     fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
@@ -195,7 +196,7 @@ def test(cfg: LeleConfig):
     nkJnt = NeckJoint(cfg, isCut=False)
 
     neck = Neck(cfg, False, [head, nkJnt], [spCut, fbCut, f0Cut, strCuts, fbspCut])
-    neck.exportSTL(f"build/{neck.fileNameBase}.stl")
+    neck.exportSTL(f"{DEFAULT_TEST_DIR}/{neck.fileNameBase}.stl")
 
     brdg = Bridge(cfg, isCut=False, cutters=[strCuts])
     rim = Rim(cfg, isCut=False)
@@ -218,11 +219,11 @@ def test(cfg: LeleConfig):
         cutters=[fbJntCut, tnrsCut, shCut, chmCut], 
         fillets=topFillets,
     ) 
-    top.exportSTL(f"build/{top.fileNameBase}.stl")
+    top.exportSTL(f"{DEFAULT_TEST_DIR}/{top.fileNameBase}.stl")
 
     rimCut = Rim(cfg, isCut=True)
     txtCut = Texts(cfg, isCut=True)
-    txtCut.exportSTL(f"build/{txtCut.fileNameBase}.stl")
+    txtCut.exportSTL(f"{DEFAULT_TEST_DIR}{txtCut.fileNameBase}.stl")
 
     nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
     bodyCuts = [topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, txtCut]
@@ -230,10 +231,10 @@ def test(cfg: LeleConfig):
         wkCut = WormKey(cfg, isCut=True)
         bodyCuts.append(wkCut)
         wkey = WormKey(cfg, isCut=False)
-        wkey.exportSTL(f"build/{wkey.fileNameBase}.stl")
+        wkey.exportSTL(f"{DEFAULT_TEST_DIR}/{wkey.fileNameBase}.stl")
 
     body = Body(cfg, cutters=bodyCuts)
-    body.exportSTL(f"build/{body.fileNameBase}.stl")
+    body.exportSTL(f"{DEFAULT_TEST_DIR}/{body.fileNameBase}.stl")
 
 
 if __name__ == "__main__":
@@ -245,7 +246,7 @@ if __name__ == "__main__":
         sepTop=True,
     )
 
-    with open('build/config.txt', 'w') as f:
+    with open(f'{DEFAULT_TEST_DIR}/config.txt', 'w') as f:
         f.write(repr(cfg))
 
     test(cfg)

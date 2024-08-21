@@ -13,6 +13,7 @@ from pylele1.pylele_assemble import assemble, test
 from pylele1.pylele_cli import parseCLI
 from pylele1.pylele_config import Implementation, LeleConfig, FILLET_RAD, TunerType
 from pylele1.pylele_parts import Strings, Tuners, WormKey, Spines
+from api.pylele_api_constants import DEFAULT_BUILD_DIR
 
 """
     Main Logic of Pylele
@@ -47,7 +48,7 @@ def pylele_main():
         impl=cli.implementation,
     )
 
-    expDir = Path.cwd()/"build"
+    expDir = Path.cwd()/DEFAULT_BUILD_DIR
     if not expDir.exists():
         expDir.mkdir()
     elif not expDir.is_dir():
