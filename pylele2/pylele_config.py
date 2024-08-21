@@ -119,20 +119,12 @@ BIGWORM_TUNER_CFG = WormConfig(
     code = 'B',
 )
 
-
 class TunerType(Enum):
     """ Tuner Type Enumerator """
     FRICTION = FRICTION_PEG_CFG
     GOTOH = GOTOH_PEG_CFG
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
- 
-class ModelLabel(LeleStrEnum):
-    """ Model Label """
-    NONE = 'none'
-    SHORT = 'short' # without date
-    LONG = 'long' # with date
-
 class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
@@ -177,7 +169,7 @@ class LeleConfig:
         extMidTopTck: float = .5,
         tnrType: TunerType = TunerType.FRICTION.value,
         half: bool = False,
-        modelLbl: ModelLabel = ModelLabel.SHORT,
+        # : ModelLabel = ModelLabel.SHORT,
         dotRad: float = 1.5,
         fret2Dots: dict[int, int] =
             {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
@@ -223,7 +215,7 @@ class LeleConfig:
         self.sepFretbd = sepFretbd
         self.sepBrdg = sepBrdg
         self.sepEnd = sepEnd
-        self.modelLbl = modelLbl
+        # self.modelLbl = modelLbl
         self.isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
         self.action = action
