@@ -42,7 +42,13 @@ jobs:
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
     - name: test pylele.sh
       run: |
-        ./pylele.sh
+        source pylele.sh
     - name: test pylele2.sh
       run: |
-        ./pylele2.sh
+        source pylele2.sh
+    - name: upload demo
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: pylele_demo_out
+          path: build/LeleBottomAssembly*/*.stl
