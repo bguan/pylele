@@ -8,8 +8,6 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from enum import IntEnum, Enum
-from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
@@ -370,6 +368,7 @@ class LeleConfig:
             self.stringPaths.append(strPathR)
             self.stringPaths.append(strPathL)
 
+    """
     def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
         if self.sepTop:
@@ -388,6 +387,7 @@ class LeleConfig:
         if inclDate:
             model += "-" + datetime.date.today().strftime("%m%d")
         return model
+    """
 
     def __repr__(self):
         properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
