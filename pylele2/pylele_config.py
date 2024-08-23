@@ -118,7 +118,7 @@ class LeleConfig:
         # Neck configs
         self.neckWth = self.nutWth + \
             2 * math.tan(radians(self.neckWideAng)) * self.neckLen
-        self.neckOrig = (0, 0)
+        # self.neckOrig = (0, 0)
         self.neckPath = [
             (0, -self.nutWth/2), (self.neckLen, -self.neckWth/2),
             (self.neckLen, self.neckWth/2), (0, self.nutWth/2)
