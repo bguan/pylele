@@ -47,7 +47,7 @@ class LeleBridge(LeleBase):
     def gen(self) -> Shape:
         """ Generate Bridge """
         fitTol = FIT_TOL
-        scLen = self.cfg.scaleLen
+        scLen = self.cli.scale_length
 
         if hasattr(self.cli,'bridge_override_string_radius') and \
             not self.cli.bridge_override_string_radius is None:

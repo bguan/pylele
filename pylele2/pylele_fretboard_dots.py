@@ -41,7 +41,7 @@ class LeleFretboardDots(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Dots """
 
-        scLen = self.cfg.scaleLen
+        scLen = self.cli.scale_len
         fbLen = self.cfg.fretbdLen
         fbTck = self.cfg.FRETBD_TCK
         maxFrets = self.cfg.MAX_FRETS

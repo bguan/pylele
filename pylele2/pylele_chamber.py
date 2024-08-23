@@ -39,7 +39,7 @@ class LeleChamber(LeleBase):
         origFidel = self.api.fidelity
         self.api.setFidelity(Fidelity.LOW)
 
-        scLen = self.cfg.scaleLen
+        scLen = self.cli.scale_length
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
         lift = self.cli.chamber_lift # self.cfg.chmLift

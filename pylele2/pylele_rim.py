@@ -17,7 +17,7 @@ class LeleRim(LeleBase):
         """ Generate Rim """
         joinTol = self.api.getJoinCutTol()
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
-        scLen = self.cfg.scaleLen
+        scLen = self.cli.scale_len
         rad = self.cfg.chmWth/2 + self.cfg.rimWth
         tck = self.cfg.RIM_TCK + 2*cutAdj
         frontWthRatio = (self.cfg.chmFront + self.cfg.rimWth)/rad

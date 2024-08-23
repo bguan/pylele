@@ -71,7 +71,7 @@ class LeleConfig:
         self.tnrCfg = tnrType
         
         # Length based configs
-        self.scaleLen = scaleLen
+        # self.scaleLen = scaleLen
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
         self.fretbdRiseAng = 1 + numStrs/10
         self.chmFront = scaleLen - self.fretbdLen - wallTck
@@ -107,7 +107,7 @@ class LeleConfig:
         self.endWth = endWth
         # self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
-            2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
+            2 * math.tan(radians(self.neckWideAng)) * scaleLen
         self.brdgStrGap = self.brdgWth / (numStrs-.5)
         self.neckLen = scaleLen * self.NECK_RATIO
         # self.dotRad = dotRad
@@ -232,7 +232,7 @@ class LeleConfig:
 
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2
-        self.guideX = self.scaleLen + .95*self.chmBack
+        self.guideX = scaleLen + .95*self.chmBack
         self.guideZ = -self.GUIDE_SET \
             + self.TOP_RATIO * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
