@@ -23,11 +23,11 @@ class LeleNeckAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Neck Assembly """
 
-        spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.cfg.joinCutTol)\
+        spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())\
             if self.cfg.numStrs > 1 else None
-        fbspCut = LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.cfg.joinCutTol) \
-            if self.cfg.sepFretbd or self.cfg.sepNeck or self.cfg.sepTop else None
-        fbCut = LeleFretboard(cli=self.cli, isCut=True).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepTop else None
+        fbspCut = LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) \
+            if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top else None
+        fbCut = LeleFretboard(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) if self.cli.separate_fretboard or self.cli.separate_top else None
         fretbd = LeleFretboardAssembly(cli=self.cli)
         
         #f0Cut = Frets(cfg, isCut=True) \

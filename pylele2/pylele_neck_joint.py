@@ -16,11 +16,11 @@ class LeleNeckJoint(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Neck Joint """
-        cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
+        cutAdj = (FIT_TOL + self.api.getJoinCutTol()) if self.isCut else 0
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
         jntWth = self.cfg.neckJntWth + 2*cutAdj
-        jntTck = self.cfg.neckJntTck + 2*FIT_TOL + 2*self.cfg.joinCutTol # to match cut grooves for spines
+        jntTck = self.cfg.neckJntTck + 2*FIT_TOL + 2*self.api.getJoinCutTol() # to match cut grooves for spines
         jnt = self.api.genBox(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, -jntTck/2)
 
         self.shape = jnt

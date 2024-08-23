@@ -56,16 +56,13 @@ class LeleTexts(LeleBase):
         backRat = self.cfg.CHM_BACK_RATIO
         dep = self.cfg.EMBOSS_DEP
 
-        if False:
-            tsf = self.cfg.txtSzFonts
-        else:
-            tsf = self.cli.texts_size_font
+        tsf = self.cli.texts_size_font
 
         txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
-        cutTol = self.cfg.joinCutTol
+        cutTol = self.api.getJoinCutTol()
 
         txtZ = -botRat * bodyWth/2 - midBotTck - 2
         allHt = sum([1.2*size for _, size, _ in tsf])

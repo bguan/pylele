@@ -28,7 +28,7 @@ class LeleHead(LeleBase):
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig
         path = self.cfg.headPath
-        joinTol = self.cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol()
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
             .scale(1, 1, botRat).mv(0, 0, joinTol -midTck)

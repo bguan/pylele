@@ -47,7 +47,7 @@ class LelePeg(LeleBase):
             bot = self.api.genRodZ(botCutTck, btnRad)\
                 .mv(0, 0, -botLen - botCutTck/2 + 2*cutAdj)
             botEnd = self.api.genBall(btnRad)\
-                .scale(1, 1, .5 if self.cfg.sepEnd else 1)\
+                .scale(1, 1, .5 if self.cli.separate_end else 1)\
                 .mv(0, 0, -botLen - botCutTck)
             bot = bot.join(botEnd)
         else:

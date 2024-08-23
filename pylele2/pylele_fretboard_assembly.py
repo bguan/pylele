@@ -66,7 +66,7 @@ class LeleFretboardAssembly(LeleBase):
         nut = LeleNut(cli=self.cli,isCut=nut_is_cut(self.cli))
         frets = LeleFrets(cli=self.cli)
         fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
-        topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.cfg.joinCutTol) if self.cfg.sepFretbd or self.cfg.sepNeck else None
+        topCut = LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.api.getJoinCutTol()) if self.cli.separate_fretboard or self.cli.separate_neck else None
 
         fbJoiners = []
         fbCutters = []
@@ -98,10 +98,10 @@ class LeleFretboardAssembly(LeleBase):
         elif nut_is_cut(self.cli):
             fbCutters.append(nut)
 
-        if self.cfg.sepFretbd or self.cfg.sepNeck:
+        if self.cli.separate_fretboard or self.cli.separate_neck:
             fbCutters.insert(0, topCut)
             # blender mesh based edges can't handle curves
-            if self.cfg.impl == Implementation.CAD_QUERY:
+            if self.cli.implementation == Implementation.CAD_QUERY:
                 fbFillets[FILLET_RAD] = [(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]
 
         fretbd = LeleFretboard(joiners=fbJoiners,
@@ -114,7 +114,7 @@ class LeleFretboardAssembly(LeleBase):
 
         # Can't use joiners for fretbd joint & spines, as fbCutters will remove them 
         # as joins happen before cuts
-        if self.cfg.sepFretbd or self.cfg.sepNeck:
+        if self.cli.separate_fretboard or self.cli.separate_neck:
             fretbd = fretbd \
             .join(LeleFretboardSpines(cli=self.cli)) \
             .join(LeleFretboardJoint(cli=self.cli))

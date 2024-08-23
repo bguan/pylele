@@ -19,7 +19,7 @@ class LeleTail(LeleBase):
         assert self.cli.separate_end
 
         cfg = self.cfg
-        joinTol = cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol() # cfg.joinCutTol
         cutAdj = (FIT_TOL + 2*joinTol) if self.isCut else 0
 
         # this assertion should be verified

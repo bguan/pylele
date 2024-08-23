@@ -16,8 +16,8 @@ class LeleWormKey(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Worm Key """
-        isBlender = self.cfg.impl == Implementation.BLENDER
-        joinTol = self.cfg.joinCutTol
+        isBlender = self.cli.implementation == Implementation.BLENDER
+        joinTol = self.api.getJoinCutTol()
         tailX = self.cfg.tailX
         txyzs = self.cfg.tnrXYZs
         assert isinstance(self.cfg.tnrCfg,WormConfig)

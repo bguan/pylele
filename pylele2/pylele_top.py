@@ -21,7 +21,7 @@ class LeleTop(LeleBase):
             self.api.setFidelity(Fidelity.LOW)
 
         fitTol = FIT_TOL
-        joinTol = self.cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol()
         cutAdj = (fitTol + joinTol) if self.isCut else 0
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.extMidTopTck + cutAdj

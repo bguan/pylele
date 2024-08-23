@@ -25,7 +25,7 @@ class LeleChamber(LeleBase):
         botRat = self.cfg.BOT_RATIO
         lift = self.cfg.chmLift
         rotY = self.cfg.chmRot
-        joinTol = self.cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol()
         rad = self.cfg.chmWth/2
         frontRat = self.cfg.chmFront/rad
         backRat = self.cfg.chmBack/rad

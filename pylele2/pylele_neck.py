@@ -22,7 +22,7 @@ class LeleNeck(LeleBase):
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         path = self.cfg.neckPath
-        joinTol = self.cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol()
         neck = None
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)

@@ -154,11 +154,11 @@ class LeleConfig:
     def __init__(
         self,
         scaleLen: float = LeleScaleEnum.SOPRANO,
-        sepTop: bool = False,
-        sepNeck: bool = False,
-        sepFretbd: bool = False,
-        sepBrdg: bool = False,
-        sepEnd: bool = False,
+        # sepTop: bool = False,
+        # sepNeck: bool = False,
+        # sepFretbd: bool = False,
+        # sepBrdg: bool = False,
+        # sepEnd: bool = False,
         wallTck: float = 4,
         chmLift: float = 1,
         chmRot: float = -.5,
@@ -168,18 +168,18 @@ class LeleConfig:
         action: float = 2,
         extMidTopTck: float = .5,
         tnrType: TunerType = TunerType.FRICTION.value,
-        half: bool = False,
+        # half: bool = False,
         # : ModelLabel = ModelLabel.SHORT,
-        dotRad: float = 1.5,
-        fret2Dots: dict[int, int] =
-            {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
-        fidelity: Fidelity = Fidelity.LOW,
-        impl: Implementation = Implementation.CAD_QUERY,
+        # dotRad: float = 1.5,
+        # fret2Dots: dict[int, int] =
+        #    {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
+        # fidelity: Fidelity = Fidelity.LOW,
+        # impl: Implementation = Implementation.CAD_QUERY,
     ):
         # Engine Implementation Config
-        self.impl = impl
-        self.fidelity = fidelity
-        self.joinCutTol = impl.joinCutTol()
+        # self.impl = impl
+        # self.fidelity = fidelity
+        # self.joinCutTol = impl.joinCutTol()
         self.tnrCfg = tnrType
         
         # Length based configs
@@ -209,12 +209,12 @@ class LeleConfig:
             tnrsWth = self.nutWth + 2*tnrX*math.tan(radians(self.neckWideAng))
             self.tnrGap = tnrsWth / numStrs
 
-        self.half = half
-        self.sepTop = sepTop
-        self.sepNeck = sepNeck
-        self.sepFretbd = sepFretbd
-        self.sepBrdg = sepBrdg
-        self.sepEnd = sepEnd
+        # self.half = half
+        # self.sepTop = sepTop
+        # self.sepNeck = sepNeck
+        # self.sepFretbd = sepFretbd
+        # self.sepBrdg = sepBrdg
+        # self.sepEnd = sepEnd
         # self.modelLbl = modelLbl
         self.isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
@@ -223,8 +223,8 @@ class LeleConfig:
             2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
         self.brdgStrGap = self.brdgWth / (numStrs-.5)
         self.neckLen = scaleLen * self.NECK_RATIO
-        self.dotRad = dotRad
-        self.fret2Dots = fret2Dots
+        # self.dotRad = dotRad
+        # self.fret2Dots = fret2Dots
         self.extMidTopTck = extMidTopTck
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 

@@ -18,7 +18,7 @@ class LeleStrings(LeleBase):
         """ Generate Strings """
 
         if self.isCut:
-            origFidel = self.cfg.fidelity
+            origFidel = self.cli.fidelity
             self.api.setFidelity(Fidelity.MEDIUM)
 
         cutAdj = FIT_TOL if self.isCut else 0

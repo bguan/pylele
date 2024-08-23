@@ -15,7 +15,7 @@ class LeleRim(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Rim """
-        joinTol = self.cfg.joinCutTol
+        joinTol = self.api.getJoinCutTol()
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
         scLen = self.cfg.scaleLen
         rad = self.cfg.chmWth/2 + self.cfg.rimWth

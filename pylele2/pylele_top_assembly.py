@@ -36,9 +36,8 @@ class LeleTopAssembly(LeleBase):
 
         # gen body top
         chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
-        fbJntCut = LeleFretboardJoint(cli=self.cli, isCut=True).mv(-self.cfg.joinCutTol, 0, -self.cfg.joinCutTol) \
+        fbJntCut = LeleFretboardJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, -self.api.getJoinCutTol()) \
             if self.cli.separate_fretboard or self.cli.separate_neck else None
-            # if cfg.sepFretbd or cfg.sepNeck else None
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
         topJoiners = []
         topCutters = [chmCut, tnrsCut, LeleSoundhole(cli=self.cli, isCut=True)]

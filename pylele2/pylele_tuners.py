@@ -19,7 +19,7 @@ class LeleTuners(LeleBase):
         """ Generate Tuners """
         
         if self.isCut:
-            origFidel = self.cfg.fidelity
+            origFidel = self.cli.fidelity
             self.api.setFidelity(Fidelity.MEDIUM)
 
         tXYZs = self.cfg.tnrXYZs
