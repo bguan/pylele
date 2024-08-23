@@ -197,8 +197,8 @@ class LeleConfig:
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
-        bodyLen = self.bodyFrontLen + bodyBackLen
-        self.fullLen = self.HEAD_LEN + scaleLen + bodyLen
+        # bodyLen = self.bodyFrontLen + bodyBackLen
+        # self.fullLen = self.HEAD_LEN + scaleLen + bodyLen
         self.bodyOrig = (self.neckLen, 0)
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = FIT_TOL if isCut else 0
