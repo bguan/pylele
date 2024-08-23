@@ -27,7 +27,7 @@ class LeleFretboard(LeleBase):
         fretbd = self.api.genPolyExtrusionZ(path, fbHt)
 
         if self.isCut:
-            fretbd = fretbd.mv(0, 0, -self.cfg.joinCutTol)
+            fretbd = fretbd.mv(0, 0, -self.api.getJoinCutTol())
         else:
             topCut = self.api.genBox(fbLen * 2, fbWth, fbHt)\
                 .rotateY(-riseAng)\
