@@ -26,8 +26,8 @@ def main_maker(module_name,class_name,args=None):
     class_ = getattr(module, class_name)
     solid = class_(args=args)
     solid.export_args() # includes export_configuration for LeleBase
-    solid.exportSTL()
-    return solid
+    out_fname = solid.exportSTL()
+    return solid, out_fname
 
 def test_iteration(module,component,test,api,args=None):
     """ Helper to generate a testcase launching the main function in a module """
@@ -275,7 +275,7 @@ class LeleSolid(ABC):
             f.write(repr(self.cli))
         assert os.path.isfile(out_fname)
         
-    def exportSTL(self, out_path=None) -> None:
+    def exportSTL(self, out_path=None) -> str:
         """ Generate .stl output file """
         if out_path is None:
             out_path = self._make_out_path()
@@ -294,6 +294,8 @@ class LeleSolid(ABC):
                     part.exportSTL(out_path=out_path)
                 else:
                     print(f'# WARNING: Cannot export .stl of class {part} in assembly {self}')
+
+        return out_fname
     
     def filletByNearestEdges(
         self,
