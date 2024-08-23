@@ -145,7 +145,7 @@ class LeleConfig:
             ]
         # self.fbOrig = (0, 0)
         self.fbPath = genFbPath()
-        self.fbCutOrig = (-FIT_TOL, 0)
+        # self.fbCutOrig = (-FIT_TOL, 0)
         self.fbCutPath = genFbPath(isCut=True)
         self.fbSpX = self.NUT_HT
         self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
