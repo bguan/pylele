@@ -17,7 +17,7 @@ class LeleTop(LeleBase):
         """ Generate Top """
 
         if self.isCut:
-            origFidel = self.cfg.fidelity
+            origFidel = self.cli.fidelity
             self.api.setFidelity(Fidelity.LOW)
 
         fitTol = FIT_TOL

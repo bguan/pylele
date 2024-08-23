@@ -13,7 +13,7 @@ from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
-from pylele2.pylele_chamber import LeleChamber
+from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_fretboard_joint import LeleFretboardJoint
 from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_soundhole import LeleSoundhole
@@ -67,7 +67,7 @@ class LeleTopAssembly(LeleBase):
 
         topFillets = { FILLET_RAD: [(self.cfg.sndholeX, self.cfg.sndholeY, self.cfg.fretbdHt)] }
         # if self.cfg.isWorm and self.cfg.impl == Implementation.CAD_QUERY:
-        if isinstance(self.cfg.tnrCfg,WormConfig) and self.cfg.impl == Implementation.CAD_QUERY:
+        if isinstance(self.cfg.tnrCfg,WormConfig) and self.cli.implementation == Implementation.CAD_QUERY:
             wcfg: WormConfig = self.cfg.tnrCfg
             topFillets[wcfg.slitWth] = [
                 (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
@@ -85,6 +85,7 @@ class LeleTopAssembly(LeleBase):
         pylele Command Line Interface
         """
         parser=pylele_fretboard_assembly_parser(parser=parser)
+        parser=pylele_chamber_parser(parser=parser)
         parser=pylele_worm_parser(parser=parser)
         return super().gen_parser( parser=parser )
     

@@ -22,7 +22,7 @@ from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_top_assembly import LeleTopAssembly
 from pylele2.pylele_neck_assembly import LeleNeckAssembly
 from pylele2.pylele_brace import LeleBrace
-from pylele2.pylele_chamber import LeleChamber
+from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_tuners import LeleTuners
 
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
@@ -34,7 +34,7 @@ class LeleBottomAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Body Bottom Assembly """
 
-        nkJntCut = LeleNeckJoint(cli=self.cli, isCut=True).mv(-self.cfg.joinCutTol, 0, self.cfg.joinCutTol) \
+        nkJntCut = LeleNeckJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol()) \
             if self.cli.separate_neck else None
         txtCut = LeleTexts(cli=self.cli, isCut=True)
         tailCut = LeleTail(cli=self.cli, isCut=True) if self.cli.separate_end else None # if cfg.sepEnd else None
@@ -97,6 +97,7 @@ class LeleBottomAssembly(LeleBase):
         pylele Command Line Interface
         """
         parser=pylele_fretboard_assembly_parser(parser=parser)
+        parser=pylele_chamber_parser(parser=parser)
         parser=pylele_texts_parser(parser=parser)
         parser=pylele_worm_parser(parser=parser)
         return super().gen_parser( parser=parser )

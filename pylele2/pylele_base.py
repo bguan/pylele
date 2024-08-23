@@ -39,10 +39,6 @@ def pylele_base_parser(parser = None):
 
     parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
                         type=float, default=4)
-    parser.add_argument("-l", "--chamber_lift", help="Chamber Lift [mm], default 1",
-                        type=float, default=1)
-    parser.add_argument("-r", "--chamber_rotate", help="Chamber Rotation/Pitch [deg], default -.5°",
-                        type=float, default=-.5)
 
     ## Non-Numeric config options #######################################
 
@@ -111,8 +107,8 @@ class LeleBase(LeleSolid):
             # sepEnd=self.cli.separate_end,
             endWth=self.cli.end_flat_width,
             wallTck=self.cli.wall_thickness,
-            chmLift=self.cli.chamber_lift,
-            chmRot=self.cli.chamber_rotate,
+            # chmLift=self.cli.chamber_lift,
+            # chmRot=self.cli.chamber_rotate,
             # fret2Dots=self.cli.dot_frets,
             # txtSzFonts=self.cli.texts_size_font,
             # modelLbl=self.cli.model_label,

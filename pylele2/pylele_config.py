@@ -160,8 +160,8 @@ class LeleConfig:
         # sepBrdg: bool = False,
         # sepEnd: bool = False,
         wallTck: float = 4,
-        chmLift: float = 1,
-        chmRot: float = -.5,
+        # chmLift: float = 1,
+        # chmRot: float = -.5,
         endWth: float = 0,
         numStrs: int = 4,
         nutStrGap: float = 9,
@@ -264,8 +264,8 @@ class LeleConfig:
         self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
 
         # Chamber Configs
-        self.chmLift = chmLift
-        self.chmRot = chmRot
+        # self.chmLift = chmLift
+        # self.chmRot = chmRot
         self.chmWth = self.brdgWth * 3
         self.rimWth = wallTck/2
 
