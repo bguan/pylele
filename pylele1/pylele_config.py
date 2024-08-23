@@ -99,8 +99,8 @@ class LeleConfig:
         self.wallTck = wallTck
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        self.bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
-        self.tailX = scaleLen + self.bodyBackLen
+        bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
+        self.tailX = scaleLen + bodyBackLen
         # self.isPeg = isinstance(self.tnrCfg, PegConfig)
         # self.isWorm = isinstance(self.tnrCfg, WormConfig)
         self.numStrs = numStrs
@@ -112,7 +112,7 @@ class LeleConfig:
             self.tnrGap = self.tnrCfg.minGap()
         else:
             self.tnrSetback = self.tnrCfg.tailAllow()/2 + 1
-            tnrX = scaleLen + self.bodyBackLen - self.tnrSetback
+            tnrX = scaleLen + bodyBackLen - self.tnrSetback
             tnrW = self.tnrCfg.minGap() * numStrs
             tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
             self.neckWideAng = max(self.MIN_NECK_WIDE_ANG, tnrNeckWideAng)
@@ -197,7 +197,7 @@ class LeleConfig:
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
-        self.bodyLen = self.bodyFrontLen + self.bodyBackLen
+        self.bodyLen = self.bodyFrontLen + bodyBackLen
         self.fullLen = self.HEAD_LEN + scaleLen + self.bodyLen
         self.bodyOrig = (self.neckLen, 0)
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
@@ -206,7 +206,7 @@ class LeleConfig:
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
             bFrLen = self.bodyFrontLen + cutAdj
-            bBkLen = self.bodyBackLen + cutAdj
+            bBkLen = bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             endFactor = math.sqrt(endWth/bWth)
             bodySpline = [
@@ -257,7 +257,7 @@ class LeleConfig:
         self.guideHt = 6 + numStrs/2
         self.guideX = self.scaleLen + .95*self.chmBack
         self.guideZ = -self.GUIDE_SET \
-            + self.TOP_RATIO * math.sqrt(self.bodyBackLen**2 - self.chmBack**2)
+            + self.TOP_RATIO * math.sqrt(bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
             + 2*math.tan(radians(self.neckWideAng))*self.guideX
         gGap = self.guideWth/numStrs
@@ -274,7 +274,7 @@ class LeleConfig:
 
         # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
-        tXMax = self.bodyBackLen - self.tnrSetback
+        tXMax = bodyBackLen - self.tnrSetback
         fatRat = .65 if endWth == 0 else .505 + (endWth/self.bodyWth)**1.05
         tYMax = fatRat*self.bodyWth - self.tnrSetback
         tX = tXMax
@@ -340,7 +340,7 @@ class LeleConfig:
             )
 
         strOddMidPath.append(
-            (scaleLen + self.bodyBackLen - self.tnrSetback, 0,
+            (scaleLen + bodyBackLen - self.tnrSetback, 0,
              tMidZ + self.tnrCfg.holeHt)
         )
 
