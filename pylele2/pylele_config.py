@@ -143,7 +143,7 @@ class LeleConfig:
                 (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
                 (-cutAdj, self.nutWth/2 + cutAdj),
             ]
-        self.fbOrig = (0, 0)
+        # self.fbOrig = (0, 0)
         self.fbPath = genFbPath()
         self.fbCutOrig = (-FIT_TOL, 0)
         self.fbCutPath = genFbPath(isCut=True)
