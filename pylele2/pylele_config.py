@@ -81,7 +81,7 @@ class LeleConfig:
         # self.tnrCfg.is_peg() = isinstance(self.tnrCfg, PegConfig)
         # self.isWorm = isinstance(self.tnrCfg, WormConfig)
         self.numStrs = numStrs
-        self.nutStrGap = nutStrGap
+        #self.nutStrGap = nutStrGap
         self.nutWth = max(2,numStrs) * nutStrGap
         if self.tnrCfg.is_peg():
             self.tnrSetback = self.tnrCfg.tailAllow()/2 - 2

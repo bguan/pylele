@@ -48,7 +48,7 @@ class LeleFretboardDots(LeleBase):
         dep = self.cfg.EMBOSS_DEP
         wideAng = self.cfg.neckWideAng
         riseAng = self.cfg.fretbdRiseAng
-        nutSGap = self.cfg.nutStrGap
+        nutSGap = self.cli.nut_string_gap
         # dotRad = self.cfg.dotRad
         # fret2Dots = self.cfg.fret2Dots
         dotRad = self.cli.dots_radius
