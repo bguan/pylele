@@ -107,12 +107,12 @@ class LeleConfig:
         self.nutStrGap = nutStrGap
         self.nutWth = max(2,numStrs) * nutStrGap
         if self.tnrCfg.is_peg():
-            self.tnrSetback = self.tnrCfg.tailAllow()/2 - 2
+            tnrSetback = self.tnrCfg.tailAllow()/2 - 2
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
             self.tnrGap = self.tnrCfg.minGap()
         else:
-            self.tnrSetback = self.tnrCfg.tailAllow()/2 + 1
-            tnrX = scaleLen + bodyBackLen - self.tnrSetback
+            tnrSetback = self.tnrCfg.tailAllow()/2 + 1
+            tnrX = scaleLen + bodyBackLen - tnrSetback
             tnrW = self.tnrCfg.minGap() * numStrs
             tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
             self.neckWideAng = max(self.MIN_NECK_WIDE_ANG, tnrNeckWideAng)
@@ -274,9 +274,9 @@ class LeleConfig:
 
         # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
-        tXMax = bodyBackLen - self.tnrSetback
+        tXMax = bodyBackLen - tnrSetback
         fatRat = .65 if endWth == 0 else .505 + (endWth/self.bodyWth)**1.05
-        tYMax = fatRat*self.bodyWth - self.tnrSetback
+        tYMax = fatRat*self.bodyWth - tnrSetback
         tX = tXMax
         tY = 0
         wCfg: WormConfig = None if self.tnrCfg.is_peg() else self.tnrCfg
@@ -340,7 +340,7 @@ class LeleConfig:
             )
 
         strOddMidPath.append(
-            (scaleLen + bodyBackLen - self.tnrSetback, 0,
+            (scaleLen + bodyBackLen - tnrSetback, 0,
              tMidZ + self.tnrCfg.holeHt)
         )
 
