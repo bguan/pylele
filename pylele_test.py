@@ -73,6 +73,10 @@ class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
 
     ## API
+    def test_mock_api(self):
+        """ Test Mock API """
+        test_api(module_name='api.mock_api',class_name='MockShapeAPI')
+    
     def test_cadquery_api(self):
         """ Test Cadquery API """
         test_api(module_name='api.cq_api',class_name='CQShapeAPI')
