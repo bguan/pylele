@@ -17,7 +17,7 @@ class LeleFretboardJoint(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Joint """
 
-        cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
+        cutAdj = (FIT_TOL + self.api.getJoinCutTol()) if self.isCut else 0
         fbHt = self.cfg.fretbdHt
         nkLen = self.cfg.neckLen
         jntLen = self.cfg.neckJntLen + 2*cutAdj
