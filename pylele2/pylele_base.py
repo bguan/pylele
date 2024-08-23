@@ -131,11 +131,15 @@ class LeleBase(LeleSolid):
             return False
         return isinstance(self.cfg,LeleConfig)
 
+    def configure_if_hasnt(self):
+        """ Geneate Pylele Configuration if not available """
+        if not self.has_configuration():
+            self.configure()
+
     def export_configuration(self):
         """ Export Pylele Configuration """
 
-        if not self.has_configuration():
-            self.configure()
+        self.configure_if_hasnt()
 
         out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cfg.txt')
         with open(out_fname, 'w', encoding='UTF8') as f:
@@ -150,12 +154,10 @@ class LeleBase(LeleSolid):
     
     def exportSTL(self,out_path=None) -> None:
         """ Generate .stl output file """
-        if not self.has_configuration():
-            self.configure()
+        self.configure_if_hasnt()
         return super().exportSTL(out_path=out_path)
 
     def gen_full(self):
         """ Generate full shape including joiners, cutters and fillets """
-        if not self.has_configuration():
-            self.configure()
+        self.configure_if_hasnt()
         return super().gen_full()
