@@ -224,7 +224,7 @@ class LeleConfig:
                 bodyPath.insert(3,(scaleLen + bBkLen, 0))
             return bodyPath
         self.bodyPath = genBodyPath()
-        self.bodyCutOrig = (self.neckLen - FIT_TOL, 0)
+        # self.bodyCutOrig = (self.neckLen - FIT_TOL, 0)
         self.bodyCutPath = genBodyPath(isCut=True)
 
         # Soundhole Config
