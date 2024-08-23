@@ -18,11 +18,11 @@ class LeleFretboardSpines(LeleBase):
         """ Generate Fretboard Spines """
 
         cutAdj = FIT_TOL if self.isCut else 0
-        fspTck = self.cfg.FRETBD_SPINE_TCK + 2*(self.cfg.joinCutTol if self.isCut else 0)
+        fspTck = self.cfg.FRETBD_SPINE_TCK + 2*(self.api.getJoinCutTol() if self.isCut else 0)
         spY1 = self.cfg.spineY1
         spY2 = self.cfg.spineY2
         spWth = self.cfg.SPINE_WTH + 2*cutAdj # to align with spine cuts
-        fspLen = self.cfg.fbSpineLen + 2*cutAdj + 2*(self.cfg.joinCutTol if self.isCut else 0)
+        fspLen = self.cfg.fbSpineLen + 2*cutAdj + 2*(self.api.getJoinCutTol() if self.isCut else 0)
         fspX = self.cfg.fbSpX
 
         fsp1 = self.api.genBox(fspLen, spWth, fspTck)\
