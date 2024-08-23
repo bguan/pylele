@@ -23,12 +23,12 @@ class LeleTuners(LeleBase):
             self.api.setFidelity(Fidelity.MEDIUM)
 
         tXYZs = self.cfg.tnrXYZs
-        isPeg = isinstance(self.cfg.tnrCfg, PegConfig)
-        isWorm = isinstance(self.cfg.tnrCfg, WormConfig)
+        # isPeg = self.cfg.tnrCfg.is_peg()
+        # isWorm = self.cfg.tnrCfg.is_worm()
         tnrs = None
         for txyz in tXYZs:
-            tnr = LelePeg(isCut=self.isCut, cli=self.cli) if isPeg \
-                else LeleWorm(isCut=self.isCut, cli=self.cli) if isWorm \
+            tnr = LelePeg(isCut=self.isCut, cli=self.cli) if self.cfg.tnrCfg.is_peg() \
+                else LeleWorm(isCut=self.isCut, cli=self.cli) if self.cfg.tnrCfg.is_worm() \
                 else None
             if not tnr is None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape

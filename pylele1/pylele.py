@@ -75,7 +75,7 @@ def cqeditor_main():
         sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
-    key = None if not cfg.isWorm else WormKey(cfg, isCut=False)
+    key = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=False)
     sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
     parts.extend([strs, tnrs])

@@ -39,7 +39,7 @@ class LeleBottomAssembly(LeleBase):
         txtCut = LeleTexts(cli=self.cli, isCut=True)
         tailCut = LeleTail(cli=self.cli, isCut=True) if self.cli.separate_end else None # if cfg.sepEnd else None
         rimCut = LeleRim(cli=self.cli, isCut=True) if self.cli.separate_top else None # if cfg.sepTop else None
-        wormKeyCut = LeleWormKey(cli=self.cli, isCut=True) if self.cfg.isWorm else None
+        wormKeyCut = LeleWormKey(cli=self.cli, isCut=True) if self.cfg.tnrCfg.is_worm() else None
 
         chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
         spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())\
@@ -83,7 +83,7 @@ class LeleBottomAssembly(LeleBase):
             bodyCutters.append(wormKeyCut)
             self.add_part(tailCut.cut(tnrsCut).cut(wormKeyCut))
         else:
-            if self.cfg.isWorm:
+            if self.cfg.tnrCfg.is_worm():
                 bodyCutters.append(wormKeyCut)
 
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)

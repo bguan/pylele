@@ -66,7 +66,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     brdg = Bridge(cfg, cutters=[strCuts])
 
     # gen guide if using tuning pegs rather than worm drive
-    guide = Guide(cfg) if cfg.isPeg else None
+    guide = Guide(cfg) if cfg.tnrCfg.is_peg() else None
 
     # gen body top
     chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
@@ -97,7 +97,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
             topJoiners.append(guide)
 
     topFillets = { FILLET_RAD: [(cfg.sndholeX, cfg.sndholeY, cfg.fretbdHt)] }
-    if cfg.isWorm and cfg.impl == Implementation.CAD_QUERY:
+    if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
         wcfg: WormConfig = cfg.tnrCfg
         topFillets[wcfg.slitWth] = [
             (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
@@ -112,7 +112,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     txtCut = Texts(cfg, isCut=True)
     tailCut = TailEnd(cfg, isCut=True) if cfg.sepEnd else None
     rimCut = Rim(cfg, isCut=True) if cfg.sepTop else None
-    wormKeyCut = WormKey(cfg, isCut=True) if cfg.isWorm else None
+    wormKeyCut = WormKey(cfg, isCut=True) if cfg.tnrCfg.is_worm() else None
 
     bodyJoiners = []
     bodyCutters = [txtCut, chmCut]
@@ -137,7 +137,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         bodyCutters.append(tailCut)
     else:
         bodyCutters.append(tnrsCut)
-        if cfg.isWorm:
+        if cfg.tnrCfg.is_worm():
             bodyCutters.append(wormKeyCut)
 
     body = Body(cfg, False, bodyJoiners, bodyCutters, {})
@@ -162,12 +162,12 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         tailCutters = [tnrsCut, chmCut, spCut]
         if cfg.sepTop:
             tailCutters.append(rimCut) 
-        if cfg.isWorm:
+        if cfg.tnrCfg.is_worm():
             tailCutters.append(wormKeyCut)
         tail = TailEnd(cfg, isCut=False, joiners=[], cutters=tailCutters)
         parts.append(tail)
 
-    if cfg.isWorm:
+    if cfg.tnrCfg.is_worm():
         parts.append(WormKey(cfg, isCut=False))
 
     return parts
@@ -206,14 +206,14 @@ def test(cfg: LeleConfig):
     fbJntCut = FretbdJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, -cfg.joinCutTol)
     shCut = Soundhole(cfg, isCut=True)
     topFillets = {}
-    if cfg.isWorm and cfg.impl == Implementation.CAD_QUERY:
+    if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
         wcfg: WormConfig = cfg.tnrCfg
         topFillets[wcfg.slitWth] = [ 
             (wx - wcfg.slitLen/2, wy, cfg.brdgZ) for wx, wy, _ in cfg.tnrXYZs 
         ]
 
     topJoins = [brdg, rim]
-    if cfg.isPeg:
+    if cfg.tnrCfg.is_peg():
         topJoins.append(Guide(cfg, False))
     top = Top(cfg, 
         joiners=topJoins,
@@ -228,7 +228,7 @@ def test(cfg: LeleConfig):
 
     nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
     bodyCuts = [topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, txtCut]
-    if cfg.isWorm:
+    if cfg.tnrCfg.is_worm():
         wkCut = WormKey(cfg, isCut=True)
         bodyCuts.append(wkCut)
         wkey = WormKey(cfg, isCut=False)

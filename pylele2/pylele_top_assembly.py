@@ -32,7 +32,7 @@ class LeleTopAssembly(LeleBase):
         brdg = LeleBridge(cli=self.cli)
 
         # gen guide if using tuning pegs rather than worm drive
-        guide = LeleGuide(cli=self.cli) if self.cfg.isPeg else None
+        guide = LeleGuide(cli=self.cli) if self.cfg.tnrCfg.is_peg() else None
 
         # gen body top
         chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])

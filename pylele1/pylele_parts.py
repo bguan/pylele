@@ -803,12 +803,12 @@ class Tuners(LelePart):
             self.api.setFidelity(Fidelity.MEDIUM)
 
         tXYZs = self.cfg.tnrXYZs
-        isPeg = isinstance(self.cfg.tnrCfg, PegConfig)
-        isWorm = isinstance(self.cfg.tnrCfg, WormConfig)
+        # isPeg = self.cfg.tnrCfg.is_peg()
+        # isWorm = self.cfg.tnrCfg.is_worm()
         tnrs = None
         for txyz in tXYZs:
-            tnr = Peg(self.cfg, isCut=self.isCut) if isPeg \
-                else Worm(self.cfg, isCut=self.isCut) if isWorm \
+            tnr = Peg(self.cfg, isCut=self.isCut) if self.cfg.tnrCfg.is_peg() \
+                else Worm(self.cfg, isCut=self.isCut) if self.cfg.tnrCfg.is_worm() \
                 else None
             if tnr != None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
