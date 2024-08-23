@@ -173,8 +173,8 @@ class LeleConfig:
 
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
-        self.bodyFrontLen = scaleLen - self.neckLen
-        self.bodyLen = self.bodyFrontLen + bodyBackLen
+        bodyFrontLen = scaleLen - self.neckLen
+        self.bodyLen = bodyFrontLen + bodyBackLen
         self.fullLen = self.HEAD_LEN + scaleLen + self.bodyLen
         self.bodyOrig = (self.neckLen, 0)
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
@@ -182,7 +182,7 @@ class LeleConfig:
             nkLen = self.neckLen
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
-            bFrLen = self.bodyFrontLen + cutAdj
+            bFrLen = bodyFrontLen + cutAdj
             bBkLen = bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             endFactor = math.sqrt(endWth/bWth)
@@ -210,7 +210,7 @@ class LeleConfig:
         self.sndholeMaxRad = self.chmFront/3
         self.sndholeMinRad = self.sndholeMaxRad/4
         self.sndholeAng = degrees(
-            math.atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
+            math.atan(2 * bodyFrontLen/(self.chmWth - self.neckWth))
         )
 
         # Bridge configs
