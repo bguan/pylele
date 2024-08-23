@@ -28,7 +28,7 @@ class LeleTail(LeleBase):
         tailX = cfg.tailX
         chmBackX = self.cli.scale_len + cfg.chmBack
         tailLen = tailX - chmBackX + 2*cutAdj
-        endWth = cfg.endWth + 2*cutAdj
+        endWth = cli.end_flat_width + 2*cutAdj
         botRat = cfg.BOT_RATIO
         midBotTck = cfg.extMidBotTck + 2*cutAdj
         rimWth = cfg.rimWth+ 2*cutAdj
