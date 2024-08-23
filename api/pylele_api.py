@@ -17,8 +17,8 @@ class LeleStrEnum(str,Enum):
 
 class Fidelity(LeleStrEnum):
     LOW = 'low'
-    MEDIUM = 'medium' 
-    HIGH = 'high' 
+    MEDIUM = 'medium'
+    HIGH = 'high'
 
     def exportTol(self) -> float:
         match self:
@@ -32,7 +32,7 @@ class Fidelity(LeleStrEnum):
     def smoothingSegments(self) -> float:
         match self:
             case Fidelity.LOW:
-                return 7 
+                return 7
             case Fidelity.MEDIUM:
                 return 14
             case Fidelity.HIGH:
@@ -48,12 +48,17 @@ class Fidelity(LeleStrEnum):
                 return "H"
 
 class Implementation(LeleStrEnum):
+    """ Pylele API implementations """
+    MOCK = 'mock'
     CAD_QUERY = 'cadquery'
-    BLENDER = 'blender' 
+    BLENDER = 'blender'
     TRIMESH = 'trimesh'
    
     def code(self) -> str:
-        match self: 
+        """ Return Code that identifies Implementation """
+        match self:
+            case Implementation.MOCK:
+                return 'M'
             case Implementation.CAD_QUERY:
                 return 'C'
             case Implementation.BLENDER:
@@ -61,8 +66,8 @@ class Implementation(LeleStrEnum):
             case Implementation.TRIMESH:
                 return 'T'
 
-    # for joins to have a little overlap
     def joinCutTol(self) -> float:
+        # Tolerance for joins to have a little overlap
         return 0 if self == Implementation.CAD_QUERY else 0.01
 
 class Shape(ABC):
@@ -120,6 +125,7 @@ class Shape(ABC):
         
 class ShapeAPI(ABC):
 
+    _mock_api: ShapeAPI = None
     _cq_api: ShapeAPI = None
     _blender_api: ShapeAPI = None
     _trimesh_api: ShapeAPI = None
@@ -127,6 +133,13 @@ class ShapeAPI(ABC):
     @classmethod
     def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
         match impl:
+            case Implementation.MOCK:
+                if cls._mock_api == None:
+                    mock_mod_name = 'api.mock_api'
+                    mock_mod = importlib.import_module(mock_mod_name)
+                    cls._mock_api = mock_mod.MockShapeAPI(fidelity)
+                return cls._mock_api
+
             case Implementation.CAD_QUERY:
                 if cls._cq_api == None:
                     cq_mod_name = 'api.cq_api'

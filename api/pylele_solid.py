@@ -46,7 +46,7 @@ def test_iteration(module,component,test,api,args=None):
     mod.main(args=args)
     pass
 
-def test_loop(module,apis=['cadquery','blender'],tests=None): # ,component):
+def test_loop(module,apis=['mock','cadquery','blender'],tests=None): # ,component):
     """ loop over a list of tests """
 
     # generate a default testcase if not specified
