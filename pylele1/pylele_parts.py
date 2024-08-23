@@ -259,7 +259,8 @@ class FretboardSpines(LelePart):
         spY2 = self.cfg.spineY2
         spWth = self.cfg.SPINE_WTH + 2*cutAdj # to align with spine cuts
         fspLen = self.cfg.fbSpineLen + 2*cutAdj + 2*(self.cfg.joinCutTol if self.isCut else 0)
-        fspX = self.cfg.fbSpX
+        # fspX = self.cfg.fbSpX
+        fspX = self.cfg.NUT_HT
 
         fsp1 = self.api.genBox(fspLen, spWth, fspTck)\
             .mv(fspX + fspLen/2 - 2*cutAdj, spY1, -fspTck/2)
