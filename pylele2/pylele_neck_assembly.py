@@ -24,7 +24,7 @@ class LeleNeckAssembly(LeleBase):
         """ Generate Neck Assembly """
 
         spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())\
-            if self.cfg.numStrs > 1 else None
+            if self.cli.num_strings > 1 else None
         fbspCut = LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) \
             if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top else None
         fbCut = LeleFretboard(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) if self.cli.separate_fretboard or self.cli.separate_top else None

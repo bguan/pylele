@@ -18,7 +18,7 @@ class LeleGuide(LeleBase):
         """ Generate Guide """
         fitTol = FIT_TOL
         cutAdj = fitTol if self.isCut else 0
-        nStrs = self.cfg.numStrs
+        nStrs = self.cli.num_strings
         sR = self.cfg.STR_RAD
         gdR = self.cfg.GUIDE_RAD + cutAdj
         gdX = self.cfg.guideX

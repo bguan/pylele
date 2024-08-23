@@ -74,7 +74,6 @@ class LeleConfig:
         self.scaleLen = scaleLen
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
         self.fretbdRiseAng = 1 + numStrs/10
-        self.wallTck = wallTck
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         self.bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
@@ -104,7 +103,7 @@ class LeleConfig:
         # self.sepBrdg = sepBrdg
         # self.sepEnd = sepEnd
         # self.modelLbl = modelLbl
-        self.isOddStrs = numStrs % 2 == 1
+        isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
         self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
@@ -126,7 +125,7 @@ class LeleConfig:
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
-        self.neckJntWth = (1 if self.isOddStrs else 2)*nutStrGap + self.SPINE_WTH
+        self.neckJntWth = (1 if isOddStrs else 2)*nutStrGap + self.SPINE_WTH
         neckDX = 1
         neckDY = neckDX * math.tan(radians(self.neckWideAng))
 
@@ -227,7 +226,7 @@ class LeleConfig:
         # Spine configs
         self.spineX = -self.HEAD_LEN
         self.spineLen = self.HEAD_LEN + scaleLen + self.chmBack + self.rimWth
-        self.spineGap = 0 if numStrs == 2 else (1 if self.isOddStrs else 2)*nutStrGap
+        self.spineGap = 0 if numStrs == 2 else (1 if isOddStrs else 2)*nutStrGap
         self.spineY1 = -self.spineGap/2
         self.spineY2 = self.spineGap/2
 
@@ -243,9 +242,9 @@ class LeleConfig:
         gGapAdj = self.GUIDE_RAD
 
         # start calc from middle out
-        gY = gGapAdj if self.isOddStrs else gGap/2 + gGapAdj
+        gY = gGapAdj if isOddStrs else gGap/2 + gGapAdj
         self.guideYs = [gGapAdj +2*self.STR_RAD, -gGapAdj -2*self.STR_RAD] \
-            if self.isOddStrs else [gY + self.STR_RAD, -gY - self.STR_RAD]
+            if isOddStrs else [gY + self.STR_RAD, -gY - self.STR_RAD]
         for _ in range((numStrs-1)//2):
             gY += gGap
             self.guideYs.extend([gY + gGapAdj, -gY -gGapAdj])
@@ -269,10 +268,10 @@ class LeleConfig:
         tZ = tMidZ
         tDist = self.tnrGap
         # start calc from middle out
-        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.isOddStrs else []
+        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if isOddStrs else []
         for p in range(numStrs//2):
             if tY + tDist < endWth/2:
-                tY += tDist if self.isOddStrs or p > 0 else tDist/2
+                tY += tDist if isOddStrs or p > 0 else tDist/2
                 # tX remain same
                 tZ = tZBase + tzAdj(tY)
             else:
@@ -295,7 +294,7 @@ class LeleConfig:
                 y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
                 x' = b sqrt(1 - y'²/a²)
                 """
-                tY = tY + (tDist if self.isOddStrs or p > 0 else tDist/2) \
+                tY = tY + (tDist if isOddStrs or p > 0 else tDist/2) \
                     / math.sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
                 tX = tXMax * math.sqrt(1 - tY**2/tYMax**2)
                 tZ = tZBase
@@ -338,7 +337,7 @@ class LeleConfig:
             strEvenMidPathL.append((pt[0], -strY, strZ))
 
         # add initial middle string if odd else middle string pairs
-        self.stringPaths = [strOddMidPath] if self.isOddStrs \
+        self.stringPaths = [strOddMidPath] if isOddStrs \
             else [strEvenMidPathR, strEvenMidPathL]
 
         # add strings from middle out
@@ -350,17 +349,17 @@ class LeleConfig:
             for pt in strLastPath:
                 if pt == strLastPath[-1]:
                     strPegXYZ = self.tnrXYZs[
-                        2*si + (1 if self.isOddStrs else 2)
+                        2*si + (1 if isOddStrs else 2)
                     ]
                     strX = strPegXYZ[0]
                     strY = strPegXYZ[1]
                     strZ = strPegXYZ[2] + self.tnrCfg.holeHt
                 else:
-                    strBrdgDY = (strCnt + (0 if self.isOddStrs else .5))\
+                    strBrdgDY = (strCnt + (0 if isOddStrs else .5))\
                         * (self.brdgStrGap - nutStrGap)
                     strEvenAng = math.atan(strBrdgDY/scaleLen)
                     strX = pt[0]
-                    strY = nutStrGap*(strCnt + (0 if self.isOddStrs else .5))\
+                    strY = nutStrGap*(strCnt + (0 if isOddStrs else .5))\
                         + strX*math.tan(strEvenAng)
                     strZ = pt[2]
                 strPathR.append((strX, strY, strZ))
