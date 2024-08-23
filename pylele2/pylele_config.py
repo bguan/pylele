@@ -105,7 +105,7 @@ class LeleConfig:
         # self.modelLbl = modelLbl
         isOddStrs = numStrs % 2 == 1
         self.endWth = endWth
-        self.action = action
+        # self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
         self.brdgStrGap = self.brdgWth / (numStrs-.5)
