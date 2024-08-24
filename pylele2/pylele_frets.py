@@ -103,12 +103,16 @@ def main(args = None):
                     class_name='LeleFrets',
                     args=args)
 
-def test_frets():
+def test_frets(self,apis=None):
     """ Test Frets """
     tests = {
         'wire' : ['-ft','wire']
     }
-    test_loop(module=__name__)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_frets_mock(self):
+    """ Test Frets """
+    test_frets(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()

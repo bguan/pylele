@@ -114,7 +114,7 @@ def main(args = None):
                     class_name='LeleBridge',
                     args=args)
 
-def test_bridge():
+def test_bridge(self,apis=None):
     """ Test Bridge """
     tests = {
         'cut'     : ['-C'],
@@ -123,7 +123,11 @@ def test_bridge():
         'override_height' : ['-boh','3'],
         'override_string_radius' : ['-bosr','1.5'],
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_bridge_mock(self):
+    """ Test Bridge """
+    test_bridge(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

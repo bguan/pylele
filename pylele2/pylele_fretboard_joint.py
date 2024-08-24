@@ -33,9 +33,13 @@ def main(args=None):
                     class_name='LeleFretboardJoint',
                     args=args)
 
-def test_fretboard_joint():
+def test_fretboard_joint(self,apis=None):
     """ Test Fretoard Joint """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
+
+def test_fretboard_joint_mock(self):
+    """ Test Fretoard Joint """
+    test_fretboard_joint(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

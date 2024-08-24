@@ -40,9 +40,13 @@ def main(args = None):
                     class_name='LeleFretboardSpines',
                     args=args)
 
-def test_fretboard_spines():
+def test_fretboard_spines(self,apis=None):
     """ Test Fretoard Spines """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
+
+def test_fretboard_spines_mock(self):
+    """ Test Fretoard Spines """
+    test_fretboard_spines(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

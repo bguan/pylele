@@ -50,7 +50,7 @@ def main(args = None):
                     class_name='LeleTuners',
                     args=args)
 
-def test_tuners():
+def test_tuners(self,apis=None):
     """ Test Tuners """
     tests = {
         'cut'     : ['-C'],
@@ -59,7 +59,11 @@ def test_tuners():
         'big_worm': ['-t','bigWorm'],
         'tail_end': ['-t','worm','-e','60','-E','-wah','-C']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_tuners_mock(self):
+    """ Test Tuners """
+    test_tuners(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

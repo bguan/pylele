@@ -47,12 +47,17 @@ def main(args=None):
                     class_name='LeleTop',
                     args=args)
 
-def test_top():
+tests = {
+    'cut'     : ['-C']
+}
+
+def test_top(self):
     """ Test Top """
-    tests = {
-        'cut'     : ['-C']
-    }
     test_loop(module=__name__,tests=tests)
+
+def test_top_mock(self):
+    """ Test Top """
+    test_loop(module=__name__,tests=tests,apis=['mock'])
 
 if __name__ == '__main__':
     main()

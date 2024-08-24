@@ -70,15 +70,18 @@ def main(args = None):
                     class_name='LelePeg',
                     args=args)
 
-def test_peg():
+def test_peg(self,apis=None):
     """ Test Peg """
 
-    component = 'peg'
     tests = {
         'cut'     : ['-C'],
         'gotoh'   : ['-t','gotoh'],
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
     
+def test_peg_mock(self):
+    """ Test Peg """
+    test_peg(self,apis=['mock'])
+
 if __name__ == '__main__':
     main()

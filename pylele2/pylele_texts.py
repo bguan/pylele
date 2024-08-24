@@ -93,9 +93,13 @@ def main(args = None):
                     class_name='LeleTexts',
                     args=args)
 
-def test_texts():
+def test_texts(self,apis=None):
     """ Test texts """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
     
+def test_texts_mock(self):
+    """ Test texts """
+    test_texts(self,apis=['mock'])
+
 if __name__ == '__main__':
     main()

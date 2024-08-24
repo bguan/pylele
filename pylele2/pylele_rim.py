@@ -35,13 +35,17 @@ def main(args=None):
                     class_name='LeleRim',
                     args=args)
 
-def test_rim():
+def test_rim(self,apis=None):
     """ Test Rim """
 
     tests = {
         'cut'     : ['-C']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_rim_mock(self):
+    """ Test Rim """
+    test_rim(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

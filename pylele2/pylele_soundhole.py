@@ -35,9 +35,13 @@ def main(args=None):
                     class_name='LeleSoundhole',
                     args=args)
 
-def test_soundhole():
+def test_soundhole(self,apis=None):
     """ Test Soundhole """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
+
+def test_soundhole_mock(self):
+    """ Test Soundhole """
+    test_soundhole(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

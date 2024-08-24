@@ -59,9 +59,13 @@ def main(args = None):
                     class_name='LeleHead',
                     args=args)
 
-def test_head():
+def test_head(self,apis=None):
     """ Test Head """
-    test_loop(module=__name__)
+    test_loop(module=__name__, apis=apis)
+
+def test_head_mock(self):
+    """ Test Head """
+    test_head(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

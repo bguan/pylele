@@ -61,14 +61,18 @@ def main(args=None):
                     class_name='LeleTail',
                     args=args)
 
-def test_tail():
+def test_tail(self,apis=None):
     """ Test Tail """
 
     tests = {
         'cut'          : ['-E','-e','10','-C'],
         'separate_tail': ['-E','-e','4.3'],
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_tail_mock(self):
+    """ Test Tail """
+    test_tail(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

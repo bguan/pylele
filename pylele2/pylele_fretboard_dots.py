@@ -92,13 +92,18 @@ def main(args = None):
                     class_name='LeleFretboardDots',
                     args=args)
 
-def test_fretboard_dots():
+tests = {
+    'dots_position': ['-d', '1,2,3:2,4,5'],
+    'dots_radius': ['-fdr', '3'],
+}
+
+def test_fretboard_dots(self,apis=None):
     """ Test Fretoard dots """
-    tests = {
-        'dots_position': ['-d', '1,2,3:2,4,5'],
-        'dots_radius': ['-fdr', '3'],
-    }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_fretboard_dots_mock(self):
+    """ Test Fretoard dots """
+    test_fretboard_dots(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()

@@ -110,32 +110,41 @@ def main(args=None):
                       class_name='LeleBottomAssembly',
                       args=args)
 
-def test_bottom_assembly():
-    """ Test Bottom Assembly """
 
-    tests = {
-        'separate_bridge'    : ['-B'],
-        'separate_top'       : ['-T'],
-        'separate_neck'      : ['-N'],
-        'separate_fretboard' : ['-F'],
-        'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
-        'gotoh_tuners'       : ['-t','gotoh'],
-        'worm_tuners'        : ['-t','worm'],
-        'big_worm_tuners'    : ['-t','bigWorm'],
-        'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
-    }
-    test_loop(module=__name__,
-              apis=['cadquery','blender'],
-              tests=tests
-              )
+TESTS = {
+    'separate_bridge'    : ['-B'],
+    'separate_top'       : ['-T'],
+    'separate_neck'      : ['-N'],
+    'separate_fretboard' : ['-F'],
+    'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
+    'gotoh_tuners'       : ['-t','gotoh'],
+    'worm_tuners'        : ['-t','worm'],
+    'big_worm_tuners'    : ['-t','bigWorm'],
+    'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
+}
 
-    # flat body only works with cadquery at the moment
-    tests = {
+TESTS_CQ = {
         'flat_body'          : ['-t','worm','-e','60','-E','-wah', '-bt', 'flat']
     }
+
+def test_bottom_assembly(self):
+    """ Test Bottom Assembly """
+    test_loop(module=__name__,
+              apis=['cadquery','blender'],
+              tests=TESTS
+              )
+
+    # flat body only works with cadquery at the moment    
     test_loop(module=__name__,
               apis=['cadquery'],
-              tests=tests
+              tests=TESTS_CQ
+              )
+
+def test_bottom_assembly_mock(self):
+    """ Test Bottom Assembly """
+    test_loop(module=__name__,
+              apis=['mock'],
+              tests=TESTS | TESTS_CQ
               )
 
 if __name__ == '__main__':

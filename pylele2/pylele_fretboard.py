@@ -44,13 +44,16 @@ def main(args = None):
                     class_name='LeleFretboard',
                     args=args)
 
-def test_fretboard():
+def test_fretboard(self,apis=None):
     """ Test Fretboard """
-
     tests = {
         'cut'     : ['-C']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_fretboard_mock(self):
+    """ Test Fretboard """
+    test_fretboard(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

@@ -15,7 +15,6 @@ import datetime
 import importlib
 from pathlib import Path
 from abc import ABC, abstractmethod
-from enum import Enum
                 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
@@ -46,7 +45,7 @@ def test_iteration(module,component,test,api,args=None):
     mod.main(args=args)
     pass
 
-def test_loop(module,apis=['mock','cadquery','blender'],tests=None): # ,component):
+def test_loop(module,apis=None,tests=None): # ,component):
     """ loop over a list of tests """
 
     # generate a default testcase if not specified
@@ -54,6 +53,9 @@ def test_loop(module,apis=['mock','cadquery','blender'],tests=None): # ,componen
         tests = {
             'default' : [],
         }
+
+    if apis is None:
+        apis = ['cadquery','blender']
 
     for test,args in tests.items():
         for api in apis:

@@ -40,9 +40,13 @@ def main(args = None):
                     class_name='LeleNeck',
                     args=args)
 
-def test_neck():
+def test_neck(self,apis=None):
     """ Test Neck """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
+
+def test_neck_mock(self):
+    """ Test Neck """
+    test_neck(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

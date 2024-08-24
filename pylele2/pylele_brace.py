@@ -36,9 +36,13 @@ def main(args = None):
                     class_name='LeleBrace',
                     args=args)
 
-def test_brace():
+def test_brace(self,apis=None):
     """ Test Brace """
-    test_loop(module=__name__)
+    test_loop(module=__name__,apis=apis)
     
+def test_brace_mock(self):
+    """ Test Brace """
+    test_brace(self,apis=['mock'])
+
 if __name__ == '__main__':
     main()

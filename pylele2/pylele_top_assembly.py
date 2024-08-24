@@ -95,10 +95,7 @@ def main(args=None):
                     class_name='LeleTopAssembly',
                     args=args)
 
-def test_top_assembly():
-    """ Test Top Assembly """
-
-    tests = {
+TESTS = {
         'separate_bridge'    : ['-B'],
         'separate_guide'     : ['-G'],
         'separate_top'       : ['-T'],
@@ -108,7 +105,15 @@ def test_top_assembly():
         'worm_tuners'        : ['-t','worm'],
         'big_worm_tuners'    : ['-t','bigWorm'],
     }
-    test_loop(module=__name__,tests=tests)
+
+def test_top_assembly(self):
+    """ Test Top Assembly """    
+    test_loop(module=__name__,tests=TESTS)
+
+
+def test_top_assembly_mock(self):
+    """ Test Top Assembly """    
+    test_loop(module=__name__,tests=TESTS,apis=['mock'])
 
 if __name__ == '__main__':
     main()

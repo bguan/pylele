@@ -83,25 +83,30 @@ def main(args = None):
                       class_name='LeleBody',
                       args=args)
 
-def test_body():
-    """ Test body """
+## Cadquery and blender
+TESTS_ALL = {
+    'tail_end'           : ['-t',TunerType.WORM.name,'-e','60','-E'],
+}
+## flat body only works with cadquery at the moment
+TESTS_CQ = {
+    'flat_body'          : ['-bt',str(BodyType.FLAT),'-fbt','50'],
+    'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
+}
 
-    ## Cadquery and blender
-    tests = {
-        'tail_end'           : ['-t',TunerType.WORM.name,'-e','60','-E'],
-    }
+def test_body(self):
+    """ Test body """   
     test_loop(module=__name__,
               apis = ['cadquery','blender'],
-              tests = tests)
-
-    ## flat body only works with cadquery at the moment
-    tests = {
-        'flat_body'          : ['-bt',str(BodyType.FLAT),'-fbt','50'],
-        'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
-    }
+              tests = TESTS_ALL)
     test_loop(module=__name__,
               apis = ['cadquery'],
-              tests = tests)
+              tests = TESTS_CQ)
+
+def test_body_mock(self):
+    """ Test body """   
+    test_loop(module=__name__,
+              apis = ['mock'],
+              tests = TESTS_ALL | TESTS_CQ)
 
 if __name__ == '__main__':
     main()

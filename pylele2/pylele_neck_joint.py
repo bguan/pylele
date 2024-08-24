@@ -32,10 +32,13 @@ def main(args = None):
                     class_name='LeleNeckJoint',
                     args=args)
 
-def test_neck_joint():
+def test_neck_joint(self,apis=None):
     """ Test neck_joint """
+    test_loop(module=__name__,apis=apis)
 
-    test_loop(module=__name__)
+def test_neck_joint_mock(self):
+    """ Test neck_joint """
+    test_neck_joint(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

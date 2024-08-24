@@ -57,13 +57,17 @@ def main(args=None):
                     class_name='LeleWormKey',
                     args=args)
 
-def test_worm_key():
+def test_worm_key(self,apis=None):
     """ Test Worm Key """
     tests = {
         'cut'     : ['-t','worm','-C'],
         'big_worm': ['-t','bigWorm'],
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_worm_key_mock(self):
+    """ Test Worm Key """
+    test_worm_key(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

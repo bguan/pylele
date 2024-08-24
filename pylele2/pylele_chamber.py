@@ -82,13 +82,17 @@ def main(args = None):
                     class_name='LeleChamber',
                     args=args)
 
-def test_chamber():
+def test_chamber(self,apis=None):
     """ Test Chamber """
 
     tests = {
         'cut'     : ['-C']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_chamber_mock(self):
+    """ Test Chamber """
+    test_chamber(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

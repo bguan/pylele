@@ -39,9 +39,13 @@ def main(args = None):
                     class_name='LeleSpines',
                     args=args)
 
-def test_spines():
+def test_spines(self):
     """ Test Spines """
     test_loop(module=__name__)
     
+def test_spines_mock(self):
+    """ Test Spines """
+    test_loop(module=__name__, apis=['mock'])
+
 if __name__ == '__main__':
     main()

@@ -76,14 +76,18 @@ def main(args = None):
                     class_name='LeleNut',
                     args=args)
 
-def test_nut():
-    """ Test Nut """
+tests = {
+    'separate_fretboard' : ['-F'],
+    'zerofret': ['-nt', str(NutType.ZEROFRET)],
+}
 
-    tests = {
-        'separate_fretboard' : ['-F'],
-        'zerofret': ['-nt', str(NutType.ZEROFRET)],
-    }
+def test_nut(self):
+    """ Test Nut """
     test_loop(module=__name__,tests=tests)
+
+def test_nut_mock(self):
+    """ Test Nut """
+    test_loop(module=__name__,tests=tests,apis=['mock'])
 
 if __name__ == '__main__':
     main()

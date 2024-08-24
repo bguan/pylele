@@ -135,9 +135,8 @@ def main(args=None):
                     class_name='LeleFretboardAssembly',
                     args=args)
 
-def test_fretboard_assembly():
+def test_fretboard_assembly(self,apis=None):
     """ Test Fretboard Assembly """
-
     tests = {
         'separate_fretboard' : ['-F'],
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
@@ -146,9 +145,12 @@ def test_fretboard_assembly():
         'separate_nut'       : ['-NU'],
         'separate_frets'     : ['-FR'],
         'separate_dots'      : ['-D'],
-    }
+        }
+    test_loop(module=__name__,tests=tests,apis=apis)
 
-    test_loop(module=__name__,tests=tests)
+def test_fretboard_assembly_mock(self):
+    """ Test Fretboard Assembly """
+    test_fretboard_assembly(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()

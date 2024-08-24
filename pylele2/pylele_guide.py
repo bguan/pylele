@@ -47,12 +47,16 @@ def main(args = None):
                     class_name='LeleGuide',
                     args=args)
 
-def test_guide():
+def test_guide(self,apis=None):
     """ Test Guide """
     tests = {
         'cut'     : ['-C']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
     
+def test_guide_mock(self):
+    """ Test Guide """
+    test_guide(self,apis=['mock'])
+
 if __name__ == '__main__':
     main()

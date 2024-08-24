@@ -214,13 +214,17 @@ def main(args = None):
                     class_name='LeleWorm',
                     args=args)
 
-def test_worm():
+def test_worm(self,apis=None):
     """ Test Worm """
 
     tests = {
         'cut'     : ['-C','-wah']
     }
-    test_loop(module=__name__,tests=tests)
+    test_loop(module=__name__,tests=tests,apis=apis)
+
+def test_worm_mock(self):
+    """ Test Worm """
+    test_worm(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()
