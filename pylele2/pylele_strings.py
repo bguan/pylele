@@ -45,17 +45,16 @@ def main(args=None):
                     class_name='LeleStrings',
                     args=args)
 
-tests = {
-    'cut'     : ['-C']
-}
-
-def test_strings(self):
+def test_strings(self,apis=None):
     """ Test String """
-    test_loop(module=__name__,tests=tests)
+    tests = {
+        'cut'     : ['-C']
+    }
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_strings_mock(self):
     """ Test String """
-    test_loop(module=__name__,tests=tests,apis=['mock'])
+    test_strings(self,apis=['mock'])
     
 if __name__ == '__main__':
     main()
