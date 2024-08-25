@@ -12,6 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
 from pylele2.pylele_base import LeleBase, LeleStrEnum, TunerType, test_loop, main_maker, LeleBodyType, DEFAULT_FLAT_BODY_THICKNESS
+from pylele2.pylele_top import LeleTop
 
 def pylele_body_parser(parser = None):
     """
@@ -43,10 +44,12 @@ class LeleBody(LeleBase):
                 bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
 
         elif self.cli.body_type == LeleBodyType.FLAT:
+            bot_below = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, self.cfg.TOP_RATIO).mv(0,0,-self.cli.flat_body_thickness)
             # Flat body
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
             midL = midR.mirrorXZ()
             bot = midR.join(midL)
+            bot = bot.join(bot_below)
         else:
             assert self.cli.body_type in list(LeleBodyType), f'Unsupported Body Type {self.cli.body_type}'
 
