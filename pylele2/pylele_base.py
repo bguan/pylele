@@ -56,7 +56,7 @@ def pylele_base_parser(parser = None):
     ## Non-Numeric config options #######################################
 
     parser.add_argument("-t", "--tuner_type", help=f"Type of tuners, default; {TunerType.FRICTION.name}",
-                        type=str.upper, choices=TunerType._member_names_, default=TunerType.FRICTION.name)
+                        type=str.upper, choices=TunerType.list(), default=TunerType.FRICTION.name)
 
     ## Cut options ######################################################
 

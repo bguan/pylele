@@ -8,7 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from ast import literal_eval
 from api.pylele_api import Implementation, Fidelity
-from pylele1.pylele_config import LeleScaleEnum, type_scale_len, \
+from pylele1.pylele_config import LeleScaleEnum, \
     DEFAULT_LABEL_SIZE, \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL, \
     ModelLabel, TunerType
@@ -21,8 +21,8 @@ def parseCLI():
 
     ## Numeric config options ###########################################
     parser.add_argument("-s", "--scale_length", 
-                        help=f"Scale Length [mm], or {LeleScaleEnum._member_names_}, default: {LeleScaleEnum.SOPRANO.value}",
-                        type=type_scale_len, default=LeleScaleEnum.SOPRANO)
+                        help=f"Scale Length [mm], or {LeleScaleEnum.list()}, default: {LeleScaleEnum.SOPRANO.value}",
+                        type=LeleScaleEnum.type, default=LeleScaleEnum.SOPRANO)
     parser.add_argument("-n", "--num_strings", help="Number of strings, default 4",
                         type=int, default=4)
     parser.add_argument("-a", "--action", help="Strings action [mm], default 2",
@@ -44,7 +44,7 @@ def parseCLI():
     ## Non-Numeric config options #######################################
 
     parser.add_argument("-t", "--tuner_type", help=f"Type of tuners, default; {TunerType.FRICTION.name}",
-                        type=str.upper, choices=TunerType._member_names_, default=TunerType.FRICTION.name)
+                        type=str.upper, choices=TunerType.list(), default=TunerType.FRICTION.name)
 
     parser.add_argument("-d", "--dot_frets",
                         help="Comma-separated fret[:dots] pairs, default 3,5:2,7,10,12:3,15,17:2,19,22",

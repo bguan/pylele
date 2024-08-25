@@ -13,7 +13,7 @@ from ast import literal_eval
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
 from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
-from pylele_config_common import SEMI_RATIO, LeleScaleEnum, type_scale_len, TunerConfig, PegConfig, WormConfig, TunerType
+from pylele_config_common import SEMI_RATIO, LeleScaleEnum, TunerConfig, PegConfig, WormConfig, TunerType
 
 """
     Global Constants, Config classes

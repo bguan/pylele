@@ -174,3 +174,7 @@ class TunerType(Enum):
     GOTOH = GOTOH_PEG_CFG
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
+
+    def list()->list:
+        """ Return List of enumerated names """
+        return TunerType._member_names_
