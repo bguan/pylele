@@ -16,7 +16,7 @@ from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
 from pylele2.pylele_rim import LeleRim
 from pylele2.pylele_worm_key import LeleWormKey
-from pylele2.pylele_body import LeleBody
+from pylele2.pylele_body import LeleBody, BodyType
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_top_assembly import LeleTopAssembly
@@ -53,7 +53,10 @@ class LeleBottomAssembly(LeleBase):
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
 
         bodyJoiners = []
-        bodyCutters = [txtCut, chmCut]
+        bodyCutters = [txtCut]
+
+        if not self.cli.body_type==BodyType.FLAT:
+            bodyCutters += [chmCut]
 
         if spCut is not None:
             bodyCutters.append(spCut)
