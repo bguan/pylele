@@ -69,8 +69,8 @@ class LeleTopAssembly(LeleBase):
                 topJoiners.append(guide)
 
         topFillets = { FILLET_RAD: [(self.cfg.sndholeX, self.cfg.sndholeY, self.cfg.fretbdHt)] }
-        # if self.cfg.isWorm and self.cfg.impl == Implementation.CAD_QUERY:
-        if isinstance(self.cfg.tnrCfg,WormConfig) and self.cli.implementation == Implementation.CAD_QUERY:
+        if isinstance(self.cfg.tnrCfg,WormConfig) and self.cli.implementation == Implementation.CAD_QUERY and \
+            not self.cli.body_type == LeleBodyType.FLAT:
             wcfg: WormConfig = self.cfg.tnrCfg
             topFillets[wcfg.slitWth] = [
                 (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
