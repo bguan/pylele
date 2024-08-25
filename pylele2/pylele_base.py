@@ -12,8 +12,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, FIT_TOL, FILLET_RAD, LeleStrEnum
-from pylele2.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, \
-    LeleScaleEnum, type_scale_len, SEMI_RATIO
+from pylele2.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, LeleBodyType, \
+    LeleScaleEnum, type_scale_len, SEMI_RATIO, DEFAULT_FLAT_BODY_THICKNESS
+
 
 def pylele_base_parser(parser = None):
     """
@@ -34,6 +35,18 @@ def pylele_base_parser(parser = None):
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
                         type=float, default=0)
+
+    ## Body Type config options ###########################################
+
+    parser.add_argument("-bt", "--body_type",
+                    help="Body Type",
+                    type=LeleBodyType,
+                    choices=list(LeleBodyType),
+                    default=LeleBodyType.GOURD
+                    )
+    
+    parser.add_argument("-fbt", "--flat_body_thickness", help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
+                        type=float, default=DEFAULT_FLAT_BODY_THICKNESS)
 
     ## Chamber config options ###########################################
 

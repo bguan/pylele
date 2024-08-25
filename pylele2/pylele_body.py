@@ -11,14 +11,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, LeleStrEnum, TunerType, test_loop, main_maker
-
-DEFAULT_FLAT_BODY_THICKNESS=20
-
-class BodyType(LeleStrEnum):
-    """ Body Type """
-    GOURD = 'gourd'
-    FLAT  = 'flat'
+from pylele2.pylele_base import LeleBase, LeleStrEnum, TunerType, test_loop, main_maker, LeleBodyType, DEFAULT_FLAT_BODY_THICKNESS
 
 def pylele_body_parser(parser = None):
     """
@@ -26,16 +19,6 @@ def pylele_body_parser(parser = None):
     """
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
-
-    parser.add_argument("-bt", "--body_type",
-                    help="Body Type",
-                    type=BodyType,
-                    choices=list(BodyType),
-                    default=BodyType.GOURD
-                    )
-    
-    parser.add_argument("-fbt", "--flat_body_thickness", help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
-                        type=float, default=DEFAULT_FLAT_BODY_THICKNESS)
 
     return parser
 class LeleBody(LeleBase):
@@ -48,7 +31,7 @@ class LeleBody(LeleBase):
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
 
-        if self.cli.body_type == BodyType.GOURD:
+        if self.cli.body_type == LeleBodyType.GOURD:
             # Gourd body
             bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
 
@@ -59,13 +42,13 @@ class LeleBody(LeleBase):
                 midL = midR.mirrorXZ()
                 bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
 
-        elif self.cli.body_type == BodyType.FLAT:
+        elif self.cli.body_type == LeleBodyType.FLAT:
             # Flat body
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
             midL = midR.mirrorXZ()
             bot = midR.join(midL)
         else:
-            assert self.cli.body_type in list(BodyType), f'Unsupported Body Type {self.cli.body_type}'
+            assert self.cli.body_type in list(LeleBodyType), f'Unsupported Body Type {self.cli.body_type}'
 
         self.shape = bot
         return bot
@@ -89,8 +72,8 @@ TESTS_ALL = {
 }
 ## flat body only works with cadquery at the moment
 TESTS_CQ = {
-    'flat_body'          : ['-bt',str(BodyType.FLAT),'-fbt','50'],
-    'flat_body_worm'     : ['-bt',str(BodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
+    'flat_body'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50'],
+    'flat_body_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
 }
 
 def test_body(self):

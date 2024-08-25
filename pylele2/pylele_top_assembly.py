@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from api.pylele_solid import Implementation
-from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum
+from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum, LeleBodyType
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
@@ -40,7 +40,10 @@ class LeleTopAssembly(LeleBase):
             if self.cli.separate_fretboard or self.cli.separate_neck else None
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
         topJoiners = []
-        topCutters = [chmCut, tnrsCut, LeleSoundhole(cli=self.cli, isCut=True)]
+        topCutters = [tnrsCut]
+                
+        if not self.cli.body_type==LeleBodyType.FLAT:
+            topCutters += [chmCut, LeleSoundhole(cli=self.cli, isCut=True)]
 
         if self.cli.separate_top: # if cfg.sepTop:
             topJoiners.append(LeleRim(cli=self.cli, isCut=False))

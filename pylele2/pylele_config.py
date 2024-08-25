@@ -13,6 +13,11 @@ from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 from pylele_config_common import SEMI_RATIO, LeleScaleEnum, type_scale_len, TunerConfig, PegConfig, WormConfig, TunerType
 
+DEFAULT_FLAT_BODY_THICKNESS=20
+class LeleBodyType(LeleStrEnum):
+    """ Body Type """
+    GOURD = 'gourd'
+    FLAT  = 'flat'
 class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
@@ -63,12 +68,14 @@ class LeleConfig:
         #    {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
         # fidelity: Fidelity = Fidelity.LOW,
         # impl: Implementation = Implementation.CAD_QUERY,
+        # body_type: LeleBodyType = LeleBodyType.GOURD
     ):
         # Engine Implementation Config
         # self.impl = impl
         # self.fidelity = fidelity
         # self.joinCutTol = impl.joinCutTol()
         self.tnrCfg = tnrType
+        # self.body_type = body_type
         
         # Length based configs
         # self.scaleLen = scaleLen
