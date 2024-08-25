@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from api.pylele_solid import Implementation
-from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD
+from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
@@ -95,25 +95,30 @@ def main(args=None):
                     class_name='LeleTopAssembly',
                     args=args)
 
-TESTS = {
-        'separate_bridge'    : ['-B'],
-        'separate_guide'     : ['-G'],
-        'separate_top'       : ['-T'],
-        'separate_neck'      : ['-N'],
-        'separate_fretboard' : ['-F'],
-        'gotoh_tuners'       : ['-t','gotoh'],
-        'worm_tuners'        : ['-t','worm'],
-        'big_worm_tuners'    : ['-t','bigWorm'],
-    }
-
-def test_top_assembly(self):
+def test_top_assembly(self, apis = None):
     """ Test Top Assembly """    
-    test_loop(module=__name__,tests=TESTS)
 
+    test_scale_len = {}
+    for sl in list(LeleScaleEnum):
+        test_scale_len[sl.name] = ['-s',sl.name]
+
+    tests = {
+            'separate_bridge'    : ['-B'],
+            'separate_guide'     : ['-G'],
+            'separate_top'       : ['-T'],
+            'separate_neck'      : ['-N'],
+            'separate_fretboard' : ['-F'],
+            'gotoh_tuners'       : ['-t','gotoh'],
+            'worm_tuners'        : ['-t','worm'],
+            'big_worm_tuners'    : ['-t','bigWorm'],
+        }
+
+    tests_all = tests | test_scale_len
+    test_loop(module=__name__,tests=tests_all,apis=apis)
 
 def test_top_assembly_mock(self):
     """ Test Top Assembly """    
-    test_loop(module=__name__,tests=TESTS,apis=['mock'])
+    test_top_assembly(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()
