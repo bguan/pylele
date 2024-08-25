@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, LeleBodyType
 
 class LeleTail(LeleBase):
     """ Pylele Tail Generator class """
@@ -41,10 +41,17 @@ class LeleTail(LeleBase):
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
         
-        extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
+        if self.cli.body_type == LeleBodyType.FLAT:
+            extBot = self.api.genBox(10 if self.isCut else rimWth, endWth, self.cli.flat_body_thickness)\
+            .mv(tailX + (5 - rimWth if self.isCut else -rimWth), 0, -self.cli.flat_body_thickness/2)
+            inrBot = self.api.genBox(2*tailLen, endWth - rimWth, self.cli.flat_body_thickness)\
+            .mv(tailX - rimWth -tailLen, 0, -self.cli.flat_body_thickness/2)
+        else:
+            extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
             .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
-        inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth).scale(1, 1, botRat)\
+            inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth).scale(1, 1, botRat)\
             .mv(tailX - rimWth -tailLen, 0, -midBotTck)
+
         topCut = self.api.genBox(2000, 2000, 2000).mv(0,0,1000)
         bot = extBot.join(inrBot).cut(topCut)
         if top is None:
