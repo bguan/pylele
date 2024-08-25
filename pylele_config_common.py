@@ -3,6 +3,7 @@
 """
 
 from enum import IntEnum, Enum
+from ast import literal_eval
 
 SEMI_RATIO = 2**(1/12)
 
@@ -12,15 +13,19 @@ class LeleScaleEnum(IntEnum):
     CONCERT = 370
     TENOR   = 430
 
-def type_scale_len(length: int):
-    """ Returns scale length in mm
+    def type(length:str)->int:
+        """ Returns scale length in mm
         input is a string either representing mm
         or LeleScaleEnum member
-    """
-    ulen = length.upper()
-    if ulen in LeleScaleEnum._member_names_:
-        return LeleScaleEnum[ulen].value
-    return literal_eval(len)
+        """
+        ulen = length.upper()
+        if ulen in LeleScaleEnum.list():
+            return LeleScaleEnum[ulen].value
+        return literal_eval(ulen)
+
+    def list()->list:
+        """ Return List of enumerated names """
+        return LeleScaleEnum._member_names_
 
 # Tuner config
 
