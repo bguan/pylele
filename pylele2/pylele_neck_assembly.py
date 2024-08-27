@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleBodyType
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_head import LeleHead
@@ -16,6 +16,7 @@ from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_neck import LeleNeck
 from pylele2.pylele_fretboard import LeleFretboard
 from pylele2.pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser, FretType, NutType
+from pylele2.pylele_neck_bend import LeleNeckBend
 
 class LeleNeckAssembly(LeleBase):
     """ Pylele Neck Assembly Generator class """
@@ -46,6 +47,9 @@ class LeleNeckAssembly(LeleBase):
 
         if self.cli.separate_neck:
             neckJoiners.append(LeleNeckJoint(cli=self.cli, isCut=False))
+
+        if self.cli.body_type==LeleBodyType.FLAT:
+            neckJoiners.append(LeleNeckBend(cli=self.cli))
 
         if self.cli.separate_fretboard or self.cli.separate_top:
             neckCutters.extend([fbspCut])

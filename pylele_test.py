@@ -78,6 +78,7 @@ class PyleleTestMethods(unittest.TestCase):
     from pylele2.pylele_tail import test_tail, test_tail_mock
     from pylele2.pylele_brace import test_brace, test_brace_mock
     from pylele2.pylele_soundhole import test_soundhole, test_soundhole_mock
+    from pylele2.pylele_neck_bend import test_neck_bend, test_neck_bend_mock
 
     ## Assemblies
     from pylele2.pylele_fretboard_assembly import test_fretboard_assembly, test_fretboard_assembly_mock
