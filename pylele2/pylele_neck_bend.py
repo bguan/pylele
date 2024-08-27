@@ -40,7 +40,7 @@ def main(args = None):
 def test_neck_bend(self,apis=None):
     """ Test Neck Bend """
     tests = {
-        'default': ['-bt',LeleBodyType.FLAT.value]
+        'default': ['-bt',LeleBodyType.FLAT]
     }
     test_loop(module=__name__,apis=apis,tests=tests)
 

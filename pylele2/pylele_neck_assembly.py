@@ -86,6 +86,7 @@ TESTS = {
         'separate_nut'       : ['-NU'],
         'separate_frets'     : ['-FR'],
         'separate_all'       : ['-N','-FR','-NU','-F'],
+        'flat_body'          : ['-bt',LeleBodyType.FLAT]
     }
 
 def test_neck_assembly(self):
