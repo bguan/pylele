@@ -11,8 +11,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, LeleStrEnum, TunerType, test_loop, main_maker, LeleBodyType, DEFAULT_FLAT_BODY_THICKNESS
-from pylele2.pylele_top import LeleTop
+from pylele2.pylele_base import LeleBase, TunerType, test_loop, main_maker, LeleBodyType
 
 def pylele_body_parser(parser = None):
     """
@@ -51,7 +50,7 @@ class LeleBody(LeleBase):
             bot = midR.join(midL)
             bot = bot.join(bot_below)
         else:
-            assert self.cli.body_type in list(LeleBodyType), f'Unsupported Body Type {self.cli.body_type}'
+            assert self.cli.body_type in LeleBodyType.list(), f'Unsupported Body Type {self.cli.body_type}'
 
         self.shape = bot
         return bot
