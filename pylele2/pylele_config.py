@@ -13,7 +13,7 @@ from api.pylele_utils import radians, degrees, accumDiv
 from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 from pylele_config_common import SEMI_RATIO, LeleScaleEnum, TunerConfig, PegConfig, WormConfig, TunerType
 
-DEFAULT_FLAT_BODY_THICKNESS=20
+DEFAULT_FLAT_BODY_THICKNESS=25
 class LeleBodyType(LeleStrEnum):
     """ Body Type """
     GOURD = 'gourd'
