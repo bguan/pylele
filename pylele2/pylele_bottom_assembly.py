@@ -127,7 +127,7 @@ TESTS = {
 }
 
 TESTS_CQ = {
-        'flat_body'          : ['-t','worm','-e','80','-E','-wah', '-bt', 'flat']
+        'flat_body'          : ['-t','worm','-e','80','-E','-wah', '-bt', 'flat','-wsl','35']
     }
 
 def test_bottom_assembly(self):
