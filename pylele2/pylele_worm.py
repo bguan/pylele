@@ -116,6 +116,9 @@ def pylele_worm_parser(parser = None):
                     type=float,
                     default=2
                     )
+    parser.add_argument("-whk", "--worm_has_key",
+                help="Create Hole for worm key.",
+                action='store_true')
     return parser
 
 class LeleWorm(LeleBase):

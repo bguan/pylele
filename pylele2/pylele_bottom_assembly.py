@@ -84,9 +84,12 @@ class LeleBottomAssembly(LeleBase):
         if tailCut is not None:
             bodyCutters.append(tailCut)
             bodyCutters.append(wormKeyCut)
-            self.add_part(tailCut.cut(tnrsCut).cut(wormKeyCut))
+            tailCut = tailCut.cut(tnrsCut)
+            if self.cli.worm_has_key:
+                tailCut = tailCut.cut(wormKeyCut)
+            self.add_part(tailCut)
         else:
-            if self.cfg.tnrCfg.is_worm():
+            if self.cfg.tnrCfg.is_worm() and self.cli.worm_has_key:
                 bodyCutters.append(wormKeyCut)
 
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
@@ -122,6 +125,7 @@ TESTS = {
     'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
     'gotoh_tuners'       : ['-t','gotoh'],
     'worm_tuners'        : ['-t','worm'],
+    'worm_key'           : ['-t','worm','-whk'],
     'big_worm_tuners'    : ['-t','bigWorm'],
     'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
 }
