@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, TunerType
 from pylele2.pylele_peg import LelePeg, PegConfig
 from pylele2.pylele_worm import LeleWorm, pylele_worm_parser, WormConfig
 
@@ -23,12 +23,10 @@ class LeleTuners(LeleBase):
             self.api.setFidelity(Fidelity.MEDIUM)
 
         tXYZs = self.cfg.tnrXYZs
-        # isPeg = self.cfg.tnrCfg.is_peg()
-        # isWorm = self.cfg.tnrCfg.is_worm()
         tnrs = None
         for txyz in tXYZs:
-            tnr = LelePeg(isCut=self.isCut, cli=self.cli) if self.cfg.tnrCfg.is_peg() \
-                else LeleWorm(isCut=self.isCut, cli=self.cli) if self.cfg.tnrCfg.is_worm() \
+            tnr = LelePeg(isCut=self.isCut, cli=self.cli) if TunerType[self.cli.tuner_type].value.is_peg() \
+                else LeleWorm(isCut=self.isCut, cli=self.cli) if TunerType[self.cli.tuner_type].value.is_worm() \
                 else None
             if not tnr is None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape

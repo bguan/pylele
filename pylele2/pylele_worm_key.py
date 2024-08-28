@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape, Implementation
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD, TunerType
 from pylele2.pylele_worm import WormConfig
 
 class LeleWormKey(LeleBase):
@@ -20,8 +20,8 @@ class LeleWormKey(LeleBase):
         joinTol = self.api.getJoinCutTol()
         tailX = self.cfg.tailX
         txyzs = self.cfg.tnrXYZs
-        assert isinstance(self.cfg.tnrCfg,WormConfig)
-        wcfg: WormConfig = self.cfg.tnrCfg
+        assert TunerType[self.cli.tuner_type].value.is_worm()
+        wcfg: WormConfig = TunerType[self.cli.tuner_type].value
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
         btnHt = wcfg.buttonHt + 2*cutAdj
         btnWth = wcfg.buttonWth + 2*cutAdj

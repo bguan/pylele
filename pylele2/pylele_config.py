@@ -74,7 +74,7 @@ class LeleConfig:
         # self.impl = impl
         # self.fidelity = fidelity
         # self.joinCutTol = impl.joinCutTol()
-        self.tnrCfg = tnrType
+        # self.tnrCfg = tnrType
         # self.body_type = body_type
         
         # Length based configs
@@ -83,21 +83,21 @@ class LeleConfig:
         self.fretbdRiseAng = 1 + numStrs/10
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
+        bodyBackLen = self.chmBack + wallTck + tnrType.tailAllow()
         self.tailX = scaleLen + bodyBackLen
-        # self.tnrCfg.is_peg() = isinstance(self.tnrCfg, PegConfig)
-        # self.isWorm = isinstance(self.tnrCfg, WormConfig)
+        # tnrType.is_peg() = isinstance(tnrType, PegConfig)
+        # self.isWorm = isinstance(tnrType, WormConfig)
         # self.numStrs = numStrs
         # self.nutStrGap = nutStrGap
         self.nutWth = max(2,numStrs) * nutStrGap
-        if self.tnrCfg.is_peg():
-            tnrSetback = self.tnrCfg.tailAllow()/2 - 2
+        if tnrType.is_peg():
+            tnrSetback = tnrType.tailAllow()/2 - 2
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
-            self.tnrGap = self.tnrCfg.minGap()
+            self.tnrGap = tnrType.minGap()
         else:
-            tnrSetback = self.tnrCfg.tailAllow()/2 + 1
+            tnrSetback = tnrType.tailAllow()/2 + 1
             tnrX = scaleLen + bodyBackLen - tnrSetback
-            tnrW = self.tnrCfg.minGap() * numStrs
+            tnrW = tnrType.minGap() * numStrs
             tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
             self.neckWideAng = max(self.MIN_NECK_WIDE_ANG, tnrNeckWideAng)
             tnrsWth = self.nutWth + 2*tnrX*math.tan(radians(self.neckWideAng))
@@ -263,12 +263,12 @@ class LeleConfig:
         tYMax = fatRat*self.bodyWth - tnrSetback
         tX = tXMax
         tY = 0
-        wCfg: WormConfig = None if self.tnrCfg.is_peg() else self.tnrCfg
-        tZBase = (self.extMidTopTck + 2) if self.tnrCfg.is_peg() \
+        wCfg: WormConfig = None if tnrType.is_peg() else tnrType
+        tZBase = (self.extMidTopTck + 2) if tnrType.is_peg() \
             else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
         def tzAdj(tY: float) -> float:
-            return 0 if self.tnrCfg.is_worm() or tY > endWth/2 else \
+            return 0 if tnrType.is_worm() or tY > endWth/2 else \
                  ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
 
         tMidZ = tZBase + tzAdj(tY)
@@ -317,7 +317,7 @@ class LeleConfig:
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
         ]
 
-        if self.tnrCfg.is_peg():  # Worm drives has no string guide
+        if tnrType.is_peg():  # Worm drives has no string guide
             strOddMidPath.append(
                 (self.guideX, 0,
                  self.guideZ + self.guideHt - self.GUIDE_RAD - self.STR_RAD)
@@ -325,7 +325,7 @@ class LeleConfig:
 
         strOddMidPath.append(
             (scaleLen + bodyBackLen - tnrSetback, 0,
-             tMidZ + self.tnrCfg.holeHt)
+             tMidZ + tnrType.holeHt)
         )
 
         strEvenMidPathR = []
@@ -339,7 +339,7 @@ class LeleConfig:
             strY = (self.tnrGap/2) if pt == strOddMidPath[-1] \
                 else nutStrGap/2 + pt[0]*math.tan(strEvenMidAng)
             strZ = (
-                tZBase + self.tnrCfg.holeHt) if pt == strOddMidPath[-1] else pt[2]
+                tZBase + tnrType.holeHt) if pt == strOddMidPath[-1] else pt[2]
             strEvenMidPathR.append((pt[0], strY, strZ))
             strEvenMidPathL.append((pt[0], -strY, strZ))
 
@@ -360,7 +360,7 @@ class LeleConfig:
                     ]
                     strX = strPegXYZ[0]
                     strY = strPegXYZ[1]
-                    strZ = strPegXYZ[2] + self.tnrCfg.holeHt
+                    strZ = strPegXYZ[2] + tnrType.holeHt
                 else:
                     strBrdgDY = (strCnt + (0 if isOddStrs else .5))\
                         * (self.brdgStrGap - nutStrGap)
@@ -376,7 +376,7 @@ class LeleConfig:
 
     """
     def genModelStr(self, inclDate: bool = False) -> str:
-        model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
+        model = f"{self.scaleLen}{tnrType.code}{self.numStrs}"
         if self.sepTop:
             model += 'T'
         if self.sepNeck:

@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from api.pylele_solid import Implementation
-from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum, LeleBodyType
+from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum, LeleBodyType, TunerType
 from pylele2.pylele_bridge import LeleBridge
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
@@ -32,7 +32,7 @@ class LeleTopAssembly(LeleBase):
         brdg = LeleBridge(cli=self.cli)
 
         # gen guide if using tuning pegs rather than worm drive
-        guide = LeleGuide(cli=self.cli) if self.cfg.tnrCfg.is_peg() else None
+        guide = LeleGuide(cli=self.cli) if TunerType[self.cli.tuner_type].value.is_peg() else None
 
         # gen body top
         chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
@@ -69,9 +69,9 @@ class LeleTopAssembly(LeleBase):
                 topJoiners.append(guide)
 
         topFillets = { FILLET_RAD: [(self.cfg.sndholeX, self.cfg.sndholeY, self.cfg.fretbdHt)] }
-        if isinstance(self.cfg.tnrCfg,WormConfig) and self.cli.implementation == Implementation.CAD_QUERY and \
+        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.implementation == Implementation.CAD_QUERY and \
             not self.cli.body_type == LeleBodyType.FLAT:
-            wcfg: WormConfig = self.cfg.tnrCfg
+            wcfg: WormConfig = TunerType[self.cli.tuner_type].value
             topFillets[wcfg.slitWth] = [
                 (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
                 for xyz in self.cfg.tnrXYZs

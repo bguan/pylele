@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, PegConfig
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, PegConfig, TunerType
 
 class LelePeg(LeleBase):
     """ Pylele Peg Generator class """
@@ -17,8 +17,8 @@ class LelePeg(LeleBase):
     def gen(self) -> Shape:
         """ Generate Peg """
         cutAdj = FIT_TOL if self.isCut else 0
-        assert isinstance(self.cfg.tnrCfg, PegConfig)
-        cfg: PegConfig = self.cfg.tnrCfg
+        assert TunerType[self.cli.tuner_type].value.is_peg()
+        cfg: PegConfig = TunerType[self.cli.tuner_type].value
         strRad = self.cfg.STR_RAD + cutAdj
         holeHt = cfg.holeHt
         majRad = cfg.majRad + cutAdj

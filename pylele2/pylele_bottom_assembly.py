@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleBodyType
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleBodyType, TunerType
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
@@ -39,7 +39,7 @@ class LeleBottomAssembly(LeleBase):
         txtCut = LeleTexts(cli=self.cli, isCut=True)
         tailCut = LeleTail(cli=self.cli, isCut=True) if self.cli.separate_end else None # if cfg.sepEnd else None
         rimCut = LeleRim(cli=self.cli, isCut=True) if self.cli.separate_top else None # if cfg.sepTop else None
-        wormKeyCut = LeleWormKey(cli=self.cli, isCut=True) if self.cfg.tnrCfg.is_worm() else None
+        wormKeyCut = LeleWormKey(cli=self.cli, isCut=True) if TunerType[self.cli.tuner_type].value.is_worm() else None
 
         chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
         spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())\
@@ -89,7 +89,7 @@ class LeleBottomAssembly(LeleBase):
                 tailCut = tailCut.cut(wormKeyCut)
             self.add_part(tailCut)
         else:
-            if self.cfg.tnrCfg.is_worm() and self.cli.worm_has_key:
+            if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
                 bodyCutters.append(wormKeyCut)
 
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
