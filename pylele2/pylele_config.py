@@ -115,7 +115,7 @@ class LeleConfig:
         # self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * math.tan(radians(self.neckWideAng)) * scaleLen
-        self.brdgStrGap = self.brdgWth / (numStrs-.5)
+        brdgStrGap = self.brdgWth / (numStrs-.5)
         self.neckLen = scaleLen * self.NECK_RATIO
         # self.dotRad = dotRad
         # self.fret2Dots = fret2Dots
@@ -330,7 +330,7 @@ class LeleConfig:
 
         strEvenMidPathR = []
         strEvenMidPathL = []
-        strEvenMidBrdgDY = self.brdgStrGap/2 - nutStrGap/2
+        strEvenMidBrdgDY = brdgStrGap/2 - nutStrGap/2
         strEvenMidAng = math.atan(strEvenMidBrdgDY/scaleLen)
 
         # even middle string pair points is just odd middle string points with DY
@@ -363,7 +363,7 @@ class LeleConfig:
                     strZ = strPegXYZ[2] + tnrType.holeHt
                 else:
                     strBrdgDY = (strCnt + (0 if isOddStrs else .5))\
-                        * (self.brdgStrGap - nutStrGap)
+                        * (brdgStrGap - nutStrGap)
                     strEvenAng = math.atan(strBrdgDY/scaleLen)
                     strX = pt[0]
                     strY = nutStrGap*(strCnt + (0 if isOddStrs else .5))\
