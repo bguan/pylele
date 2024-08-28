@@ -83,10 +83,10 @@ class LeleBottomAssembly(LeleBase):
         bodyCutters.append(tnrsCut)
         if tailCut is not None:
             bodyCutters.append(tailCut)
-            bodyCutters.append(wormKeyCut)
             tailCut = tailCut.cut(tnrsCut)
             if self.cli.worm_has_key:
                 tailCut = tailCut.cut(wormKeyCut)
+                bodyCutters.append(wormKeyCut)
             self.add_part(tailCut)
         else:
             if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
