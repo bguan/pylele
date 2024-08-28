@@ -132,7 +132,7 @@ TESTS = {
 
 TESTS_CQ = {
         'flat_body'          : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35'],
-        'flat_body_big_worm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35']
+        'flat_body_big_worm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35']
     }
 
 def test_bottom_assembly(self):
