@@ -270,7 +270,10 @@ class LeleSolid(ABC):
         main_out_path = os.path.join(Path.cwd(),self.outdir)
         make_or_exist_path(main_out_path)
         
-        out_path = os.path.join(main_out_path, self.fileNameBase+(datetime.datetime.now().strftime("-%y%m%d-%H%M")))
+        outfname=self.fileNameBase
+        if not self.cli.outdir_date_off:
+            outfname+=(datetime.datetime.now().strftime("-%y%m%d-%H%M"))
+        out_path = os.path.join(main_out_path, outfname)
         make_or_exist_path(out_path)
         return out_path
     
