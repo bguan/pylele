@@ -7,7 +7,7 @@
 import os
 import argparse
 
-from pylele_api import Shape
+from pylele_api import Implementation, Shape
 from pylele_base import LeleBase
 from pylele_config import Fidelity, \
     DEFAULT_LABEL_FONT, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_SIZE_SMALL
@@ -23,6 +23,10 @@ def pylele_texts_parser(parser = None):
     parser = pylele_body_parser(parser=parser)
     ## text options ######################################################
 
+    parser.add_argument("-X", "--no_text",
+                        help="Skip text labeling",
+                        action='store_true')
+    
     parser.add_argument("-x", "--texts_size_font",
                         help="Comma-separated text[:size[:font]] tuples, "\
                             + "default Pylele:28:Arial,:8,'mind2form.com © 2024':8:Arial",
@@ -44,40 +48,77 @@ class LeleTexts(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Texts """
-        origFidel = self.api.fidelity
-        self.api.setFidelity(Fidelity.HIGH)
+
+        if self.isCut:
+            origFidel = self.api.fidelity
+            self.api.setFidelity(Fidelity.LOW)
 
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
-        dep = self.cfg.EMBOSS_DEP
-
-        if False:
-            tsf = self.cfg.txtSzFonts
-        else:
-            tsf = self.cli.texts_size_font
-
-        txtTck = self.cfg.TEXT_TCK
+        tsf = self.cfg.txtSzFonts
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
-        cutTol = self.cfg.joinCutTol
+        txtTck = botRat * bodyWth/2 + midBotTck + 2
 
-        txtZ = -botRat * bodyWth/2 - midBotTck - 2
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
-        # print(tsf)
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
                 l = self.api.genTextZ(txt, sz, txtTck, fnt) \
-                    .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
+                    .rotateZ(90).mv(tx + sz/2, 0, 0)
                 ls = l if ls is None else ls.join(l)
             tx += sz
-        botCut = LeleBody(cli=self.cli, isCut=True).mv(0, 0, cutTol)
+        
+        if self.isCut:
+            # Orig impl is ls = ls.mirrorXZ() but Blender text mirroring can lead to invalid meshes
+            ls = ls.rotateX(180) 
+            if self.api.getImplementation() != Implementation.CAD_QUERY:
+                ls = ls.mv(0, 0, -txtTck) # HACK: Blender Text rotation is wonky
+            bodyCut = LeleBody(self.cfg, isCut=True).mv(0, 0, self.cfg.EMBOSS_DEP)
+            ls = ls.cut(bodyCut.shape)
+            self.api.setFidelity(origFidel)
 
-        txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
-        self.api.setFidelity(origFidel)
-        return txtCut
+        return ls
+    
+        # if self.isCut:
+        #     origFidel = self.api.fidelity
+        #     self.api.setFidelity(Fidelity.LOW)
+
+        # scLen = self.cfg.scaleLen
+        # backRat = self.cfg.CHM_BACK_RATIO
+        # dep = self.cfg.EMBOSS_DEP
+
+        # if False:
+        #     tsf = self.cfg.txtSzFonts
+        # else:
+        #     tsf = self.cli.texts_size_font
+
+        # txtTck = self.cfg.TEXT_TCK
+        # bodyWth = self.cfg.bodyWth
+        # botRat = self.cfg.BOT_RATIO
+        # midBotTck = self.cfg.extMidBotTck
+        # cutTol = self.cfg.joinCutTol
+
+        # txtZ = -botRat * bodyWth/2 - midBotTck - 2
+        # allHt = sum([1.2*size for _, size, _ in tsf])
+        # tx = 1.05*scLen - allHt/(1+backRat)
+        # ls: Shape = None
+        # # print(tsf)
+        # for txt, sz, fnt in tsf:
+        #     if not txt is None and not fnt is None:
+        #         l = self.api.genTextZ(txt, sz, txtTck, fnt) \
+        #             .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
+        #         ls = l if ls is None else ls.join(l)
+        #     tx += sz
+        # botCut = LeleBody(cli=self.cli, isCut=True).mv(0, 0, cutTol)
+
+        # txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
+
+        # if self.isCut:
+        #     self.api.setFidelity(origFidel)
+        # return txtCut
     
     def gen_parser(self,parser=None):
         """
@@ -99,7 +140,8 @@ def test_texts():
     component = 'texts'
     tests = {
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

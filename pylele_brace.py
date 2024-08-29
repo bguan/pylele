@@ -42,7 +42,8 @@ def test_brace():
     component = 'brace'
     tests = {
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

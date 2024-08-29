@@ -111,7 +111,7 @@ def test_top_assembly():
     }
 
     for test,args in tests.items():
-        for api in ['cadquery','blender']:
+        for api in ['cadquery', 'blender', 'trimesh']:
             print(f'# Test {component} {test} {api}')
             outdir = os.path.join('./test',component,test,api)
             args += [

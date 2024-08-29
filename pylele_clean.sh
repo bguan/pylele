@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-rm -rf ./build ./test
+rm -rf ./build ./test pylele.log

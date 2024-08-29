@@ -20,7 +20,7 @@ class LeleTuners(LeleBase):
         
         if self.isCut:
             origFidel = self.cfg.fidelity
-            self.api.setFidelity(Fidelity.MEDIUM)
+            self.api.setFidelity(Fidelity.HIGH)
 
         tXYZs = self.cfg.tnrXYZs
         isPeg = isinstance(self.cfg.tnrCfg, PegConfig)
@@ -62,7 +62,8 @@ def test_tuners():
         'worm'    : ['-t','worm'],
         'big_worm': ['-t','bigWorm'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

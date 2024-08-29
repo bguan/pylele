@@ -80,7 +80,8 @@ def test_peg():
         'cut'     : ['-C'],
         'gotoh'   : ['-t','gotoh'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

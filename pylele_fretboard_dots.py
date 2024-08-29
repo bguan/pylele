@@ -98,6 +98,7 @@ def test_fretboard_dots():
     tests = {
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
         'dots_position': ['-d', '1,2,3:2,4,5'],
         'dots_radius': ['-fdr', '3'],
     }

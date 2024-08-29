@@ -66,9 +66,10 @@ def test_tail():
 
     component = 'tail'
     tests = {
-        'cut'     : ['-E','-e','10','-C'],
-        'cadquery': ['-E','-e','4.3','-i','cadquery'],
-        'blender' : ['-E','-e','4.3','-i','blender']
+        'cut'     : ['-E','-e','88','-C'],
+        'cadquery': ['-E','-e','88','-i','cadquery'],
+        'blender' : ['-E','-e','88','-i','blender'],
+        'trimesh' : ['-E','-e','88','-i','trimesh'],
     }
 
     for test,args in tests.items():

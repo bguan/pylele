@@ -44,6 +44,7 @@ class LeleBody(LeleBase):
         midTck = self.cfg.extMidBotTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
+        joinTol = self.cfg.joinCutTol
 
         if self.cli.body_type == BodyType.GOURD:
             # Gourd body
@@ -54,13 +55,13 @@ class LeleBody(LeleBase):
                 bot = bot.mv(0, 0, -midTck)
                 midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
                 midL = midR.mirrorXZ()
-                bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
+                bot = bot.join(midL.mv(0, joinTol, -midTck)).join(midR.mv(0, -joinTol, -midTck))
 
         elif self.cli.body_type == BodyType.FLAT:
             # Flat body
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
             midL = midR.mirrorXZ()
-            bot = midR.join(midL)
+            bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
         else:
             assert self.cli.body_type in list(BodyType), f'Unsupported Body Type {self.cli.body_type}'
 
@@ -89,6 +90,7 @@ def test_body():
     tests = {
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
         'flat_body': ['-bt',str(BodyType.FLAT),'-fbt','50']
     }
 

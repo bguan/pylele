@@ -28,11 +28,11 @@ class LeleTop(LeleBase):
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
         top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
         if midTck > 0:
-            top = top.mv(0, 0, midTck)
+            top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ(
                 bOrig, bPath, midTck if self.isCut else midTck)
             midL = midR.mirrorXZ()
-            top = top.join(midL).join(midR)
+            top = top.join(midL.mv(0, joinTol,0)).join(midR.mv(0, -joinTol,0))
 
         if self.isCut:
             self.api.setFidelity(origFidel)
@@ -55,7 +55,8 @@ def test_top():
     tests = {
         'cut'     : ['-C'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

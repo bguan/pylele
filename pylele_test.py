@@ -12,6 +12,7 @@ from pathlib import Path
 from pylele_config import Fidelity
 from cq_api import CQShapeAPI
 from bpy_api import BlenderShapeAPI
+from tm_api import TMShapeAPI
 
 # solid parts
 from pylele_tube import test_tube
@@ -49,17 +50,17 @@ from pylele_neck_assembly import test_neck_assembly
 from pylele_top_assembly import test_top_assembly
 from pylele_bottom_assembly import test_bottom_assembly
 
-def make_api_path_and_filename(api_name,test_path='./test'):
+def make_api_test_outpath(api_name, test_path='./test'):
     """ Makes Test API folder and filename """
-    out_path = os.path.join(Path.cwd(),test_path,api_name)
+    out_path = Path.cwd() / test_path / api_name
 
     if not os.path.isdir(out_path):
         os.makedirs(out_path)
     assert os.path.isdir(out_path)
 
-    outfname = os.path.join(out_path,api_name+'.stl')
-    print(outfname)
-    return outfname
+    # outfname = os.path.join(out_path,api_name+'.stl')
+    # print(outfname)
+    return out_path
 
 class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
@@ -67,15 +68,21 @@ class PyleleTestMethods(unittest.TestCase):
     ## API
     def test_cadquery_api(self):
         """ Test Cadquery API """
-        outfname = make_api_path_and_filename('cadquery_api')
+        out_path = make_api_test_outpath('cadquery_api')
         api = CQShapeAPI(Fidelity.LOW)
-        api.test(outfname)
+        api.test(out_path)
 
     def test_blender_api(self):
         """ Test Blender API """
-        outfname = make_api_path_and_filename('blender_api')
+        out_path = make_api_test_outpath('blender_api')
         api = BlenderShapeAPI(Fidelity.LOW)
-        api.test(outfname)
+        api.test(out_path)
+
+    def test_trimesh_api(self):
+        """ Test Trimesh API """
+        out_path = make_api_test_outpath('trimesh_api')
+        api = TMShapeAPI(Fidelity.LOW)
+        api.test(out_path)
     
     ## Solid Parts
     def test_tube(self):

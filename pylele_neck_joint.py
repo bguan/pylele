@@ -39,7 +39,8 @@ def test_neck_joint():
     component = 'neck_joint'
     tests = {
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

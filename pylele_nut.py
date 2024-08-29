@@ -85,6 +85,7 @@ def test_nut():
     tests = {
         'cadquery': ['-i','cadquery'],
         'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
         'separate_fretboard' : ['-F'],
         'zerofret': ['-nt', str(NutType.ZEROFRET)],
     }

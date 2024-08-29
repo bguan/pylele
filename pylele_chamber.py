@@ -31,9 +31,9 @@ class LeleChamber(LeleBase):
         topChmRat = topRat * 3/4
 
         topFront = self.api.genQuarterBall(rad, True, True)\
-            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
+            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, -joinTol)
         topBack = self.api.genQuarterBall(rad, True, False)\
-            .scale(backRat, 1, topChmRat)
+            .scale(backRat, 1, topChmRat).mv(0, 0, -joinTol)
         botFront = self.api.genQuarterBall(rad, False, True)\
             .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
         botBack = self.api.genQuarterBall(rad, False, False)\
@@ -69,7 +69,8 @@ def test_chamber():
     tests = {
         'cut'     : ['-C'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

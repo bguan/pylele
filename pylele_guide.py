@@ -55,7 +55,8 @@ def test_guide():
     tests = {
         'cut'     : ['-C'],
         'cadquery': ['-i','cadquery'],
-        'blender' : ['-i','blender']
+        'blender' : ['-i','blender'],
+        'trimesh' : ['-i','trimesh'],
     }
 
     for test,args in tests.items():

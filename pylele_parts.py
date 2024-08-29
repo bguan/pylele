@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Union
 from pylele_api import ShapeAPI, Shape
 from pylele_config import FILLET_RAD, Fidelity, Implementation, LeleConfig, WormConfig, PegConfig, \
     FIT_TOL, SEMI_RATIO, CARBON, GRAY, LITE_GRAY,DARK_GRAY, ORANGE, WHITE, accumDiv
@@ -28,7 +30,7 @@ class LelePart(ABC):
         self.isCut = isCut
         self.joiners = joiners
         self.cutters = cutters
-        self.fileNameBase = self.__class__.__name__
+        self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
         self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
         self.api = ShapeAPI.get(cfg.impl, cfg.fidelity)
 
@@ -45,9 +47,12 @@ class LelePart(ABC):
         self.shape = self.shape.cut(cutter.shape)
         return self
 
-    def exportSTL(self, path: str) -> None:
-        self.api.exportSTL(self.shape, path)
+    def exportSTL(self, path: Union[str, Path] ) -> None:
+        self.api.exportSTL(self.shape, str(path))
     
+    def exportBest(self, path: Union[str, Path] ) -> None:
+        self.api.exportBest(self.shape, str(path))
+
     def filletByNearestEdges(
         self,
         nearestPts: list[tuple[float, float, float]],
@@ -304,8 +309,8 @@ class Neck(LelePart):
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
         neckCone = self.api.genConeX(nkLen, ntWth/2, nkWth/2)
-        coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
-        neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
+        coneCut = self.api.genBox(2*nkLen, 2*nkWth, 2*nkWth).mv(nkLen, 0, nkWth)
+        neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, -midTck)
         neck = neckCone if neck == None else neck.join(neckCone)
         return neck
 
@@ -344,12 +349,12 @@ class Head(LelePart):
 
     def gen(self) -> Shape:
         hdWth = self.cfg.headWth
-        hdLen = self.cfg.HEAD_LEN
+        hdLen = self.cfg.headLen
         ntHt = self.cfg.NUT_HT
         fbTck = self.cfg.FRETBD_TCK
         spHt = self.cfg.SPINE_HT
         fspTck = self.cfg.FRETBD_SPINE_TCK
-        topRat = self.cfg.TOP_RATIO
+        topRat = self.cfg.HEAD_TOP_RATIO
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig
@@ -357,23 +362,22 @@ class Head(LelePart):
         joinTol = self.cfg.joinCutTol
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
-            .scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
+            .scale(1, 1, botRat).mv(0, 0, joinTol/2 -midTck)
         
         if midTck > 0:
-            midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
-                .mv(0, 0, -midTck)
+            midR = self.api.genLineSplineExtrusionZ(orig, path, midTck).mv(0, 0, -midTck)
             midL = midR.mirrorXZ()
-            hd = hd.join(midL).join(midR)
+            hd = hd.join(midR).join(midL)
 
         if topRat > 0:
             top = self.api.genLineSplineRevolveX(orig, path, 180)\
-                .scale(1, 1, topRat).mv(0, 0, -joinTol)
+                .scale(1, 1, topRat).mv(0, 0, -joinTol/2)
             hd = hd.join(top)
 
         topCut = self.api.genRodY(2*hdWth, hdLen)\
-            .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
-        frontCut = self.api.genRodY(2*hdWth, .65*spHt)\
-            .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .6*spHt)
+            .mv(-ntHt, 0, .8*hdLen + fbTck + ntHt)
+        frontCut = self.api.genRodY(2*hdWth, .7*spHt)\
+            .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .65*spHt)
         hd = hd.cut(frontCut).cut(topCut)
         return hd
 
@@ -403,11 +407,11 @@ class Top(LelePart):
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
         top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
         if midTck > 0:
-            top = top.mv(0, 0, midTck)
+            top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ(
                 bOrig, bPath, midTck if self.isCut else midTck)
             midL = midR.mirrorXZ()
-            top = top.join(midL).join(midR)
+            top = top.join(midL.mv(0, joinTol, 0)).join(midR.mv(0, -joinTol, 0))
 
         if self.isCut:
             self.api.setFidelity(origFidel)
@@ -431,14 +435,15 @@ class Body(LelePart):
         midTck = self.cfg.extMidBotTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
+        joinTol = self.cfg.joinCutTol
 
         bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
 
         if midTck > 0:
-            bot = bot.mv(0, 0, -midTck)
+            bot = bot.mv(0, 0, -midTck +joinTol)
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
             midL = midR.mirrorXZ()
-            bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
+            bot = bot.join(midL.mv(0, joinTol, -midTck)).join(midR.mv(0, -joinTol, -midTck))
 
         return bot
 
@@ -495,9 +500,9 @@ class Chamber(LelePart):
         topChmRat = topRat * 3/4
 
         topFront = self.api.genQuarterBall(rad, True, True)\
-            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
+            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, -joinTol)
         topBack = self.api.genQuarterBall(rad, True, False)\
-            .scale(backRat, 1, topChmRat)
+            .scale(backRat, 1, topChmRat).mv(0, 0, -joinTol)
         botFront = self.api.genQuarterBall(rad, False, True)\
             .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
         botBack = self.api.genQuarterBall(rad, False, False)\
@@ -791,10 +796,6 @@ class Tuners(LelePart):
         self.color = (128, 128, 128)
 
     def gen(self) -> Shape:
-        if self.isCut:
-            origFidel = self.cfg.fidelity
-            self.api.setFidelity(Fidelity.MEDIUM)
-
         tXYZs = self.cfg.tnrXYZs
         isPeg = isinstance(self.cfg.tnrCfg, PegConfig)
         isWorm = isinstance(self.cfg.tnrCfg, WormConfig)
@@ -806,9 +807,6 @@ class Tuners(LelePart):
             if tnr != None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
                 tnrs = tnr if tnrs == None else tnrs.join(tnr)
-
-        if self.isCut:
-            self.api.setFidelity(origFidel)
         return tnrs
 
 
@@ -882,34 +880,39 @@ class Texts(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
-        origFidel = self.api.fidelity
-        self.api.setFidelity(Fidelity.HIGH)
+
+        if self.isCut:
+            origFidel = self.api.fidelity
+            self.api.setFidelity(Fidelity.LOW)
 
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
-        dep = self.cfg.EMBOSS_DEP
         tsf = self.cfg.txtSzFonts
-        txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
-        cutTol = self.cfg.joinCutTol
+        txtTck = botRat * bodyWth/2 + midBotTck + 2
 
-        txtZ = -botRat * bodyWth/2 - midBotTck - 2
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
                 l = self.api.genTextZ(txt, sz, txtTck, fnt) \
-                    .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
+                    .rotateZ(90).mv(tx + sz/2, 0, 0) #txtTck/2)
                 ls = l if ls is None else ls.join(l)
             tx += sz
-        botCut = Body(self.cfg, isCut=True).mv(0, 0, cutTol)
+        
+        if self.isCut:
+            # Orig impl is ls = ls.mirrorXZ() but Blender text mirroring can lead to invalid meshes
+            ls = ls.rotateX(180) 
+            if self.api.getImplementation() != Implementation.CAD_QUERY:
+                ls = ls.mv(0, 0, -txtTck) # HACK: Blender Text rotation is wonky
+            bodyCut = Body(self.cfg, isCut=True).mv(0, 0, self.cfg.EMBOSS_DEP)
+            ls = ls.cut(bodyCut.shape)
+            self.api.setFidelity(origFidel)
 
-        txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
-        self.api.setFidelity(origFidel)
-        return txtCut
+        return ls
 
 class TailEnd(LelePart):
     def __init__(self, 

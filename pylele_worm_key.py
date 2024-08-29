@@ -65,6 +65,7 @@ def test_worm_key():
         'cut'     : ['-t','worm','-C'],
         'cadquery': ['-t','worm','-i','cadquery'],
         'blender' : ['-t','worm','-i','blender'],
+        'trimesh' : ['-t','worm','-i','trimesh'],
         'big_worm': ['-t','bigWorm'],
     }
 

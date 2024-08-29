@@ -1,8 +1,10 @@
 from __future__ import annotations
 import copy
 import math
+from pathlib import Path
 import cadquery as cq
 from pylele_api import ShapeAPI, Shape, Fidelity, Implementation
+from pylele_utils import descreteBezierChain, ensureFileExtn, superGradient
 from typing import Union
 
 """
@@ -10,89 +12,89 @@ from typing import Union
 """
 class CQShapeAPI(ShapeAPI):
     def __init__(self, fidel: Fidelity):
+        super().__init__()
         self.fidelity = fidel
+
+    def getFidelity(self) -> Fidelity:
+        return self.fidelity
+    
+    def getImplementation(self) -> Implementation:
+        return Implementation.CAD_QUERY
 
     def setFidelity(self, fidel: Fidelity) -> None:
         self.fidelity = fidel
 
-    def exportSTL(self, shape: CQShape, path: str) -> None:
+    def exportSTL(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
             shape.solid,
-            path,
+            ensureFileExtn(path,'.stl'),
             cq.exporters.ExportTypes.STL,
             tolerance=self.fidelity.exportTol(),
         )
 
+    def exportBest(self, shape: CQShape, path: Union[str, Path]) -> None:
+        cq.exporters.export(
+            shape.solid,
+            ensureFileExtn(path,'.step'),
+            cq.exporters.ExportTypes.STEP,
+            tolerance=self.fidelity.exportTol(),
+        )
+
     def genBall(self, rad: float) -> CQShape:
-        return CQBall(rad)
+        return CQBall(rad, self)
 
     def genBox(self, ln: float, wth: float, ht: float) -> CQShape:
-        return CQBox(ln, wth, ht)
+        return CQBox(ln, wth, ht, self)
 
     def genConeX(self, ln: float, r1: float, r2: float) -> CQShape:
-        return CQCone(ln, r1, r2, (1,0,0))
+        return CQCone(ln, r1, r2, (1,0,0), self)
 
     def genConeY(self, ln: float, r1: float, r2: float) -> CQShape:
-        return CQCone(ln, r1, r2, (0,1,0))
+        return CQCone(ln, r1, r2, (0,1,0), self)
 
     def genConeZ(self, ln: float, r1: float, r2: float) -> CQShape:
-        return CQCone(ln, r1, r2, (0,0,1))
+        return CQCone(ln, r1, r2, (0,0,1), self)
 
     def genPolyRodX(self, ln: float, rad: float, sides: int) -> CQShape:
-        return CQPolyRod(ln, rad, sides, "YZ")
+        return CQPolyRod(ln, rad, sides, "YZ", self)
 
     def genPolyRodY(self, ln: float, rad: float, sides: int) -> CQShape:
-        return CQPolyRod(ln, rad, sides, "XZ")
+        return CQPolyRod(ln, rad, sides, "XZ", self)
 
     def genPolyRodZ(self, ln: float, rad: float, sides: int) -> CQShape:
-        return CQPolyRod(ln, rad, sides, "XY")
+        return CQPolyRod(ln, rad, sides, "XY", self)
 
     def genRodX(self, ln: float, rad: float) -> CQShape:
-        return CQRod(ln, rad, "YZ")
+        return CQRod(ln, rad, "YZ", self)
 
     def genRodY(self, ln: float, rad: float) -> CQShape:
-        return CQRod(ln, rad, "XZ")
+        return CQRod(ln, rad, "XZ", self)
 
     def genRodZ(self, ln: float, rad: float) -> CQShape:
-        return CQRod(ln, rad, "XY")
-
-    def genRndRodX(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRodX(ln, rad, domeRatio)
-
-    def genRndRodY(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRodY(ln, rad, domeRatio)
-
-    def genRndRodZ(self, ln: float, rad: float, domeRatio: float = 1) -> CQShape:
-        return CQRndRodZ(ln, rad, domeRatio)
+        return CQRod(ln, rad, "XY", self)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> CQShape:
-        return CQPolyExtrusionZ(path, ht)
+        return CQPolyExtrusionZ(path, ht, self)
 
     def genLineSplineExtrusionZ(self, 
             start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
+            path: list[tuple[float, float] | list[tuple[float, ...]]], 
             ht: float,
         ) -> CQShape:
-        return CQLineSplineExtrusionZ(start, path, ht)
+        return CQLineSplineExtrusionZ(start, path, ht, self)
     
     def genLineSplineRevolveX(self, 
             start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
+            path: list[tuple[float, float] | list[tuple[float, ...]]], 
             deg: float,
         ) -> CQShape:
-        return CQLineSplineRevolveX(start, path, deg)
+        return CQLineSplineRevolveX(start, path, deg, self)
     
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> CQShape:
-        return CQCirclePolySweep(rad, path)
+        return CQCirclePolySweep(rad, path, self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
-        return CQTextZ(txt, fontSize, tck, font)
-
-    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool) -> CQShape:
-        return CQQuarterBall(radius, pickTop, pickFront)
-        
-    def genHalfDisc(self, radius: float, pickFront: bool, tck: float) -> CQShape:
-        return CQHalfDisc(radius, pickFront, tck)
+        return CQTextZ(txt, fontSize, tck, font, self)
     
     def getJoinCutTol(self):
         return Implementation.CAD_QUERY.joinCutTol()
@@ -100,12 +102,24 @@ class CQShapeAPI(ShapeAPI):
 
 class CQShape(Shape):
 
-    def __init__(self):
-        self.solid = None
+    def __init__(self, api: CQShapeAPI):
+        self.api:CQShapeAPI = api
+        self.solid:cq.Workplane = None
 
+    def getAPI(self) -> CQShapeAPI:
+        return self.api
+
+    def getImplSolid(self) -> cq.Workplane:
+        return self.solid
+    
     def cut(self, cutter: CQShape) -> CQShape:
         self.solid = self.solid.cut(cutter.solid)
         return self
+    
+    def dup(self) -> CQShape:
+        duplicate = copy.copy(self)
+        duplicate.solid = self.solid.val().copy()
+        return duplicate
 
     def filletByNearestEdges(self, 
         nearestPts: list[tuple[float, float, float]], 
@@ -121,39 +135,43 @@ class CQShape(Shape):
 
         return self
 
-    def half(self) -> CQShape:
-        halfCutter = CQBox(2000, 2000, 2000).mv(0, 1000, 0)
-        self = self.cut(halfCutter)
-        return self
-
     def join(self, joiner: CQShape) -> CQShape:
         self.solid = self.solid.union(joiner.solid)
         return self
 
-    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
+    def segsByDim(self, dim: float) -> int:
+        return math.ceil((abs(dim)) * self.api.fidelity.smoothingSegments()**.25)
+    
+    # draw mix of straight lines from pt to pt, and draw spline when given 
+    # list of (x,y,grad, pre ctrlLenRatio, post ctrlLenRatio)
     def lineSplineXY(
         self,
         start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
+        lineSpline: list[tuple[float, float] | list[tuple[float, ...]]],
     ) -> cq.Workplane:
+        
         lastX, lastY = start
         trace = cq.Workplane("XY").moveTo(lastX, lastY)
-        for p_or_s in path:
+        
+        for p_or_s in lineSpline:
             if isinstance(p_or_s, tuple):
                 # a point so draw line
                 lastX, lastY = p_or_s
                 trace = trace.lineTo(lastX, lastY)
             elif isinstance(p_or_s, list):
                 # a list of points and gradients/tangents to trace spline thru
-                x1, y1, _, _ = p_or_s[0]
+                spline: list[tuple[float, ...]] = p_or_s
+                x1, y1 = spline[0][0:2]
                 # insert first point if diff from last
                 if lastX != x1 or lastY != y1:
                     dx0 = x1 - lastX
                     dy0 = y1 - lastY
-                    p_or_s.insert(0, (lastX, lastY, dx0, dy0))
-                splinePts = [(p[0], p[1]) for p in p_or_s]
-                tangents = [cq.Vector(p[2], p[3]) for p in p_or_s]
-                trace = trace.spline(splinePts, tangents, scale=True) 
+                    grad0 = superGradient(dy=dy0, dx=dx0)
+                    spline.insert(0, (lastX, lastY, grad0, 0, .5))
+                curvePts = descreteBezierChain(spline, self.segsByDim)
+                trace = trace.spline(curvePts)
+                lastX, lastY = spline[-1][0:2]
+
         trace = trace.close()
         return trace
 
@@ -175,7 +193,7 @@ class CQShape(Shape):
     def rotateX(self, ang: float) -> CQShape:
         if ang == 0:
             return self
-        self.solid = self.solid.rotate((-1, 0, 0), (1, 0, 1), ang)
+        self.solid = self.solid.rotate((-1, 0, 0), (1, 0, 0), ang)
         return self
 
     def rotateY(self, ang: float) -> CQShape:
@@ -211,62 +229,46 @@ class CQShape(Shape):
 
 
 class CQBall(CQShape):
-    def __init__(self, rad: float):
+    def __init__(self, rad: float, api: CQShapeAPI):
+        super().__init__(api)
         self.rad = rad
         self.solid = cq.Workplane("XY").sphere(rad)
 
 
 class CQCone(CQShape):
-    def __init__(self, ln: float, r1: float, r2: float, dir: tuple[float, float, float]):
+    def __init__(self, ln: float, r1: float, r2: float, dir: tuple[float, float, float], api: CQShapeAPI):
+        super().__init__(api)
         self.ln = ln
         self.r1 = r1
         self.r2 = r2
         self.solid = cq.Workplane("YZ")\
             .add(cq.Solid.makeCone(r1, r2, ln, dir=dir))
 
-class CQRndRodZ(CQShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float):
-        super().__init__()
-        rLen = ln - 2*rad*domeRatio
-        rod = CQRod(rLen, rad, "XY")
-        for bz in [rLen/2, -rLen/2]:
-            ball = CQBall(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
-            rod = rod.join(ball)
-        self.solid = rod.solid
-
-class CQRndRodX(CQShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float):
-        super().__init__()
-        self.solid = CQRndRodZ(ln, rad, domeRatio).rotateY(90).solid
-
-
-class CQRndRodY(CQShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float):
-        super().__init__()
-        self.solid = CQRndRodX(ln, rad, domeRatio).rotateZ(90).solid
-
 
 class CQPolyRod(CQShape):
-    def __init__(self, ln: float, rad: float, sides: int, plane: str = "YZ"):
+    def __init__(self, ln: float, rad: float, sides: int, plane: str , api: CQShapeAPI):
+        super().__init__(api)
         self.ln = ln
         self.rad = rad
         sideLen = 4 * math.sin(math.pi/sides) * rad
         polygon = cq.Workplane(plane).polygon(sides, sideLen)
         self.solid = polygon.extrude(ln).translate((
             -ln/2 if plane == "YZ" else 0, 
-            -ln/2 if plane == "XZ" else 0, 
+            ln/2 if plane == "XZ" else 0, 
             -ln/2 if plane == "XY" else 0,
         ))
 
 
 class CQRod(CQShape):
-    def __init__(self, ln: float, rad: float, plane: str = "YZ"):
+    def __init__(self, ln: float, rad: float, plane: str, api: CQShapeAPI):
+        super().__init__(api)
         self.ln = ln
         self.rad = rad
         self.solid = cq.Workplane(plane).cylinder(ln, rad)
 
 class CQBox(CQShape):
-    def __init__(self, ln: float, wth: float, ht: float):
+    def __init__(self, ln: float, wth: float, ht: float, api: CQShapeAPI):
+        super().__init__(api)
         self.ln = ln
         self.wth = wth
         self.ht = ht
@@ -275,34 +277,41 @@ class CQBox(CQShape):
 
 # draw straight lines from pt to pt then extrude
 class CQPolyExtrusionZ(CQShape):
-    def __init__(self, path: list[tuple[float, float]], ht: float):
+    def __init__(self, path: list[tuple[float, float]], ht: float, api: CQShapeAPI):
+        super().__init__(api)
         self.path = path
         self.ht = ht
         self.solid = cq.Workplane("XY").sketch()\
             .polygon(path).finalize().extrude(ht)
 
 
-# draw mix of straight lines from pt to pt, or draw spline with [(x,y,dx,dy), ...], then extrude on Z-axis
+# draw mix of straight lines from pt to pt, or draw spline with 
+# [(x,y,grad,prev Ctl ratio, post Ctl ratio), ...], then extrude on Z-axis
 class CQLineSplineExtrusionZ(CQShape):
     def __init__(
         self,
         start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-        ht: float,
+        path: list[tuple[float, float] | list[tuple[float, ...]]],
+        ht: float, 
+        api: CQShapeAPI,
     ):
+        super().__init__(api)
         self.path = path
         self.ht = ht
         self.solid = self.lineSplineXY(start, path).extrude(ht)
 
 
-# draw mix of straight lines from pt to pt, or draw spline with [(x,y,dx,dy), ...], then revolve on X-axis
+# draw mix of straight lines from pt to pt, or draw spline with 
+# [(x,y,grad, pre ctrl ratio, post ctl ratio), ...], then revolve on X-axis
 class CQLineSplineRevolveX(CQShape):
     def __init__(
         self,
         start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-        deg: float,
+        path: list[tuple[float, float] | list[tuple[float, ...]]],
+        deg: float, 
+        api: CQShapeAPI,
     ):
+        super().__init__(api)
         self.path = path
         self.deg = deg if deg > 0 else -deg
         self.solid = self.lineSplineXY(start, path)\
@@ -315,7 +324,9 @@ class CQCirclePolySweep(CQShape):
         self,
         rad: float,
         path: list[tuple[float, float, float]],
+        api: CQShapeAPI,
     ):
+        super().__init__(api)
         self.path = path
         self.rad = rad
         path0 = [(p[0] - path[0][0], p[1] - path[0][1], p[2] - path[0][2])
@@ -331,10 +342,12 @@ class CQTextZ(CQShape):
     def __init__(
         self,
         txt: str,
-        fontSize: float = 10,
-        tck: float = 5,
-        font: str = "Arial",
+        fontSize: float,
+        tck: float,
+        font: str, 
+        api: CQShapeAPI,
     ):
+        super().__init__(api)
         self.txt = txt
         self.fontSize = fontSize
         self.tck = tck
@@ -342,25 +355,5 @@ class CQTextZ(CQShape):
         self.solid = cq.Workplane("XY").text(txt, fontSize, tck, font=font)
 
 
-class CQQuarterBall(CQShape):
-    def __init__(self, rad: float, pickTop: bool, pickFront: bool):
-        self.pickTop = pickTop
-        self.pickFront = pickFront
-        self.rad = rad
-        ball = cq.Workplane("XY").sphere(rad)
-        topCut = cq.Workplane("XY").box(2000, 2000, 2000).translate((0, 0, -1000 if pickTop else 1000))
-        frontCut = cq.Workplane("XY").box(2000, 2000, 2000).translate((1000 if pickFront else -1000, 0, 0))
-        self.solid = ball.cut(topCut).cut(frontCut)
-
-class CQHalfDisc(CQShape):
-    def __init__(self, rad: float, pickFront: bool, tck: float):
-        self.pickFront = pickFront
-        self.tck = tck
-        self.rad = rad
-        rod = cq.Workplane("XY").cylinder(tck, rad)
-        cutter = cq.Workplane("XY").box(2000, 2000, 2000).translate((1000 if pickFront else -1000, 0, 0))
-        self.solid = rod.cut(cutter)
-
-
 if __name__ == '__main__':
-    CQShapeAPI(Fidelity.LOW).test("build/cq-all.stl")
+    CQShapeAPI(Fidelity.LOW).test(Path.cwd() / 'test' / 'cadquery_api')
