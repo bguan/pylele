@@ -39,7 +39,8 @@ def test_iteration(module,component,test,api,args=None):
     outdir = os.path.join(DEFAULT_TEST_DIR,component,test,api)
     args += [
         '-o', outdir,
-        '-i', api
+        '-i', api,
+        '-odoff' # do not append date
                 ]
     print(args)
     mod.main(args=args)
@@ -92,6 +93,9 @@ def lele_solid_parser(parser=None):
                         choices = ColorEnum._member_names_, default = ColorEnum.ORANGE
                         )
     parser.add_argument("-o", "--outdir", help="Output directory.", type=str,default=DEFAULT_BUILD_DIR)
+    parser.add_argument("-odoff", "--outdir_date_off",
+                    help="Disable appending name to output directory",
+                    action='store_true')
     parser.add_argument("-C", "--is_cut",
                     help="This solid is a cutting.",
                     action='store_true')
