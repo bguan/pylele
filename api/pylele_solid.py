@@ -348,9 +348,11 @@ class LeleSolid(ABC):
             # assert mesh.is_watertight
             print(f'mesh_volume: {mesh.volume}')
             print(f'mesh.convex_hull.volume: {mesh.convex_hull.volume}')
+            print(f'mesh.bounding_box: {mesh.bounding_box.extents}')
             # mesh.show() does not work
             rpt['volume'] = mesh.volume
             rpt['convex_hull_volume'] = mesh.convex_hull.volume
+            rpt['bounding_box'] = mesh.bounding_box.extents
             
             if not self.cli.implementation == Implementation.MOCK:
                 assert volume_match_reference(volume=mesh.volume,
