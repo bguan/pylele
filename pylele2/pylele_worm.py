@@ -120,7 +120,7 @@ def pylele_worm_parser(parser = None):
     parser.add_argument("-wahr", "--worm_axle_hole_radius",
                     help="Worm Axle Radius [mm]",
                     type=float,
-                    default=3
+                    default=1.5
                     )
     parser.add_argument("-whk", "--worm_has_key",
                 help="Create Hole for worm key.",
