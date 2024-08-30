@@ -16,7 +16,7 @@ class LeleTail(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Tail """
-        assert self.cli.separate_end
+        assert self.cli.separate_end or self.cli.body_type==LeleBodyType.FLAT_HOLLOW
 
         cfg = self.cfg
         joinTol = self.api.getJoinCutTol() # cfg.joinCutTol

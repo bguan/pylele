@@ -31,23 +31,18 @@ from pylele2.pylele_worm import pylele_worm_parser
 class LeleBottomAssembly(LeleBase):
     """ Pylele Body Bottom Assembly Generator class """
 
+    def gen_tail(self,is_cut = False ,cutters=[]) -> Shape:
+        """ generate tail """
+        tailCut = LeleTail(cli=self.cli, isCut=is_cut)
+        for cut in cutters:
+            if not cut is None:
+                tailCut = tailCut.cut(cut)
+        return tailCut
+
     def gen(self) -> Shape:
         """ Generate Body Bottom Assembly """
 
-        nkJntCut = LeleNeckJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol()) \
-            if self.cli.separate_neck else None
         txtCut = LeleTexts(cli=self.cli, isCut=True)
-        tailCut = LeleTail(cli=self.cli, isCut=True) if self.cli.separate_end else None # if cfg.sepEnd else None
-        rimCut = LeleRim(cli=self.cli, isCut=True) if self.cli.separate_top else None # if cfg.sepTop else None
-        wormKeyCut = LeleWormKey(cli=self.cli, isCut=True) if TunerType[self.cli.tuner_type].value.is_worm() else None
-
-        chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
-        spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())\
-            if self.cli.num_strings > 1 else None
-        
-        fbspCut = LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) \
-            if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top else None
-
         top = LeleTopAssembly(cli=self.cli)
         neck = LeleNeckAssembly(cli=self.cli)
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
@@ -55,14 +50,17 @@ class LeleBottomAssembly(LeleBase):
         bodyJoiners = []
         bodyCutters = [txtCut]
 
-        if not (self.cli.body_type==LeleBodyType.FLAT or self.cli.body_type==LeleBodyType.FLAT_HOLLOW):
+        if not self.cli.body_type in [LeleBodyType.FLAT , LeleBodyType.FLAT_HOLLOW]:
+            chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
             bodyCutters += [chmCut]
 
-        if spCut is not None:
+        if self.cli.num_strings > 1:
+            spCut = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
             bodyCutters.append(spCut)
 
         top.gen_full()
         if self.cli.separate_top:
+            rimCut = LeleRim(cli=self.cli, isCut=True)
             bodyCutters.append(rimCut)
             self.add_part(top)
         else:
@@ -71,6 +69,7 @@ class LeleBottomAssembly(LeleBase):
 
         neck.gen_full()
         if self.cli.separate_neck:
+            nkJntCut = LeleNeckJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol())
             bodyCutters.append(nkJntCut)
             self.add_part(neck)
         else:
@@ -78,20 +77,32 @@ class LeleBottomAssembly(LeleBase):
             self.add_parts(neck)
 
         if self.cli.separate_fretboard or self.cli.separate_top:
+            fbspCut = LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol()) \
+            if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top else None
             bodyCutters.append(fbspCut)
 
         bodyCutters.append(tnrsCut)
-        if tailCut is not None:
-            bodyCutters.append(tailCut)
-            tailCut = tailCut.cut(tnrsCut)
-            if self.cli.worm_has_key:
-                tailCut = tailCut.cut(wormKeyCut)
-                bodyCutters.append(wormKeyCut)
-            self.add_part(tailCut)
-        else:
-            if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
-                bodyCutters.append(wormKeyCut)
 
+        
+
+        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
+            wormKeyCut = LeleWormKey(cli=self.cli, isCut=True)
+            bodyCutters.append(wormKeyCut)
+        else:
+            wormKeyCut = None
+
+        ## add tail
+        tail_cutters = [tnrsCut,wormKeyCut]
+        if self.cli.separate_end:
+            tailCut = self.gen_tail(cutters=tail_cutters,is_cut=True)
+            self.add_part(tailCut)
+            bodyCutters.append(tailCut)
+        elif self.cli.body_type==LeleBodyType.FLAT_HOLLOW:
+            # join tail to body if flat hollow and not separate end
+            tailCut = self.gen_tail(cutters=tail_cutters,is_cut=False)
+            bodyJoiners.append(tailCut)
+        
+        ## body
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
 
         self.shape = body.gen_full()
@@ -133,7 +144,8 @@ TESTS = {
 TESTS_CQ = {
         'flat'          : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35'],
         'flat_bigworm'  : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
-        'flat_hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35']
+        'flat_hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35'],
+        'flat_hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35']
     }
 
 def test_bottom_assembly(self):
