@@ -12,7 +12,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 import argparse
 import datetime
+import time
 import importlib
+import trimesh
 from pathlib import Path
 from abc import ABC, abstractmethod
                 
@@ -67,6 +69,13 @@ def test_loop(module,apis=None,tests=None): # ,component):
                         api=api,
                         args=args,
                         )
+            
+def export_dict2text(outpath,fname,dictdata):
+    """ save info in input dictionary to output file """
+    out_fname = os.path.join(outpath,fname)
+    with open(out_fname, 'w', encoding='UTF8') as f:
+        f.write(repr(dictdata))
+    assert os.path.isfile(out_fname)
 
 def make_or_exist_path(out_path):
     """ Check a directory exist, and generate if not """
@@ -279,18 +288,18 @@ class LeleSolid(ABC):
     
     def export_args(self):
         """ Export Pylele Solid input arguments """
-        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_args.txt')
-        with open(out_fname, 'w', encoding='UTF8') as f:
-            f.write(repr(self.cli))
-        assert os.path.isfile(out_fname)
-        
-    def exportSTL(self, out_path=None) -> str:
+        export_dict2text(outpath =self._make_out_path(),
+                         fname = self.fileNameBase + '_args.txt',
+                         dictdata = self.cli )
+
+    def exportSTL(self, out_path=None, check_volume=True,report_en=True) -> str:
         """ Generate .stl output file """
         if out_path is None:
             out_path = self._make_out_path()
         out_fname = os.path.join(out_path,self.fileNameBase + '.stl')
         print(f'Output File: {out_fname}')
 
+        start_time = time.time()
         self._gen_full_if_no_shape()
 
         self.api.exportSTL(self.shape, out_fname)
@@ -303,6 +312,28 @@ class LeleSolid(ABC):
                     part.exportSTL(out_path=out_path)
                 else:
                     print(f'# WARNING: Cannot export .stl of class {part} in assembly {self}')
+
+        rpt={}
+        # checks
+        if check_volume:
+            mesh =  trimesh.load_mesh(out_fname)
+            # assert mesh.is_watertight
+            print(f'mesh_volume: {mesh.volume}')
+            print(f'mesh.convex_hull.volume: {mesh.convex_hull.volume}')
+            # mesh.show() does not work
+            rpt['volume'] = mesh.volume
+            rpt['convex_hull_volume'] = mesh.convex_hull.volume
+
+        end_time = time.time()
+        # get the execution time
+        render_time = end_time - start_time
+        print(f'Rendering time: {render_time} [s]')
+        rpt['render_time'] = render_time
+
+        if report_en:
+            export_dict2text(outpath = out_path,
+                    fname = self.fileNameBase + '_rpt.txt',
+                    dictdata = rpt )
 
         return out_fname
     

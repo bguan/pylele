@@ -11,7 +11,8 @@ from enum import Enum
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, FIT_TOL, FILLET_RAD, LeleStrEnum
+from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, \
+    FIT_TOL, FILLET_RAD, LeleStrEnum, export_dict2text
 from pylele2.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, LeleBodyType, \
     LeleScaleEnum, SEMI_RATIO, DEFAULT_FLAT_BODY_THICKNESS
 
@@ -153,11 +154,9 @@ class LeleBase(LeleSolid):
         """ Export Pylele Configuration """
 
         self.configure_if_hasnt()
-
-        out_fname = os.path.join(self._make_out_path(),self.fileNameBase + '_cfg.txt')
-        with open(out_fname, 'w', encoding='UTF8') as f:
-            f.write(repr(self.cfg))
-        assert os.path.isfile(out_fname)
+        export_dict2text(outpath=self._make_out_path(),
+                         fname=self.fileNameBase + '_cfg.txt',
+                         dictdata=self.cfg)
 
     def gen_parser(self,parser=None):
         """
