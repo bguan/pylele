@@ -39,15 +39,18 @@ def main(args=None):
                 class_name='Screw',
                 args=args)
 
-def test_screw(self):
+def test_screw(self,apis=None):
     """ Test Screw """
     ## Cadquery and Blender
-    test_loop(module=__name__)
+    tests={
+        'volume': ['-refv','60.9']
+        }
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_screw_mock(self):
     """ Test Screw """
     ## Cadquery and Blender
-    test_loop(module=__name__, apis=['mock'])
+    test_screw(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()

@@ -78,7 +78,7 @@ class PrettyPrintDict(dict):
         properties = '\n'.join(f"{key}={value!r}" for key, value in self.dict.items())
         return properties
     
-def export_dict2text(outpath,fname,dictdata):
+def export_dict2text(outpath,fname,dictdata) -> str:
     """ save info in input dictionary to output file """
     
     if isinstance(dictdata,Namespace):
@@ -100,6 +100,17 @@ def make_or_exist_path(out_path):
         os.makedirs(out_path)
 
     assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
+
+def volume_match_reference(volume: float,reference: float, tolerance: float = 0.1) -> bool:
+    """ True if volume matches reference within tolerance """
+
+    if reference is None:
+        return True
+    
+    if abs(volume - reference) < reference * tolerance:
+        return True
+    
+    return False
 
 def lele_solid_parser(parser=None):
     """
@@ -123,7 +134,9 @@ def lele_solid_parser(parser=None):
     parser.add_argument("-C", "--is_cut",
                     help="This solid is a cutting.",
                     action='store_true')
-
+    parser.add_argument("-refv", "--reference_volume",
+                        help="Reference volume [mm2]. If specified, generate assertion if volume of generated .stl file differs from the reference",
+                        type=float,default=None)
     return parser
 
 class LeleSolid(ABC):
@@ -338,6 +351,10 @@ class LeleSolid(ABC):
             # mesh.show() does not work
             rpt['volume'] = mesh.volume
             rpt['convex_hull_volume'] = mesh.convex_hull.volume
+            
+            if not self.cli.implementation == Implementation.MOCK:
+                assert volume_match_reference(volume=mesh.volume,
+                                   reference=self.cli.reference_volume), 'volume: %f, reference: %f' % (mesh.volume,self.cli.reference_volume)
 
         end_time = time.time()
         # get the execution time

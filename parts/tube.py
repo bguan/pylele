@@ -41,15 +41,18 @@ def main(args=None):
                 class_name='Tube',
                 args=args)
 
-def test_tube(self):
+def test_tube(self,apis=None):
     """ Test Tube """
     ## Cadquery and Blender
-    test_loop(module=__name__)
+    tests={
+        'volume': ['-refv','62.8']
+           }
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_tube_mock(self):
     """ Test Tube """
     ## Cadquery and Blender
-    test_loop(module=__name__, apis=['mock'])
+    test_tube(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()
