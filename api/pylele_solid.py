@@ -71,11 +71,12 @@ def test_loop(module,apis=None,tests=None): # ,component):
                         args=args,
                         )
 class PrettyPrintDict(dict):
+    """ A class to print all entries of a dict """
     def __init__(self,dictdata):
         self.dict = dictdata
     def __repr__(self):
         properties = '\n'.join(f"{key}={value!r}" for key, value in self.dict.items())
-        return f"{self.__class__.__name__}\n\n{properties}"
+        return properties
     
 def export_dict2text(outpath,fname,dictdata):
     """ save info in input dictionary to output file """
