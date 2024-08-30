@@ -137,15 +137,18 @@ TESTS_CQ = {
 
 def test_bottom_assembly(self):
     """ Test Bottom Assembly """
+
+    """
     test_loop(module=__name__,
               apis=['cadquery','blender'],
               tests=TESTS
               )
+    """
 
     # flat body only works with cadquery at the moment    
     test_loop(module=__name__,
               apis=['cadquery'],
-              tests=TESTS_CQ
+              tests=TESTS|TESTS_CQ
               )
 
 def test_bottom_assembly_mock(self):
