@@ -17,6 +17,7 @@ import importlib
 import trimesh
 from pathlib import Path
 from abc import ABC, abstractmethod
+from argparse import Namespace
                 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
@@ -69,9 +70,22 @@ def test_loop(module,apis=None,tests=None): # ,component):
                         api=api,
                         args=args,
                         )
-            
+class PrettyPrintDict(dict):
+    def __init__(self,dictdata):
+        self.dict = dictdata
+    def __repr__(self):
+        properties = '\n'.join(f"{key}={value!r}" for key, value in self.dict.items())
+        return f"{self.__class__.__name__}\n\n{properties}"
+    
 def export_dict2text(outpath,fname,dictdata):
     """ save info in input dictionary to output file """
+    
+    if isinstance(dictdata,Namespace):
+        dictdata = vars(dictdata)
+
+    if isinstance(dictdata,dict):
+        dictdata = PrettyPrintDict(dictdata)
+
     out_fname = os.path.join(outpath,fname)
     with open(out_fname, 'w', encoding='UTF8') as f:
         f.write(repr(dictdata))
