@@ -79,3 +79,7 @@ Code and view generated models in your favorite development environment!
       > pip install bpy
       ```
 * [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
+
+## Similar Projects
+* [ukulele.scad](https://github.com/roadyyy/ukulele.scad)
+* [ParamUKE](https://github.com/berkbig/ParamUKE)
