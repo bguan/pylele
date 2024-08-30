@@ -24,6 +24,13 @@ def pylele_body_parser(parser = None):
 class LeleBody(LeleBase):
     """ Pylele Body Generator class """
 
+    def flat_body_bottom(self):
+        """ generate the bottom of a flat body """
+        bot_below = self.api.genLineSplineRevolveX(self.cfg.bodyOrig, self.cfg.bodyPath, -180)\
+            .scale(1, 1, self.cfg.TOP_RATIO)\
+                .mv(0,0,-self.cli.flat_body_thickness)
+        return bot_below
+
     def gen(self) -> Shape:
         """ Generate Body """
         botRat = self.cfg.BOT_RATIO
@@ -43,12 +50,30 @@ class LeleBody(LeleBase):
                 bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
 
         elif self.cli.body_type == LeleBodyType.FLAT:
-            bot_below = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, self.cfg.TOP_RATIO).mv(0,0,-self.cli.flat_body_thickness)
+
+            bot_below = self.flat_body_bottom()
+
             # Flat body
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
             midL = midR.mirrorXZ()
             bot = midR.join(midL)
             bot = bot.join(bot_below)
+
+        elif self.cli.body_type == LeleBodyType.FLAT_HOLLOW:
+            
+            bot_below = self.flat_body_bottom()
+            
+            # Flat body
+            # outer wall
+            midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
+            # inner wall
+            midR2 = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)\
+            .mv(0,-self.cli.wall_thickness,0)
+            midR = midR.cut(midR2)
+            midL = midR.mirrorXZ()
+            bot = midR.join(midL)
+            bot = bot.join(bot_below)
+
         else:
             assert self.cli.body_type in LeleBodyType.list(), f'Unsupported Body Type {self.cli.body_type}'
 
@@ -74,8 +99,9 @@ TESTS_ALL = {
 }
 ## flat body only works with cadquery at the moment
 TESTS_CQ = {
-    'flat_body'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50'],
-    'flat_body_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
+    'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50'],
+    'flat_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
+    'flat_hollow'   : ['-bt',str(LeleBodyType.FLAT_HOLLOW)],
 }
 
 def test_body(self):

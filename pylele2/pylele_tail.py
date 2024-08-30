@@ -30,7 +30,7 @@ class LeleTail(LeleBase):
         tailLen = tailX - chmBackX + 2*cutAdj
         endWth = self.cli.end_flat_width + 2*cutAdj
         botRat = cfg.BOT_RATIO
-        if self.cli.body_type == LeleBodyType.FLAT:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.FLAT_HOLLOW]:
             midBotTck = self.cli.flat_body_thickness
         else:
             midBotTck = cfg.extMidBotTck + 2*cutAdj
@@ -44,7 +44,7 @@ class LeleTail(LeleBase):
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
-        if self.cli.body_type == LeleBodyType.FLAT:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.FLAT_HOLLOW]:
             extBot = None
             inrBot = None
             """

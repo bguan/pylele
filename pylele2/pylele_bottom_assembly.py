@@ -55,7 +55,7 @@ class LeleBottomAssembly(LeleBase):
         bodyJoiners = []
         bodyCutters = [txtCut]
 
-        if not self.cli.body_type==LeleBodyType.FLAT:
+        if not (self.cli.body_type==LeleBodyType.FLAT or self.cli.body_type==LeleBodyType.FLAT_HOLLOW):
             bodyCutters += [chmCut]
 
         if spCut is not None:
@@ -131,8 +131,9 @@ TESTS = {
 }
 
 TESTS_CQ = {
-        'flat_body'          : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35'],
-        'flat_body_big_worm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35']
+        'flat'          : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35'],
+        'flat_bigworm'  : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
+        'flat_hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35']
     }
 
 def test_bottom_assembly(self):

@@ -18,6 +18,7 @@ class LeleBodyType(LeleStrEnum):
     """ Body Type """
     GOURD = 'gourd'
     FLAT  = 'flat'
+    FLAT_HOLLOW = 'flat_hollow'
 class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
