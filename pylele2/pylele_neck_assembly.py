@@ -77,8 +77,10 @@ def main(args=None):
                     class_name='LeleNeckAssembly',
                     args=args)
 
+def test_neck_assembly(self, apis=None):
+    """ Test Neck Assembly """
 
-TESTS = {
+    tests = {
         'fret_nails'         : ['-ft', str(FretType.NAIL)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_neck'      : ['-N'],
@@ -89,13 +91,11 @@ TESTS = {
         'flat_body'          : ['-bt',LeleBodyType.FLAT]
     }
 
-def test_neck_assembly(self):
-    """ Test Neck Assembly """
-    test_loop(module=__name__,tests=TESTS)
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_neck_assembly_mock(self):
     """ Test Neck Assembly """
-    test_loop(module=__name__,tests=TESTS, apis=['mock'])
+    test_neck_assembly(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()
