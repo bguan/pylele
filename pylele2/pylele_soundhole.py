@@ -15,12 +15,14 @@ class LeleSoundhole(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Soundhole """
-        x = self.cfg.sndholeX
-        y = self.cfg.sndholeY
+        sh_cfg = self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
+
+        x = sh_cfg.sndholeX
+        y = sh_cfg.sndholeY
         midTck = self.cfg.extMidTopTck
-        minRad = self.cfg.sndholeMinRad
-        maxRad = self.cfg.sndholeMaxRad
-        ang = self.cfg.sndholeAng
+        minRad = sh_cfg.sndholeMinRad
+        maxRad = sh_cfg.sndholeMaxRad
+        ang = sh_cfg.sndholeAng
         bodyWth = self.cfg.bodyWth
 
         hole = self.api.genRodZ(bodyWth + midTck, minRad)\

@@ -68,7 +68,8 @@ class LeleTopAssembly(LeleBase):
             else:
                 topJoiners.append(guide)
 
-        topFillets = { FILLET_RAD: [(self.cfg.sndholeX, self.cfg.sndholeY, self.cfg.fretbdHt)] }
+        sh_cfg = self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
+        topFillets = { FILLET_RAD: [(sh_cfg.sndholeX, sh_cfg.sndholeY, self.cfg.fretbdHt)] }
         if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.implementation == Implementation.CAD_QUERY and \
             not self.cli.body_type == LeleBodyType.FLAT:
             wcfg: WormConfig = TunerType[self.cli.tuner_type].value

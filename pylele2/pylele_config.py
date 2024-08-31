@@ -20,6 +20,13 @@ class LeleBodyType(LeleStrEnum):
     FLAT  = 'flat'
     FLAT_HOLLOW = 'flat_hollow'
 
+class AttrDict(dict):
+    def __getattr__(self, key):
+        return self[key]
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
 def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> float:
     """ Adjust Tuner Z """
     return 0 if tnrType.is_worm() or tY > endWth/2 else \
@@ -58,6 +65,23 @@ class LeleConfig:
             (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
             (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
             (-cutAdj, self.nutWth/2 + cutAdj),]
+    
+    def bodyFrontLen(self, scaleLen: float) -> float:
+        return scaleLen - self.neckLen
+    
+    def soundhole_config(self, scaleLen: float):
+        """ Soundhole Configuration """
+        cfg = AttrDict()
+        cfg.sndholeX = scaleLen - .5*self.chmFront
+        cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
+        cfg.sndholeMaxRad = self.chmFront/3
+        cfg.sndholeMinRad = cfg.sndholeMaxRad/4
+        
+        bodyFrontLen = scaleLen - self.neckLen
+        cfg.sndholeAng = degrees(
+            math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth - self.neckWth))
+        )
+        return cfg
 
     def __init__(
         self,
@@ -217,15 +241,6 @@ class LeleConfig:
         self.bodyPath = genBodyPath()
         # self.bodyCutOrig = (self.neckLen - FIT_TOL, 0)
         self.bodyCutPath = genBodyPath(isCut=True)
-
-        # Soundhole Config
-        self.sndholeX = scaleLen - .5*self.chmFront
-        self.sndholeY = -(self.chmWth - self.fretbdWth)/2
-        self.sndholeMaxRad = self.chmFront/3
-        self.sndholeMinRad = self.sndholeMaxRad/4
-        self.sndholeAng = degrees(
-            math.atan(2 * bodyFrontLen/(self.chmWth - self.neckWth))
-        )
 
         # Bridge configs
         f12Len = scaleLen/2
