@@ -69,7 +69,7 @@ class LeleConfig:
     def bodyFrontLen(self, scaleLen: float) -> float:
         return scaleLen - self.neckLen
     
-    def soundhole_config(self, scaleLen: float):
+    def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
         cfg.sndholeX = scaleLen - .5*self.chmFront
@@ -80,6 +80,11 @@ class LeleConfig:
             math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth - self.neckWth))
         )
         return cfg
+    
+    def fbSpineLen(self) -> float:
+        """ Spine Length """
+        # self.fbSpineLen = 
+        return self.neckLen - self.NUT_HT + self.neckJntLen
 
     def __init__(
         self,
@@ -184,7 +189,7 @@ class LeleConfig:
         # self.fbCutOrig = (-FIT_TOL, 0)
         # self.fbCutPath = genFbPath(isCut=True)
         # self.fbSpX = self.NUT_HT
-        self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
+        # self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
 
         # Chamber Configs
         # self.chmLift = chmLift
