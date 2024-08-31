@@ -48,7 +48,7 @@ class LeleNeckAssembly(LeleBase):
         if self.cli.separate_neck:
             neckJoiners.append(LeleNeckJoint(cli=self.cli, isCut=False))
 
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
             neckJoiners.append(LeleNeckBend(cli=self.cli))
 
         if self.cli.separate_fretboard or self.cli.separate_top:

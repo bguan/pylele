@@ -30,8 +30,19 @@ def pylele_chamber_parser(parser = None) -> argparse.ArgumentParser:
 
     return parser
 
+
 class LeleChamber(LeleBase):
     """ Pylele Chamber Generator class """
+
+    def gen_extruded_oval(self, x1, x2, y_width, z_thick):
+        chm  = self.api.genRodZ(z_thick,rad=y_width/2).mv( x1,0,0)
+        chm1 = self.api.genRodZ(z_thick,rad=y_width/2).mv( x2,0,0)
+        chm = chm.join(chm1)
+        box_len = abs(x1-x2)
+        box_pos = (x1+x2)/2
+        chm_box = self.api.genBox(box_len,y_width,z_thick).mv(box_pos,0,0)
+        chm = chm.join(chm_box)
+        return chm
 
     def gen(self) -> Shape:
         """ Generate Chamber """
@@ -42,18 +53,28 @@ class LeleChamber(LeleBase):
         scLen = self.cli.scale_length
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
-        lift = self.cli.chamber_lift # self.cfg.chmLift
-        rotY = self.cli.chamber_rotate # self.cfg.chmRot
+        if False:
+            lift = self.cli.chamber_lift # self.cfg.chmLift
+            rotY = self.cli.chamber_rotate # self.cfg.chmRot
+        else:
+            print('# WARNING overriding chamber values for dev!!!')
+            lift = 1
+            rotY = 0.5
         joinTol = self.api.getJoinCutTol()
-        rad = self.cfg.chmWth()/2
+        rad = self.cfg.chmWth/2
         frontRat = self.cfg.chmFront/rad
         backRat = self.cfg.chmBack/rad
         topChmRat = topRat * 3/4
 
 
         if self.cli.body_type == LeleBodyType.TRAVEL:
-            chm = self.api.genRodZ(self.cli.flat_body_thickness+2,rad=rad)\
-                .scale(frontRat, 1, 1).mv(joinTol, 0, -self.cli.flat_body_thickness/2)
+            chm_thickness = self.cli.flat_body_thickness + 100 # leave a hole
+            chm_front = -self.cfg.chmFront+rad
+            chm_back  =  chm_front + self.cfg.chmFront - 2*rad
+
+            chm = self.gen_extruded_oval(chm_front,chm_back,2*rad,chm_thickness)
+            chm = chm.mv(joinTol, 0, -self.cli.flat_body_thickness/2)
+
         else: # if self.cli.body_type == LeleBodyType.GOURD:
             topFront = self.api.genQuarterBall(rad, True, True)\
                 .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
@@ -79,7 +100,8 @@ class LeleChamber(LeleBase):
         return chm
     
     def gen_parser(self, parser=None):
-        return super().gen_parser(parser=pylele_chamber_parser(parser=parser))
+        parser=pylele_chamber_parser(parser=parser)
+        return super().gen_parser(parser=parser)
 
 def main(args = None):
     """ Generate Chamber """

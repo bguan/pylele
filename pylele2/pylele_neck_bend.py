@@ -16,7 +16,7 @@ class LeleNeckBend(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Neck Bend """
-        assert self.cli.body_type in [ LeleBodyType.FLAT, LeleBodyType.HOLLOW]
+        assert self.cli.body_type in [ LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]
 
         nkLen = self.cfg.neckLen
         nkWth = self.cfg.neckWth

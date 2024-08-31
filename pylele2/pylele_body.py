@@ -12,6 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
 from pylele2.pylele_base import LeleBase, TunerType, test_loop, main_maker, LeleBodyType
+from pylele2.pylele_chamber import LeleChamber
 
 def pylele_body_parser(parser = None):
     """
@@ -58,6 +59,12 @@ class LeleBody(LeleBase):
             midL = midR.mirrorXZ()
             bot = midR.join(midL)
             bot = bot.join(bot_below)
+
+            if self.cli.body_type in [LeleBodyType.TRAVEL]:
+                # just for development
+                chamber = LeleChamber(cli=self.cli, isCut=True)
+                chamber.gen_full()
+                bot = bot.cut(chamber.shape)
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
             

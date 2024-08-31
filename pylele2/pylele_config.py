@@ -31,6 +31,77 @@ def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> flo
     """ Adjust Tuner Z """
     return 0 if tnrType.is_worm() or tY > endWth/2 else \
             ((endWth/2)**2 - tY**2)**.5 * top_ratio
+
+
+def pylele_config_parser(parser = None):
+    """
+    Pylele Base Element Parser
+    """
+    if parser is None:
+        parser = argparse.ArgumentParser(description='Pylele Configuration')
+
+    ## Numeric config options ###########################################
+    parser.add_argument("-s", "--scale_length", 
+                        help=f"Scale Length [mm], or {LeleScaleEnum.list()}, default: {LeleScaleEnum.SOPRANO.name}={LeleScaleEnum.SOPRANO.value}",
+                        type=LeleScaleEnum.type, default=LeleScaleEnum.SOPRANO)
+    parser.add_argument("-n", "--num_strings", help="Number of strings, default 4",
+                        type=int, default=4)
+    parser.add_argument("-a", "--action", help="Strings action [mm], default 2",
+                        type=float, default=2)
+    parser.add_argument("-g", "--nut_string_gap", help="Nut to String gap [mm], default 9",
+                        type=float, default=9)
+    parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
+                        type=float, default=0)
+
+    ## Body Type config options ###########################################
+
+    parser.add_argument("-bt", "--body_type",
+                    help="Body Type",
+                    type=LeleBodyType,
+                    choices=list(LeleBodyType),
+                    default=LeleBodyType.GOURD
+                    )
+    
+    parser.add_argument("-fbt", "--flat_body_thickness", help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
+                        type=float, default=DEFAULT_FLAT_BODY_THICKNESS)
+
+    ## Chamber config options ###########################################
+
+    parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
+                        type=float, default=4)
+
+    ## Non-Numeric config options #######################################
+
+    parser.add_argument("-t", "--tuner_type", help=f"Type of tuners, default; {TunerType.FRICTION.name}",
+                        type=str.upper, choices=TunerType.list(), default=TunerType.FRICTION.name)
+
+    ## Cut options ######################################################
+
+    parser.add_argument("-T", "--separate_top",
+                        help="Split body top from body back.",
+                        action='store_true')
+    parser.add_argument("-N", "--separate_neck",
+                        help="Split neck from body.",
+                        action='store_true')
+    parser.add_argument("-F", "--separate_fretboard",
+                        help="Split fretboard from neck back.",
+                        action='store_true')
+    parser.add_argument("-B", "--separate_bridge",
+                        help="Split bridge from body.",
+                        action='store_true')
+    parser.add_argument("-G", "--separate_guide",
+                        help="Split guide from body.",
+                        action='store_true')
+    parser.add_argument("-E", "--separate_end",
+                        help="Split end block from body.",
+                        action='store_true')
+    parser.add_argument("-H", "--half",
+                        help="Half Split",
+                        action='store_true')
+
+    return parser
+
+
 class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
@@ -56,6 +127,17 @@ class LeleConfig:
     SPINE_WTH = 2
     STR_RAD = .5
     TEXT_TCK = 30
+    extMidTopTck = .5
+
+    def gen_parser(self,parser=None):
+        """
+        LeleSolid Command Line Interface
+        """
+        return lele_solid_parser(parser=parser)
+
+    def parse_args(self, args=None):
+        """ Parse Command Line Arguments """
+        return self.gen_parser().parse_args(args=args)
 
     def genFbPath(self, isCut: bool = False) -> list[tuple[float, float]]:
         """ Generate Fretboard Path """
@@ -66,21 +148,15 @@ class LeleConfig:
             (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
             (-cutAdj, self.nutWth/2 + cutAdj),]
     
-    def bodyFrontLen(self, scaleLen: float) -> float:
-        return scaleLen - self.neckLen
-    
-    def chmWth(self) -> float:
-        return self.brdgWth * 3
-    
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
         cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth() - self.fretbdWth)/2
+        cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
         cfg.sndholeAng = degrees(
-            math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth() - self.neckWth))
+            math.atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
         )
         return cfg
     
@@ -90,30 +166,22 @@ class LeleConfig:
 
     def __init__(
         self,
-        scaleLen: float = LeleScaleEnum.SOPRANO,
-        # sepTop: bool = False,
-        # sepNeck: bool = False,
-        # sepFretbd: bool = False,
-        # sepBrdg: bool = False,
-        # sepEnd: bool = False,
-        wallTck: float = 4,
-        # chmLift: float = 1,
-        # chmRot: float = -.5,
-        endWth: float = 0,
-        numStrs: int = 4,
-        nutStrGap: float = 9,
-        action: float = 2,
-        extMidTopTck: float = .5,
-        tnrType: TunerType = TunerType.FRICTION.value,
-        # half: bool = False,
-        # : ModelLabel = ModelLabel.SHORT,
-        # dotRad: float = 1.5,
-        # fret2Dots: dict[int, int] =
-        #    {3: 1, 5: 2, 7: 1, 10: 1, 12: 3, 15: 1, 17: 2, 19: 1, 22: 1},
-        # fidelity: Fidelity = Fidelity.LOW,
-        # impl: Implementation = Implementation.CAD_QUERY,
-        # body_type: LeleBodyType = LeleBodyType.GOURD
+        args = None,
+        cli = None
     ):
+        if cli is None:
+            self.cli = self.parse_args(args=args)
+        else:
+            self.cli = cli
+
+        scaleLen=float(self.cli.scale_length)
+        action=self.cli.action
+        numStrs=self.cli.num_strings
+        nutStrGap=self.cli.nut_string_gap
+        endWth=self.cli.end_flat_width
+        wallTck=self.cli.wall_thickness
+        tnrType=TunerType[self.cli.tuner_type].value
+            
         # Engine Implementation Config
         # self.impl = impl
         # self.fidelity = fidelity
@@ -160,10 +228,11 @@ class LeleConfig:
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * math.tan(radians(self.neckWideAng)) * scaleLen
         brdgStrGap = self.brdgWth / (numStrs-.5)
+
         self.neckLen = scaleLen * self.NECK_RATIO
         # self.dotRad = dotRad
         # self.fret2Dots = fret2Dots
-        self.extMidTopTck = extMidTopTck
+        # self.extMidTopTck = self.extMidTopTck
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
@@ -197,6 +266,7 @@ class LeleConfig:
         # self.chmLift = chmLift
         # self.chmRot = chmRot
         # self.chmWth = self.brdgWth * 3
+        self.chmWth = self.brdgWth if self.cli.body_type==LeleBodyType.TRAVEL else self.brdgWth * 3
         self.rimWth = wallTck/2
 
         # Head configs
@@ -215,8 +285,8 @@ class LeleConfig:
         ]
 
         # Body Configs
-        self.bodyWth = self.chmWth() + 2*wallTck
-        bodyFrontLen = scaleLen - self.neckLen
+        self.bodyWth = self.chmWth + 2*wallTck
+        self.bodyFrontLen = scaleLen - self.neckLen
         # bodyLen = bodyFrontLen + bodyBackLen
         # self.fullLen = self.HEAD_LEN + scaleLen + bodyLen
         self.bodyOrig = (self.neckLen, 0)
@@ -225,7 +295,7 @@ class LeleConfig:
             nkLen = self.neckLen
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
-            bFrLen = bodyFrontLen + cutAdj
+            bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
             endFactor = math.sqrt(endWth/bWth)

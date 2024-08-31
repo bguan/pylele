@@ -35,15 +35,20 @@ class LeleTopAssembly(LeleBase):
         guide = LeleGuide(cli=self.cli) if TunerType[self.cli.tuner_type].value.is_peg() else None
 
         # gen body top
-        chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
+        chamber_cutters = []
+        if not self.cli.body_type==LeleBodyType.TRAVEL:
+            chamber_cutters.append(LeleBrace(cli=self.cli))
+        chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=chamber_cutters)
         fbJntCut = LeleFretboardJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, -self.api.getJoinCutTol()) \
             if self.cli.separate_fretboard or self.cli.separate_neck else None
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
         topJoiners = []
         topCutters = [tnrsCut]
                 
-        if not self.cli.body_type==LeleBodyType.FLAT:
-            topCutters += [chmCut, LeleSoundhole(cli=self.cli, isCut=True)]
+        if not self.cli.body_type in [LeleBodyType.FLAT]:
+            topCutters.append(chmCut)
+        if not self.cli.body_type in [LeleBodyType.FLAT,LeleBodyType.TRAVEL]:
+            topCutters.append(LeleSoundhole(cli=self.cli, isCut=True))
 
         if self.cli.separate_top: # if cfg.sepTop:
             topJoiners.append(LeleRim(cli=self.cli, isCut=False))
