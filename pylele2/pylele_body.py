@@ -49,7 +49,7 @@ class LeleBody(LeleBase):
                 midL = midR.mirrorXZ()
                 bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
 
-        elif self.cli.body_type == LeleBodyType.FLAT:
+        elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
             bot_below = self.flat_body_bottom()
 

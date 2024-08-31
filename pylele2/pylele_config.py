@@ -1,7 +1,6 @@
 
 """ Pylele Configuration Module """
 
-import datetime
 import math
 
 import os
@@ -19,6 +18,7 @@ class LeleBodyType(LeleStrEnum):
     GOURD = 'gourd'
     FLAT  = 'flat'
     FLAT_HOLLOW = 'flat_hollow'
+    TRAVEL = 'travel'
 
 class AttrDict(dict):
     def __getattr__(self, key):
@@ -69,15 +69,18 @@ class LeleConfig:
     def bodyFrontLen(self, scaleLen: float) -> float:
         return scaleLen - self.neckLen
     
+    def chmWth(self) -> float:
+        return self.brdgWth * 3
+    
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
         cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
+        cfg.sndholeY = -(self.chmWth() - self.fretbdWth)/2
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
         cfg.sndholeAng = degrees(
-            math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth - self.neckWth))
+            math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth() - self.neckWth))
         )
         return cfg
     
@@ -194,7 +197,7 @@ class LeleConfig:
         # Chamber Configs
         # self.chmLift = chmLift
         # self.chmRot = chmRot
-        self.chmWth = self.brdgWth * 3
+        # self.chmWth = self.brdgWth * 3
         self.rimWth = wallTck/2
 
         # Head configs
@@ -213,7 +216,7 @@ class LeleConfig:
         ]
 
         # Body Configs
-        self.bodyWth = self.chmWth + 2*wallTck
+        self.bodyWth = self.chmWth() + 2*wallTck
         bodyFrontLen = scaleLen - self.neckLen
         # bodyLen = bodyFrontLen + bodyBackLen
         # self.fullLen = self.HEAD_LEN + scaleLen + bodyLen

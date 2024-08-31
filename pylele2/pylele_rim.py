@@ -18,7 +18,7 @@ class LeleRim(LeleBase):
         joinTol = self.api.getJoinCutTol()
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
         scLen = self.cli.scale_length
-        rad = self.cfg.chmWth/2 + self.cfg.rimWth
+        rad = self.cfg.chmWth()/2 + self.cfg.rimWth
         tck = self.cfg.RIM_TCK + 2*cutAdj
         frontWthRatio = (self.cfg.chmFront + self.cfg.rimWth)/rad
         backWthRatio = (self.cfg.chmBack + self.cfg.rimWth)/rad

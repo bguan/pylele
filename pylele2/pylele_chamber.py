@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 import argparse
 
 from api.pylele_api import Shape, Fidelity
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleBodyType
 
 
 def pylele_chamber_parser(parser = None) -> argparse.ArgumentParser:
@@ -45,21 +45,26 @@ class LeleChamber(LeleBase):
         lift = self.cli.chamber_lift # self.cfg.chmLift
         rotY = self.cli.chamber_rotate # self.cfg.chmRot
         joinTol = self.api.getJoinCutTol()
-        rad = self.cfg.chmWth/2
+        rad = self.cfg.chmWth()/2
         frontRat = self.cfg.chmFront/rad
         backRat = self.cfg.chmBack/rad
         topChmRat = topRat * 3/4
 
-        topFront = self.api.genQuarterBall(rad, True, True)\
-            .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
-        topBack = self.api.genQuarterBall(rad, True, False)\
-            .scale(backRat, 1, topChmRat)
-        botFront = self.api.genQuarterBall(rad, False, True)\
-            .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
-        botBack = self.api.genQuarterBall(rad, False, False)\
-            .scale(backRat, 1, botRat)
-        chm = topFront.join(topBack).join(botFront).join(botBack)
 
+        if self.cli.body_type == LeleBodyType.TRAVEL:
+            chm = self.api.genRodZ(self.cli.flat_body_thickness+2,rad=rad)\
+                .scale(frontRat, 1, 1).mv(joinTol, 0, -self.cli.flat_body_thickness/2)
+        else: # if self.cli.body_type == LeleBodyType.GOURD:
+            topFront = self.api.genQuarterBall(rad, True, True)\
+                .scale(frontRat, 1, topChmRat).mv(joinTol, 0, 0)
+            topBack = self.api.genQuarterBall(rad, True, False)\
+                .scale(backRat, 1, topChmRat)
+            botFront = self.api.genQuarterBall(rad, False, True)\
+                .scale(frontRat, 1, botRat).mv(joinTol, 0, 0)
+            botBack = self.api.genQuarterBall(rad, False, False)\
+                .scale(backRat, 1, botRat)
+            chm = topFront.join(topBack).join(botFront).join(botBack)
+            
         if rotY != 0:
             chm = chm.rotateY(rotY)
 
