@@ -76,8 +76,6 @@ class LeleConfig:
         cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
-        
-        bodyFrontLen = scaleLen - self.neckLen
         cfg.sndholeAng = degrees(
             math.atan(2 * self.bodyFrontLen(scaleLen)/(self.chmWth - self.neckWth))
         )
