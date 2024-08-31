@@ -59,7 +59,7 @@ class LeleBody(LeleBase):
             bot = midR.join(midL)
             bot = bot.join(bot_below)
 
-        elif self.cli.body_type == LeleBodyType.FLAT_HOLLOW:
+        elif self.cli.body_type == LeleBodyType.HOLLOW:
             
             bot_below = self.flat_body_bottom()
             
@@ -101,7 +101,7 @@ TESTS_ALL = {
 TESTS_CQ = {
     'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50'],
     'flat_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
-    'flat_hollow'   : ['-bt',str(LeleBodyType.FLAT_HOLLOW)],
+    'hollow'        : ['-bt',str(LeleBodyType.HOLLOW)],
 }
 
 def test_body(self):

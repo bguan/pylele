@@ -17,7 +17,7 @@ class LeleBodyType(LeleStrEnum):
     """ Body Type """
     GOURD = 'gourd'
     FLAT  = 'flat'
-    FLAT_HOLLOW = 'flat_hollow'
+    HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
 class AttrDict(dict):
@@ -86,7 +86,6 @@ class LeleConfig:
     
     def fbSpineLen(self) -> float:
         """ Spine Length """
-        # self.fbSpineLen = 
         return self.neckLen - self.NUT_HT + self.neckJntLen
 
     def __init__(

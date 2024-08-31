@@ -47,7 +47,7 @@ class LeleBottomAssembly(LeleBase):
         bodyCutters = [LeleTexts(cli=self.cli, isCut=True)]
 
         ## Chamber
-        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.FLAT_HOLLOW]:
+        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             bodyCutters.append(
                 LeleChamber(cli=self.cli, isCut=True, cutters=[LeleBrace(cli=self.cli)])
             )
@@ -102,7 +102,7 @@ class LeleBottomAssembly(LeleBase):
             tailCut = self.gen_tail(cutters=tail_cutters,is_cut=True)
             self.add_part(tailCut)
             bodyCutters.append(tailCut)
-        elif self.cli.body_type==LeleBodyType.FLAT_HOLLOW:
+        elif self.cli.body_type==LeleBodyType.HOLLOW:
             # join tail to body if flat hollow and not separate end
             bodyJoiners.append(
                 self.gen_tail(cutters=tail_cutters,is_cut=False)
@@ -148,10 +148,10 @@ TESTS = {
 }
 
 TESTS_CQ = {
-        'flat'          : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35','-whk'],
-        'flat_bigworm'  : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
-        'flat_hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35'],
-        'flat_hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.FLAT_HOLLOW,'-wsl','45','-fbt','35','-whk']
+        'flat'           : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35','-whk'],
+        'flat_bigworm'   : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
+        'hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35'],
+        'hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35','-whk']
     }
 
 def test_bottom_assembly(self):

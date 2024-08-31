@@ -16,7 +16,7 @@ class LeleTail(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Tail """
-        assert self.cli.separate_end or self.cli.body_type==LeleBodyType.FLAT_HOLLOW
+        assert self.cli.separate_end or self.cli.body_type==LeleBodyType.HOLLOW
 
         cfg = self.cfg
         joinTol = self.api.getJoinCutTol() # cfg.joinCutTol
@@ -30,7 +30,7 @@ class LeleTail(LeleBase):
         tailLen = tailX - chmBackX + 2*cutAdj
         endWth = self.cli.end_flat_width + 2*cutAdj
         botRat = cfg.BOT_RATIO
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.FLAT_HOLLOW]:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             midBotTck = self.cli.flat_body_thickness
         else:
             midBotTck = cfg.extMidBotTck + 2*cutAdj
@@ -44,7 +44,7 @@ class LeleTail(LeleBase):
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.FLAT_HOLLOW]:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             extBot = None
             inrBot = None
             """
