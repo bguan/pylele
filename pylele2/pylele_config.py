@@ -19,6 +19,11 @@ class LeleBodyType(LeleStrEnum):
     GOURD = 'gourd'
     FLAT  = 'flat'
     FLAT_HOLLOW = 'flat_hollow'
+
+def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> float:
+    """ Adjust Tuner Z """
+    return 0 if tnrType.is_worm() or tY > endWth/2 else \
+            ((endWth/2)**2 - tY**2)**.5 * top_ratio
 class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
@@ -265,15 +270,15 @@ class LeleConfig:
         tYMax = fatRat*self.bodyWth - tnrSetback
         tX = tXMax
         tY = 0
-        wCfg: WormConfig = None if tnrType.is_peg() else tnrType
-        tZBase = (self.extMidTopTck + 2) if tnrType.is_peg() \
-            else (-wCfg.driveRad - wCfg.diskRad - wCfg.axleRad)
 
-        def tzAdj(tY: float) -> float:
-            return 0 if tnrType.is_worm() or tY > endWth/2 else \
-                 ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
+        if tnrType.is_peg():
+            tZBase = (self.extMidTopTck + 2)
+        elif tnrType.is_worm():
+            tZBase = (-tnrType.driveRad - tnrType.diskRad - tnrType.axleRad)
+        else:
+            assert False, f'Unsupported Tuner Type {tnrType}'
 
-        tMidZ = tZBase + tzAdj(tY)
+        tMidZ = tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
         tZ = tMidZ
         tDist = self.tnrGap
         # start calc from middle out
@@ -282,7 +287,7 @@ class LeleConfig:
             if tY + tDist < endWth/2:
                 tY += tDist if isOddStrs or p > 0 else tDist/2
                 # tX remain same
-                tZ = tZBase + tzAdj(tY)
+                tZ = tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
             else:
                 """
                 Note: Ellipse points seperated by arc distance calc taken from
