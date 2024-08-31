@@ -45,6 +45,15 @@ class LeleConfig:
     STR_RAD = .5
     TEXT_TCK = 30
 
+    def genFbPath(self, isCut: bool = False) -> list[tuple[float, float]]:
+        """ Generate Fretboard Path """
+        cutAdj = FIT_TOL if isCut else 0
+        return [
+            (-cutAdj, -self.nutWth/2 - cutAdj),
+            (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
+            (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
+            (-cutAdj, self.nutWth/2 + cutAdj),]
+
     def __init__(
         self,
         scaleLen: float = LeleScaleEnum.SOPRANO,
@@ -143,18 +152,10 @@ class LeleConfig:
         self.fretbdHt = self.FRETBD_TCK + \
             math.tan(radians(self.fretbdRiseAng)) * self.fretbdLen
 
-        def genFbPath(isCut: bool = False) -> list[tuple[float, float]]:
-            cutAdj = FIT_TOL if isCut else 0
-            return [
-                (-cutAdj, -self.nutWth/2 - cutAdj),
-                (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
-                (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
-                (-cutAdj, self.nutWth/2 + cutAdj),
-            ]
         # self.fbOrig = (0, 0)
-        self.fbPath = genFbPath()
+        # self.fbPath = genFbPath()
         # self.fbCutOrig = (-FIT_TOL, 0)
-        self.fbCutPath = genFbPath(isCut=True)
+        # self.fbCutPath = genFbPath(isCut=True)
         # self.fbSpX = self.NUT_HT
         self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
 

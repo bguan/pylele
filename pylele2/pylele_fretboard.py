@@ -23,7 +23,8 @@ class LeleFretboard(LeleBase):
         fbHt = self.cfg.fretbdHt + 2*cutAdj
         riseAng = self.cfg.fretbdRiseAng
 
-        path = self.cfg.fbCutPath if self.isCut else self.cfg.fbPath
+        # path = self.cfg.fbCutPath if self.isCut else self.cfg.fbPath
+        path = self.cfg.genFbPath(isCut=self.isCut)
         fretbd = self.api.genPolyExtrusionZ(path, fbHt)
 
         if self.isCut:
