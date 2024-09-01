@@ -70,7 +70,7 @@ class LeleChamber(LeleBase):
         if self.cli.body_type == LeleBodyType.TRAVEL:
             chm_thickness = self.cli.flat_body_thickness + 100 # leave a hole
             chm_front = -self.cfg.chmFront+rad
-            chm_back  =  chm_front + self.cfg.chmFront - 2*rad
+            chm_back  =  chm_front + self.cfg.chmFront - 2*rad - self.cfg.brdgLen
 
             chm = self.gen_extruded_oval(chm_front,chm_back,2*rad,chm_thickness)
             chm = chm.mv(joinTol, 0, -self.cli.flat_body_thickness/2)
