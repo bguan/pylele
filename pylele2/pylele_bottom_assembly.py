@@ -24,9 +24,9 @@ from pylele2.pylele_neck_assembly import LeleNeckAssembly
 from pylele2.pylele_brace import LeleBrace
 from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_tuners import LeleTuners
-
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele2.pylele_worm import pylele_worm_parser
+from pylele2.pylele_config import CONFIGURATIONS
 
 class LeleBottomAssembly(LeleBase):
     """ Pylele Body Bottom Assembly Generator class """
@@ -136,50 +136,29 @@ def main(args=None):
                       args=args)
 
 
-TESTS = {
-    'separate_bridge'    : ['-B'],
-    'separate_top'       : ['-T'],
-    'separate_neck'      : ['-N'],
-    'separate_fretboard' : ['-F'],
-    'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
-    'gotoh_tuners'       : ['-t','gotoh'],
-    'worm_tuners'        : ['-t','worm'],
-    'worm_key'           : ['-t','worm','-whk'],
-    'big_worm_tuners'    : ['-t','bigWorm'],
-    'tail_end'           : ['-t','worm','-e','60','-E','-wah'],
-}
-
-TESTS_CQ = {
-        'flat'           : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35','-whk'],
-        'flat_bigworm'   : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
-        'hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35'],
-        'hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35','-whk'],
-        'travel_bigworm' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.TRAVEL,'-wsl','45','-fbt','35','-whk','-w','25']
-
-    }
-
-def test_bottom_assembly(self):
+def test_bottom_assembly(self,apis=['cadquery']):
     """ Test Bottom Assembly """
 
-    """
-    test_loop(module=__name__,
-              apis=['cadquery','blender'],
-              tests=TESTS
-              )
-    """
+    tests = {
+        'separate_bridge'    : ['-B'],
+        'separate_top'       : ['-T'],
+        'separate_neck'      : ['-N'],
+        'separate_fretboard' : ['-F'],
+        'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
+        'gotoh_tuners'       : ['-t','gotoh'],
+        'worm_tuners'        : ['-t','worm'],
+        'worm_key'           : ['-t','worm','-whk'],
+        'big_worm_tuners'    : ['-t','bigWorm'],
+    }
 
-    # flat body only works with cadquery at the moment    
     test_loop(module=__name__,
-              apis=['cadquery'],
-              tests=TESTS|TESTS_CQ
+              apis=apis,
+              tests=tests|CONFIGURATIONS
               )
 
 def test_bottom_assembly_mock(self):
-    """ Test Bottom Assembly """
-    test_loop(module=__name__,
-              apis=['mock'],
-              tests=TESTS | TESTS_CQ
-              )
+    """ Test Bottom Assembly Mock """
+    test_bottom_assembly(self,apis=['mock'])
 
 if __name__ == '__main__':
     main()
