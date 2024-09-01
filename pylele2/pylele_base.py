@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_solid import LeleSolid, test_iteration, test_loop, main_maker, \
     FIT_TOL, FILLET_RAD, LeleStrEnum, export_dict2text
 from pylele2.pylele_config import LeleConfig, TunerType, PegConfig, WormConfig, LeleBodyType, \
-    LeleScaleEnum, SEMI_RATIO, DEFAULT_FLAT_BODY_THICKNESS, pylele_config_parser
+    LeleScaleEnum, SEMI_RATIO, DEFAULT_FLAT_BODY_THICKNESS, pylele_config_parser, CONFIGURATIONS
 
 
 def pylele_base_parser(parser = None):
@@ -84,6 +84,21 @@ class LeleBase(LeleSolid):
         """
         return super().gen_parser( parser=pylele_base_parser(parser=parser) )
     
+    def parse_args(self, args=None):
+        """ Parse Command Line Arguments """
+        parser = self.gen_parser()
+        cli = parser.parse_args(args=args)
+
+        if isinstance(cli.configuration,str):
+            print('### Overriding configuration: {cli.configuration}')
+            cfgargs = CONFIGURATIONS[cli.configuration]
+            cfgargs += sys.argv[1:]
+            if isinstance(args,list):
+                cfgargs += + args
+            cli = parser.parse_args(args=cfgargs)
+
+        return cli
+
     def exportSTL(self,out_path=None) -> None:
         """ Generate .stl output file """
         self.configure_if_hasnt()

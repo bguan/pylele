@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 
 """ Pylele Configuration Module """
 
 import math
+import argparse
 
 import os
 import sys
@@ -13,12 +15,22 @@ from api.pylele_api_constants import FIT_TOL, FILLET_RAD, ColorEnum
 from pylele_config_common import SEMI_RATIO, LeleScaleEnum, TunerConfig, PegConfig, WormConfig, TunerType
 
 DEFAULT_FLAT_BODY_THICKNESS=25
+
 class LeleBodyType(LeleStrEnum):
     """ Body Type """
     GOURD = 'gourd'
     FLAT  = 'flat'
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
+
+CONFIGURATIONS = {
+        'gourd_tail'     : ['-t','worm','-e','60','-E','-wah'],
+        'flat'           : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35','-whk'],
+        'flat_bigworm'   : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
+        'hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35'],
+        'hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35','-whk'],
+        'travel_bigworm' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.TRAVEL,'-wsl','45','-fbt','35','-whk','-w','25']
+    }
 
 class AttrDict(dict):
     def __getattr__(self, key):
@@ -32,7 +44,6 @@ def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> flo
     return 0 if tnrType.is_worm() or tY > endWth/2 else \
             ((endWth/2)**2 - tY**2)**.5 * top_ratio
 
-
 def pylele_config_parser(parser = None):
     """
     Pylele Base Element Parser
@@ -40,6 +51,13 @@ def pylele_config_parser(parser = None):
     if parser is None:
         parser = argparse.ArgumentParser(description='Pylele Configuration')
 
+    ## config overrides ###########################################
+
+    parser.add_argument("-cfg", "--configuration", 
+                        help="Configuration",
+                        type=str,choices=CONFIGURATIONS.keys(),
+                        default=None)
+    
     ## Numeric config options ###########################################
     parser.add_argument("-s", "--scale_length", 
                         help=f"Scale Length [mm], or {LeleScaleEnum.list()}, default: {LeleScaleEnum.SOPRANO.name}={LeleScaleEnum.SOPRANO.value}",
@@ -133,7 +151,7 @@ class LeleConfig:
         """
         LeleSolid Command Line Interface
         """
-        return lele_solid_parser(parser=parser)
+        return pylele_config_parser(parser=parser)
 
     def parse_args(self, args=None):
         """ Parse Command Line Arguments """
@@ -495,3 +513,20 @@ class LeleConfig:
     def __repr__(self):
         properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
         return f"{self.__class__.__name__}\n\n{properties}"
+
+def main():
+    """ Pylele Configuration """
+    parser = pylele_config_parser()
+    cli = parser.parse_args()
+
+    if not cli.configuration is None:
+        # print(AttrDict(vars(cli)))
+        cli = parser.parse_args(args=CONFIGURATIONS[cli.configuration])
+
+    print(AttrDict(vars(cli)))
+    cfg = LeleConfig(cli=cli)
+    # print(cfg)
+    return cfg
+
+if __name__ == '__main__':
+    main()
