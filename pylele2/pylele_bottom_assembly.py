@@ -74,12 +74,12 @@ class LeleBottomAssembly(LeleBase):
             bodyCutters.append(tnrsCut)
            
         ## Tail
-        if self.cli.separate_end:
-            tailCut = LeleTail(cli=self.cli, isCut=True) # self.gen_tail(cutters=tail_cutters,is_cut=True)
-            bodyCutters.append(tailCut)
-        elif self.cli.body_type in [LeleBodyType.HOLLOW]:
-            # join tail to body if flat hollow and not separate end
-            bodyJoiners.append( LeleTail(cli=self.cli) )
+        if TunerType[self.cli.tuner_type].value.is_worm():
+            if self.cli.separate_end:
+                bodyCutters.append( LeleTail(cli=self.cli, isCut=True))
+            elif self.cli.body_type in [LeleBodyType.HOLLOW]:
+                # join tail to body if flat hollow and not separate end
+                bodyJoiners.append( LeleTail(cli=self.cli) )
 
         ## Body
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
@@ -116,15 +116,15 @@ def test_bottom_assembly(self,apis=['cadquery']):
         'separate_neck'      : ['-N'],
         'separate_fretboard' : ['-F'],
         'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
-        'gotoh_tuners'       : ['-t','gotoh'],
-        'worm_tuners'        : ['-t','worm'],
-        'worm_key'           : ['-t','worm','-whk'],
-        'big_worm_tuners'    : ['-t','bigWorm'],
     }
+
+    test_body = {}
+    for body in list(LeleBodyType):
+        test_body[body] = ['-bt', body ]
 
     test_loop(module=__name__,
               apis=apis,
-              tests=tests
+              tests=tests|test_body
               )
 
 def test_bottom_assembly_mock(self):
