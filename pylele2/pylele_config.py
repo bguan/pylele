@@ -23,13 +23,16 @@ class LeleBodyType(LeleStrEnum):
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
+WORM    = ['-t','worm'   ,'-e','60','-E','-wah','-wsl','35','-whk']
+BIGWORM = ['-t','bigworm','-e','85','-E','-wah','-wsl','45','-whk','-fbt','35']
+
 CONFIGURATIONS = {
-        'gourd_tail'     : ['-t','worm','-e','60','-E','-wah'],
-        'flat'           : ['-t',   'worm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','35','-whk'],
-        'flat_bigworm'   : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.FLAT,'-wsl','45','-fbt','35'],
-        'hollow_bigworm' : ['-t','bigworm','-e','80','-E','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35'],
-        'hollow_bigworm_notail' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.HOLLOW,'-wsl','45','-fbt','35','-whk'],
-        'travel_bigworm' : ['-t','bigworm','-e','80','-wah', '-bt', LeleBodyType.TRAVEL,'-wsl','45','-fbt','35','-whk','-w','25']
+        'default'        : [],
+        'gourd_worm'     : WORM,
+        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT],
+        'flat_bigworm'   : BIGWORM + ['-bt', LeleBodyType.FLAT],
+        'hollow_bigworm' : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
+        'travel_bigworm' : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25']
     }
 
 class AttrDict(dict):

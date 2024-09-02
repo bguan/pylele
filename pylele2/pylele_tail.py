@@ -46,7 +46,7 @@ class LeleTail(LeleBase):
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
-            
+
         if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
             extBot = None
             inrBot = None
@@ -80,10 +80,12 @@ class LeleTail(LeleBase):
                 tail = top.join(bot)
             # tail = top
 
-        tuners_cut=LeleTuners(cli=self.cli,isCut=True)
-        tuners_cut.gen_full()
+        if not self.isCut:
+            tuners_cut=LeleTuners(cli=self.cli,isCut=True)
+            tuners_cut.gen_full()
+            tail.cut(tuners_cut.shape)
 
-        self.shape = tail.cut(tuners_cut.shape)
+        self.shape = tail
         return tail
     
     def gen_parser(self, parser=None):

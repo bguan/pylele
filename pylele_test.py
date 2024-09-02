@@ -85,6 +85,7 @@ class PyleleTestMethods(unittest.TestCase):
     from pylele2.pylele_neck_assembly import test_neck_assembly, test_neck_assembly_mock
     from pylele2.pylele_top_assembly import test_top_assembly, test_top_assembly_mock
     from pylele2.pylele_bottom_assembly import test_bottom_assembly, test_bottom_assembly_mock
+    from pylele2.pylele_all_assembly import test_all_assembly, test_all_assembly_mock
 
 if __name__ == '__main__':
     unittest.main()
