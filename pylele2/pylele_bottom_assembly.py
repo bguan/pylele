@@ -30,15 +30,7 @@ from pylele2.pylele_config import CONFIGURATIONS
 
 class LeleBottomAssembly(LeleBase):
     """ Pylele Body Bottom Assembly Generator class """
-
-    def gen_tail(self,is_cut = False, cutters=[]) -> Shape:
-        """ generate tail """
-        tail = LeleTail(cli=self.cli, isCut=is_cut)
-        for cut in cutters:
-            if not cut is None:
-                tail = tail.cut(cut)
-        return tail
-
+       
     def gen(self) -> Shape:
         """ Generate Body Bottom Assembly """
 
@@ -92,24 +84,15 @@ class LeleBottomAssembly(LeleBase):
         ## Tuners
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
         bodyCutters.append(tnrsCut)
-
-        ## Worm Key
-        wormKeyCut = None
-        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
-            wormKeyCut = LeleWormKey(cli=self.cli, isCut=True)
-            bodyCutters.append(wormKeyCut)
-
+           
         ## Tail
-        tail_cutters = [tnrsCut,wormKeyCut]
         if self.cli.separate_end:
-            tailCut = self.gen_tail(cutters=tail_cutters,is_cut=True)
+            tailCut = LeleTail(cli=self.cli, isCut=True) # self.gen_tail(cutters=tail_cutters,is_cut=True)
             self.add_part(tailCut)
             bodyCutters.append(tailCut)
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
-            bodyJoiners.append(
-                self.gen_tail(cutters=tail_cutters,is_cut=False)
-            )
+            bodyJoiners.append( LeleTail(cli=self.cli) )
         ## Body
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
 

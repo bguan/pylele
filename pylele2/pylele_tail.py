@@ -9,7 +9,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, LeleBodyType
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, LeleBodyType, TunerType
+from pylele2.pylele_tuners import LeleTuners, pylele_worm_parser
 
 class LeleTail(LeleBase):
     """ Pylele Tail Generator class """
@@ -17,6 +18,7 @@ class LeleTail(LeleBase):
     def gen(self) -> Shape:
         """ Generate Tail """
         assert self.cli.separate_end or self.cli.body_type==LeleBodyType.HOLLOW
+        assert TunerType[self.cli.tuner_type].value.is_worm(), 'Separate Tail not allowed for Peg Tuners!'
 
         cfg = self.cfg
         joinTol = self.api.getJoinCutTol() # cfg.joinCutTol
@@ -44,6 +46,7 @@ class LeleTail(LeleBase):
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
+            
         if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
             extBot = None
             inrBot = None
@@ -77,8 +80,15 @@ class LeleTail(LeleBase):
                 tail = top.join(bot)
             # tail = top
 
-        self.shape = tail
+        tuners_cut=LeleTuners(cli=self.cli,isCut=True)
+        tuners_cut.gen_full()
+
+        self.shape = tail.cut(tuners_cut.shape)
         return tail
+    
+    def gen_parser(self, parser=None):
+        """ Tail Parser """
+        return super().gen_parser(parser=pylele_worm_parser(parser=parser))
 
 def main(args=None):
     """ Generate tail """
@@ -90,8 +100,8 @@ def test_tail(self,apis=None):
     """ Test Tail """
 
     tests = {
-        'cut'          : ['-E','-e','10','-C'],
-        'separate_tail': ['-E','-e','4.3'],
+        'cut'          : ['-t','worm','-E','-e','10','-C'],
+        'separate_tail': ['-t','worm','-E','-e','4.3'],
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 

@@ -11,6 +11,7 @@ from api.pylele_api import Shape, Fidelity
 from pylele2.pylele_base import LeleBase, test_loop, main_maker, TunerType
 from pylele2.pylele_peg import LelePeg, PegConfig
 from pylele2.pylele_worm import LeleWorm, pylele_worm_parser, WormConfig
+from pylele2.pylele_worm_key import LeleWormKey
 
 class LeleTuners(LeleBase):
     """ Pylele Tuners Generator class """
@@ -31,6 +32,11 @@ class LeleTuners(LeleBase):
             if not tnr is None:
                 tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
                 tnrs = tnr if tnrs is None else tnrs.join(tnr)
+
+        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
+            worm = LeleWormKey(cli=self.cli,isCut=self.isCut)
+            worm.gen_full()
+            tnrs = tnrs.join(worm.shape)
 
         if self.isCut:
             self.api.setFidelity(origFidel)
