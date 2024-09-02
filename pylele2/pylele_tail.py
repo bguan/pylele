@@ -104,9 +104,16 @@ def test_tail(self,apis=None):
         'cut'          : ['-t','worm','-E','-e','10','-C'],
         'separate_tail': ['-t','worm','-E','-e','4.3'],
         'worm'         : WORM,
-        'bigworm'      : BIGWORM
+        'bigworm'      : BIGWORM,
     }
-    test_loop(module=__name__,tests=tests,apis=apis)
+
+    test_body = {}
+    for body in [LeleBodyType.FLAT,LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
+        test_body[body] = WORM+['-bt', body]
+
+    test_loop(module=__name__,
+              tests=tests|test_body,
+              apis=apis)
 
 def test_tail_mock(self):
     """ Test Tail """
