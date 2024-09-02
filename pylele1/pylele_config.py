@@ -35,7 +35,7 @@ class LeleConfig:
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
     CHM_BACK_RATIO = 1/2 # to chmFront
-    # CHM_BRDG_RATIO = 3  # to chmWth
+    CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
@@ -176,7 +176,7 @@ class LeleConfig:
         # Chamber Configs
         self.chmLift = chmLift
         self.chmRot = chmRot
-        self.chmWth = self.brdgWth * 3
+        self.chmWth = self.brdgWth * self.CHM_BRDG_RATIO
         self.rimWth = wallTck/2
 
         # Head configs
