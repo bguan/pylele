@@ -50,13 +50,8 @@ class LeleTail(LeleBase):
         if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
             extBot = None
             inrBot = None
-            """
-            inrTop.filletByNearestEdges([
-                ( tailLen,  (endWth -2*rimWth)/2, midBotTck/2),
-                ( tailLen, -(endWth -2*rimWth)/2, midBotTck/2),
-                # (-tailLen/2, (endWth -2*rimWth)/2, midBotTck/2),
-                ],rad=10)
-            """
+            if self.cli.body_type in [LeleBodyType.TRAVEL]:
+                top = top.mv(5,0,0) # for whatever reason...
         else:
             extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
             .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
@@ -80,9 +75,12 @@ class LeleTail(LeleBase):
                 tail = top.join(bot)
             # tail = top
 
-        if not self.isCut:
-            tuners_cut=LeleTuners(cli=self.cli,isCut=True)
-            tuners_cut.gen_full()
+        # Tuners
+        tuners_cut=LeleTuners(cli=self.cli,isCut=True)
+        tuners_cut.gen_full()
+        if self.isCut:
+            tail.join(tuners_cut.shape)
+        else:
             tail.cut(tuners_cut.shape)
 
         self.shape = tail
