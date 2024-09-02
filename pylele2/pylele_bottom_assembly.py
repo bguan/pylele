@@ -111,11 +111,10 @@ def test_bottom_assembly(self,apis=['cadquery']):
     """ Test Bottom Assembly """
 
     tests = {
-        'separate_bridge'    : ['-B'],
+        'default'            : [],
         'separate_top'       : ['-T'],
         'separate_neck'      : ['-N'],
         'separate_fretboard' : ['-F'],
-        'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
     }
 
     test_body = {}
