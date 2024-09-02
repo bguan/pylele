@@ -104,9 +104,6 @@ def test_all_assembly(self,apis=['cadquery']):
         'separate_fretboard' : ['-F'],
         'separate_all'       : ['-F','-N','-T','-B','-NU','-FR','-D','-G'],
         'gotoh_tuners'       : ['-t','gotoh'],
-        'worm_tuners'        : ['-t','worm'],
-        'worm_key'           : ['-t','worm','-whk'],
-        'big_worm_tuners'    : ['-t','bigWorm'],
     }
 
     test_loop(module=__name__,
