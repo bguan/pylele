@@ -59,19 +59,10 @@ class LeleAllAssembly(LeleBase):
         neck = LeleNeckAssembly(cli=self.cli)
         neck.gen_full()
         if self.cli.separate_neck:
-            bodyCutters.append(
-                LeleNeckJoint(cli=self.cli, isCut=True)\
-                .mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol())
-                )
             self.add_part(neck)
         else:
             bodyJoiners.append(neck)
             self.add_parts(neck)
-
-        if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top:
-            bodyCutters.append(
-                LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
-            )
 
         ## Tail
         if self.cli.separate_end:

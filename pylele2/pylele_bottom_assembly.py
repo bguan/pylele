@@ -48,9 +48,24 @@ class LeleBottomAssembly(LeleBase):
             )
 
         ## Spines
+        """
         if self.cli.num_strings > 1:
             bodyCutters.append(
                 LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
+            )
+        """
+
+        ## Neck Joint
+        if self.cli.separate_neck:
+            bodyCutters.append(
+                LeleNeckJoint(cli=self.cli, isCut=True)\
+                .mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol())
+                )
+
+        ## Fretboard Spines
+        if self.cli.separate_fretboard or self.cli.separate_neck or self.cli.separate_top:
+            bodyCutters.append(
+                LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
             )
             
         ## Tuners
@@ -65,6 +80,7 @@ class LeleBottomAssembly(LeleBase):
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
             bodyJoiners.append( LeleTail(cli=self.cli) )
+
         ## Body
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
 
