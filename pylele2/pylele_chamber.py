@@ -113,7 +113,9 @@ def test_chamber(self,apis=None):
     """ Test Chamber """
 
     tests = {
-        'cut'     : ['-C']
+        'default' : [],
+        'cut'     : ['-C'],
+        'travel'  : ['-bt',LeleBodyType.TRAVEL]
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 
