@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, LeleBodyType, TunerType
 from pylele2.pylele_tuners import LeleTuners, pylele_worm_parser
+from pylele2.pylele_config import WORM, BIGWORM
 
 class LeleTail(LeleBase):
     """ Pylele Tail Generator class """
@@ -102,6 +103,8 @@ def test_tail(self,apis=None):
     tests = {
         'cut'          : ['-t','worm','-E','-e','10','-C'],
         'separate_tail': ['-t','worm','-E','-e','4.3'],
+        'worm'         : WORM,
+        'bigworm'      : BIGWORM
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 
