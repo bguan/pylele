@@ -112,6 +112,7 @@ def test_top_assembly(self, apis = ['cadquery']):
         test_scale_len[sl.name] = ['-s',sl.name]
 
     tests = {
+            'default'            : [],
             'separate_bridge'    : ['-B'],
             'separate_guide'     : ['-G'],
             'separate_top'       : ['-T'],
