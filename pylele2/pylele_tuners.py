@@ -58,12 +58,16 @@ def test_tuners(self,apis=None):
     """ Test Tuners """
     tests = {
         'cut'     : ['-C'],
-        'gotoh'   : ['-t','gotoh'],
-        'worm'    : ['-t','worm'],
-        'big_worm': ['-t','bigWorm'],
         'tail_end': ['-t','worm','-e','60','-E','-wah','-C']
     }
-    test_loop(module=__name__,tests=tests,apis=apis)
+    
+    tests_tuners_type = {}
+    for t in TunerType.list():
+        tests_tuners_type[t] = ['-t', t]
+
+    test_loop(module=__name__,
+              tests=tests|tests_tuners_type,
+              apis=apis)
 
 def test_tuners_mock(self):
     """ Test Tuners """
