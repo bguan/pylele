@@ -204,8 +204,8 @@ def test_worm(self,apis=None):
     """ Test Worm """
 
     tests = {
-        'cut'     : ['-t',TunerType.WORM.name,'-C','-wah'],
-        # 'bigworm' : ['-t',TunerType.BIGWORM.name,'-wah']
+        'worm'     : ['-t',TunerType.WORM.name,   '-wah'],
+        'bigworm'  : ['-t',TunerType.BIGWORM.name,'-wah']
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 
