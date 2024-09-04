@@ -48,7 +48,7 @@ def main(args = None):
 def test_fretboard(self,apis=None):
     """ Test Fretboard """
     tests = {
-        'cut'     : ['-C']
+        'cut'     : ['-C','-refv','62360']
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 

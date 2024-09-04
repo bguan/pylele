@@ -53,7 +53,7 @@ class LeleChamber(LeleBase):
         scLen = self.cli.scale_length
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
-        if False:
+        if True:
             lift = self.cli.chamber_lift # self.cfg.chmLift
             rotY = self.cli.chamber_rotate # self.cfg.chmRot
         else:

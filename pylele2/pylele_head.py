@@ -18,12 +18,12 @@ class LeleHead(LeleBase):
         """ Generate Head """
 
         hdWth = self.cfg.headWth
-        hdLen = self.cfg.HEAD_LEN
+        hdLen = self.cfg.headLen
         ntHt = self.cfg.NUT_HT
         fbTck = self.cfg.FRETBD_TCK
         spHt = self.cfg.SPINE_HT
         fspTck = self.cfg.FRETBD_SPINE_TCK
-        topRat = self.cfg.TOP_RATIO
+        topRat = self.cfg.TOP_HEAD_RATIO
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig
@@ -31,23 +31,23 @@ class LeleHead(LeleBase):
         joinTol = self.api.getJoinCutTol()
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
-            .scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
+            .scale(1, 1, botRat).mv(0, 0, joinTol/2 -midTck)
         
         if midTck > 0:
             midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
                 .mv(0, 0, -midTck)
             midL = midR.mirrorXZ()
-            hd = hd.join(midL).join(midR)
+            hd = hd.join(midR).join(midL)
 
         if topRat > 0:
             top = self.api.genLineSplineRevolveX(orig, path, 180)\
-                .scale(1, 1, topRat).mv(0, 0, -joinTol)
+                .scale(1, 1, topRat).mv(0, 0, -joinTol/2)
             hd = hd.join(top)
 
         topCut = self.api.genRodY(2*hdWth, hdLen)\
             .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
         frontCut = self.api.genRodY(2*hdWth, .65*spHt)\
-            .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .6*spHt)
+            .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .65*spHt)
         hd = hd.cut(frontCut).cut(topCut)
 
         self.shape = hd

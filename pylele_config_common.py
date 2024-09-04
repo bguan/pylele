@@ -4,6 +4,7 @@
 
 from enum import IntEnum, Enum
 from ast import literal_eval
+from abc import ABC, abstractmethod
 
 SEMI_RATIO = 2**(1/12)
 
@@ -29,7 +30,7 @@ class LeleScaleEnum(IntEnum):
 
 # Tuner config
 
-class TunerConfig:
+class TunerConfig(ABC):
     """ Tuner Configuration """
     def __init__(
         self,
@@ -39,17 +40,25 @@ class TunerConfig:
         self.holeHt = holeHt
         self.code = code
 
+    @abstractmethod
     def minGap(self) -> float:
         pass
-
+    
+    @abstractmethod
     def tailAllow(self) -> float:
         pass
 
+    @abstractmethod
     def is_peg(self) -> bool:
         pass
 
+    @abstractmethod
     def is_worm(self) -> bool:
         pass
+
+    def __repr__(self):
+        properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
+        return f"{self.__class__.__name__}\n\n{properties}"
 
 # Tuner config
 
@@ -83,7 +92,6 @@ class PegConfig(TunerConfig):
 
     def is_worm(self) -> bool:
         return False
-
 class WormConfig(TunerConfig):
     """ Worm Configuration """
     def __init__(
@@ -132,10 +140,6 @@ class WormConfig(TunerConfig):
 
     def tailAllow(self) -> float:
         return self.driveLen
-    
-    def __repr__(self):
-        properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
-        return f"{self.__class__.__name__}\n\n{properties}"
     
     def is_peg(self) -> bool:
         return False

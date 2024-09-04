@@ -27,9 +27,12 @@ class LeleNeck(LeleBase):
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
         neckCone = self.api.genConeX(nkLen, ntWth/2, nkWth/2)
-        coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
+        if False:
+            coneCut = self.api.genBox(2*nkLen, 2*nkWth, 2*nkWth).mv(nkLen, 0, nkWth)
+        else:
+            coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen/2, 0, nkWth/2)
         neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, joinTol -midTck)
-        neck = neckCone if neck == None else neck.join(neckCone)
+        neck = neckCone if neck is None else neck.join(neckCone)
 
         self.shape = neck
         return neck

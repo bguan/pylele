@@ -36,7 +36,11 @@ class LeleBottomAssembly(LeleBase):
 
         ## Initialize Joiners and Cutters
         bodyJoiners = []
-        bodyCutters = [LeleTexts(cli=self.cli, isCut=True)]
+        bodyCutters = []
+
+        ## Text
+        if self.cli.text_en:
+            bodyCutters.append(LeleTexts(cli=self.cli, isCut=True))
 
         ## Chamber
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
@@ -115,6 +119,7 @@ def test_bottom_assembly(self,apis=['cadquery']):
         'separate_top'       : ['-T'],
         'separate_neck'      : ['-N'],
         'separate_fretboard' : ['-F'],
+        'text'               : ['-txt'],
     }
 
     test_body = {}

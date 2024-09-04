@@ -3,3 +3,8 @@ cadquery
 bpy # blender python API
 trimesh
 scipy # required by trimesh
+manifold3d
+pillow
+shapely
+networkx
+pyglet<2

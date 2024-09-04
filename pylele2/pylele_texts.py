@@ -42,6 +42,10 @@ def pylele_texts_parser(parser = None):
                             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
                         ])
     
+    parser.add_argument("-txt", "--text_en",
+                        help="Enable Generation of Text emboss",
+                        action='store_true')
+
     return parser
 
 class LeleTexts(LeleBase):
@@ -49,8 +53,11 @@ class LeleTexts(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Texts """
-        origFidel = self.api.fidelity
-        self.api.setFidelity(Fidelity.HIGH)
+        assert self.cli.text_en
+
+        if self.isCut:
+            origFidel = self.api.fidelity
+            self.api.setFidelity(Fidelity.LOW)
 
         scLen = self.cli.scale_length
         backRat = self.cfg.CHM_BACK_RATIO
@@ -78,7 +85,8 @@ class LeleTexts(LeleBase):
         botCut = LeleBody(cli=self.cli, isCut=True).mv(0, 0, cutTol)
 
         txtCut = ls.cut(botCut.shape).mv(0, 0, dep)
-        self.api.setFidelity(origFidel)
+        if self.isCut:
+            self.api.setFidelity(origFidel)
         return txtCut
     
     def gen_parser(self,parser=None):
@@ -95,11 +103,14 @@ def main(args = None):
 
 def test_texts(self,apis=None):
     """ Test texts """
-    test_loop(module=__name__,apis=apis)
+    tests = {
+        'default': ['-txt']
+    }
+    test_loop(module=__name__,apis=apis,tests=tests)
     
 def test_texts_mock(self):
     """ Test texts """
     test_texts(self,apis=['mock'])
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:]+['-txt'])

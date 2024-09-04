@@ -48,6 +48,10 @@ class PyleleTestMethods(unittest.TestCase):
         """ Test Blender API """
         test_api(module_name='api.bpy_api',class_name='BlenderShapeAPI')
     
+    def test_trimesh_api(self):
+        """ Test Trimesh API """
+        test_api(module_name='api.tm_api',class_name='TMShapeAPI')    
+
     ## Solid Parts
     from parts.tube import test_tube, test_tube_mock
     from parts.screw import test_screw, test_screw_mock

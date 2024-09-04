@@ -106,7 +106,7 @@ TESTS_ALL = {
 }
 ## flat body only works with cadquery at the moment
 TESTS_CQ = {
-    'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50'],
+    'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50','-refv','1405935'],
     'flat_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
     'hollow'        : ['-bt',str(LeleBodyType.HOLLOW)],
 }

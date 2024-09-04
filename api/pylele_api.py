@@ -1,12 +1,17 @@
 
 from __future__ import annotations
 
+import os
+import sys
 import importlib
+from math import inf
 from enum import Enum
+from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Union
+from fontTools.ttLib import TTFont
+from typing import Any, Union
     
-# consider update to StrEnum for python 3.11 and above 
+# consider update to StrEnum for python 3.11 and above
 # https://tsak.dev/posts/python-enum/
 class LeleStrEnum(str,Enum):
     """ Pylele Enumerator for String Types """
@@ -14,11 +19,16 @@ class LeleStrEnum(str,Enum):
         return self.value
     def list(self):
         return list(self)
-
 class Fidelity(LeleStrEnum):
     LOW = 'low'
     MEDIUM = 'medium'
     HIGH = 'high'
+
+    def __repr__(self):
+        return f"Fidelity({self.value} tol={self.exportTol()}, seg={self.smoothingSegments()})"
+
+    def __str__(self):
+        return self.value
 
     def exportTol(self) -> float:
         match self:
@@ -54,6 +64,12 @@ class Implementation(LeleStrEnum):
     BLENDER = 'blender'
     TRIMESH = 'trimesh'
    
+    def __repr__(self):
+        return f"Implementation({self.value})"
+
+    def __str__(self):
+        return self.value
+
     def code(self) -> str:
         """ Return Code that identifies Implementation """
         match self:
@@ -71,8 +87,23 @@ class Implementation(LeleStrEnum):
         return 0 if self == Implementation.CAD_QUERY else 0.01
 
 class Shape(ABC):
+
+    MAX_DIM = 2000 # for max and min dimensions
+
+    @abstractmethod
+    def getAPI(self) -> ShapeAPI:
+        ...
+
+    @abstractmethod
+    def getImplSolid(self) -> Any:
+        ...
+
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape:
+        ...
+
+    @abstractmethod
+    def dup(self) -> Shape:
         ...
 
     @abstractmethod
@@ -82,9 +113,16 @@ class Shape(ABC):
     ) -> Shape:
         ...
 
-    @abstractmethod
+    def halfByPlane(self, plane: tuple[bool, bool, bool]) -> Shape:
+        halfCutter = self.getAPI().genBox(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM).mv(
+            self.MAX_DIM/2 if plane[0] else 0, 
+            self.MAX_DIM/2 if plane[1] else 0, 
+            self.MAX_DIM/2 if plane[2] else 0,
+        )
+        return self.cut(halfCutter)
+    
     def half(self) -> Shape:
-        ...
+        return self.halfByPlane((False, True, False))
 
     @abstractmethod
     def join(self, joiner: Shape) -> Shape:
@@ -153,14 +191,98 @@ class ShapeAPI(ABC):
                     cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
                 return cls._blender_api
             case Implementation.TRIMESH:
-                return None
+                if cls._trimesh_api == None:
+                    tm_mod_name = 'api.tm_api'
+                    tm_mod = importlib.import_module(tm_mod_name)
+                    cls._tm_api = tm_mod.TMShapeAPI(fidelity)
+                return cls._tm_api
+
+    def getFontname2FilepathMap(self) -> dict[str, str]:
+
+        font2path:dict[str, str] = {}
+
+        # Define directories to search for fonts
+        if sys.platform == 'win32':
+            font_dirs = [
+                os.path.join(os.environ['WINDIR'], 'Fonts')
+            ]
+        elif sys.platform == 'darwin':
+            font_dirs = [
+                '/Library/Fonts',
+                '/System/Library/Fonts',
+                os.path.expanduser('~/Library/Fonts')
+            ]
+        else:  # Assume Linux or other UNIX-like system
+            font_dirs = [
+                '/usr/share/fonts',
+                '/usr/local/share/fonts',
+                os.path.expanduser('~/.fonts')
+            ]
+
+        def list_fonts(directory):
+            fonts = []
+
+            # Helper function to get the string by its name ID
+            def get_name(font:TTFont, nameID:int):
+                name_record = font['name'].getName(nameID=nameID, platformID=3, platEncID=1)
+                if name_record is None:
+                    name_record = font['name'].getName(nameID=nameID, platformID=1, platEncID=0)
+                return name_record.toStr() if name_record else 'Unknown'
+
+            for root, _, files in os.walk(directory):
+                for file in files:
+                    if file.lower().endswith(('.ttf', '.otf')):
+                        font_path = os.path.join(root, file)
+                        try:
+                            font = TTFont(font_path)
+                            # Get the Font Family Name (name ID 1)
+                            family = get_name(font, 1)
+                            # Get the Font Subfamily Name (Style) (name ID 2)
+                            style = get_name(font, 2)
+
+                            font_name = family if style == "Normal" or style == "Regular" else family + " " + style 
+                            fonts.append((font_name, font_path))
+                        except Exception as e:
+                            print(f"Error reading {font_path}: {e}")
+            return fonts
+
+        # Collect fonts from all directories
+        all_fonts = []
+        for directory in font_dirs:
+            if os.path.exists(directory):
+                all_fonts.extend(list_fonts(directory))
+
+        # Print the font names and paths
+        for name, path in all_fonts:
+            # print(f"Font: {name}, Path: {path}")
+            font2path[name] = path
+
+        return font2path
+
+    def __init__(self) -> None:
+        self.font2path:dict[str, str] = self.getFontname2FilepathMap()
+
+    @abstractmethod
+    def getFidelity(self) -> Fidelity:
+        ...
+
+    @abstractmethod
+    def getImplementation(self) -> Implementation:
+        ...
+
+    def getFontPath(self, fontName: str) -> str:
+        return self.font2path[fontName] if fontName in self.font2path else None
 
     @abstractmethod
     def setFidelity(self, fidel: Fidelity) -> None:
         ...
 
     @abstractmethod
-    def exportSTL(self, shape: Shape, path: str) -> None:
+    def exportSTL(self, shape: Shape, path: Union[str, Path]) -> None:
+        ...
+
+    @abstractmethod
+    def exportBest(self, shape: Shape, path: Union[str, Path]) -> None:
         ...
 
     @abstractmethod
@@ -168,56 +290,60 @@ class ShapeAPI(ABC):
         ...
 
     @abstractmethod
-    def genBox(self, ln: float, wth: float, ht: float) -> Shape:
+    def genBox(self, l: float, wth: float, ht: float) -> Shape:
         ...
 
     @abstractmethod
-    def genConeX(self, ln: float, r1: float, r2: float) -> Shape:
+    def genConeX(self, l: float, r1: float, r2: float) -> Shape:
         ...
 
     @abstractmethod
-    def genConeY(self, ln: float, r1: float, r2: float) -> Shape:
+    def genConeY(self, l: float, r1: float, r2: float) -> Shape:
         ...
 
     @abstractmethod
-    def genConeZ(self, ln: float, r1: float, r2: float) -> Shape:
+    def genConeZ(self, l: float, r1: float, r2: float) -> Shape:
         ...
 
     @abstractmethod
-    def genPolyRodX(self, ln: float, rad: float, sides: int) -> Shape:
+    def genPolyRodX(self, l: float, rad: float, sides: int) -> Shape:
         ...
 
     @abstractmethod
-    def genPolyRodY(self, ln: float, rad: float, sides: int) -> Shape:
+    def genPolyRodY(self, l: float, rad: float, sides: int) -> Shape:
         ...
 
     @abstractmethod
-    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> Shape:
+    def genPolyRodZ(self, l: float, rad: float, sides: int) -> Shape:
         ...
 
     @abstractmethod
-    def genRodX(self, ln: float, rad: float) -> Shape:
+    def genRodX(self, l: float, rad: float) -> Shape:
         ...
 
     @abstractmethod
-    def genRodY(self, ln: float, rad: float) -> Shape:
+    def genRodY(self, l: float, rad: float) -> Shape:
         ...
 
     @abstractmethod
-    def genRodZ(self, ln: float, rad: float) -> Shape:
+    def genRodZ(self, l: float, rad: float) -> Shape:
         ...
 
-    @abstractmethod
-    def genRndRodX(self, ln: float, rad: float, domeRatio: float = 1) -> Shape:
-        ...
+    def genRndRodX(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        rndRodZ = self.genRndRodZ(l, rad, domeRatio)
+        return rndRodZ.rotateY(90)
 
-    @abstractmethod
-    def genRndRodY(self, ln: float, rad: float, domeRatio: float = 1) -> Shape:
-        ...
+    def genRndRodY(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        rndRodX = self.genRndRodX(l, rad, domeRatio)
+        return rndRodX.rotateZ(90)
 
-    @abstractmethod
-    def genRndRodZ(self, ln: float, rad: float, domeRatio: float = 1) -> Shape:
-        ...
+    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        stemLen = l - 2*rad*domeRatio
+        rod = self.genRodZ(stemLen, rad)
+        for bz in [stemLen/2, -stemLen/2]:
+            ball = self.genBall(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
+            rod = rod.join(ball)
+        return rod
 
     @abstractmethod
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Shape:
@@ -257,19 +383,150 @@ class ShapeAPI(ABC):
     ):
         ...
         
-    @abstractmethod
-    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool):
-        ...
+    def genQuarterBall(self, rad: float, pickTop: bool, pickFront: bool):
+        maxDim = Shape.MAX_DIM
+        ball = self.genBall(rad)
+        topCut = self.genBox(maxDim, maxDim, maxDim).mv(0, 0, -maxDim/2 if pickTop else maxDim/2)
+        frontCut = self.genBox(maxDim, maxDim, maxDim).mv(maxDim/2 if pickFront else -maxDim/2, 0, 0)
+        return ball.cut(topCut).cut(frontCut)
         
-    @abstractmethod
-    def genHalfDisc(self, radius: float, pickFront: bool, tck: float):
-        ...
+    def genHalfDisc(self, rad: float, pickFront: bool, tck: float):
+        maxDim = Shape.MAX_DIM
+        rod = self.genRodZ(tck, rad)
+        cutter = self.genBox(maxDim, maxDim, maxDim).mv(maxDim/2 if pickFront else -maxDim/2, 0, 0)
+        return rod.cut(cutter)
         
     @abstractmethod
     def getJoinCutTol(self):
         ...
 
-    def test(self, path: str):
+    def test(self, outpath: str | Path) -> None:
+
+        expDir = outpath if isinstance(outpath, Path) else Path(outpath)
+        if not expDir.exists():
+            os.makedirs(expDir)
+        elif not expDir.is_dir():
+            print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
+            sys.exit(os.EX_SOFTWARE)
+
+        implCode = self.getImplementation().code()
+
+        # Simple Tests
+
+        ball = self.genBall(10)
+        self.exportSTL(ball, expDir / f"{implCode}-ball")
+
+        box = self.genBox(10, 20, 30)
+        self.exportSTL(box, expDir / f"{implCode}-box")
+
+        xRod = self.genRodX(30, 5)
+        self.exportSTL(xRod, expDir / f"{implCode}-xrod")
+
+        yRod = self.genRodY(30, 5)
+        self.exportSTL(yRod, expDir / f"{implCode}-yrod")
+
+        zRod = self.genRodZ(30, 5)
+        self.exportSTL(zRod, expDir / f"{implCode}-zrod")
+
+        xCone = self.genConeX(30, 5, 2)
+        self.exportSTL(xCone, expDir / f"{implCode}-xcone")
+
+        yCone = self.genConeY(30, 5, 2)
+        self.exportSTL(yCone, expDir / f"{implCode}-ycone")
+
+        zCone = self.genConeZ(30, 5, 2)
+        self.exportSTL(zCone, expDir / f"{implCode}-zcone")
+
+        xSqRod = self.genPolyRodX(30, 5, 4)
+        self.exportSTL(xSqRod, expDir / f"{implCode}-xsqrod")
+
+        ySqRod = self.genPolyRodY(30, 5, 4)
+        self.exportSTL(ySqRod, expDir / f"{implCode}-ysqrod")
+
+        zSqRod = self.genPolyRodZ(30, 5, 4)
+        self.exportSTL(zSqRod, expDir / f"{implCode}-zsqrod")
+
+        xRndRod = self.genRndRodX(30, 5, 1/2)
+        self.exportSTL(xRndRod, expDir / f"{implCode}-xrndrod")
+
+        yRndRod = self.genRndRodY(30, 5, 1/2)
+        self.exportSTL(yRndRod, expDir / f"{implCode}-yrndrod")
+
+        zRndRod = self.genRndRodZ(30, 5, 1/2)
+        self.exportSTL(zRndRod, expDir / f"{implCode}-zrndrod")
+
+        zPolyExt = self.genPolyExtrusionZ([(0,0), (10,0), (0,10)], 5)
+        self.exportSTL(zPolyExt, expDir / f"{implCode}-zpolyext")
+
+        zTxt = self.genTextZ("WWW", 30, 10, "Courier New")
+        self.exportSTL(zTxt, expDir / f"{implCode}-ztxt")
+
+        qBall = self.genQuarterBall(10, True, True)
+        self.exportSTL(qBall, expDir / f"{implCode}-qball")
+
+        hDisc = self.genHalfDisc(10, True, 2)
+        self.exportSTL(hDisc, expDir / f"{implCode}-hdisc")
+
+        body = self.genLineSplineExtrusionZ(
+            start = (215, 0),
+            path = [
+                (215, 23), 
+                [
+                    (216, 23, .01, .5, .3), 
+                    (390, 76, 0, .6), 
+                    (481, 1, -inf),
+                ],
+                (481, 0),
+            ],
+            ht = 5,
+        )
+        self.exportSTL(body, expDir / f"{implCode}-body")
+
+        dome = self.genLineSplineExtrusionZ(
+            start = (0, 0),
+            path = [
+                (-5, 0), 
+                (-5, 10), 
+                (0, 10),
+                [
+                    (1, 10, 0),
+                    (5, 8, -inf),
+                    (2.5, 5, -inf),
+                    (5, 2, -inf),
+                    (1, 0, 0),
+                ],
+                (0, 0),
+            ],
+            ht = 5,
+        )
+        self.exportSTL(dome, expDir / f"{implCode}-splineext")
+
+        donut = self.genLineSplineRevolveX(
+            start = (0, 1),
+            path = [
+                (-5, 1), 
+                (-5, 9), 
+                (0, 9),
+                [
+                    (1, 9, 0),
+                    (5, 7, -inf),
+                    (2.5, 5, -inf),
+                    (5, 3, -inf),
+                    (1, 1, 0),
+                ],
+                (0, 1),
+            ],
+            deg = -225,
+        )
+        self.exportSTL(donut, expDir / f"{implCode}-splinerev")
+
+
+        sweep = self.genCirclePolySweep(1, [(-20,0,0), (20,0,40), (40,20,40), (60,20,0)])
+        self.exportSTL(sweep, expDir / f"{implCode}-sweep")
+
+
+        # More complex tests
+
         objs = []
 
         box = self.genBox(10, 10, 2).mv(0, 0, -10)
@@ -301,7 +558,7 @@ class ShapeAPI(ABC):
         obj4 = rrx.join(rry).join(rrz).half().mv(-10, 10, 5)
         objs.append(obj4)
 
-        pe = self.genPolyExtrusionZ([(-10, -30), (10, -30), (10, 30), (-10, 30)], 10)
+        pe = self.genPolyExtrusionZ([(-10, 30), (10, 30), (10, -30), (-10, -30)], 10)
         tz = self.genTextZ("Hello World", 10, 5, "Arial").rotateZ(90).mv(0, 0, 10)
         obj5 = pe.join(tz).mv(30, -30, 0)
         mirror = obj5.mirrorXZ().mv(10, 0, 0)
@@ -319,9 +576,11 @@ class ShapeAPI(ABC):
                 (-5, 10), 
                 (0, 10),
                 [
-                    (1, 10, 1, 0),
-                    (5, 5, 0, -1),
-                    (1, 0, -1, 0),
+                    (1, 10, 0),
+                    (5, 8, -inf),
+                    (3, 5, -inf),
+                    (5, 2, -inf),
+                    (1, 0, 0),
                 ],
                 (0, 0),
             ],
@@ -335,14 +594,14 @@ class ShapeAPI(ABC):
             (60, 10), 
             (61, 10),
             [
-                (62, 10, 1, 0),
-                (65, 5, 0, -1),
-                (62, .1, -1, 0),
+                (62, 10, 0),
+                (65, 5, -inf),
+                (62, .1, 0),
             ],
             (60, .1),
         ]
-        dome2 = self.genLineSplineRevolveX(donutStart, donutPath, 180).scale(1, 1, .5)
-        dome3 = self.genLineSplineRevolveX(donutStart, donutPath, -180).mv(0, 0, self.getJoinCutTol())
+        dome2 = self.genLineSplineRevolveX(donutStart, donutPath, 45).scale(1, 1, .5)
+        dome3 = self.genLineSplineRevolveX(donutStart, donutPath, -270).mv(0, 0, self.getJoinCutTol())
         obj8 = dome2.join(dome3).mv(0, 0, -10)
         objs.append(obj8)
 
@@ -355,5 +614,5 @@ class ShapeAPI(ABC):
         obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
         objs.append(obj11)
 
-        joined = None; [joined := obj if joined is None else joined.join(obj) for obj in objs]
-        self.exportSTL(joined, path)
+        joined = None; [(joined := (obj if joined is None else joined.join(obj))) for obj in objs]
+        self.exportSTL(joined, expDir / f"{implCode}-all")

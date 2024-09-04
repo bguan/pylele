@@ -56,10 +56,13 @@ class LeleTopAssembly(LeleBase):
         if self.cli.separate_fretboard or self.cli.separate_neck: # if cfg.sepFretbd or cfg.sepNeck:
             topCutters.append(fbJntCut)
         
+        # Fretboard included in neck assembly
+        """
         if not self.cli.separate_fretboard and not self.cli.separate_neck: # if not cfg.sepFretbd and not cfg.sepNeck:
             fretbd = LeleFretboardAssembly(cli=self.cli)
             topJoiners.append(fretbd)
-
+        """
+            
         if self.cli.separate_bridge: # cfg.sepBrdg:
             topCutters.append(LeleBridge(cli=self.cli, isCut=True))
             self.add_part(brdg)

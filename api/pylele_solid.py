@@ -59,7 +59,7 @@ def test_loop(module,apis=None,tests=None): # ,component):
         }
 
     if apis is None:
-        apis = ['cadquery','blender']
+        apis = ['trimesh','cadquery','blender']
 
     for test,args in tests.items():
         for api in apis:
@@ -111,6 +111,30 @@ def volume_match_reference(volume: float,reference: float, tolerance: float = 0.
         return True
     
     return False
+
+def stl_check_volume(out_fname:str,check_en:bool = True,reference_volume:float = None) -> dict:
+    """ Check the volume of an .stl mesh against a reference value"""
+    rpt = {
+        'volume' : 0,
+        'convex_hull_volume': 0,
+        'bounding_box': [0,0,0]
+    }
+    if check_en and not reference_volume is None:
+        assert os.path.isfile(out_fname), f'File {out_fname} does not exist!!!'
+        mesh =  trimesh.load_mesh(out_fname)
+        # assert mesh.is_watertight
+        print(f'mesh_volume: {mesh.volume}')
+        print(f'mesh.convex_hull.volume: {mesh.convex_hull.volume}')
+        print(f'mesh.bounding_box: {mesh.bounding_box.extents}')
+        # mesh.show() does not work
+        rpt['volume'] = mesh.volume
+        rpt['convex_hull_volume'] = mesh.convex_hull.volume
+        rpt['bounding_box'] = mesh.bounding_box.extents
+        
+        # if not self.cli.implementation == Implementation.MOCK:
+        assert volume_match_reference(volume=mesh.volume,
+                            reference=reference_volume), 'volume: %f, reference: %f' % (rpt['volume'],reference_volume)
+    return rpt
 
 def lele_solid_parser(parser=None):
     """
@@ -340,23 +364,10 @@ class LeleSolid(ABC):
                     part.exportSTL(out_path=out_path)
                 else:
                     print(f'# WARNING: Cannot export .stl of class {part} in assembly {self}')
-
-        rpt={}
         # checks
-        if check_volume:
-            mesh =  trimesh.load_mesh(out_fname)
-            # assert mesh.is_watertight
-            print(f'mesh_volume: {mesh.volume}')
-            print(f'mesh.convex_hull.volume: {mesh.convex_hull.volume}')
-            print(f'mesh.bounding_box: {mesh.bounding_box.extents}')
-            # mesh.show() does not work
-            rpt['volume'] = mesh.volume
-            rpt['convex_hull_volume'] = mesh.convex_hull.volume
-            rpt['bounding_box'] = mesh.bounding_box.extents
-            
-            if not self.cli.implementation == Implementation.MOCK:
-                assert volume_match_reference(volume=mesh.volume,
-                                   reference=self.cli.reference_volume), 'volume: %f, reference: %f' % (mesh.volume,self.cli.reference_volume)
+        rpt = stl_check_volume(out_fname = out_fname,
+                               check_en = not self.cli.implementation == Implementation.MOCK,
+                               reference_volume = self.cli.reference_volume)
 
         end_time = time.time()
         # get the execution time
