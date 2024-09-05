@@ -111,7 +111,7 @@ def main(args=None):
                       args=args)
 
 
-def test_bottom_assembly(self,apis=['cadquery']):
+def test_bottom_assembly(self,apis=None):
     """ Test Bottom Assembly """
 
     tests = {

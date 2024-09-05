@@ -107,7 +107,7 @@ def main(args=None):
                     class_name='LeleTopAssembly',
                     args=args)
 
-def test_top_assembly(self, apis = ['cadquery']):
+def test_top_assembly(self, apis = None):
     """ Test Top Assembly """    
 
     test_scale_len = {}
