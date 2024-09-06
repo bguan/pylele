@@ -32,12 +32,11 @@ class LeleHead(LeleBase):
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
             .scale(1, 1, botRat).mv(0, 0, joinTol/2 -midTck)
-        
+
         if midTck > 0:
             midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)\
                 .mv(0, 0, -midTck)
-            midL = midR.mirrorXZ()
-            hd = hd.join(midR).join(midL)
+            hd = hd.join(midR.mirrorXZ_and_join())
 
         if topRat > 0:
             top = self.api.genLineSplineRevolveX(orig, path, 180)\

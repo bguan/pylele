@@ -32,8 +32,7 @@ class LeleTop(LeleBase):
             top = top.mv(0, 0, midTck - joinTol)
             midR = self.api.genLineSplineExtrusionZ(
                 bOrig, bPath, midTck if self.isCut else midTck)
-            midL = midR.mirrorXZ()
-            top = top.join(midL.mv(0, joinTol,0)).join(midR.mv(0, -joinTol,0))
+            top = top.join(midR.mirrorXZ_and_join())
 
         if self.isCut:
             self.api.setFidelity(origFidel)

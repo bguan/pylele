@@ -83,6 +83,8 @@ class TMShapeAPI(ShapeAPI):
         path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]], 
         ht: float,
     ) -> TMShape:
+        if ht < 0:
+            return TMLineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
         return TMLineSplineExtrusionZ(start, path, ht, self)
     
     def genLineSplineRevolveX(self, 

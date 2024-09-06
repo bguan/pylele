@@ -144,6 +144,8 @@ class BlenderShapeAPI(ShapeAPI):
             path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
             ht: float,
         ) -> BlenderShape:
+        if ht < 0:
+            return BlenderLineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
         return BlenderLineSplineExtrusionZ(start, path, ht, self)
     
     def genLineSplineRevolveX(self, 

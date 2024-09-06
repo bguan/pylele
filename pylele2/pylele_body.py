@@ -47,19 +47,16 @@ class LeleBody(LeleBase):
             if midTck > 0:
                 # Generates flat middle section of body
                 bot = bot.mv(0, 0, -midTck)
-                midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
-                midL = midR.mirrorXZ()
-                bot = bot.join(midL.mv(0, joinTol, -midTck)).join(midR.mv(0, -joinTol, -midTck))
+                midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -midTck)
+                bot = bot.join( midR.mirrorXZ_and_join())
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
             bot_below = self.flat_body_bottom().mv(0,0,joinTol)
 
             # Flat body
-            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, self.cli.flat_body_thickness)\
-                .mv(0,0,-self.cli.flat_body_thickness)
-            midL = midR.mirrorXZ()
-            bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
+            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
+            bot = midR.mirrorXZ_and_join()
             bot = bot.join(bot_below)
 
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
@@ -79,8 +76,7 @@ class LeleBody(LeleBase):
             # inner wall
             midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
             midR = midR.cut(midR2)
-            midL = midR.mirrorXZ()            
-            bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
+            bot = midR.mirrorXZ_and_join()
             bot = bot.join(bot_below)
 
         else:

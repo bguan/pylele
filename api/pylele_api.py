@@ -132,6 +132,12 @@ class Shape(ABC):
     def mirrorXZ(self) -> Shape:
         ...
 
+    def mirrorXZ_and_join(self) -> Shape:
+        """ mirror midR and joins the two parts """
+        joinTol = self.api.getJoinCutTol()
+        midL = self.mirrorXZ()
+        return midL.mv(0, joinTol, 0).join(self.mv(0, -joinTol, 0))
+
     @abstractmethod
     def mv(self, x: float, y: float, z: float) -> Shape:
         ...
