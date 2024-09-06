@@ -226,9 +226,7 @@ class MockShape(Shape):
         return self
 
     def dup(self) -> MockShape:
-        duplicate = copy.copy(self)
-        duplicate.solid = self.solid.val().copy()
-        return duplicate
+        return self
 
     def filletByNearestEdges(self, 
         nearestPts: list[tuple[float, float, float]], 
