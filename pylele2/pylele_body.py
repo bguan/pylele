@@ -71,8 +71,7 @@ class LeleBody(LeleBase):
             
             # Flat body
             # outer wall
-            midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, self.cli.flat_body_thickness)\
-                            .mv(0,0,-self.cli.flat_body_thickness)
+            midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
             # inner wall
             midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
             midR = midR.cut(midR2)
