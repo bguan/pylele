@@ -10,20 +10,14 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, LeleBodyType, TunerType
-from pylele2.pylele_neck_joint import LeleNeckJoint
-from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
+from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from pylele2.pylele_texts import pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
 from pylele2.pylele_rim import LeleRim
-from pylele2.pylele_worm_key import LeleWormKey
-from pylele2.pylele_body import LeleBody
 from pylele2.pylele_spines import LeleSpines
-from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_top_assembly import LeleTopAssembly
 from pylele2.pylele_neck_assembly import LeleNeckAssembly
-# from pylele2.pylele_brace import LeleBrace
 from pylele2.pylele_chamber import pylele_chamber_parser
-# from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele2.pylele_worm import pylele_worm_parser
 from pylele2.pylele_config import CONFIGURATIONS
@@ -69,11 +63,8 @@ class LeleAllAssembly(LeleBase):
             self.add_part(LeleTail(cli=self.cli))
 
         ## Body
-        body = LeleBottomAssembly(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
-
-        self.shape = body.gen_full()
-
-        return self.shape
+        self.shape = LeleBottomAssembly(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
+        return self.shape.gen_full()
     
     def gen_parser(self,parser=None):
         """
