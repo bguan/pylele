@@ -54,4 +54,4 @@ jobs:
       with:
           # path depends on the tag and the module name
           name: pylele_demo_out
-          path: build/LeleAllAssembly*/*.stl
+          path: build/*/*.stl
