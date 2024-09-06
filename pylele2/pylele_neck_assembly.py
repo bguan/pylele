@@ -31,9 +31,6 @@ class LeleNeckAssembly(LeleBase):
 
         ## Fretboard
         fretbd = LeleFretboardAssembly(cli=self.cli)
-        fretbd.gen_full()
-        self.add_parts(fretbd.get_parts())
-
         if self.cli.separate_fretboard:
             fbCut = LeleFretboard(cli=self.cli, isCut=True)\
                 .mv(0, 0, -jtol)
@@ -65,6 +62,9 @@ class LeleNeckAssembly(LeleBase):
                         joiners=neckJoiners,
                         cutters=neckCutters)
         
+        fretbd.gen_full()
+        self.add_parts(fretbd.get_parts())
+
         return self.shape.gen_full()
     
     def gen_parser(self,parser=None):
