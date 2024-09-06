@@ -353,7 +353,7 @@ class LeleConfig:
         self.brdgLen = nutStrGap
 
         # Spine configs
-        self.spineX = self.headLen
+        self.spineX = -self.headLen
         self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
         self.spineGap = 0 if numStrs == 2 else (1 if isOddStrs else 2)*nutStrGap
         self.spineY1 = -self.spineGap/2
