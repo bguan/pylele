@@ -85,7 +85,7 @@ def main(args=None):
                       args=args)
 
 
-def test_all_assembly(self,apis=['cadquery']):
+def test_all_assembly(self,apis=None):
     """ Test All Assembly """
 
     tests = {
