@@ -77,6 +77,10 @@ def parseCLI():
 
     ## text options ######################################################
 
+    parser.add_argument("-X", "--no_text",
+                        help="Skip text labeling",
+                        action='store_true')
+    
     parser.add_argument("-x", "--texts_size_font",
                         help="Comma-separated text[:size[:font]] tuples, "\
                             + "default Pylele:28:Arial,:8,'mind2form.com © 2024':8:Arial",
@@ -92,7 +96,7 @@ def parseCLI():
                         ])
 
     parser.add_argument("-m", "--model_label", help="Model labeling choices, default short",
-                        type=ModelLabel, choices=list(ModelLabel), default='short')
+                        type=ModelLabel, choices=list(ModelLabel), default='none')
     
     ## other options ######################################################
 
@@ -101,6 +105,9 @@ def parseCLI():
     
     parser.add_argument("-f", "--fidelity", help="Mesh fidelity for smoothness, default low",
                         type=Fidelity, choices=list(Fidelity), default='low')
+    
+    parser.add_argument("-o", "--outdir", help="Output directory.", 
+                        type=str, default='build')
     
     ## parse arguments ##########################################################
     

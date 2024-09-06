@@ -2,7 +2,7 @@
 """ Pylele Configuration Module """
 
 import datetime
-import math
+from math import atan, inf, sqrt, tan
 
 import os
 import sys
@@ -32,8 +32,10 @@ class ModelLabel(LeleStrEnum):
 
 class LeleConfig:
     """ Pylele Configuration Class """
+    TOP_HEAD_RATIO = 1/4
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
+    HEAD_TOP_RATIO = 1/4
     CHM_BACK_RATIO = 1/2 # to chmFront
     CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
@@ -44,7 +46,7 @@ class LeleConfig:
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.1  # to nutWth
-    HEAD_LEN = 12
+    # HEAD_LEN = 12
     MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
@@ -53,7 +55,7 @@ class LeleConfig:
     RIM_TCK = 1
     SPINE_HT = 10
     SPINE_WTH = 2
-    STR_RAD = .5
+    STR_RAD = .6
     TEXT_TCK = 30
 
     def __init__(
@@ -74,6 +76,7 @@ class LeleConfig:
         extMidTopTck: float = .5,
         tnrType: TunerType = TunerType.FRICTION.value,
         half: bool = False,
+        noTxt: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
             ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
@@ -94,6 +97,7 @@ class LeleConfig:
         
         # Length based configs
         self.scaleLen = scaleLen
+        self.headLen = 2 * numStrs + scaleLen / 60 #12
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
         self.fretbdRiseAng = 1 + numStrs/10
         self.wallTck = wallTck
@@ -107,16 +111,16 @@ class LeleConfig:
         self.nutStrGap = nutStrGap
         self.nutWth = max(2,numStrs) * nutStrGap
         if self.tnrCfg.is_peg():
-            tnrSetback = self.tnrCfg.tailAllow()/2 - 2
+            tnrSetback = self.tnrCfg.tailAllow()/2 - 3.1
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
             self.tnrGap = self.tnrCfg.minGap()
         else:
             tnrSetback = self.tnrCfg.tailAllow()/2 + 1
             tnrX = scaleLen + bodyBackLen - tnrSetback
             tnrW = self.tnrCfg.minGap() * numStrs
-            tnrNeckWideAng = degrees(math.atan((tnrW - self.nutWth)/2/tnrX))
+            tnrNeckWideAng = degrees(atan((tnrW - self.nutWth)/2/tnrX))
             self.neckWideAng = max(self.MIN_NECK_WIDE_ANG, tnrNeckWideAng)
-            tnrsWth = self.nutWth + 2*tnrX*math.tan(radians(self.neckWideAng))
+            tnrsWth = self.nutWth + 2*tnrX*tan(radians(self.neckWideAng))
             self.tnrGap = tnrsWth / numStrs
 
         self.half = half
@@ -130,7 +134,7 @@ class LeleConfig:
         self.endWth = endWth
         self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
-            2 * math.tan(radians(self.neckWideAng)) * self.scaleLen
+            2 * tan(radians(self.neckWideAng)) * self.scaleLen
         self.brdgStrGap = self.brdgWth / (numStrs-.5)
         self.neckLen = scaleLen * self.NECK_RATIO
         self.dotRad = dotRad
@@ -140,31 +144,33 @@ class LeleConfig:
 
         # Neck configs
         self.neckWth = self.nutWth + \
-            2 * math.tan(radians(self.neckWideAng)) * self.neckLen
+            2 * tan(radians(self.neckWideAng)) * self.neckLen
         # self.neckOrig = (0, 0)
         self.neckPath = [
-            (0, -self.nutWth/2), (self.neckLen, -self.neckWth/2),
-            (self.neckLen, self.neckWth/2), (0, self.nutWth/2)
+            (0, self.nutWth/2), 
+            (self.neckLen, self.neckWth/2),
+            (self.neckLen, -self.neckWth/2),
+            (0, -self.nutWth/2)
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         self.neckJntWth = (1 if self.isOddStrs else 2)*nutStrGap + self.SPINE_WTH
         neckDX = 1
-        neckDY = neckDX * math.tan(radians(self.neckWideAng))
+        neckDY = neckDX * tan(radians(self.neckWideAng))
 
         # Fretboard configs
         self.fretbdWth = self.nutWth + \
-            2 * math.tan(radians(self.neckWideAng)) * self.fretbdLen
+            2 * tan(radians(self.neckWideAng)) * self.fretbdLen
         self.fretbdHt = self.FRETBD_TCK + \
-            math.tan(radians(self.fretbdRiseAng)) * self.fretbdLen
+            tan(radians(self.fretbdRiseAng)) * self.fretbdLen
 
         def genFbPath(isCut: bool = False) -> list[tuple[float, float]]:
             cutAdj = FIT_TOL if isCut else 0
             return [
-                (-cutAdj, -self.nutWth/2 - cutAdj),
-                (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
-                (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
                 (-cutAdj, self.nutWth/2 + cutAdj),
+                (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
+                (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
+                (-cutAdj, -self.nutWth/2 - cutAdj),
             ]
         # self.fbOrig = (0, 0)
         self.fbPath = genFbPath()
@@ -182,23 +188,23 @@ class LeleConfig:
         # Head configs
         self.headWth = self.nutWth * self.HEAD_WTH_RATIO
         headDX = 1
-        headDY = headDX * math.tan(radians(self.neckWideAng))
+        headDY = headDX * tan(radians(self.neckWideAng))
         self.headOrig = (0, 0)
         self.headPath = [
             (0, self.nutWth/2),
             [
-                (-headDX, self.nutWth/2 + headDY, -headDX, -headDY),
-                (-self.HEAD_LEN/2, self.headWth/2, -1.5, -.1),
-                (-self.HEAD_LEN +.1, self.headWth/6, -.1, -1.5),
+                (-headDX, self.nutWth/2 + headDY, headDY/headDX),
+                (-self.headLen/2, self.headWth/2, 0),
+                (-self.headLen, self.headWth/6, -inf),
             ],
-            (-self.HEAD_LEN, 0),
+            (-self.headLen, 0),
         ]
 
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
         # bodyLen = self.bodyFrontLen + bodyBackLen
-        # self.fullLen = self.HEAD_LEN + scaleLen + bodyLen
+        # self.fullLen = self.headLen + scaleLen + bodyLen
         self.bodyOrig = (self.neckLen, 0)
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = FIT_TOL if isCut else 0
@@ -208,12 +214,11 @@ class LeleConfig:
             bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
-            endFactor = math.sqrt(endWth/bWth)
+            endFactor = sqrt(endWth/bWth)
             bodySpline = [
-                (nkLen + neckDX, nkWth/2 + neckDY, 2*neckDX, 2*neckDY),
-                (scaleLen - .63*bFrLen, .32*bWth, 10, 8),
-                (scaleLen, bWth/2, 15, 0),
-                (scaleLen + bBkLen, eWth/2 +.1, 6*endFactor, -33*(1-endFactor)),
+                (nkLen + neckDX, nkWth/2 + neckDY, neckDY/neckDX, .5, .3),
+                (scaleLen, bWth/2, 0, .6),
+                (scaleLen + bBkLen, eWth/2 +.1, -inf, (1-eWth/bWth)/2),
             ]
             bodyPath = [
                 (nkLen, nkWth/2),
@@ -233,22 +238,22 @@ class LeleConfig:
         self.sndholeMaxRad = self.chmFront/3
         self.sndholeMinRad = self.sndholeMaxRad/4
         self.sndholeAng = degrees(
-            math.atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
+            atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
         )
 
         # Bridge configs
         f12Len = scaleLen/2
         f12Ht = self.FRETBD_TCK \
-            + math.tan(radians(self.fretbdRiseAng)) * f12Len \
+            + tan(radians(self.fretbdRiseAng)) * f12Len \
             + self.FRET_HT
-        self.brdgZ = self.bodyWth/2 * self.TOP_RATIO + self.extMidTopTck - 1
+        self.brdgZ = self.bodyWth/2 * self.TOP_RATIO + self.extMidTopTck - 1.5
         self.brdgHt = 2*(f12Ht + action - self.NUT_HT - self.STR_RAD/2) \
             - self.brdgZ
         self.brdgLen = nutStrGap
 
         # Spine configs
-        self.spineX = -self.HEAD_LEN
-        self.spineLen = self.HEAD_LEN + scaleLen + self.chmBack + self.rimWth
+        self.spineX = -self.headLen
+        self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
         self.spineGap = 0 if numStrs == 2 else (1 if self.isOddStrs else 2)*nutStrGap
         self.spineY1 = -self.spineGap/2
         self.spineY2 = self.spineGap/2
@@ -257,9 +262,9 @@ class LeleConfig:
         self.guideHt = 6 + numStrs/2
         self.guideX = self.scaleLen + .95*self.chmBack
         self.guideZ = -self.GUIDE_SET \
-            + self.TOP_RATIO * math.sqrt(bodyBackLen**2 - self.chmBack**2)
+            + self.TOP_RATIO * sqrt(bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
-            + 2*math.tan(radians(self.neckWideAng))*self.guideX
+            + 2*tan(radians(self.neckWideAng))*self.guideX
         gGap = self.guideWth/numStrs
         self.guidePostGap = gGap
         gGapAdj = self.GUIDE_RAD
@@ -285,7 +290,7 @@ class LeleConfig:
 
         def tzAdj(tY: float) -> float:
             return 0 if self.tnrCfg.is_worm() or tY > endWth/2 else \
-                 ((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO
+                 (((endWth/2)**2 - tY**2)**.5 * self.TOP_RATIO -1 )
 
         tMidZ = tZBase + tzAdj(tY)
         tZ = tMidZ
@@ -318,8 +323,8 @@ class LeleConfig:
                 x' = b sqrt(1 - y'²/a²)
                 """
                 tY = tY + (tDist if self.isOddStrs or p > 0 else tDist/2) \
-                    / math.sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
-                tX = tXMax * math.sqrt(1 - tY**2/tYMax**2)
+                    / sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
+                tX = tXMax * sqrt(1 - tY**2/tYMax**2)
                 tZ = tZBase
 
             self.tnrXYZs.extend(
@@ -328,7 +333,7 @@ class LeleConfig:
 
         # Strings config
         strOddMidPath = [
-            (-self.HEAD_LEN, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
+            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
             (0, 0, self.FRETBD_TCK + self.NUT_HT + self.STR_RAD/2),
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
         ]
@@ -347,13 +352,13 @@ class LeleConfig:
         strEvenMidPathR = []
         strEvenMidPathL = []
         strEvenMidBrdgDY = self.brdgStrGap/2 - nutStrGap/2
-        strEvenMidAng = math.atan(strEvenMidBrdgDY/scaleLen)
+        strEvenMidAng = atan(strEvenMidBrdgDY/scaleLen)
 
         # even middle string pair points is just odd middle string points with DY
         # following same widening angle except ending point uing pegY and pegZ + peg hole height
         for pt in strOddMidPath:
             strY = (self.tnrGap/2) if pt == strOddMidPath[-1] \
-                else nutStrGap/2 + pt[0]*math.tan(strEvenMidAng)
+                else nutStrGap/2 + pt[0]*tan(strEvenMidAng)
             strZ = (
                 tZBase + self.tnrCfg.holeHt) if pt == strOddMidPath[-1] else pt[2]
             strEvenMidPathR.append((pt[0], strY, strZ))
@@ -380,10 +385,10 @@ class LeleConfig:
                 else:
                     strBrdgDY = (strCnt + (0 if self.isOddStrs else .5))\
                         * (self.brdgStrGap - nutStrGap)
-                    strEvenAng = math.atan(strBrdgDY/scaleLen)
+                    strEvenAng = atan(strBrdgDY/scaleLen)
                     strX = pt[0]
                     strY = nutStrGap*(strCnt + (0 if self.isOddStrs else .5))\
-                        + strX*math.tan(strEvenAng)
+                        + strX*tan(strEvenAng)
                     strZ = pt[2]
                 strPathR.append((strX, strY, strZ))
                 strPathL.append((strX, -strY, strZ))
@@ -391,8 +396,10 @@ class LeleConfig:
             self.stringPaths.append(strPathL)
 
         # Text Config
-        self.txtSzFonts = txtSzFonts
-        if modelLbl != ModelLabel.NONE:
+        self.noTxt = noTxt
+        self.txtSzFonts = [] if noTxt else txtSzFonts
+        self.modelLbl = ModelLabel.NONE if noTxt else modelLbl
+        if self.modelLbl != ModelLabel.NONE:
             lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
             self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
             self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
@@ -418,5 +425,7 @@ class LeleConfig:
         return model
 
     def __repr__(self):
-        properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
-        return f"{self.__class__.__name__}\n\n{properties}"
+        class_vars_str = '\n'.join(f"{key}={value!r}" for key, value in self.__class__.__dict__.items() \
+        if not callable(value) and not key.startswith("__"))
+        instance_vars_str = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
+        return f"{self.__class__.__name__}\n{class_vars_str}\n{instance_vars_str}"

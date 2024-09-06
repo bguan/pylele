@@ -265,7 +265,7 @@ class LeleConfig:
         self.neckPath = [
             (0, self.nutWth/2), 
             (self.neckLen, self.neckWth/2),
-            (self.neckLen, -self.neckWth/2), 
+            (self.neckLen, -self.neckWth/2),
             (0, -self.nutWth/2)
         ]
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)

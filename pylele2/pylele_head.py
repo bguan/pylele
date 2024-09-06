@@ -44,8 +44,8 @@ class LeleHead(LeleBase):
             hd = hd.join(top)
 
         topCut = self.api.genRodY(2*hdWth, hdLen)\
-            .mv(-ntHt, 0, .75*hdLen + fbTck + ntHt)
-        frontCut = self.api.genRodY(2*hdWth, .65*spHt)\
+            .mv(-ntHt, 0, .8*hdLen + fbTck + ntHt)
+        frontCut = self.api.genRodY(2*hdWth, .7*spHt)\
             .scale(.5, 1, 1).mv(-hdLen, 0, -fspTck - .65*spHt)
         hd = hd.cut(frontCut).cut(topCut)
 

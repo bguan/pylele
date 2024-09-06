@@ -311,7 +311,7 @@ class LeleSolid(ABC):
         self.joiners = joiners
         self.cutters = cutters
         self.fillets = fillets
-        self.fileNameBase = self.__class__.__name__
+        self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
     
     def configure(self):
         """ Configure Solid, and save self.cli """

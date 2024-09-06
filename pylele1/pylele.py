@@ -40,6 +40,7 @@ def pylele_main():
         chmLift=cli.chamber_lift,
         chmRot=cli.chamber_rotate,
         fret2Dots=cli.dot_frets,
+        noTxt=cli.no_text,
         txtSzFonts=cli.texts_size_font,
         modelLbl=cli.model_label,
         half=cli.half,
@@ -48,7 +49,7 @@ def pylele_main():
         impl=cli.implementation,
     )
 
-    expDir = Path.cwd()/DEFAULT_BUILD_DIR
+    expDir = Path(cli.outdir)
     if not expDir.exists():
         expDir.mkdir()
     elif not expDir.is_dir():
@@ -67,7 +68,8 @@ def pylele_main():
     for p in parts:
         if cfg.half:
             p = p.half()
-        p.exportSTL(str(expDir/f"{p.fileNameBase}.stl"))
+        p.exportSTL(str(expDir/f"{p.fileNameBase}"))
+        p.exportBest(str(expDir/f"{p.fileNameBase}"))
 
 def cqeditor_main():
     cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=2,
