@@ -38,6 +38,7 @@ class LeleBody(LeleBase):
         midTck = self.cfg.extMidBotTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
+        joinTol = self.api.getJoinCutTol()
 
         if self.cli.body_type == LeleBodyType.GOURD:
             # Gourd body
@@ -48,16 +49,17 @@ class LeleBody(LeleBase):
                 bot = bot.mv(0, 0, -midTck)
                 midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
                 midL = midR.mirrorXZ()
-                bot = bot.join(midL.mv(0, 0, -midTck)).join(midR.mv(0, 0, -midTck))
+                bot = bot.join(midL.mv(0, joinTol, -midTck)).join(midR.mv(0, -joinTol, -midTck))
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
-            bot_below = self.flat_body_bottom()
+            bot_below = self.flat_body_bottom().mv(0,0,joinTol)
 
             # Flat body
-            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
+            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, self.cli.flat_body_thickness)\
+                .mv(0,0,-self.cli.flat_body_thickness)
             midL = midR.mirrorXZ()
-            bot = midR.join(midL)
+            bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
             bot = bot.join(bot_below)
 
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
@@ -68,17 +70,17 @@ class LeleBody(LeleBase):
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
             
-            bot_below = self.flat_body_bottom()
+            bot_below = self.flat_body_bottom().mv(0,0,joinTol)
             
             # Flat body
             # outer wall
-            midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)
+            midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, self.cli.flat_body_thickness)\
+                            .mv(0,0,-self.cli.flat_body_thickness)
             # inner wall
-            midR2 = self.api.genLineSplineExtrusionZ(bOrig, bPath, -self.cli.flat_body_thickness)\
-            .mv(0,-self.cli.wall_thickness,0)
+            midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)        
             midR = midR.cut(midR2)
-            midL = midR.mirrorXZ()
-            bot = midR.join(midL)
+            midL = midR.mirrorXZ()            
+            bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
             bot = bot.join(bot_below)
 
         else:
