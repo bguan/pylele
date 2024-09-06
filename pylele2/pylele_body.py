@@ -77,7 +77,7 @@ class LeleBody(LeleBase):
             midR  = self.api.genLineSplineExtrusionZ(bOrig, bPath, self.cli.flat_body_thickness)\
                             .mv(0,0,-self.cli.flat_body_thickness)
             # inner wall
-            midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)        
+            midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
             midR = midR.cut(midR2)
             midL = midR.mirrorXZ()            
             bot = midR.mv(0, -joinTol, 0).join(midL.mv(0, joinTol,  0))
@@ -102,31 +102,26 @@ def main(args = None):
                       class_name='LeleBody',
                       args=args)
 
-## Cadquery and blender
-TESTS_ALL = {
-    'tail_end'           : ['-t',TunerType.WORM.name,'-e','60','-E'],
-}
-## flat body only works with cadquery at the moment
-TESTS_CQ = {
-    'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50','-refv','1405935'],
-    'flat_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
-    'hollow'        : ['-bt',str(LeleBodyType.HOLLOW)],
-}
 
-def test_body(self):
+
+def test_body(self, apis=None):
     """ Test body """   
+
+    ## Cadquery and blender
+    tests = {
+        'tail_end'      : ['-t',TunerType.WORM.name,'-e','60','-E'],
+        'flat'          : ['-bt',str(LeleBodyType.FLAT),'-fbt','50','-refv','1405935'],
+        'flat_worm'     : ['-bt',str(LeleBodyType.FLAT),'-t',TunerType.WORM.name,'-e','60','-E'],
+        'hollow'        : ['-bt',str(LeleBodyType.HOLLOW)],
+    }
+
     test_loop(module=__name__,
-              apis = ['cadquery','blender'],
-              tests = TESTS_ALL)
-    test_loop(module=__name__,
-              apis = ['cadquery'],
-              tests = TESTS_CQ)
+              apis = apis,
+              tests = tests)
 
 def test_body_mock(self):
     """ Test body """   
-    test_loop(module=__name__,
-              apis = ['mock'],
-              tests = TESTS_ALL | TESTS_CQ)
+    test_body(self, apis = ['mock'])
 
 if __name__ == '__main__':
     main()
