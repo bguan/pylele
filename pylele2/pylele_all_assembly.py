@@ -50,7 +50,7 @@ class LeleAllAssembly(LeleBase):
             self.add_parts(top)
 
         ## Neck
-        neck = LeleNeckAssembly(cli=self.cli)
+        neck = LeleNeckAssembly(cli=self.cli).mv(-self.api.getJoinCutTol(),0,0)
         neck.gen_full()
         if self.cli.separate_neck:
             self.add_part(neck)
@@ -60,7 +60,7 @@ class LeleAllAssembly(LeleBase):
 
         ## Tail
         if self.cli.separate_end:
-            self.add_part(LeleTail(cli=self.cli))
+            self.add_part(LeleTail(cli=self.cli))        
 
         ## Body
         self.shape = LeleBottomAssembly(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
