@@ -420,10 +420,8 @@ class Top(LelePart):
         if midTck > 0:
             top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ( bOrig, bPath, midTck )
-            midL = midR.mirrorXZ()
-            top = top.join(midL).join(midR)
-            top = top.join(midL.mv(0, joinTol, 0)).join(midR.mv(0, -joinTol, 0))
-            # top = top.join(midR.mirrorXZ_and_join())
+            midR = midR.mv(0,0,-midTck)
+            top = top.join(midR.mirrorXZ_and_join())
 
         if self.isCut:
             self.api.setFidelity(origFidel)
@@ -432,9 +430,9 @@ class Top(LelePart):
 
 
 class Body(LelePart):
-    def __init__(self, 
+    def __init__(self,
         cfg: LeleConfig, 
-        isCut: bool = False, 
+        isCut: bool = False,
         joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
@@ -485,9 +483,9 @@ class Rim(LelePart):
     
 class Chamber(LelePart):
     def __init__(self,
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -559,10 +557,10 @@ class Soundhole(LelePart):
 
 
 class Bridge(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -596,10 +594,10 @@ class Bridge(LelePart):
 
 
 class Guide(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -620,7 +618,7 @@ class Guide(LelePart):
 
         guide = None if self.isCut else \
             self.api.genRndRodY(
-                (gdWth - .5*gdGap + sR + 2*gdR) if nStrs > 1 else 6*gdR, 
+                (gdWth - .5*gdGap + sR + 2*gdR) if nStrs > 1 else 6*gdR,
                 1.1*gdR, 1,
             ).mv(gdX, 0, gdZ + gdHt)
         for y in self.cfg.guideYs:
@@ -631,10 +629,10 @@ class Guide(LelePart):
 
 
 class Peg(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -690,10 +688,10 @@ class Peg(LelePart):
 
 
 class Worm(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -749,10 +747,10 @@ class Worm(LelePart):
         return worm
 
 class WormKey(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -795,10 +793,10 @@ class WormKey(LelePart):
 
 
 class Tuners(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -823,10 +821,10 @@ class Tuners(LelePart):
 
 
 class Spines(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -851,10 +849,10 @@ class Spines(LelePart):
 
 
 class Strings(LelePart):
-    def __init__(self, 
+    def __init__(self,
         cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -882,10 +880,10 @@ class Strings(LelePart):
 
 
 class Texts(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -928,10 +926,10 @@ class Texts(LelePart):
         return ls
 
 class TailEnd(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):

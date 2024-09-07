@@ -200,9 +200,9 @@ def test(cfg: LeleConfig):
     topCut = Top(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
     fdotsCut = FretboardDots(cfg, isCut=True)
     fretbd = Fretboard(
-        cfg, 
-        False, 
-        [frets, fbsp], 
+        cfg,
+        False,
+        [frets, fbsp],
         [topCut, fdotsCut, strCuts],
     ).join(fbJnt)
     fretbd.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{fretbd.fileNameBase}"))
@@ -258,14 +258,11 @@ def test(cfg: LeleConfig):
 
 if __name__ == "__main__":
     cfg = LeleConfig(
-        impl=Implementation.BLENDER, 
-        fidelity=Fidelity.LOW, 
+        impl=Implementation.BLENDER,
+        fidelity=Fidelity.LOW,
         sepFretbd=True,
         sepNeck=True,
         sepTop=True,
     )
-
-    with open(os.path.join(DEFAULT_TEST_DIR,'config.txt'), 'w') as f:
-        f.write(repr(cfg))
 
     test(cfg)

@@ -50,7 +50,7 @@ class PyleleTestMethods(unittest.TestCase):
     
     def test_trimesh_api(self):
         """ Test Trimesh API """
-        test_api(module_name='api.tm_api',class_name='TMShapeAPI')    
+        test_api(module_name='api.tm_api',class_name='TMShapeAPI')
 
     ## Solid Parts
     from parts.tube import test_tube, test_tube_mock
