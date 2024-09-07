@@ -111,8 +111,16 @@ jobs:
                                       
             </head>
             <body>
-              <script>
-                location.href = "https://gds-viewer.tinytapeout.com/?model=" + encodeURIComponent(location.href + '/tinytapeout.gds.gltf');
+              <script>                  
+                <model-viewer id="modelblock" src="" ar="" camera-controls="" background-color=" #254441" shadow-intensity="0" alt="A 3D model of a test cube" min-camera-orbit="Infinity 0deg auto" max-camera-orbit="Infinity 180deg auto" min-field-of-view="0" max-field-of-view="180" interaction-prompt="none" bounds="tight" default-progress-bar="" ar-status="not-presenting">
+                    <button slot="hotspot-dot+X+Y-Z" class="dot show" data-position="1 1 -1" data-normal="0 1 0" style="visibility: hidden;"></button>
+                    <button slot="hotspot-dim+Y-Z" class="dim show" data-position="0 -1 -1" data-normal="0 1 0" style="visibility: hidden;">42374 cm</button>
+                    <button slot="hotspot-dot-X+Y-Z" class="dot show" data-position="-1 1 -1" data-normal="0 1 0" style="visibility: hidden;"></button>
+                    <button slot="hotspot-dim-X-Z" class="dim" data-position="-1 0 -1" data-normal="-1 0 0" style="visibility: hidden;">14397 cm</button>
+                    <button slot="hotspot-dot-X-Y-Z" class="dot" data-position="-1 -1 -1" data-normal="-1 0 0" style="visibility: hidden;"></button>
+                    <button slot="hotspot-dim-X-Y" class="dim" data-position="-1 -1 0" data-normal="-1 0 0" style="visibility: hidden;">6894 cm</button>
+                    <button slot="hotspot-dot-X-Y+Z" class="dot" data-position="-1 -1 1" data-normal="-1 0 0" style="visibility: hidden;"></button>
+                </model-viewer>
               </script>
             </body>
             </html>
