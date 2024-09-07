@@ -43,7 +43,8 @@ def test_iteration(module,component,test,api,args=None):
     args += [
         '-o', outdir,
         '-i', api,
-        '-odoff' # do not append date
+        '-odoff', # do not append date
+        '-stlc' # enable stl volume analysis during test
                 ]
     print(args)
     mod.main(args=args)
@@ -114,12 +115,8 @@ def volume_match_reference(volume: float,reference: float, tolerance: float = 0.
 
 def stl_check_volume(out_fname:str,check_en:bool = True,reference_volume:float = None) -> dict:
     """ Check the volume of an .stl mesh against a reference value"""
-    rpt = {
-        'volume' : 0,
-        'convex_hull_volume': 0,
-        'bounding_box': [0,0,0]
-    }
-    if check_en and not reference_volume is None:
+    rpt = {}
+    if check_en:
         assert os.path.isfile(out_fname), f'File {out_fname} does not exist!!!'
         mesh =  trimesh.load_mesh(out_fname)
         # assert mesh.is_watertight
@@ -131,7 +128,6 @@ def stl_check_volume(out_fname:str,check_en:bool = True,reference_volume:float =
         rpt['convex_hull_volume'] = mesh.convex_hull.volume
         rpt['bounding_box'] = mesh.bounding_box.extents
         
-        # if not self.cli.implementation == Implementation.MOCK:
         assert volume_match_reference(volume=mesh.volume,
                             reference=reference_volume), 'volume: %f, reference: %f' % (rpt['volume'],reference_volume)
     return rpt
@@ -157,6 +153,9 @@ def lele_solid_parser(parser=None):
                     action='store_true')
     parser.add_argument("-C", "--is_cut",
                     help="This solid is a cutting.",
+                    action='store_true')
+    parser.add_argument("-stlc", "--stl_check_en",
+                    help="Calculate output mesh volume for report",
                     action='store_true')
     parser.add_argument("-refv", "--reference_volume",
                         help="Reference volume [mm2]. If specified, generate assertion if volume of generated .stl file differs from the reference",
@@ -366,7 +365,7 @@ class LeleSolid(ABC):
                     print(f'# WARNING: Cannot export .stl of class {part} in assembly {self}')
         # checks
         rpt = stl_check_volume(out_fname = out_fname,
-                               check_en = not self.cli.implementation == Implementation.MOCK,
+                               check_en = self.cli.stl_check_en and not self.cli.implementation == Implementation.MOCK,
                                reference_volume = self.cli.reference_volume)
 
         end_time = time.time()
