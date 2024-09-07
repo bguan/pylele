@@ -58,7 +58,12 @@ jobs:
     - name: convert to glb
       run: |
         python3 ./api/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
-
+    - name: upload glb
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: pylele_demo_glb
+          path: build/LeleAllAssembly/LeleAllAssembly.glb
   ##############################################################
   # Publish to pages to get a nicely formatted result
 
@@ -128,12 +133,12 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
+        uses: actions/deploy-pages@v3 # or specific "vX.X.X" version tag for this action
   
 
 ##############################################################
@@ -143,7 +148,7 @@ jobs:
     needs: pages
     runs-on: ubuntu-latest
     steps:
-    - name: add gds preview
+    - name: add glb preview
       run: |
         PAGE_URL=${{ needs.pages.outputs.page_url }}
         PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
