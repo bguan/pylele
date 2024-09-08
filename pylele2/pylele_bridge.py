@@ -39,6 +39,20 @@ def pylele_bridge_parser(parser = None):
                     type=float,
                     default=None
                     )
+    parser.add_argument("-bpiezo", "--bridge_piezo",
+                help="Add space for a piezo microphone under the bridge",
+                action='store_true'
+                )
+    parser.add_argument("-bph", "--bridge_piezo_heigth",
+                    help="Bridge Piezo Heigth [mm]",
+                    type=float,
+                    default=1.5
+                    )
+    parser.add_argument("-bpw", "--bridge_piezo_width",
+                    help="Bridge Piezo Width [mm]",
+                    type=float,
+                    default=2
+                    )
     return parser
 
 class LeleBridge(LeleBase):
@@ -83,6 +97,7 @@ class LeleBridge(LeleBase):
 
         brdg = self.api.genBox(brdgLen, brdgWth, brdgHt).mv(
             scLen, 0, brdgZ + brdgHt/2)
+        
         if not self.isCut:
             cutRad = brdgLen/2 - strRad
             cutHt = brdgHt - 2
@@ -95,6 +110,17 @@ class LeleBridge(LeleBase):
                 .mv(scLen + cutRad + strRad, 0, brdgZ + brdgHt)
             brdgTop = self.api.genRodY(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt)
             brdg = brdg.cut(frontCut).cut(backCut).join(brdgTop)
+            if self.cli.bridge_piezo:
+                mic_cut = self.api.genBox(self.cli.bridge_piezo_width,
+                                          brdgWth,
+                                          self.cli.bridge_piezo_heigth)
+                mic_cut = mic_cut.mv(scLen, 0, brdgZ+self.cli.bridge_piezo_heigth/2)
+                brdg = brdg.cut(mic_cut)
+        else:
+            if self.cli.bridge_piezo:
+                wire_rad = 2
+                wire = self.api.genRodZ(15, wire_rad).mv(scLen, brdgWth/2-wire_rad, brdgZ)
+                brdg = brdg.join(wire)
 
         # strings cut
         strings = LeleStrings(cli=self.cli,isCut=True)
@@ -117,11 +143,13 @@ def main(args = None):
 def test_bridge(self,apis=None):
     """ Test Bridge """
     tests = {
-        'cut'     : ['-C'],
+        'cut'            : ['-C'],
         'override_width' : ['-bow','100'],
         'override_length' : ['-bol','55'],
         'override_height' : ['-boh','3'],
         'override_string_radius' : ['-bosr','1.5'],
+        'piezo'             : ['-bpiezo'],
+        'cut_piezo'         : ['-C','-bpiezo'],
     }
     test_loop(module=__name__,tests=tests,apis=apis)
 
