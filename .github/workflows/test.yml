@@ -22,10 +22,11 @@ jobs:
     - name: pip configuration report
       run: |
         pip list
-    - name: install dependencies
-      run: | 
-        chmod +x ./install_dependencies.sh
-        sudo ./install_dependencies.sh
+    # redundant and leading to errors?
+    # - name: install dependencies
+    #  run: | 
+    #    chmod +x ./install_dependencies.sh
+    #    sudo ./install_dependencies.sh
     - name: test
       run: |
         python ./pylele_test.py
