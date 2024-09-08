@@ -49,12 +49,12 @@ jobs:
     - name: test pylele2.sh
       run: |
         source pylele2.sh -odoff
-    - name: upload demo
+    - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
           name: pylele_demo_out
-          path: build/*/*.stl
+          path: build/LeleAllAssembly/LeleAllAssembly.stl
     - name: convert to glb
       run: |
         python3 ./api/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
@@ -64,97 +64,3 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_demo_glb
           path: build/LeleAllAssembly/LeleAllAssembly.glb
-  ##############################################################
-  # Publish to pages to get a nicely formatted result
-
-  # Deploy job
-  pages:
-    # Add a dependency to the build job
-    needs: build
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: generate redirect to viewer
-        run: |
-          cat << EOF >> index.html
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <!-- Loads <model-viewer> for modern browsers: -->
-            <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.js"></script>
-
-            <!-- Loads <model-viewer> for old browsers like IE11: -->
-            <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-
-            <!-- The following libraries and polyfills are recommended to maximize browser support -->
-            <!-- NOTE: you must adjust the paths as appropriate for your project -->
-            <!-- REQUIRED: Web Components polyfill to support Edge and Firefox < 63 -->
-            <script src="https://unpkg.com/@webcomponents/webcomponentsjs@2.1.3/webcomponents-loader.js"></script>
-
-            <!-- OPTIONAL: Intersection Observer polyfill for better performance in Safari and IE11 -->
-            <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
-
-            <!-- OPTIONAL: Resize Observer polyfill improves resize behavior in non-Chrome browsers -->
-            <script src="https://unpkg.com/resize-observer-polyfill@1.5.1/dist/ResizeObserver.js"></script>
-
-            <!-- OPTIONAL: Fullscreen polyfill is required for experimental AR features in Canary -->
-            <!--<script src="https://unpkg.com/fullscreen-polyfill@1.0.2/dist/fullscreen.polyfill.js"></script>-->
-            <!-- OPTIONAL: Include prismatic.js for Magic Leap support -->
-            <!--<script src="https://unpkg.com/@magicleap/prismatic@0.18.2/prismatic.min.js"></script>-->
-                                      
-            </head>
-            <body>
-              <script>                  
-                <model-viewer id="modelblock" src="" ar="" camera-controls="" background-color=" #254441" shadow-intensity="0" alt="A 3D model of a test cube" min-camera-orbit="Infinity 0deg auto" max-camera-orbit="Infinity 180deg auto" min-field-of-view="0" max-field-of-view="180" interaction-prompt="none" bounds="tight" default-progress-bar="" ar-status="not-presenting">
-                    <button slot="hotspot-dot+X+Y-Z" class="dot show" data-position="1 1 -1" data-normal="0 1 0" style="visibility: hidden;"></button>
-                    <button slot="hotspot-dim+Y-Z" class="dim show" data-position="0 -1 -1" data-normal="0 1 0" style="visibility: hidden;">42374 cm</button>
-                    <button slot="hotspot-dot-X+Y-Z" class="dot show" data-position="-1 1 -1" data-normal="0 1 0" style="visibility: hidden;"></button>
-                    <button slot="hotspot-dim-X-Z" class="dim" data-position="-1 0 -1" data-normal="-1 0 0" style="visibility: hidden;">14397 cm</button>
-                    <button slot="hotspot-dot-X-Y-Z" class="dot" data-position="-1 -1 -1" data-normal="-1 0 0" style="visibility: hidden;"></button>
-                    <button slot="hotspot-dim-X-Y" class="dim" data-position="-1 -1 0" data-normal="-1 0 0" style="visibility: hidden;">6894 cm</button>
-                    <button slot="hotspot-dot-X-Y+Z" class="dot" data-position="-1 -1 1" data-normal="-1 0 0" style="visibility: hidden;"></button>
-                </model-viewer>
-              </script>
-            </body>
-            </html>
-          EOF
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3 # or specific "vX.X.X" version tag for this action
-  
-
-##############################################################
-# Add the 3D and 2D preview to the page
-
-  preview:
-    needs: pages
-    runs-on: ubuntu-latest
-    steps:
-    - name: add glb preview
-      run: |
-        PAGE_URL=${{ needs.pages.outputs.page_url }}
-        PAGE_URL=$(echo "$PAGE_URL" | sed -e 's/\/$//')
-        cat << EOF >> $GITHUB_STEP_SUMMARY
-        # 3D Viewer
-        [open 3D viewer](https://gds-viewer.tinytapeout.com/?model=$PAGE_URL/tinytapeout.gds.gltf)
-        # 2D Preview
-        ![png]($PAGE_URL/gds_render.png)
-        EOF
