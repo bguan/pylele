@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import Shape
 from api.pylele_solid import Implementation
 from pylele2.pylele_base import LeleBase, test_loop,main_maker, FILLET_RAD, LeleScaleEnum, LeleBodyType, TunerType
-from pylele2.pylele_bridge import LeleBridge
+from pylele2.pylele_bridge import LeleBridge, pylele_bridge_parser
 from pylele2.pylele_guide import LeleGuide
 from pylele2.pylele_brace import LeleBrace
 from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
@@ -99,6 +99,7 @@ class LeleTopAssembly(LeleBase):
         parser=pylele_fretboard_assembly_parser(parser=parser)
         parser=pylele_chamber_parser(parser=parser)
         parser=pylele_worm_parser(parser=parser)
+        parser=pylele_bridge_parser(parser=parser)
         return super().gen_parser( parser=parser )
     
 def main(args=None):
@@ -124,6 +125,7 @@ def test_top_assembly(self, apis = None):
             'gotoh_tuners'       : ['-t','gotoh'],
             'worm_tuners'        : ['-t','worm'],
             'big_worm_tuners'    : ['-t','bigWorm'],
+            'bridge_piezo'       : ['-bpiezo','-B'],
         }
 
     tests_all = tests | test_scale_len

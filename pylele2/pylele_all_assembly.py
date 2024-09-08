@@ -22,6 +22,7 @@ from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele2.pylele_worm import pylele_worm_parser
 from pylele2.pylele_config import CONFIGURATIONS
 from pylele2.pylele_bottom_assembly import LeleBottomAssembly
+from pylele2.pylele_bridge import pylele_bridge_parser
 
 class LeleAllAssembly(LeleBase):
     """ Pylele All Assembly Generator class """
@@ -74,6 +75,7 @@ class LeleAllAssembly(LeleBase):
         parser=pylele_chamber_parser(parser=parser)
         parser=pylele_texts_parser(parser=parser)
         parser=pylele_worm_parser(parser=parser)
+        parser=pylele_bridge_parser(parser=parser)
         return super().gen_parser( parser=parser )
     
 def main(args=None):
