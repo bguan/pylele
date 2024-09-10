@@ -125,20 +125,6 @@ class BlenderShapeAPI(ShapeAPI):
     def genRodZ(self, ln: float, rad: float) -> BlenderShape:
         return BlenderRodZ(ln, rad, self)
 
-<<<<<<< HEAD:bpy_api.py
-=======
-    """
-    def genRndRodX(self, ln: float, rad: float, domeRatio: float = 1) -> BlenderShape:
-        return BlenderRndRodX(ln, rad, domeRatio, self)
-
-    def genRndRodY(self, ln: float, rad: float, domeRatio: float = 1) -> BlenderShape:
-        return BlenderRndRodY(ln, rad, domeRatio, self)
-
-    def genRndRodZ(self, ln: float, rad: float = 1, domeRatio: float = 1) -> BlenderShape:
-        return BlenderRndRodZ(ln, rad, domeRatio, self)
-    """
-
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> BlenderShape:
         return BlenderPolyExtrusionZ(path, ht, self)
 
@@ -164,26 +150,11 @@ class BlenderShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
-<<<<<<< HEAD:bpy_api.py
-=======
-    """
-    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool) -> BlenderShape:
-        return BlenderQuarterBall(radius, pickTop, pickFront, self)
-        
-    def genHalfDisc(self, radius: float, pickFront: bool, tck: float) -> BlenderShape:
-        return BlenderHalfDisc(radius, pickFront, tck, self)
-    """
-         
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     def getJoinCutTol(self) -> float:
         return Implementation.BLENDER.joinCutTol()
 
 class BlenderShape(Shape):
 
-<<<<<<< HEAD:bpy_api.py
-=======
-    # MAX_DIM = 10000 # for max and min dimensions
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     REPAIR_MIN_REZ = 0.0001
     REPAIR_LOOPS = 2
     
@@ -197,11 +168,7 @@ class BlenderShape(Shape):
 
     def getImplSolid(self) -> Any:
         return self.solid
-<<<<<<< HEAD:bpy_api.py
     
-=======
-
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     def cut(self, cutter: BlenderShape) -> BlenderShape:
         if cutter is None:
             return self
@@ -238,21 +205,13 @@ class BlenderShape(Shape):
             return self
         bpy.ops.object.select_all(action='DESELECT')
         self.solid.select_set(True)
-<<<<<<< HEAD:bpy_api.py
         # origin = self.solid.location
-=======
-        # origin = self.obj.location
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
         bpy.ops.object.convert(target='MESH')
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.solidify(thickness=tck)
         bpy.ops.object.mode_set(mode='OBJECT')
-<<<<<<< HEAD:bpy_api.py
         # self.solid.location.z = tck
-=======
-        # self.obj.location.z = tck
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
         return self.repairMesh()
 
     def findNearestEdgeIndex(self, point: tuple[float, float, float]) -> int:
@@ -300,8 +259,6 @@ class BlenderShape(Shape):
                     bpy.ops.object.mode_set(mode='EDIT')
                     bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
                     bpy.ops.object.mode_set(mode='OBJECT')
-<<<<<<< HEAD:bpy_api.py
-=======
         return self.repairMesh()
     
     """
@@ -311,7 +268,6 @@ class BlenderShape(Shape):
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.bisect(plane_no=(0, 1, 0), use_fill=True, clear_outer=True, clear_inner=False)
         bpy.ops.object.mode_set(mode='OBJECT')
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
         return self.repairMesh()
     s"""
         
@@ -328,33 +284,6 @@ class BlenderShape(Shape):
         joiner.remove()
         return self.repairMesh()
     
-<<<<<<< HEAD:bpy_api.py
-=======
-    """
-    @classmethod
-    def dimXY(
-        cls,
-        start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-    ) -> tuple[float, float]:
-        # Initialize min and max values
-        min_x = max_x = start[0]
-        min_y = max_y = start[1]
-        for p in path:
-            if isinstance(p, tuple) or len(p) == 1:
-                x, y = p
-                min_x, max_x = min(min_x, x), max(max_x, x)
-                min_y, max_y = min(min_y, y), max(max_y, y)
-            elif isinstance(p, list):
-                for x, y, _, _ in p:
-                    min_x, max_x = min(min_x, x), max(max_x, x)
-                    min_y, max_y = min(min_y, y), max(max_y, y)
-        # Calculate spans and returns
-        span_x = max_x - min_x
-        span_y = max_y - min_y
-        return (span_x, span_y)
-    """
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
 
     # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
     def lineSplineXY(
@@ -387,10 +316,6 @@ class BlenderShape(Shape):
 
         return polyPath
 
-<<<<<<< HEAD:bpy_api.py
-
-=======
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     def mirror(self, plane: tuple[bool, bool, bool]) -> BlenderShape:
 
         cp = copy.copy(self)
@@ -439,10 +364,6 @@ class BlenderShape(Shape):
     def mirrorXZ(self) -> BlenderShape:
         return self.mirror((False, True, False))
 
-<<<<<<< HEAD:bpy_api.py
-    
-=======
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
     def mv(self, x: float, y: float, z: float) -> BlenderShape:
         if x == 0 and y == 0 and z == 0:
             return self
@@ -589,32 +510,6 @@ class BlenderConeY(BlenderShape):
         super().__init__(api)
         self.solid = BlenderConeZ(ln, r1, r2, api).rotateX(90).solid
 
-<<<<<<< HEAD:bpy_api.py
-=======
-"""
-class BlenderRndRodZ(BlenderShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float, api: BlenderShapeAPI):
-        super().__init__(api)
-        rLen = ln - 2*rad*domeRatio
-        rod = BlenderRodZ(rLen, rad, api)
-        for bz in [rLen/2, -rLen/2]:
-            ball = BlenderBall(rad, api).scale(1, 1, domeRatio).mv(0, 0, bz)
-            rod = rod.join(ball)
-        self.obj = rod.obj
-
-
-class BlenderRndRodX(BlenderShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float, api: BlenderShapeAPI):
-        super().__init__(api)
-        self.obj = BlenderRndRodZ(ln, rad, domeRatio, api).rotateY(90).obj
-
-
-class BlenderRndRodY(BlenderShape):
-    def __init__(self, ln: float, rad: float, domeRatio: float, api: BlenderShapeAPI):
-        super().__init__(api)
-        self.obj = BlenderRndRodZ(ln, rad, domeRatio, api).rotateX(90).obj
-"""
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
 
 class BlenderPolyRodZ(BlenderShape):
     def __init__(self, ln: float, rad: float, sides: int, api: BlenderShapeAPI):
@@ -694,12 +589,6 @@ class BlenderPolyExtrusionZ(BlenderShape):
         self.solid = bpy.data.objects.new(name="Polygon_Object", object_data=mesh)
         bpy.context.collection.objects.link(self.solid)
         mesh.update()
-<<<<<<< HEAD:bpy_api.py
-
-        bpy.context.view_layer.objects.active = self.solid
-        self.extrudeZ(ht)
-=======
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
 
         bpy.context.view_layer.objects.active = self.solid
         self.extrudeZ(ht)
@@ -719,10 +608,6 @@ class BlenderLineSplineExtrusionZ(BlenderShape):
             polyPath.reverse()
         polyExt = BlenderPolyExtrusionZ(polyPath, ht, api, checkWinding=False)
         self.solid = polyExt.solid
-<<<<<<< HEAD:bpy_api.py
-
-=======
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
 class BlenderLineSplineRevolveX(BlenderShape):
     def __init__(
         self, 
@@ -796,54 +681,6 @@ class BlenderTextZ(BlenderShape):
         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME')
         self.solid.location = (0, 0, tck/2)
 
-<<<<<<< HEAD:bpy_api.py
-
-=======
-"""
-class BlenderQuarterBall(BlenderShape):
-    def __init__(self, rad: float, pickTop: bool, pickFront: bool, api: BlenderShapeAPI):
-        super().__init__(api)
-        bpy.ops.object.select_all(action='DESELECT')
-        segs = self.segsByDim(rad)
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=rad, segments=segs, ring_count=segs)
-        ball =  bpy.context.object
-        bpy.context.view_layer.objects.active = ball
-
-        # Bisect the sphere in the Z plane
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.bisect(plane_no=(0, 0, 1), use_fill=True, clear_outer=not pickTop, clear_inner=pickTop)
-        halfedBall = bpy.context.object
-        
-        # Clear existing objects, reselect the now halfed ball
-        bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.select_all(action='DESELECT')
-        bpy.context.view_layer.objects.active = halfedBall
-
-        # Bisect the sphere in the X plane
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.bisect(plane_no=(1, 0, 0), use_fill=True, clear_outer=pickFront, clear_inner=not pickFront)
-        quarteredBall = bpy.context.object
-        bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.select_all(action='DESELECT')
-        self.obj = quarteredBall
-
-class BlenderHalfDisc(BlenderShape):
-    def __init__(self, rad: float, pickFront: bool, tck: float, api: BlenderShapeAPI):
-        super().__init__(api)
-        verts = self.segsByDim(rad)
-        bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=tck, vertices=verts, location=(0, 0, 0))
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.bisect(plane_no=(1, 0, 0), use_fill=True, clear_outer=pickFront, clear_inner=not pickFront)
-        halfDisc = bpy.context.object
-        bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.select_all(action='DESELECT')
-        self.obj = halfDisc
-"""
-        
->>>>>>> d1839d14d68d26ce90e459121aa69c3ef8cc9d5a:api/bpy_api.py
 if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)
     # Set the desired origin location
