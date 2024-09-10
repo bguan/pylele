@@ -130,7 +130,7 @@ class BlenderShapeAPI(ShapeAPI):
 
     def genLineSplineExtrusionZ(self, 
             start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, ...]]], 
+            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
             ht: float,
         ) -> BlenderShape:
         if ht < 0:
@@ -139,7 +139,7 @@ class BlenderShapeAPI(ShapeAPI):
     
     def genLineSplineRevolveX(self, 
             start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, ...]]], 
+            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
             deg: float,
         ) -> BlenderShape:
         return BlenderLineSplineRevolveX(start, path, deg, self)
@@ -155,6 +155,7 @@ class BlenderShapeAPI(ShapeAPI):
 
 class BlenderShape(Shape):
 
+    # MAX_DIM = 10000 # for max and min dimensions
     REPAIR_MIN_REZ = 0.0001
     REPAIR_LOOPS = 2
     
@@ -168,7 +169,7 @@ class BlenderShape(Shape):
 
     def getImplSolid(self) -> Any:
         return self.solid
-    
+
     def cut(self, cutter: BlenderShape) -> BlenderShape:
         if cutter is None:
             return self
@@ -190,16 +191,6 @@ class BlenderShape(Shape):
         duplicate.solid.select_set(True)
         return duplicate
 
-    def dup(self) -> BlenderShape:
-        duplicate = copy.copy(self)
-        self.solid.select_set(True)
-        bpy.context.view_layer.objects.active = self.solid
-        bpy.ops.object.duplicate()
-        bpy.ops.object.select_all(action='DESELECT')
-        duplicate.solid = bpy.context.object
-        duplicate.solid.select_set(True)
-        return duplicate
-    
     def extrudeZ(self, tck: float) -> BlenderShape:
         if tck <= 0:
             return self
@@ -260,17 +251,7 @@ class BlenderShape(Shape):
                     bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
                     bpy.ops.object.mode_set(mode='OBJECT')
         return self.repairMesh()
-    
-    """
-    def half(self) -> BlenderShape:
-        bpy.context.view_layer.objects.active = self.obj
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.bisect(plane_no=(0, 1, 0), use_fill=True, clear_outer=True, clear_inner=False)
-        bpy.ops.object.mode_set(mode='OBJECT')
-        return self.repairMesh()
-    s"""
-        
+           
     def join(self, joiner: BlenderShape) -> BlenderShape:
         if joiner is None:
             return self
@@ -680,7 +661,7 @@ class BlenderTextZ(BlenderShape):
         self.extrudeZ(tck)
         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME')
         self.solid.location = (0, 0, tck/2)
-
+        
 if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)
     # Set the desired origin location
