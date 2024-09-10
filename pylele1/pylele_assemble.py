@@ -260,7 +260,7 @@ def test(cfg: LeleConfig):
 
 if __name__ == "__main__":
     cfg = LeleConfig(
-        impl=Implementation.BLENDER,
+        impl=Implementation.TRIMESH,
         fidelity=Fidelity.LOW,
         sepFretbd=True,
         sepNeck=True,
