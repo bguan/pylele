@@ -1,7 +1,7 @@
 numpy==1.26.4 # fix for cadquery, numpy==1.23.1 seems OK too
 nlopt==2.7.1 # otherwise it pulls in numpy >=2.x
 cadquery==2.4.0
-bpy>=4.0.0 # let pip pick latest blender python API
+bpy # bpy==4.2.0 # blender python API
 fake-bpy-module==20240907 # Otherwise bmesh and random blender functions would fail
 trimesh==4.4.8
 mathutils
@@ -11,4 +11,3 @@ shapely
 scipy
 networkx
 pyglet<2
-fonttools

@@ -15,26 +15,49 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    # - name: Install Python dependencies
-    #   run: |
-    #     python -m pip install --upgrade pip
-    #     pip install -r requirements.txt
-    # - name: pip configuration report
-    #   run: |
-    #     pip list
+    # python packages included in install_dependencies    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
     - name: install dependencies
       run: | 
-       chmod +x ./install_dependencies.sh
-       sudo ./install_dependencies.sh
+        chmod +x ./install_dependencies.sh
+        sudo ./install_dependencies.sh
+    - name: pip configuration report
+      run: |
+        mkdir test
+        pip list > ./test/pip_list.txt
+    - name: test pylele.sh
+      run: |
+        source pylele.sh
+    - name: test pylele_assemble.py
+      run: |
+        python3 ./pylele1/pylele_assemble.py
+    - name: test pylele2.sh
+      run: |
+        source pylele2.sh -odoff
+    - name: upload demo stl
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: pylele_stl_out
+          path: build/LeleAllAssembly/LeleAllAssembly.stl
+          # compression-level: 0 # no compression
+    - name: convert to glb
+      run: |
+        python3 ./api/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
+    - name: upload glb
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: pylele_glb_out
+          path: build/LeleAllAssembly/LeleAllAssembly.glb
+          # compression-level: 0 # no compression
     - name: test
       run: |
         python ./pylele_test.py
-    # for debugging, show all the files
-    - name: show files
-      run: |
-        ls -R
-        find ./test/ | grep stl
-    - name: upload artifacts
+    - name: upload test output
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name

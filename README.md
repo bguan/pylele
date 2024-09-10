@@ -6,9 +6,9 @@ Python based Ukulele and other String Instrument 3D Model Generator similar to m
 
 Implemented by clean portable wrapper around one of the following Python 3D Modeling Library:
 
-* [CadQuery](https://github.com/CadQuery/cadquery)
+* [CadQuery](https://github.com/CadQuery/cadquery) (Most Accurate)
 * [Blender](https://github.com/blender/blender) (*Still a little buggy...*)
-* [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
+* [Trimesh](https://github.com/mikedh/trimesh) (Fastest)
 
 Code and view generated models in your favorite development environment!
 
@@ -16,7 +16,17 @@ Code and view generated models in your favorite development environment!
 
 ![image](https://github.com/bguan/pylele/assets/1054657/6e3b11f1-08fd-4d8d-aaa9-e8e563bf0d08)
 
-## Dependency Installation Suggestions
+## Simple Installation
+
+    Install on Ubuntu should be as simple as running the script:
+
+    ```
+      ./install_dependencies.sh
+    ```
+
+    This was developed on Ubuntu 22.04.4.
+
+## Detailed sInstallation
 * Python
   * **MacOS**
     * install xcode developer tools. Using admin user accout, in terminal command line shell:
@@ -79,3 +89,7 @@ Code and view generated models in your favorite development environment!
       > pip install bpy
       ```
 * [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
+
+## Similar Projects
+* [ukulele.scad](https://github.com/roadyyy/ukulele.scad)
+* [ParamUKE](https://github.com/berkbig/ParamUKE)

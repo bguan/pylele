@@ -6,51 +6,14 @@
 
 import os
 import unittest
+import importlib
 from pathlib import Path
 
 # api
-from pylele_config import Fidelity
-from cq_api import CQShapeAPI
-from bpy_api import BlenderShapeAPI
-from tm_api import TMShapeAPI
+from api.pylele_api import Fidelity
+from api.pylele_solid import DEFAULT_TEST_DIR
 
-# solid parts
-from pylele_tube import test_tube
-
-# ukulele parts
-from pylele_frets import test_frets
-from pylele_fretboard import test_fretboard
-from pylele_fretboard_dots import test_fretboard_dots
-from pylele_fretboard_spines import test_fretboard_spines
-from pylele_fretboard_joint import test_fretboard_joint
-from pylele_top import test_top
-from pylele_strings import test_strings
-from pylele_nut import test_nut
-from pylele_spines import test_spines
-from pylele_head import test_head
-from pylele_neck_joint import test_neck_joint
-from pylele_neck import test_neck
-from pylele_bridge import test_bridge
-from pylele_guide import test_guide
-from pylele_chamber import test_chamber
-from pylele_peg import test_peg
-from pylele_worm import test_worm
-from pylele_tuners import test_tuners
-from pylele_body import test_body
-from pylele_texts import test_texts
-from pylele_rim import test_rim
-from pylele_worm_key import test_worm_key
-from pylele_tail import test_tail
-from pylele_brace import test_brace
-from pylele_soundhole import test_soundhole
-
-# assemblies
-from pylele_fretboard_assembly import test_fretboard_assembly
-from pylele_neck_assembly import test_neck_assembly
-from pylele_top_assembly import test_top_assembly
-from pylele_bottom_assembly import test_bottom_assembly
-
-def make_api_test_outpath(api_name, test_path='./test'):
+def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
     """ Makes Test API folder and filename """
     out_path = Path.cwd() / test_path / api_name
 
@@ -62,152 +25,71 @@ def make_api_test_outpath(api_name, test_path='./test'):
     # print(outfname)
     return out_path
 
+def test_api(module_name,class_name):
+    """ Test a Shape API """
+    module = importlib.import_module(module_name)
+    outfname = make_api_path_and_filename(module_name)
+    class_ = getattr(module, class_name)
+    api = class_(Fidelity.LOW)
+    api.test(outfname)
 class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
 
     ## API
+    def test_mock_api(self):
+        """ Test Mock API """
+        test_api(module_name='api.mock_api',class_name='MockShapeAPI')
+    
     def test_cadquery_api(self):
         """ Test Cadquery API """
-        out_path = make_api_test_outpath('cadquery_api')
-        api = CQShapeAPI(Fidelity.LOW)
-        api.test(out_path)
+        test_api(module_name='api.cq_api',class_name='CQShapeAPI')
 
     def test_blender_api(self):
         """ Test Blender API """
-        out_path = make_api_test_outpath('blender_api')
-        api = BlenderShapeAPI(Fidelity.LOW)
-        api.test(out_path)
-
+        test_api(module_name='api.bpy_api',class_name='BlenderShapeAPI')
+    
     def test_trimesh_api(self):
         """ Test Trimesh API """
-        out_path = make_api_test_outpath('trimesh_api')
-        api = TMShapeAPI(Fidelity.LOW)
-        api.test(out_path)
-    
+        test_api(module_name='api.tm_api',class_name='TMShapeAPI')
+
     ## Solid Parts
-    def test_tube(self):
-        """ Test Tube """
-        test_tube()
+    from parts.tube import test_tube, test_tube_mock
+    from parts.screw import test_screw, test_screw_mock
 
     ## Pylele Individual Parts
-    
-    def test_frets(self):
-        """ Test Frets """
-        test_frets()
-
-    def test_fretboard(self):
-        """ Test Fretboard """
-        test_fretboard()
-
-    def test_fretboard_dots(self):
-        """ Test Fretboard Dots """
-        test_fretboard_dots()
-
-    def test_fretboard_spines(self):
-        """ Test Fretboard Spines """
-        test_fretboard_spines()
-
-    def test_fretboard_joint(self):
-        """ Test Fretboard Joint """
-        test_fretboard_joint()
-
-    def test_top(self):
-        """ Test Top """
-        test_top()
-
-    def test_strings(self):
-        """ Test Strings """
-        test_strings()
-
-    def test_nut(self):
-        """ Test Nut """
-        test_nut()
-
-    def test_spines(self):
-        """ Test Spines """
-        test_spines()
-
-    def test_head(self):
-        """ Test Head """
-        test_head()
-
-    def test_neck_joint(self):
-        """ Test Neck Joint """
-        test_neck_joint()
-
-    def test_neck(self):
-        """ Test Neck """
-        test_neck()
-
-    def test_bridge(self):
-        """ Test Bridge """
-        test_bridge()
-
-    def test_guide(self):
-        """ Test Guide """
-        test_guide()
-
-    def test_chamber(self):
-        """ Test Chamber """
-        test_chamber()
-
-    def test_peg(self):
-        """ Test Peg """
-        test_peg()
-
-    def test_worm(self):
-        """ Test Worm """
-        test_worm()
-
-    def test_tuners(self):
-        """ Test Tuners """
-        test_tuners()
-
-    def test_body(self):
-        """ Test Body """
-        test_body()
-
-    def test_texts(self):
-        """ Test Texts """
-        test_texts()
-
-    def test_rim(self):
-        """ Test Rim """
-        test_rim()
-
-    def test_worm_key(self):
-        """ Test Worm Key """
-        test_worm_key()
-
-    def test_tail(self):
-        """ Test Tail """
-        test_tail()
-
-    def test_brace(self):
-        """ Test Brace """
-        test_brace()
-
-    def test_soundhole(self):
-        """ Test Soundhole """
-        test_soundhole()
+    from pylele2.pylele_frets import test_frets, test_frets_mock
+    from pylele2.pylele_fretboard import test_fretboard, test_fretboard_mock
+    from pylele2.pylele_fretboard_dots import test_fretboard_dots, test_fretboard_dots_mock
+    from pylele2.pylele_fretboard_spines import test_fretboard_spines, test_fretboard_spines_mock
+    from pylele2.pylele_fretboard_joint import test_fretboard_joint, test_fretboard_joint_mock
+    from pylele2.pylele_top import test_top, test_top_mock
+    from pylele2.pylele_strings import test_strings, test_strings_mock
+    from pylele2.pylele_nut import test_nut, test_nut_mock
+    from pylele2.pylele_spines import test_spines, test_spines_mock
+    from pylele2.pylele_head import test_head, test_head_mock
+    from pylele2.pylele_neck_joint import test_neck_joint, test_neck_joint_mock
+    from pylele2.pylele_neck import test_neck, test_neck_mock
+    from pylele2.pylele_bridge import test_bridge, test_bridge_mock
+    from pylele2.pylele_guide import test_guide, test_guide_mock
+    from pylele2.pylele_chamber import test_chamber, test_chamber_mock
+    from pylele2.pylele_peg import test_peg, test_peg_mock
+    from pylele2.pylele_worm import test_worm, test_worm_mock
+    from pylele2.pylele_tuners import test_tuners, test_tuners_mock
+    from pylele2.pylele_body import test_body,test_body_mock
+    from pylele2.pylele_texts import test_texts, test_texts_mock
+    from pylele2.pylele_rim import test_rim, test_rim_mock
+    from pylele2.pylele_worm_key import test_worm_key, test_worm_key_mock
+    from pylele2.pylele_tail import test_tail, test_tail_mock
+    from pylele2.pylele_brace import test_brace, test_brace_mock
+    from pylele2.pylele_soundhole import test_soundhole, test_soundhole_mock
+    from pylele2.pylele_neck_bend import test_neck_bend, test_neck_bend_mock
 
     ## Assemblies
-
-    def test_fretboard_assembly(self):
-        """ Test Fretboard Assembly """
-        test_fretboard_assembly()
-
-    def test_neck_assembly(self):
-        """ Test Neck Assembly """
-        test_neck_assembly()
-
-    def test_top_assembly(self):
-        """ Test Top Assembly """
-        test_top_assembly()
-        
-    def test_bottom_assembly(self):
-        """ Test Bottom Assembly """
-        test_bottom_assembly()
+    from pylele2.pylele_fretboard_assembly import test_fretboard_assembly, test_fretboard_assembly_mock
+    from pylele2.pylele_neck_assembly import test_neck_assembly, test_neck_assembly_mock
+    from pylele2.pylele_top_assembly import test_top_assembly, test_top_assembly_mock
+    from pylele2.pylele_bottom_assembly import test_bottom_assembly, test_bottom_assembly_mock
+    from pylele2.pylele_all_assembly import test_all_assembly, test_all_assembly_mock
 
 if __name__ == '__main__':
     unittest.main()
