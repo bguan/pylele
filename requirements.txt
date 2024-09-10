@@ -11,3 +11,4 @@ shapely
 scipy
 networkx
 pyglet<2
+fonttools
