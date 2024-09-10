@@ -15,31 +15,19 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: pip configuration report
-      run: |
-        pip list
+    # python packages included in install_dependencies    
+    # - name: Install Python dependencies
+    #  run: |
+    #    python -m pip install --upgrade pip
+    #    pip install -r requirements.txt
     - name: install dependencies
       run: | 
         chmod +x ./install_dependencies.sh
         sudo ./install_dependencies.sh
-    - name: test
+    - name: pip configuration report
       run: |
-        python ./pylele_test.py
-    # for debugging, show all the files
-    - name: show files
-      run: |
-        ls -R
-        find ./test/ | grep stl
-    - name: upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-          # path depends on the tag and the module name
-          name: pylele_test_out
-          path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
+        mkdir test
+        pip list > ./test/pip_list.txt
     - name: test pylele.sh
       run: |
         source pylele.sh
@@ -55,7 +43,7 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_stl_out
           path: build/LeleAllAssembly/LeleAllAssembly.stl
-          compression-level: 0 # no compression
+          # compression-level: 0 # no compression
     - name: convert to glb
       run: |
         python3 ./api/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
@@ -65,4 +53,13 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_glb_out
           path: build/LeleAllAssembly/LeleAllAssembly.glb
-          compression-level: 0 # no compression
+          # compression-level: 0 # no compression
+    - name: test
+      run: |
+        python ./pylele_test.py
+    - name: upload test output
+      uses: actions/upload-artifact@v4
+      with:
+          # path depends on the tag and the module name
+          name: pylele_test_out
+          path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
