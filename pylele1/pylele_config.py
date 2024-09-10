@@ -103,7 +103,7 @@ class LeleConfig:
         self.wallTck = wallTck
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
+        bodyBackLen = self.chmBack + wallTck + tnrType.tailAllow()
         self.tailX = scaleLen + bodyBackLen
         # self.isPeg = isinstance(self.tnrCfg, PegConfig)
         # self.isWorm = isinstance(self.tnrCfg, WormConfig)

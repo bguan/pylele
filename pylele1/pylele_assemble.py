@@ -242,6 +242,7 @@ def test(cfg: LeleConfig):
     )
     top.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{top.fileNameBase}"))
 
+    rimCut = Rim(cfg, isCut=True)
     txtCut = Texts(cfg, isCut=True)
     txtCut.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{txtCut.fileNameBase}"))
 
@@ -264,8 +265,5 @@ if __name__ == "__main__":
         sepFretbd=True,
         sepNeck=True,
         sepTop=True,
-        scaleLen=420,
-        endWth=88,
-        tnrType=TunerType.WORM_TUNER,
     )
     test(cfg)
