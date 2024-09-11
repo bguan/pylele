@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_stl_out${{ matrix.python-version }}
+          name: pylele_stl_out_${{ matrix.python-version }}
           path: build/LeleAllAssembly/LeleAllAssembly.stl
           # compression-level: 0 # no compression
     - name: convert to glb
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_glb_out${{ matrix.python-version }}
+          name: pylele_glb_out_${{ matrix.python-version }}
           path: build/LeleAllAssembly/LeleAllAssembly.glb
           # compression-level: 0 # no compression
     - name: test
@@ -61,5 +61,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_test_out${{ matrix.python-version }}
+          name: pylele_test_out_${{ matrix.python-version }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
