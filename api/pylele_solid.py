@@ -60,7 +60,7 @@ def test_loop(module,apis=None,tests=None): # ,component):
         }
 
     if apis is None:
-        apis = ['trimesh','cadquery'] #,'blender']
+        apis = ['trimesh','cadquery','blender']
 
     for test,args in tests.items():
         for api in apis:
