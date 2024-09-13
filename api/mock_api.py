@@ -219,9 +219,6 @@ class MockShape(Shape):
     ) -> MockShape:
         return self
 
-    def half(self) -> MockShape:
-        return self
-
     def join(self, joiner: MockShape) -> MockShape:
         return self
 
