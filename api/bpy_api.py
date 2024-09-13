@@ -15,58 +15,6 @@ from typing import Any, Union
 
 class BlenderShapeAPI(ShapeAPI):
 
-    """
-    font2path:dict[str, str] = {}
-
-    def _initFontMap(self):
-        # Define directories to search for fonts
-        if sys.platform == 'win32':
-            font_dirs = [
-                os.path.join(os.environ['WINDIR'], 'Fonts')
-            ]
-        elif sys.platform == 'darwin':
-            font_dirs = [
-                '/Library/Fonts',
-                '/System/Library/Fonts',
-                os.path.expanduser('~/Library/Fonts')
-            ]
-        else:  # Assume Linux or other UNIX-like system
-            font_dirs = [
-                '/usr/share/fonts',
-                '/usr/local/share/fonts',
-                os.path.expanduser('~/.fonts')
-            ]
-
-        def list_fonts(directory):
-            fonts = []
-            for root, _, files in os.walk(directory):
-                for file in files:
-                    if file.lower().endswith(('.ttf', '.otf')):
-                        font_path = os.path.join(root, file)
-                        try:
-                            font = TTFont(font_path)
-                            # Get the name record with nameID 1 (Font Family name)
-                            name_record = font['name'].getName(nameID=1, platformID=3, platEncID=1)
-                            if name_record is None:
-                                name_record = font['name'].getName(nameID=1, platformID=1, platEncID=0)
-                            font_name = name_record.toStr() if name_record else 'Unknown'
-                            fonts.append((font_name, font_path))
-                        except Exception as e:
-                            print(f"Error reading {font_path}: {e}")
-            return fonts
-
-        # Collect fonts from all directories
-        all_fonts = []
-        for directory in font_dirs:
-            if os.path.exists(directory):
-                all_fonts.extend(list_fonts(directory))
-
-        # Print the font names and paths
-        for name, path in all_fonts:
-            # print(f"Font: {name}, Path: {path}")
-            self.font2path[name] = path
-    """
-
     def __init__(self, fidel: Fidelity):
         super().__init__()
         self.fidelity = fidel

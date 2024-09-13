@@ -333,9 +333,9 @@ class LeleConfig:
 
         # Strings config
         strOddMidPath = [
-            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
+            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .2*self.SPINE_HT),
             (0, 0, self.FRETBD_TCK + self.NUT_HT + self.STR_RAD/2),
-            (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
+            (scaleLen, 0, self.brdgZ + self.brdgHt + 1.4*self.STR_RAD),
         ]
 
         if self.tnrCfg.is_peg():  # Worm drives has no string guide
