@@ -30,9 +30,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     fbFillets = {}
     if cfg.sepFretbd or cfg.sepNeck:
         fbCutters.insert(0, topCut)
-        # blender mesh based edges can't handle curves
-        if cfg.impl == Implementation.CAD_QUERY:
-            fbFillets[FILLET_RAD] = [(cfg.fretbdLen, 0, .5*cfg.fretbdHt)]
+        fbFillets[FILLET_RAD] = [(cfg.fretbdLen, 0, .5*cfg.fretbdHt)]
     fretbd = Fretboard(cfg, False, fbJoiners, fbCutters, fbFillets)
 
     # Can't use joiners for fretbd joint & spines, as fbCutters will remove them 
@@ -44,7 +42,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # gen neck
     neckJoiners = [Head(cfg).mv(cfg.joinCutTol, 0, 0)]
-    neckCutters = []
+    neckCutters = [strCuts]
 
     if cfg.numStrs > 1:
         spCut = Spines(cfg, isCut=True)
@@ -57,7 +55,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepNeck:
         neckJoiners.append(NeckJoint(cfg, isCut=False).mv(-cfg.joinCutTol, 0, 0))
     
-    if not cfg.sepFretbd:
+    if cfg.sepNeck and not cfg.sepFretbd:
         neckJoiners.append(fretbd)
 
     if cfg.sepFretbd or cfg.sepTop:

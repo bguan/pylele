@@ -423,7 +423,6 @@ class Top(LelePart):
         if midTck > 0:
             top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ( bOrig, bPath, midTck )
-            midR = midR.mv(0,0,-midTck)
             top = top.join(midR.mirrorXZ_and_join())
 
         if self.isCut:
