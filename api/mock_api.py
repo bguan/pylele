@@ -129,43 +129,34 @@ class MockShapeAPI(ShapeAPI):
     def genBall(self, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genBox(self, ln: float, wth: float, ht: float) -> MockShape:
+    def genBox(self, l: float, wth: float, ht: float) -> MockShape:
         return MockShape(self)
 
-    def genConeX(self, ln: float, r1: float, r2: float) -> MockShape:
+    def genConeX(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genConeY(self, ln: float, r1: float, r2: float) -> MockShape:
+    def genConeY(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genConeZ(self, ln: float, r1: float, r2: float) -> MockShape:
+    def genConeZ(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodX(self, ln: float, rad: float, sides: int) -> MockShape:
+    def genPolyRodX(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodY(self, ln: float, rad: float, sides: int) -> MockShape:
+    def genPolyRodY(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> MockShape:
+    def genPolyRodZ(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genRodX(self, ln: float, rad: float) -> MockShape:
+    def genRodX(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genRodY(self, ln: float, rad: float) -> MockShape:
+    def genRodY(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genRodZ(self, ln: float, rad: float) -> MockShape:
-        return MockShape(self)
-
-    def genRndRodX(self, ln: float, rad: float, domeRatio: float = 1) -> MockShape:
-        return MockShape(self)
-
-    def genRndRodY(self, ln: float, rad: float, domeRatio: float = 1) -> MockShape:
-        return MockShape(self)
-
-    def genRndRodZ(self, ln: float, rad: float, domeRatio: float = 1) -> MockShape:
+    def genRodZ(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> MockShape:
@@ -189,12 +180,6 @@ class MockShapeAPI(ShapeAPI):
         return MockShape(self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
-        return MockShape(self)
-
-    def genQuarterBall(self, radius: float, pickTop: bool, pickFront: bool) -> MockShape:
-        return MockShape(self)
-        
-    def genHalfDisc(self, radius: float, pickFront: bool, tck: float) -> MockShape:
         return MockShape(self)
     
     def getJoinCutTol(self):
