@@ -74,7 +74,7 @@ class LeleConfig:
         nutStrGap: float = 9,
         action: float = 2,
         extMidTopTck: float = .5,
-        tnrType: TunerType = TunerType.FRICTION.value,
+        tnrType: TunerType = TunerType.FRICTION,
         half: bool = False,
         noTxt: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
