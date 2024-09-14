@@ -45,7 +45,7 @@ def pylele_main():
         txtSzFonts=cli.texts_size_font,
         modelLbl=cli.model_label,
         half=cli.half,
-        tnrType=TunerType[cli.tuner_type].value,
+        tnrType=TunerType[cli.tuner_type],
         fidelity=cli.fidelity,
         impl=cli.implementation,
     )
