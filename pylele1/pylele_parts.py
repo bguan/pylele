@@ -25,10 +25,10 @@ class LelePart(ABC):
     def gen(self) -> Shape:
         pass
 
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[float, list[tuple[float, float, float]]] = {},
     ):
@@ -37,11 +37,11 @@ class LelePart(ABC):
         self.joiners = joiners
         self.cutters = cutters
         self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
-        self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        self.color = None
         self.api = ShapeAPI.get(cfg.impl, cfg.fidelity)
 
         self.shape = self.gen()
-        
+
         for j in self.joiners:
             self.shape = self.shape.join(j.shape)
         for c in self.cutters:
@@ -58,7 +58,7 @@ class LelePart(ABC):
 
     def exportBest(self, path: Union[str, Path] ) -> None:
         self.api.exportBest(self.shape, str(path))
-    
+
     def exportBest(self, path: Union[str, Path] ) -> None:
         self.api.exportBest(self.shape, str(path))
 
@@ -93,10 +93,10 @@ class LelePart(ABC):
 class Brace(LelePart):
     MAX_FRETS = 24
 
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -118,10 +118,10 @@ class Brace(LelePart):
 
 class Frets(LelePart):
 
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -169,10 +169,10 @@ class Frets(LelePart):
 
 
 class FretboardDots(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -216,10 +216,10 @@ class FretboardDots(LelePart):
 
 
 class Fretboard(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -249,10 +249,10 @@ class Fretboard(LelePart):
         return fretbd
 
 class FretboardSpines(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -276,10 +276,10 @@ class FretboardSpines(LelePart):
         return fsp1.join(fsp2)
 
 class FretbdJoint(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -318,7 +318,7 @@ class Neck(LelePart):
         neck = None
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
-        
+
         neckCone = self.api.genConeX(nkLen, ntWth/2, nkWth/2)
         if True:
             coneCut = self.api.genBox(2*nkLen, 2*nkWth, 2*nkWth).mv(nkLen, 0, nkWth)
@@ -331,10 +331,10 @@ class Neck(LelePart):
 
 
 class NeckJoint(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -352,10 +352,10 @@ class NeckJoint(LelePart):
 
 
 class Head(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -378,7 +378,7 @@ class Head(LelePart):
 
         hd = self.api.genLineSplineRevolveX(orig, path, -180)\
             .scale(1, 1, botRat).mv(0, 0, joinTol/2 -midTck)
-        
+
         if midTck > 0:
             midR = self.api.genLineSplineExtrusionZ(orig, path, midTck).mv(0, 0, -midTck)
             hd = hd.join(midR.mirrorXZ_and_join())
@@ -397,15 +397,15 @@ class Head(LelePart):
 
 
 class Top(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ColorEnum.WHITE
+        self.color = ColorEnum.LITE_GRAY
 
     def gen(self) -> Shape:
         if self.isCut:
@@ -433,7 +433,7 @@ class Top(LelePart):
 
 class Body(LelePart):
     def __init__(self,
-        cfg: LeleConfig, 
+        cfg: LeleConfig,
         isCut: bool = False,
         joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
@@ -457,18 +457,18 @@ class Body(LelePart):
             bot = bot.join(midR.mirrorXZ_and_join())
         return bot
 
-    
+
 class Rim(LelePart):
     def __init__(self,
-        cfg: LeleConfig, 
-        isCut: bool = False, 
-        joiners: list[LelePart] = [], 
+        cfg: LeleConfig,
+        isCut: bool = False,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
         self.color = ColorEnum.WHITE
-        
+
     def gen(self):
         joinTol = self.cfg.joinCutTol
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
@@ -480,9 +480,9 @@ class Rim(LelePart):
         rimFront = self.api.genHalfDisc(rad, True, tck).scale(frontWthRatio, 1, 1)
         rimBack = self.api.genHalfDisc(rad, False, tck).scale(backWthRatio, 1, 1)
         return rimFront.mv(scLen, 0, joinTol-tck/2).join(rimBack.mv(scLen-joinTol, 0, joinTol-tck/2))
-    
 
-    
+
+
 class Chamber(LelePart):
     def __init__(self,
         cfg: LeleConfig,
@@ -534,10 +534,10 @@ class Chamber(LelePart):
 
 
 class Soundhole(LelePart):
-    def __init__(self, 
-        cfg: LeleConfig, 
-        isCut: bool = True, 
-        joiners: list[LelePart] = [], 
+    def __init__(self,
+        cfg: LeleConfig,
+        isCut: bool = True,
+        joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
         fillets: dict[tuple[float, float, float], float] = {},
     ):
@@ -779,7 +779,7 @@ class WormKey(LelePart):
         base = base.mv(-kbHt/2 -btnHt, 0, 0)
         btn = self.api.genBox(100 if self.isCut else btnHt, btnTck, btnWth)\
             .mv(50 -btnHt if self.isCut else -btnHt/2, 0, 0)
-        
+
         if self.isCut:
             btnExtCut = self.api.genRodX(100 if self.isCut else btnHt, btnWth/2)\
                 .scale(1, .5, 1)\
@@ -803,12 +803,10 @@ class Tuners(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = (128, 128, 128)
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         tXYZs = self.cfg.tnrXYZs
-        # isPeg = self.cfg.tnrCfg.is_peg()
-        # isWorm = self.cfg.tnrCfg.is_worm()
         tnrs = None
         for txyz in tXYZs:
             tnr = Peg(self.cfg, isCut=self.isCut) if self.cfg.tnrCfg.is_peg() \
@@ -850,7 +848,7 @@ class Spines(LelePart):
 
 class Strings(LelePart):
     def __init__(self,
-        cfg: LeleConfig, 
+        cfg: LeleConfig,
         isCut: bool = True,
         joiners: list[LelePart] = [],
         cutters: list[LelePart] = [],
@@ -917,7 +915,7 @@ class Texts(LelePart):
 
         if self.isCut:
             # Orig impl is ls = ls.mirrorXZ() but Blender text mirroring can lead to invalid meshes
-            ls = ls.rotateX(180) 
+            ls = ls.rotateX(180)
             if self.api.getImplementation() != Implementation.CAD_QUERY:
                 ls = ls.mv(0, 0, -txtTck) # HACK: Blender Text rotation is wonky
             bodyCut = Body(self.cfg, isCut=True).mv(0, 0, self.cfg.EMBOSS_DEP)
@@ -947,7 +945,7 @@ class TailEnd(LelePart):
         botRat = cfg.BOT_RATIO
         midBotTck = cfg.extMidBotTck + 2*cutAdj
         rimWth = cfg.rimWth+ 2*cutAdj
-        
+
         top = None
         if midBotTck > 0:
             extTop = self.api.genBox(10 if self.isCut else rimWth, endWth, midBotTck)\
@@ -955,7 +953,7 @@ class TailEnd(LelePart):
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             top = extTop.join(inrTop)
-        
+
         extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2).scale(1, 1, botRat)\
             .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
         inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth).scale(1, 1, botRat)\

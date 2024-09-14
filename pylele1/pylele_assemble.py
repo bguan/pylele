@@ -33,7 +33,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         fbFillets[FILLET_RAD] = [(cfg.fretbdLen, 0, .5*cfg.fretbdHt)]
     fretbd = Fretboard(cfg, False, fbJoiners, fbCutters, fbFillets)
 
-    # Can't use joiners for fretbd joint & spines, as fbCutters will remove them 
+    # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
     # as joins happen before cuts
     if cfg.sepFretbd or cfg.sepNeck:
         fretbd = fretbd \
@@ -47,20 +47,20 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.numStrs > 1:
         spCut = Spines(cfg, isCut=True)
         neckCutters.append(spCut)
- 
+
     if cfg.sepFretbd:
         fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
         neckCutters.append(fbCut)
- 
+
     if cfg.sepNeck:
         neckJoiners.append(NeckJoint(cfg, isCut=False).mv(-cfg.joinCutTol, 0, 0))
-    
+
     if cfg.sepNeck and not cfg.sepFretbd:
         neckJoiners.append(fretbd)
 
     if cfg.sepFretbd or cfg.sepTop:
         fbspCut = FretboardSpines(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-        f0Cut = Frets(cfg, isCut=True) 
+        f0Cut = Frets(cfg, isCut=True)
         neckCutters.extend([fbspCut, f0Cut])
 
     # neckCutters.append(strCuts)
@@ -75,6 +75,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     # gen body top
     chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
     tnrsCut = Tuners(cfg, isCut=True)
+    wormKeyCut = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=True)
     topJoiners = []
     topCutters = [chmCut, tnrsCut, Soundhole(cfg, isCut=True)]
 
@@ -84,7 +85,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepFretbd or cfg.sepNeck:
         fbJntCut = FretbdJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, -cfg.joinCutTol)
         topCutters.append(fbJntCut)
-    
+
     if not cfg.sepFretbd and not cfg.sepNeck:
         topJoiners.append(fretbd)
 
@@ -136,14 +137,13 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     if cfg.sepFretbd or cfg.sepTop:
         bodyCutters.append(fbspCut)
-    
+
     if cfg.sepEnd:
         tailCut = TailEnd(cfg, isCut=True)
         bodyCutters.append(tailCut)
     else:
         bodyCutters.append(tnrsCut)
         if cfg.tnrCfg.is_worm():
-            wormKeyCut = WormKey(cfg, isCut=True)
             bodyCutters.append(wormKeyCut)
 
     body = Body(cfg, False, bodyJoiners, bodyCutters)
@@ -167,7 +167,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepEnd:
         tailCutters = [tnrsCut, chmCut, spCut]
         if cfg.sepTop:
-            tailCutters.append(rimCut) 
+            tailCutters.append(rimCut)
         if cfg.tnrCfg.is_worm():
             tailCutters.append(wormKeyCut)
         tail = TailEnd(cfg, isCut=False, joiners=[], cutters=tailCutters)
@@ -209,7 +209,7 @@ def test(cfg: LeleConfig):
 
     head = Head(cfg)
     fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-    spCut = Spines(cfg, isCut=True) 
+    spCut = Spines(cfg, isCut=True)
     fbspCut = FretboardSpines(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
     f0Cut = Frets(cfg, isCut=True)
     nkJnt = NeckJoint(cfg, isCut=False)
@@ -226,14 +226,14 @@ def test(cfg: LeleConfig):
     topFillets = {}
     if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
         wcfg: WormConfig = cfg.tnrCfg
-        topFillets[wcfg.slitWth] = [ 
+        topFillets[wcfg.slitWth] = [
             (wx - wcfg.slitLen/2, wy, cfg.brdgZ) for wx, wy, _ in cfg.tnrXYZs
         ]
 
     topJoins = [brdg, rim]
     if cfg.tnrCfg.is_peg():
         topJoins.append(Guide(cfg, False))
-    top = Top(cfg, 
+    top = Top(cfg,
         joiners=topJoins,
         cutters=[fbJntCut, tnrsCut, shCut, chmCut],
         fillets=topFillets,

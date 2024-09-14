@@ -2,6 +2,7 @@
 
 import datetime
 import os
+from random import randint
 import sys
 from pathlib import Path
 
@@ -62,7 +63,7 @@ def pylele_main():
 
     with open(expDir / 'config.txt', 'w') as f:
         f.write(repr(cfg))
-    
+
     parts = assemble(cfg)
 
     for p in parts:
@@ -72,9 +73,9 @@ def pylele_main():
         p.exportBest(str(expDir/f"{p.fileNameBase}"))
 
 def cqeditor_main():
-    cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=2,
+    cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=1,
         impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM,
-        sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True)
+        sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True, sepBrdg=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
     key = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=False)
@@ -88,7 +89,10 @@ def cqeditor_main():
     for p in parts:
         if cfg.half:
             p = p.half()
-        show_object(p.show(), name=p.fileNameBase, options={'color':p.color}) # type: ignore
+        color = (randint(0, 255), randint(0, 255), randint(0, 255)) if p.color is None else p.color.value[0]
+        # show_object seems to be dynamically injected by CQ-Editor
+        log(color) # type: ignore
+        show_object(p.show(), name=p.fileNameBase, options={'color': color}) # type: ignore
 
 if __name__ == '__main__':
     pylele_main()

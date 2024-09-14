@@ -78,7 +78,7 @@ class LeleConfig:
         half: bool = False,
         noTxt: bool = False,
         txtSzFonts: list[tuple[str, float, str]] = [
-            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
+            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT),
             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
         ],
@@ -93,8 +93,8 @@ class LeleConfig:
         self.impl = impl
         self.fidelity = fidelity
         self.joinCutTol = impl.joinCutTol()
-        self.tnrCfg = tnrType
-        
+        self.tnrCfg = tnrType.value
+
         # Length based configs
         self.scaleLen = scaleLen
         self.headLen = 2 * numStrs + scaleLen / 60 #12
@@ -103,7 +103,7 @@ class LeleConfig:
         self.wallTck = wallTck
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        bodyBackLen = self.chmBack + wallTck + tnrType.tailAllow()
+        bodyBackLen = self.chmBack + wallTck + self.tnrCfg.tailAllow()
         self.tailX = scaleLen + bodyBackLen
         # self.isPeg = isinstance(self.tnrCfg, PegConfig)
         # self.isWorm = isinstance(self.tnrCfg, WormConfig)
@@ -147,7 +147,7 @@ class LeleConfig:
             2 * tan(radians(self.neckWideAng)) * self.neckLen
         # self.neckOrig = (0, 0)
         self.neckPath = [
-            (0, self.nutWth/2), 
+            (0, self.nutWth/2),
             (self.neckLen, self.neckWth/2),
             (self.neckLen, -self.neckWth/2),
             (0, -self.nutWth/2)
@@ -417,7 +417,7 @@ class LeleConfig:
             model += 'B'
         if self.sepEnd:
             model += 'E'
-        
+
         model += f"{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
 
         if inclDate:
