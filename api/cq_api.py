@@ -1,11 +1,20 @@
+#!/usr/bin/env python3
+
 from __future__ import annotations
 import copy
 import math
 from pathlib import Path
 import cadquery as cq
+from typing import Union
+
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_utils import descreteBezierChain, ensureFileExtn, superGradient
-from typing import Union
+from api.pylele_api_constants import DEFAULT_TEST_DIR
+
 
 """
     Encapsulate CAD Query implementation specific calls
@@ -355,6 +364,5 @@ class CQTextZ(CQShape):
         self.font = font
         self.solid = cq.Workplane("XY").text(txt, fontSize, tck, font=font)
 
-
 if __name__ == '__main__':
-    CQShapeAPI(Fidelity.LOW).test(Path.cwd() / 'test' / 'cadquery_api')
+    CQShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR,"cq-all.stl"))
