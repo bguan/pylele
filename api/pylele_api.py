@@ -63,6 +63,7 @@ class Implementation(LeleStrEnum):
     CAD_QUERY = 'cadquery'
     BLENDER = 'blender'
     TRIMESH = 'trimesh'
+    SOLID2 = 'solid2'
    
     def __repr__(self):
         return f"Implementation({self.value})"
@@ -81,6 +82,8 @@ class Implementation(LeleStrEnum):
                 return 'B'
             case Implementation.TRIMESH:
                 return 'T'
+            case Implementation.SOLID2:
+                return 'S'
 
     def joinCutTol(self) -> float:
         # Tolerance for joins to have a little overlap
@@ -173,6 +176,7 @@ class ShapeAPI(ABC):
     _cq_api: ShapeAPI = None
     _blender_api: ShapeAPI = None
     _trimesh_api: ShapeAPI = None
+    _solid2_api:  ShapeAPI = None
 
     @classmethod
     def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
@@ -196,12 +200,21 @@ class ShapeAPI(ABC):
                     bpy_mod = importlib.import_module(bpy_mod_name)
                     cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
                 return cls._blender_api
+            
             case Implementation.TRIMESH:
                 if cls._trimesh_api == None:
                     tm_mod_name = 'api.tm_api'
                     tm_mod = importlib.import_module(tm_mod_name)
                     cls._tm_api = tm_mod.TMShapeAPI(fidelity)
                 return cls._tm_api
+            
+            case Implementation.SOLID2:
+                if cls._solid2_api == None:
+                    sp2_mod_name = 'api.sp2_api'
+                    sp2_mod = importlib.import_module(sp2_mod_name)
+                    cls._sp2_api = sp2_mod.Sp2ShapeAPI(fidelity)
+                return cls._sp2_api
+
 
     def getFontname2FilepathMap(self) -> dict[str, str]:
 
@@ -476,10 +489,10 @@ class ShapeAPI(ABC):
         body = self.genLineSplineExtrusionZ(
             start = (215, 0),
             path = [
-                (215, 23), 
+                (215, 23),
                 [
-                    (216, 23, .01, .5, .3), 
-                    (390, 76, 0, .6), 
+                    (216, 23, .01, .5, .3),
+                    (390, 76, 0, .6),
                     (481, 1, -inf),
                 ],
                 (481, 0),
