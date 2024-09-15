@@ -111,7 +111,7 @@ class Shape(ABC):
 
     @abstractmethod
     def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
+        nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> Shape:
         ...
