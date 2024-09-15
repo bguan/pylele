@@ -9,10 +9,10 @@ DEFAULT_BUILD_DIR='build'
 # Colors
 class ColorEnum(Enum):
     """ Color Enumerator """
-    BLACK = (1, 1, 1),
-    CARBON = (32, 32, 32),
-    GRAY = (128, 128, 128),
-    LITE_GRAY = (192, 192, 192),
-    DARK_GRAY = (64, 64, 64),
-    ORANGE = (250, 100, 0),
-    WHITE = (250, 250, 250)
+    BLACK = (0, 0, 0)
+    CARBON = (16, 16, 16)
+    GRAY = (128, 128, 128)
+    LITE_GRAY = (160, 160, 160)
+    DARK_GRAY = (32, 32, 32)
+    ORANGE = (255, 64, 0)
+    WHITE = (255, 255, 255)

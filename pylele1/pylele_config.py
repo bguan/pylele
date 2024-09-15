@@ -19,7 +19,7 @@ from pylele_config_common import SEMI_RATIO, LeleScaleEnum, TunerConfig, PegConf
     Global Constants, Config classes
 """
 
-DEFAULT_LABEL_SIZE = 9
+DEFAULT_LABEL_SIZE = 8
 DEFAULT_LABEL_SIZE_BIG = 24
 DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = 'Verdana'
@@ -401,9 +401,9 @@ class LeleConfig:
         self.modelLbl = ModelLabel.NONE if noTxt else modelLbl
         if self.modelLbl != ModelLabel.NONE:
             lbl = self.genModelStr(modelLbl == ModelLabel.LONG)
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
-            self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_SMALL, None))
-            self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT))
+            if self.txtSzFonts[-1][0] != lbl: # HACK to prevent infinite append
+                self.txtSzFonts.append((None, DEFAULT_LABEL_SIZE_BIG, None))
+                self.txtSzFonts.append((lbl, DEFAULT_LABEL_SIZE_SMALL, DEFAULT_LABEL_FONT))
 
     def genModelStr(self, inclDate: bool = False) -> str:
         model = f"{self.scaleLen}{self.tnrCfg.code}{self.numStrs}"
