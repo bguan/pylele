@@ -405,7 +405,7 @@ class Top(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ColorEnum.LITE_GRAY
+        self.color = ColorEnum.WHITE
 
     def gen(self) -> Shape:
         if self.isCut:
@@ -757,7 +757,7 @@ class WormKey(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ColorEnum.GRAY
+        self.color = ColorEnum.DARK_GRAY
 
     def gen(self) -> Shape:
         isBlender = self.cfg.impl == Implementation.BLENDER
@@ -827,7 +827,7 @@ class Spines(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ColorEnum.CARBON
+        self.color = ColorEnum.BLACK
 
     def gen(self) -> Shape:
         cutAdj = (FIT_TOL + self.cfg.joinCutTol) if self.isCut else 0
@@ -894,22 +894,19 @@ class Texts(LelePart):
 
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
-        # dep = self.cfg.EMBOSS_DEP
         tsf = self.cfg.txtSzFonts
-        # txtTck = self.cfg.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
-        # cutTol = self.cfg.joinCutTol
         txtTck = botRat * bodyWth/2 + midBotTck + 2
 
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
         for txt, sz, fnt in tsf:
-            if not txt is None and not fnt is None:
+            if (txt is not None and len(txt.strip()) > 0) and not fnt is None and sz > 0:
                 l = self.api.genTextZ(txt, sz, txtTck, fnt) \
-                    .rotateZ(90).mv(tx + sz/2, 0, 0) #txtTck/2)
+                    .rotateZ(90).mv(tx + sz/2, 0, 0)
                 ls = l if ls is None else ls.join(l)
             tx += sz
 
@@ -932,7 +929,7 @@ class TailEnd(LelePart):
         fillets: dict[tuple[float, float, float], float] = {},
     ):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
-        self.color = ColorEnum.DARK_GRAY
+        self.color = ColorEnum.CARBON
 
     def gen(self) -> Shape:
         cfg = self.cfg

@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from pylele1.pylele_assemble import assemble, test
 from pylele1.pylele_cli import parseCLI
-from pylele1.pylele_config import Implementation, LeleConfig, FILLET_RAD, TunerType
+from pylele1.pylele_config import Implementation, LeleConfig, FILLET_RAD, TunerType, ModelLabel
 from pylele1.pylele_parts import Strings, Tuners, WormKey, Spines
 from api.pylele_api_constants import DEFAULT_BUILD_DIR
 
@@ -73,25 +73,21 @@ def pylele_main():
         p.exportBest(str(expDir/f"{p.fileNameBase}"))
 
 def cqeditor_main():
-    cfg = LeleConfig(scaleLen=330, endWth=90, chmLift=1,
-        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM,
+    cfg = LeleConfig(half=False, scaleLen=330, endWth=90, chmLift=1,
+        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM, modelLbl=ModelLabel.LONG,
         sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True, sepBrdg=True)
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
-    key = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=False)
     sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
     parts.extend([strs, tnrs])
     if not sps is None:
         parts.append(sps)
-    if not key is None:
-        parts.append(key)
     for p in parts:
         if cfg.half:
             p = p.half()
-        color = (randint(0, 255), randint(0, 255), randint(0, 255)) if p.color is None else p.color.value[0]
+        color = (randint(0, 255), randint(0, 255), randint(0, 255)) if p.color is None else p.color.value
         # show_object seems to be dynamically injected by CQ-Editor
-        log(color) # type: ignore
         show_object(p.show(), name=p.fileNameBase, options={'color': color}) # type: ignore
 
 if __name__ == '__main__':
