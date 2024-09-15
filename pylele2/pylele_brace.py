@@ -16,7 +16,7 @@ class LeleBrace(LeleBase):
     def gen(self) -> Shape:
         """ Generate Brace """
 
-        scLen = self.cli.scale_length
+        scLen = float(self.cli.scale_length)
         brdgZ = self.cfg.brdgZ
         chmFr = self.cfg.chmFront
         chmBk = self.cfg.chmBack
