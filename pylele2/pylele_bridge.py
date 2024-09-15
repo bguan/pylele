@@ -61,7 +61,7 @@ class LeleBridge(LeleBase):
     def gen(self) -> Shape:
         """ Generate Bridge """
         fitTol = FIT_TOL
-        scLen = self.cli.scale_length
+        scLen = float(self.cli.scale_length)
 
         if hasattr(self.cli,'bridge_override_string_radius') and \
             not self.cli.bridge_override_string_radius is None:
@@ -95,21 +95,26 @@ class LeleBridge(LeleBase):
             # increase overlap when blender backend to force join
             brdgZ -= 1.5
 
-        brdg = self.api.genBox(brdgLen, brdgWth, brdgHt).mv(
-            scLen, 0, brdgZ + brdgHt/2)
+        brdg = self.api.genBox(brdgLen, brdgWth, brdgHt)\
+            .mv(scLen, 0, brdgZ + brdgHt/2)
         
         if not self.isCut:
             cutRad = brdgLen/2 - strRad
             cutHt = brdgHt - 2
             cutScaleZ = cutHt/cutRad
+
             frontCut = self.api.genRodY(2*brdgWth, cutRad)\
                 .scale(1, 1, cutScaleZ)\
                 .mv(scLen - cutRad - strRad, 0, brdgZ + brdgHt)
+            
             backCut = self.api.genRodY(2*brdgWth, cutRad)\
                 .scale(1, 1, cutScaleZ)\
                 .mv(scLen + cutRad + strRad, 0, brdgZ + brdgHt)
+            
             brdgTop = self.api.genRodY(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt)
+
             brdg = brdg.cut(frontCut).cut(backCut).join(brdgTop)
+            
             if self.cli.bridge_piezo:
                 mic_cut = self.api.genBox(self.cli.bridge_piezo_width,
                                           brdgWth,
