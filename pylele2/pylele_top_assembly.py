@@ -35,10 +35,6 @@ class LeleTopAssembly(LeleBase):
         guide = LeleGuide(cli=self.cli) if TunerType[self.cli.tuner_type].value.is_peg() else None
 
         # gen body top
-        chamber_cutters = []
-        if not self.cli.body_type==LeleBodyType.TRAVEL:
-            chamber_cutters.append(LeleBrace(cli=self.cli))
-        chmCut = LeleChamber(cli=self.cli, isCut=True, cutters=chamber_cutters)
         fbJntCut = LeleFretboardJoint(cli=self.cli, isCut=True).mv(-self.api.getJoinCutTol(), 0, -self.api.getJoinCutTol()) \
             if self.cli.separate_fretboard or self.cli.separate_neck else None
         tnrsCut = LeleTuners(cli=self.cli, isCut=True)
@@ -46,7 +42,7 @@ class LeleTopAssembly(LeleBase):
         topCutters = [tnrsCut]
                 
         if not self.cli.body_type in [LeleBodyType.FLAT]:
-            topCutters.append(chmCut)
+            topCutters.append(LeleChamber(cli=self.cli))
         if not self.cli.body_type in [LeleBodyType.FLAT,LeleBodyType.TRAVEL]:
             topCutters.append(LeleSoundhole(cli=self.cli, isCut=True))
 
@@ -55,14 +51,7 @@ class LeleTopAssembly(LeleBase):
 
         if self.cli.separate_fretboard or self.cli.separate_neck: # if cfg.sepFretbd or cfg.sepNeck:
             topCutters.append(fbJntCut)
-        
-        # Fretboard included in neck assembly
-        """
-        if not self.cli.separate_fretboard and not self.cli.separate_neck: # if not cfg.sepFretbd and not cfg.sepNeck:
-            fretbd = LeleFretboardAssembly(cli=self.cli)
-            topJoiners.append(fretbd)
-        """
-            
+                   
         if self.cli.separate_bridge: # cfg.sepBrdg:
             topCutters.append(LeleBridge(cli=self.cli, isCut=True))
             self.add_part(brdg)
@@ -87,7 +76,6 @@ class LeleTopAssembly(LeleBase):
             ]
 
         top = LeleTop(cli=self.cli, joiners=topJoiners, cutters=topCutters, fillets=topFillets)
-
         self.shape = top.gen_full()
 
         return self.shape
