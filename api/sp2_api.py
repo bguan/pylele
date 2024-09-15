@@ -16,6 +16,8 @@ from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
 
+FIDELITY_K = 4
+
 class Sp2ShapeAPI(ShapeAPI):
     """
     SolidPython2 Pylele API implementation for test
@@ -59,38 +61,38 @@ class Sp2ShapeAPI(ShapeAPI):
         return Sp2Box(l,wth,ht,api=self).mv(-l/2,-wth/2,-ht/2)
     
     def genConeX(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l,r1,r2,dir='X',api=self).mv(l/2,0,0)
+        return Sp2Cone(l,r1=r1,r2=r2,direction='X',api=self).mv(l/2,0,0)
 
     def genConeY(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l,r2,r1,dir='Y',api=self).mv(0,l/2,0)
+        return Sp2Cone(l,r1=r2,r2=r1,direction='Y',api=self).mv(0,l/2,0)
 
     def genConeZ(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l,r1,r2,dir='Z',api=self)
+        return Sp2Cone(l,r1=r1,r2=r2,direction='Z',api=self).mv(0,0,l/2)
 
     def genPolyRodX(self, l: float, rad: float, sides: int) -> Sp2Shape:
-        return Sp2PolyRod(l, rad, sides, dir="X", api=self)
+        return Sp2Cone(l, r1=rad, sides=sides, direction="X",api=self)
 
     def genPolyRodY(self, l: float, rad: float, sides: int) -> Sp2Shape:
-        return Sp2PolyRod(l, rad, sides, dir="Y", api=self)
+        return Sp2Cone(l, r1=rad, sides=sides, direction="Y",api=self)
 
     def genPolyRodZ(self, l: float, rad: float, sides: int) -> Sp2Shape:
-        return Sp2PolyRod(l, rad, sides, dir="Z", api=self)
+        return Sp2Cone(l, r1=rad, sides=sides, direction="Z",api=self)
 
     def genRodX(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, rad, rad, dir='X', api=self)
+        return Sp2Cone(l, r1=rad, direction='X',api=self)
 
     def genRodY(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, rad, rad, dir='Y', api=self)
+        return Sp2Cone(l, r1=rad, direction='Y',api=self)
 
     def genRodZ(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, rad, rad, dir='Z', api=self)
+        return Sp2Cone(l, r1=rad, direction='Z',api=self)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
         return Sp2PolyExtrusionZ(path, ht, self)
 
     def genLineSplineExtrusionZ(self,
             start: tuple[float, float],
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
+            path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
             ht: float,
         ) -> Sp2Shape:
         if ht < 0:
@@ -134,12 +136,14 @@ class Sp2Shape(Shape):
         return self
 
     def dup(self) -> Sp2Shape:
-        return copy.copy(self.solid)
+        return copy.copy(self)
 
     def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
+        nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> Sp2Shape:
+        print('Warning! Fillet not implemented yet for solidpython2 api!')
+        # https://github.com/BelfrySCAD/BOSL2/wiki/rounding.scad#function-round_corners
         return self
 
     def join(self, joiner: Sp2Shape) -> Sp2Shape:
@@ -217,7 +221,7 @@ class Sp2Ball(Sp2Shape):
     def __init__(self, rad: float, api: Sp2ShapeAPI):
         super().__init__(api)
         self.rad = rad
-        self.solid = sphere(rad)
+        self.solid = sphere(rad, _fn=self.api.fidelity.smoothingSegments()*FIDELITY_K)
 
 class Sp2Box(Sp2Shape):
     def __init__(self, ln: float, wth: float, ht: float, api: Sp2ShapeAPI):
@@ -228,26 +232,23 @@ class Sp2Box(Sp2Shape):
         self.solid = cube(ln, wth, ht)
 
 class Sp2Cone(Sp2Shape):
-    def __init__(self, ln: float, r1: float, r2: float, dir: str, api: Sp2ShapeAPI):
+    def __init__(self, ln: float, r1: float, r2: float = None, direction: str = 'Z', sides = None, api: Sp2ShapeAPI = Sp2ShapeAPI(fidel=Fidelity.LOW)):
         super().__init__(api)
         self.ln = ln
-        self.r1 = r1
-        self.r2 = r2
-        self.solid = cylinder(h=ln,r1=r1,r2=r2).translateZ(-ln/2)
-        if dir == 'X':
-            self.solid = self.solid.rotateY(90)
-        elif dir == 'Y':
-            self.solid = self.solid.rotateX(90)
 
-class Sp2PolyRod(Sp2Shape):
-    def __init__(self, ln: float, rad: float, sides: int, dir: str , api: Sp2ShapeAPI):
-        super().__init__(api)
-        self.ln = ln
-        self.rad = rad
-        self.solid = cylinder(h=ln,r1=rad*sqrt(2),r2=rad*sqrt(2),_fn=sides).translateZ(-ln/2)
-        if dir == 'X':
+        if sides is None:
+            self.r1 = r1
+            self.r2 = r1 if r2 is None else r2
+            sects = FIDELITY_K * self.segsByDim(max(self.r1, self.r2))
+        else:
+            self.r1 = r1*sqrt(2)
+            self.r2 = self.r1 if r2 is None else r2*sqrt(2)
+            sects = sides
+
+        self.solid = cylinder(h=ln,r1=self.r1,r2=self.r2,_fn=sects).translateZ(-ln/2)
+        if direction == 'X':
             self.solid = self.solid.rotateY(90)
-        elif dir == 'Y':
+        elif direction == 'Y':
             self.solid = self.solid.rotateX(90)
 
 class Sp2PolyExtrusionZ(Sp2Shape):
@@ -321,7 +322,7 @@ class Sp2CirclePolySweep(Sp2Shape):
         super().__init__(api)
         self.path = path
         self.rad = rad
-        segs = self.segsByDim(rad)
+        segs = FIDELITY_K * self.segsByDim(rad)
         self.solid = circle(r=rad, _fn=segs).path_extrude(path)
 
 if __name__ == '__main__':
