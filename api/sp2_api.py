@@ -3,9 +3,11 @@
 from __future__ import annotations
 from typing import Union
 from pathlib import Path
+import subprocess
+from packaging import version
 import copy
 from math import sin, sqrt, ceil
-from solid2 import *
+from solid2 import cube, sphere, polygon, text, cylinder
 from solid2.extensions.bosl2 import circle
 
 import os
@@ -17,6 +19,42 @@ from api.pylele_api_constants import DEFAULT_TEST_DIR
 from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
 
 FIDELITY_K = 4
+OPENSCAD='openscad'
+
+def openscad_version():
+    """ Returns openscad version """
+    tmplog='log.txt'
+    cmdstr = f'{OPENSCAD} -v 2>&1 | cat > {tmplog}'
+    os.system(cmdstr)
+
+    assert os.path.isfile(tmplog), f'ERROR: file {tmplog} does not exist!'
+
+    with open(tmplog, encoding='utf-8') as f:
+        lines = f.readlines()
+
+    # print(f'<{lines}>')
+    ans = lines[0].split()
+    assert len(ans)==3, f'Missing arguments in openscad version output <{ans}>'
+
+    ver=ans[2]
+    # print(ver)
+
+    return ver
+
+def openscad_manifold_ok() -> bool:
+    """ check manifold available """
+    # https://github.com/openscad/openscad/issues/391#issuecomment-1718145488
+    ver = openscad_version()
+    # print(ver)
+    if version.parse(ver) > version.parse("2023.09"):
+        return True
+    return False
+
+def openscad_manifold_opt() -> str:
+    """ generate manifold option enable, if available """
+    if openscad_manifold_ok():
+        return '--enable=manifold'
+    return ''
 
 class Sp2ShapeAPI(ShapeAPI):
     """
@@ -39,7 +77,8 @@ class Sp2ShapeAPI(ShapeAPI):
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
         fout = ensureFileExtn(basefname,'.stl')
-        cmdstr = f'openscad -o {fout} {scad_file}'
+        manifold = openscad_manifold_opt()
+        cmdstr = f'{OPENSCAD} {manifold} -o {fout} {scad_file}'
         os.system(cmdstr)
 
         assert os.path.isfile(fout), f'ERROR: file {fout} does not exist!'
