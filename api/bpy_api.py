@@ -21,10 +21,10 @@ class BlenderShapeAPI(ShapeAPI):
 
     def getFidelity(self) -> Fidelity:
         return self.fidelity
-    
+
     def getImplementation(self) -> Implementation:
         return Implementation.BLENDER
-        
+
     def setFidelity(self, fidel: Fidelity) -> None:
         self.fidelity = fidel
 
@@ -76,22 +76,22 @@ class BlenderShapeAPI(ShapeAPI):
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> BlenderShape:
         return BlenderPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(self, 
-            start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
+    def genLineSplineExtrusionZ(self,
+            start: tuple[float, float],
+            path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
             ht: float,
         ) -> BlenderShape:
         if ht < 0:
             return BlenderLineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
         return BlenderLineSplineExtrusionZ(start, path, ht, self)
-    
-    def genLineSplineRevolveX(self, 
-            start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
+
+    def genLineSplineRevolveX(self,
+            start: tuple[float, float],
+            path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
             deg: float,
         ) -> BlenderShape:
         return BlenderLineSplineRevolveX(start, path, deg, self)
-    
+
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> BlenderShape:
         return BlenderCirclePolySweep(rad, path, self)
 
@@ -106,7 +106,7 @@ class BlenderShape(Shape):
     # MAX_DIM = 10000 # for max and min dimensions
     REPAIR_MIN_REZ = 0.0001
     REPAIR_LOOPS = 2
-    
+
     def __init__(self, api: BlenderShapeAPI):
         super().__init__()
         self.api = api
@@ -118,6 +118,36 @@ class BlenderShape(Shape):
     def getImplSolid(self) -> Any:
         return self.solid
 
+    def findBounds(self) -> tuple[float, float, float, float, float, float]:
+        """
+        Returns the bounding box of a Blender object in world space as a tuple:
+        (minX, maxX, minY, maxY, minZ, maxZ)
+
+        Parameters:
+        obj (bpy.types.Object): The Blender object.
+
+        Returns:
+        tuple: A tuple with the bounding box limits (minX, maxX, minY, maxY, minZ, maxZ).
+        """
+        if self.solid.type not in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}:
+            raise ValueError(f"Object type {obj.type} does not support bounding boxes.")
+
+        # Get the bounding box in local space
+        bbox = self.solid.bound_box
+
+        # Convert to world space by applying the object's transformation matrix
+        bbox_world = [self.solid.matrix_world @ Vector(corner) for corner in bbox]
+
+        # Extract the min/max values from the bounding box in world space
+        min_x = min([v[0] for v in bbox_world])
+        max_x = max([v[0] for v in bbox_world])
+        min_y = min([v[1] for v in bbox_world])
+        max_y = max([v[1] for v in bbox_world])
+        min_z = min([v[2] for v in bbox_world])
+        max_z = max([v[2] for v in bbox_world])
+
+        return (min_x, max_x, min_y, max_y, min_z, max_z)
+
     def cut(self, cutter: BlenderShape) -> BlenderShape:
         if cutter is None:
             return self
@@ -128,7 +158,7 @@ class BlenderShape(Shape):
         bpy.ops.object.modifier_apply(modifier=mod.name)
         bpy.context.view_layer.update()
         return self.repairMesh()
-    
+
     def dup(self) -> BlenderShape:
         duplicate = copy.copy(self)
         self.solid.select_set(True)
@@ -172,8 +202,8 @@ class BlenderShape(Shape):
                 nearestIdx = edge.index
         return nearestIdx
 
-    def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
+    def filletByNearestEdges(self,
+        nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> BlenderShape:
         if rad <= 0:
@@ -199,7 +229,7 @@ class BlenderShape(Shape):
                     bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
                     bpy.ops.object.mode_set(mode='OBJECT')
         return self.repairMesh()
-           
+
     def join(self, joiner: BlenderShape) -> BlenderShape:
         if joiner is None:
             return self
@@ -212,7 +242,7 @@ class BlenderShape(Shape):
         bpy.context.view_layer.update()
         joiner.remove()
         return self.repairMesh()
-    
+
 
     # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
     def lineSplineXY(
@@ -220,7 +250,7 @@ class BlenderShape(Shape):
         start: tuple[float, float],
         lineSpline: list[tuple[float, float] | list[tuple[float, ...]]],
     ) -> list[tuple[float, float]]:
-        
+
         lastX, lastY = start
         polyPath = [start]
         for p_or_s in lineSpline:
@@ -254,7 +284,7 @@ class BlenderShape(Shape):
         bpy.ops.object.select_all(action='DESELECT')
         dup = bpy.context.object
         dup.select_set(True)
-        
+
         # shift to one side to avoid cross mirroring
         shift = (
             self.solid.dimensions.x if plane[0] else 0,
@@ -310,7 +340,7 @@ class BlenderShape(Shape):
         bpy.ops.object.select_all(action='DESELECT')
         self.solid.select_set(True)
         bpy.ops.object.delete()
-        
+
     def repairMesh(self) -> BlenderShape:
         minRez = self.REPAIR_MIN_REZ
         bpy.ops.object.mode_set(mode='EDIT')
@@ -324,10 +354,10 @@ class BlenderShape(Shape):
             bpy.ops.mesh.select_all(action='DESELECT')
             bpy.ops.mesh.select_non_manifold()
             bpy.ops.mesh.remove_doubles(
-                threshold=minRez, 
+                threshold=minRez,
                 use_sharp_edge_from_normals=True,
                 use_unselected=True,
-            ) 
+            )
             bpy.ops.mesh.fill_holes(sides=0)  # 'sides=0' fills all holes
             bpy.ops.mesh.dissolve_degenerate(threshold=minRez)
             bpy.ops.mesh.delete_loose(use_faces=True, use_edges=True, use_verts=True)
@@ -338,7 +368,7 @@ class BlenderShape(Shape):
             loop += 1
         bpy.ops.object.mode_set(mode='OBJECT')
         return self
-        
+
     def rotateX(self, ang: float) -> BlenderShape:
         if ang == 0:
             return self
@@ -480,8 +510,8 @@ class BlenderRodY(BlenderShape):
 
 
 class BlenderRod3D(BlenderShape):
-    def __init__(self, 
-        start: tuple[float, float, float], 
+    def __init__(self,
+        start: tuple[float, float, float],
         stop: tuple[float, float, float],
         rad: float,
         api: BlenderShapeAPI,
@@ -507,7 +537,7 @@ class BlenderPolyExtrusionZ(BlenderShape):
         super().__init__(api)
         if checkWinding and not isPathCounterClockwise(path):
             path.reverse()
-        
+
         mesh = bpy.data.meshes.new(name="Polygon")
         bpy.ops.object.select_all(action='DESELECT')
         bm = bmesh.new()
@@ -524,8 +554,8 @@ class BlenderPolyExtrusionZ(BlenderShape):
 
 class BlenderLineSplineExtrusionZ(BlenderShape):
     def __init__(
-        self, 
-        start: tuple[float, float], 
+        self,
+        start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, ...]]],
         ht: float,
         api: BlenderShapeAPI,
@@ -537,10 +567,11 @@ class BlenderLineSplineExtrusionZ(BlenderShape):
             polyPath.reverse()
         polyExt = BlenderPolyExtrusionZ(polyPath, ht, api, checkWinding=False)
         self.solid = polyExt.solid
+
 class BlenderLineSplineRevolveX(BlenderShape):
     def __init__(
-        self, 
-        start: tuple[float, float], 
+        self,
+        start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, ...]]],
         deg: float,
         api: BlenderShapeAPI,
@@ -607,9 +638,11 @@ class BlenderTextZ(BlenderShape):
         else:
             print("WARN: font ${fontName} not found, use blender default")
         self.extrudeZ(tck)
-        bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME')
-        self.solid.location = (0, 0, tck/2)
-        
+        (minX, maxX, minY, maxY, _, _) = self.findBounds()
+        self.mv(-(minX+maxX)/2, -(minY+maxY)/2, tck)
+        bpy.context.scene.cursor.location = (0, 0, 0)
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+
 if __name__ == '__main__':
     bpy.ops.wm.read_factory_settings(use_empty=True)
     # Set the desired origin location

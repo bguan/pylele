@@ -913,8 +913,6 @@ class Texts(LelePart):
         if self.isCut:
             # Orig impl is ls = ls.mirrorXZ() but Blender text mirroring can lead to invalid meshes
             ls = ls.rotateX(180)
-            if self.api.getImplementation() != Implementation.CAD_QUERY:
-                ls = ls.mv(0, 0, -txtTck) # HACK: Blender Text rotation is wonky
             bodyCut = Body(self.cfg, isCut=True).mv(0, 0, self.cfg.EMBOSS_DEP)
             ls = ls.cut(bodyCut.shape)
             self.api.setFidelity(origFidel)
