@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_BUILD_DIR
+from api.pylele_utils import gen_stl_foo
 
 
 class MockShapeAPI(ShapeAPI):
@@ -31,97 +32,7 @@ class MockShapeAPI(ShapeAPI):
         self.fidelity = fidel
 
     def exportSTL(self, shape: MockShape, path: str) -> None:
-        stlstr="""
-        solid dart
-        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
-            outer loop
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-                vertex 1.00000E+000 2.50000E-001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
-            outer loop
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-                vertex 6.10000E+001 2.50000E-001 1.00000E+000
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
-            outer loop
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-                vertex 6.10000E+001 2.50000E-001 6.00000E+000
-                vertex 6.10000E+001 2.50000E-001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
-            outer loop
-                vertex 3.10000E+001 4.15500E+001 6.00000E+000
-                vertex 6.10000E+001 2.50000E-001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            endloop
-        endfacet
-        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
-            outer loop
-                vertex 1.00000E+000 2.50000E-001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            endloop
-        endfacet
-        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
-            outer loop
-                vertex 1.00000E+000 2.50000E-001 1.00000E+000
-                vertex 1.00000E+000 2.50000E-001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
-            outer loop
-                vertex 1.00000E+000 2.50000E-001 6.00000E+000
-                vertex 1.00000E+000 2.50000E-001 1.00000E+000
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
-            outer loop
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-                vertex 3.10000E+001 1.00000E+001 6.00000E+000
-                vertex 1.00000E+000 2.50000E-001 6.00000E+000
-            endloop
-        endfacet
-        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
-            outer loop
-                vertex 3.10000E+001 1.00000E+001 6.00000E+000
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-                vertex 6.10000E+001 2.50000E-001 6.00000E+000
-            endloop
-        endfacet
-        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
-            outer loop
-                vertex 6.10000E+001 2.50000E-001 6.00000E+000
-                vertex 3.10000E+001 1.00000E+001 1.00000E+000
-                vertex 6.10000E+001 2.50000E-001 1.00000E+000
-            endloop
-        endfacet
-        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
-            outer loop
-                vertex 3.10000E+001 1.00000E+001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 6.00000E+000
-                vertex 1.00000E+000 2.50000E-001 6.00000E+000
-            endloop
-        endfacet
-        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
-            outer loop
-                vertex 3.10000E+001 1.00000E+001 6.00000E+000
-                vertex 6.10000E+001 2.50000E-001 6.00000E+000
-                vertex 3.10000E+001 4.15500E+001 6.00000E+000
-            endloop
-        endfacet
-        endsolid dart
-        """
-        with open(path, 'w', encoding='UTF8') as f:
-            f.write(stlstr)
-        assert os.path.isfile(path)
+        gen_stl_foo(path)
 
     def exportBest(self, shape: MockShape, path: Union[str, Path]) -> None:
         return self.exportSTL(shape=shape, path=path)

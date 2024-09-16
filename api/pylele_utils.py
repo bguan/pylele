@@ -1,3 +1,4 @@
+import os
 from math import inf, sqrt, sin, cos, atan2, pi
 from pathlib import Path
 from typing import Callable, Union
@@ -214,3 +215,98 @@ def isPathCounterClockwise(path2D: list[tuple[float, float]]) -> bool:
 def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath+extn
+
+def gen_stl_foo(outpath: str) -> None:
+    """ generate am .stl file """
+
+    stlstr="""
+    solid dart
+    facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+        outer loop
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            vertex 1.00000E+000 2.50000E-001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+        outer loop
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            vertex 6.10000E+001 2.50000E-001 1.00000E+000
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+        outer loop
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            vertex 6.10000E+001 2.50000E-001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+        outer loop
+            vertex 3.10000E+001 4.15500E+001 6.00000E+000
+            vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+        endloop
+    endfacet
+    facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+        outer loop
+            vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+        endloop
+    endfacet
+    facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+        outer loop
+            vertex 1.00000E+000 2.50000E-001 1.00000E+000
+            vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+        outer loop
+            vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            vertex 1.00000E+000 2.50000E-001 1.00000E+000
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+        outer loop
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            vertex 3.10000E+001 1.00000E+001 6.00000E+000
+            vertex 1.00000E+000 2.50000E-001 6.00000E+000
+        endloop
+    endfacet
+    facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+        outer loop
+            vertex 3.10000E+001 1.00000E+001 6.00000E+000
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            vertex 6.10000E+001 2.50000E-001 6.00000E+000
+        endloop
+    endfacet
+    facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+        outer loop
+            vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            vertex 6.10000E+001 2.50000E-001 1.00000E+000
+        endloop
+    endfacet
+    facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+        outer loop
+            vertex 3.10000E+001 1.00000E+001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 6.00000E+000
+            vertex 1.00000E+000 2.50000E-001 6.00000E+000
+        endloop
+    endfacet
+    facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+        outer loop
+            vertex 3.10000E+001 1.00000E+001 6.00000E+000
+            vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            vertex 3.10000E+001 4.15500E+001 6.00000E+000
+        endloop
+    endfacet
+    endsolid dart
+    """
+    with open(outpath, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+    assert os.path.isfile(path)
