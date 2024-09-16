@@ -3,11 +3,10 @@
 from __future__ import annotations
 from typing import Union
 from pathlib import Path
-import subprocess
 from packaging import version
 import copy
 from math import sin, sqrt, ceil
-from solid2 import cube, sphere, polygon, text, cylinder
+from solid2 import cube, sphere, polygon, text, cylinder, import_
 from solid2.extensions.bosl2 import circle
 
 import os
@@ -38,6 +37,9 @@ def openscad_version():
 
     ver=ans[2]
     # print(ver)
+
+    # remove temporary file
+    os.system(f'rm {tmplog}')
 
     return ver
 
@@ -152,6 +154,9 @@ class Sp2ShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
         return Sp2TextZ(txt, fontSize, tck, font, self)
     
+    def genImport(self, infile: str) -> Sp2Shape:
+        return Sp2Import(infile,self)
+
     def getJoinCutTol(self):
         return Implementation.SOLID2.joinCutTol()
 
@@ -356,13 +361,29 @@ class Sp2CirclePolySweep(Sp2Shape):
         self,
         rad: float,
         path: list[tuple[float, float, float]],
-        api: Sp2ShapeAPI,
+        api: Sp2ShapeAPI = Sp2ShapeAPI,
     ):
         super().__init__(api)
         self.path = path
         self.rad = rad
         segs = FIDELITY_K * self.segsByDim(rad)
         self.solid = circle(r=rad, _fn=segs).path_extrude(path)
+
+class Sp2Import(Sp2Shape):
+    def __init__(
+        self,
+        infile: str,
+        api: Sp2ShapeAPI,
+    ):
+        super().__init__(api)
+        assert os.path.isfile(infile), f'ERROR: file {infile} does not exist!'
+        self.infile = infile
+
+        base_fname, fext = os.path.splitext(infile)
+        # https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Importing_Geometry#import
+        openscad_import_filetypes = ['.stl','.svg','.off','.amf','.3mf']
+        assert fext in openscad_import_filetypes, f'ERROR: file extension {fext} not supported!'
+        self.solid = import_(os.path.abspath(infile))
 
 if __name__ == '__main__':
     Sp2ShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR,"sp2-all.stl"))

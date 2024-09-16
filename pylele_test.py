@@ -59,6 +59,7 @@ class PyleleTestMethods(unittest.TestCase):
     ## Solid Parts
     from parts.tube import test_tube, test_tube_mock
     from parts.screw import test_screw, test_screw_mock
+    from parts.import3d import test_import3d
 
     ## Pylele Individual Parts
     from pylele2.pylele_frets import test_frets, test_frets_mock

@@ -21,6 +21,7 @@ from argparse import Namespace
                 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+from api.pylele_utils import make_or_exist_path
 
 def main_maker(module_name,class_name,args=None):
     """ Generate a main function for a LeleSolid instance """
@@ -92,15 +93,6 @@ def export_dict2text(outpath,fname,dictdata) -> str:
     with open(out_fname, 'w', encoding='UTF8') as f:
         f.write(repr(dictdata))
     assert os.path.isfile(out_fname)
-
-def make_or_exist_path(out_path):
-    """ Check a directory exist, and generate if not """
-
-    if not os.path.isdir(out_path):
-        # Path.mkdir(out_path)
-        os.makedirs(out_path)
-
-    assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
 
 def volume_match_reference(volume: float,reference: float, tolerance: float = 0.1) -> bool:
     """ True if volume matches reference within tolerance """

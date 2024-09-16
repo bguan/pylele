@@ -216,97 +216,137 @@ def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath+extn
 
-def gen_stl_foo(outpath: str) -> None:
-    """ generate am .stl file """
+def make_or_exist_path(out_path):
+    """ Check a directory exist, and generate if not """
+
+    if not os.path.isdir(out_path):
+        # Path.mkdir(out_path)
+        os.makedirs(out_path)
+
+    assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
+
+def stl2bin(infile,outfile='') -> str:
+    """ Converts an ASCII .stl into a binary """
+    assert os.path.isfile(infile), f"ERROR: Input File {infile} does not exist!"
+
+    if outfile=='':
+        fname,fext = os.path.splitext(infile)
+        outfile = f'{fname}_bin{fext}'
+
+    cmdstr = f'stl2bin {infile} {outfile}'
+    os.system(cmdstr)
+    assert os.path.isfile(outfile), f"ERROR: Output File {outfile} does not exist!"
+    return outfile
+
+def gen_stl_foo(outpath: str, bin_en = True) -> None:
+    """ generate an .stl file """
 
     stlstr="""
-    solid dart
-    facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
-        outer loop
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            vertex 1.00000E+000 2.50000E-001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
-        outer loop
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            vertex 6.10000E+001 2.50000E-001 1.00000E+000
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 8.09000E-001 5.87800E-001 0.00000E+000
-        outer loop
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-            vertex 6.10000E+001 2.50000E-001 6.00000E+000
-            vertex 6.10000E+001 2.50000E-001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 8.09000E-001 5.87800E-001 0.00000E+000
-        outer loop
-            vertex 3.10000E+001 4.15500E+001 6.00000E+000
-            vertex 6.10000E+001 2.50000E-001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-        endloop
-    endfacet
-    facet normal -8.09000E-001 5.87800E-001 0.00000E+000
-        outer loop
-            vertex 1.00000E+000 2.50000E-001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-        endloop
-    endfacet
-    facet normal -8.09000E-001 5.87800E-001 0.00000E+000
-        outer loop
-            vertex 1.00000E+000 2.50000E-001 1.00000E+000
-            vertex 1.00000E+000 2.50000E-001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
-        outer loop
-            vertex 1.00000E+000 2.50000E-001 6.00000E+000
-            vertex 1.00000E+000 2.50000E-001 1.00000E+000
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
-        outer loop
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            vertex 3.10000E+001 1.00000E+001 6.00000E+000
-            vertex 1.00000E+000 2.50000E-001 6.00000E+000
-        endloop
-    endfacet
-    facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
-        outer loop
-            vertex 3.10000E+001 1.00000E+001 6.00000E+000
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            vertex 6.10000E+001 2.50000E-001 6.00000E+000
-        endloop
-    endfacet
-    facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
-        outer loop
-            vertex 6.10000E+001 2.50000E-001 6.00000E+000
-            vertex 3.10000E+001 1.00000E+001 1.00000E+000
-            vertex 6.10000E+001 2.50000E-001 1.00000E+000
-        endloop
-    endfacet
-    facet normal 0.00000E+000 0.00000E+000 1.00000E+000
-        outer loop
-            vertex 3.10000E+001 1.00000E+001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 6.00000E+000
-            vertex 1.00000E+000 2.50000E-001 6.00000E+000
-        endloop
-    endfacet
-    facet normal 0.00000E+000 0.00000E+000 1.00000E+000
-        outer loop
-            vertex 3.10000E+001 1.00000E+001 6.00000E+000
-            vertex 6.10000E+001 2.50000E-001 6.00000E+000
-            vertex 3.10000E+001 4.15500E+001 6.00000E+000
-        endloop
-    endfacet
-    endsolid dart
-    """
+        solid dart
+        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+            endloop
+        endfacet
+        endsolid dart
+        """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    # write output file
     with open(outpath, 'w', encoding='UTF8') as f:
         f.write(stlstr)
-    assert os.path.isfile(path)
+
+    # check output file exists
+    assert os.path.isfile(outpath)
+
+    if bin_en:
+        # convert to binary stl
+        binpath = stl2bin(outpath)
+        cmdstr = f'mv {binpath} {outpath}'
+        os.system(cmdstr)
+    
+
