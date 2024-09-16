@@ -37,11 +37,11 @@ def pylele_texts_parser(parser = None):
                             for l in (tsfs.split(':') for tsfs in x.split(','))
                         ],
                         default=[
-                            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT), 
+                            ('PYLELE', DEFAULT_LABEL_SIZE_BIG, DEFAULT_LABEL_FONT),
                             ('', DEFAULT_LABEL_SIZE_SMALL, None), # for empty line
                             ('mind2form.com © 2024', DEFAULT_LABEL_SIZE, DEFAULT_LABEL_FONT),
                         ])
-    
+
     parser.add_argument("-txt", "--text_en",
                         help="Enable Generation of Text emboss",
                         action='store_true')
@@ -75,11 +75,12 @@ class LeleTexts(LeleBase):
         allHt = sum([1.2*size for _, size, _ in tsf])
         tx = 1.05*scLen - allHt/(1+backRat)
         ls: Shape = None
-        # print(tsf)
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
+                # orig impl uses mirrorXZ() instead of rotateX(180)
+                # but Blender text mirroring can lead to weird output
                 l = self.api.genTextZ(txt, sz, txtTck, fnt) \
-                    .rotateZ(90).mirrorXZ().mv(tx + sz/2, 0, txtZ)
+                    .rotateZ(90).rotateX(180).mv(tx + sz/2, 0, txtZ +txtTck)
                 ls = l if ls is None else ls.join(l)
             tx += sz
         botCut = LeleBody(cli=self.cli, isCut=True).mv(0, 0, cutTol)
@@ -88,7 +89,7 @@ class LeleTexts(LeleBase):
         if self.isCut:
             self.api.setFidelity(origFidel)
         return txtCut
-    
+
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
@@ -107,7 +108,7 @@ def test_texts(self,apis=None):
         'default': ['-txt']
     }
     test_loop(module=__name__,apis=apis,tests=tests)
-    
+
 def test_texts_mock(self):
     """ Test texts """
     test_texts(self,apis=['mock'])

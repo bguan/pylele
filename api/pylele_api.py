@@ -10,7 +10,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from fontTools.ttLib import TTFont
 from typing import Any, Union
-    
+
 # consider update to StrEnum for python 3.11 and above
 # https://tsak.dev/posts/python-enum/
 class LeleStrEnum(str,Enum):
@@ -38,7 +38,7 @@ class Fidelity(LeleStrEnum):
                 return 0.0005
             case Fidelity.HIGH:
                 return 0.0001
-    
+
     def smoothingSegments(self) -> float:
         match self:
             case Fidelity.LOW:
@@ -47,9 +47,9 @@ class Fidelity(LeleStrEnum):
                 return 14
             case Fidelity.HIGH:
                 return 19
-    
+
     def code(self) -> str:
-        match self: 
+        match self:
             case Fidelity.LOW:
                 return "L"
             case Fidelity.MEDIUM:
@@ -110,7 +110,7 @@ class Shape(ABC):
         ...
 
     @abstractmethod
-    def filletByNearestEdges(self, 
+    def filletByNearestEdges(self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> Shape:
@@ -118,12 +118,12 @@ class Shape(ABC):
 
     def halfByPlane(self, plane: tuple[bool, bool, bool]) -> Shape:
         halfCutter = self.getAPI().genBox(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM).mv(
-            self.MAX_DIM/2 if plane[0] else 0, 
-            self.MAX_DIM/2 if plane[1] else 0, 
+            self.MAX_DIM/2 if plane[0] else 0,
+            self.MAX_DIM/2 if plane[1] else 0,
             self.MAX_DIM/2 if plane[2] else 0,
         )
         return self.cut(halfCutter)
-    
+
     def half(self) -> Shape:
         return self.halfByPlane((False, True, False))
 
@@ -148,7 +148,7 @@ class Shape(ABC):
     @abstractmethod
     def remove(self):
         ...
-    
+
     @abstractmethod
     def rotateX(self, ang: float) -> Shape:
         ...
@@ -169,7 +169,7 @@ class Shape(ABC):
     def show(self):
         ...
 
-        
+
 class ShapeAPI(ABC):
 
     _mock_api: ShapeAPI = None
@@ -259,7 +259,7 @@ class ShapeAPI(ABC):
                             # Get the Font Subfamily Name (Style) (name ID 2)
                             style = get_name(font, 2)
 
-                            font_name = family if style == "Normal" or style == "Regular" else family + " " + style 
+                            font_name = family if style == "Normal" or style == "Regular" else family + " " + style
                             fonts.append((font_name, font_path))
                         except Exception as e:
                             print(f"Error reading {font_path}: {e}")
@@ -401,20 +401,20 @@ class ShapeAPI(ABC):
         font: str,
     ):
         ...
-        
+
     def genQuarterBall(self, rad: float, pickTop: bool, pickFront: bool):
         maxDim = Shape.MAX_DIM
         ball = self.genBall(rad)
         topCut = self.genBox(maxDim, maxDim, maxDim).mv(0, 0, -maxDim/2 if pickTop else maxDim/2)
         frontCut = self.genBox(maxDim, maxDim, maxDim).mv(maxDim/2 if pickFront else -maxDim/2, 0, 0)
         return ball.cut(topCut).cut(frontCut)
-        
+
     def genHalfDisc(self, rad: float, pickFront: bool, tck: float):
         maxDim = Shape.MAX_DIM
         rod = self.genRodZ(tck, rad)
         cutter = self.genBox(maxDim, maxDim, maxDim).mv(maxDim/2 if pickFront else -maxDim/2, 0, 0)
         return rod.cut(cutter)
-        
+
     @abstractmethod
     def getJoinCutTol(self):
         ...
@@ -477,8 +477,11 @@ class ShapeAPI(ABC):
         zPolyExt = self.genPolyExtrusionZ([(0,0), (10,0), (0,10)], 5)
         self.exportSTL(zPolyExt, expDir / f"{implCode}-zpolyext")
 
-        zTxt = self.genTextZ("WWW", 30, 10, "Courier New")
+        zTxt = self.genTextZ("ABC", 30, 10, "Courier New")
         self.exportSTL(zTxt, expDir / f"{implCode}-ztxt")
+
+        zTxt = zTxt.rotateX(180)
+        self.exportSTL(zTxt, expDir / f"{implCode}-ztxt-z180")
 
         qBall = self.genQuarterBall(10, True, True)
         self.exportSTL(qBall, expDir / f"{implCode}-qball")
@@ -504,8 +507,8 @@ class ShapeAPI(ABC):
         dome = self.genLineSplineExtrusionZ(
             start = (0, 0),
             path = [
-                (-5, 0), 
-                (-5, 10), 
+                (-5, 0),
+                (-5, 10),
                 (0, 10),
                 [
                     (1, 10, 0),
@@ -523,8 +526,8 @@ class ShapeAPI(ABC):
         donut = self.genLineSplineRevolveX(
             start = (0, 1),
             path = [
-                (-5, 1), 
-                (-5, 9), 
+                (-5, 1),
+                (-5, 9),
                 (0, 9),
                 [
                     (1, 9, 0),
@@ -591,8 +594,8 @@ class ShapeAPI(ABC):
         dome = self.genLineSplineExtrusionZ(
             start = (0, 0),
             path = [
-                (-5, 0), 
-                (-5, 10), 
+                (-5, 0),
+                (-5, 10),
                 (0, 10),
                 [
                     (1, 10, 0),
@@ -610,7 +613,7 @@ class ShapeAPI(ABC):
 
         donutStart = (60, .1)
         donutPath = [
-            (60, 10), 
+            (60, 10),
             (61, 10),
             [
                 (62, 10, 0),
