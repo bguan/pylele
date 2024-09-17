@@ -216,7 +216,7 @@ def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath+extn
 
-def make_or_exist_path(out_path):
+def make_or_exist_path(out_path) -> None:
     """ Check a directory exist, and generate if not """
 
     if not os.path.isdir(out_path):
@@ -225,7 +225,7 @@ def make_or_exist_path(out_path):
 
     assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
 
-def gen_stl_foo(outpath: str, bin_en = True) -> None:
+def gen_stl_foo(outpath: str, bin_en = True) -> str:
     """ generate an .stl file """
 
     stlstr="""
@@ -333,7 +333,7 @@ def gen_stl_foo(outpath: str, bin_en = True) -> None:
     assert os.path.isfile(fout)
     return fout
 
-def gen_scad_foo(outpath: str, module_en = True) -> None:
+def gen_scad_foo(outpath: str, module_en = True) -> str:
     """ generate a .scad file """
 
     if module_en:
