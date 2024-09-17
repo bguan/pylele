@@ -225,7 +225,7 @@ def make_or_exist_path(out_path):
 
     assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
 
-def stl_is_ascii(fname) -> bool:
+def stl_is_bin(fname) -> bool:
     """ Returns True if .scl in ascii format """
     with open(fname, "r",encoding='utf-8') as fp:
         retval=fp.readline().find("solid") > -1
@@ -236,7 +236,7 @@ def stl2bin(infile,outfile='') -> str:
     """ Converts an ASCII .stl into a binary """
     assert os.path.isfile(infile), f"ERROR: Input File {infile} does not exist!"
 
-    if stl_is_ascii(infile):
+    if not stl_is_bin(infile):
         if outfile=='':
             fname,fext = os.path.splitext(infile)
             outfile = f'{fname}_bin{fext}'
