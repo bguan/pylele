@@ -16,3 +16,4 @@ pyglet<2
 fonttools
 solidpython2
 numpy-stl
+packaging
