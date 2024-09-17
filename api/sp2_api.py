@@ -15,7 +15,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_TEST_DIR
-from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath, stl2bin
+from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
+from api.stlascii2stlbin import stlascii2stlbin
 from api.scad2stl import scad2stl
 
 FIDELITY_K = 4
@@ -346,7 +347,7 @@ class Sp2Import(Sp2Shape):
 
         # make sure stl is in binary format
         if fext=='.stl':
-            self.infile = stl2bin(infile)
+            self.infile = stlascii2stlbin(infile)
 
         self.solid = import_(os.path.abspath(self.infile))
 
