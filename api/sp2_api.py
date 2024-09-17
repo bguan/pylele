@@ -6,7 +6,7 @@ from pathlib import Path
 from packaging import version
 import copy
 from math import sin, sqrt, ceil
-from solid2 import cube, sphere, polygon, text, cylinder, import_
+from solid2 import cube, sphere, polygon, text, cylinder, import_, import_scad
 from solid2.extensions.bosl2 import circle
 
 import os
@@ -15,7 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_TEST_DIR
-from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
+from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath, stl2bin
 
 FIDELITY_K = 4
 OPENSCAD='openscad'
@@ -376,14 +376,23 @@ class Sp2Import(Sp2Shape):
         api: Sp2ShapeAPI,
     ):
         super().__init__(api)
-        assert os.path.isfile(infile), f'ERROR: file {infile} does not exist!'
+        assert os.path.isfile(infile) or os.path.isdir(infile), f'ERROR: file/directory {infile} does not exist!'
         self.infile = infile
 
-        base_fname, fext = os.path.splitext(infile)
+        _, fext = os.path.splitext(infile)
+
+        # if os.path.isdir(infile) or fext=='.scad':
+        #    self.solid = import_scad(os.path.abspath(infile))
+        # else:
         # https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Importing_Geometry#import
         openscad_import_filetypes = ['.stl','.svg','.off','.amf','.3mf']
         assert fext in openscad_import_filetypes, f'ERROR: file extension {fext} not supported!'
-        self.solid = import_(os.path.abspath(infile))
+
+        # make sure stl is in binary format
+        if fext=='.stl':
+            self.infile = stl2bin(infile)
+
+        self.solid = import_(os.path.abspath(self.infile))
 
 if __name__ == '__main__':
     Sp2ShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR,"sp2-all.stl"))

@@ -225,18 +225,29 @@ def make_or_exist_path(out_path):
 
     assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
 
+def stl_is_ascii(fname) -> bool:
+    """ Returns True if .scl in ascii format """
+    with open(fname, "r",encoding='utf-8') as fp:
+        retval=fp.readline().find("solid") > -1
+        fp.close()
+    return retval
+
 def stl2bin(infile,outfile='') -> str:
     """ Converts an ASCII .stl into a binary """
     assert os.path.isfile(infile), f"ERROR: Input File {infile} does not exist!"
 
-    if outfile=='':
-        fname,fext = os.path.splitext(infile)
-        outfile = f'{fname}_bin{fext}'
+    if stl_is_ascii(infile):
+        if outfile=='':
+            fname,fext = os.path.splitext(infile)
+            outfile = f'{fname}_bin{fext}'
 
-    cmdstr = f'stl2bin {infile} {outfile}'
-    os.system(cmdstr)
-    assert os.path.isfile(outfile), f"ERROR: Output File {outfile} does not exist!"
-    return outfile
+        cmdstr = f'stl2bin {infile} {outfile}'
+        os.system(cmdstr)
+        assert os.path.isfile(outfile), f"ERROR: Output File {outfile} does not exist!"
+        return outfile
+    # else
+    print(f'WARNING: .stl {infile} is already in binary format!')
+    return infile
 
 def gen_stl_foo(outpath: str, bin_en = True) -> None:
     """ generate an .stl file """
@@ -336,17 +347,42 @@ def gen_stl_foo(outpath: str, bin_en = True) -> None:
     print(dirname)
     make_or_exist_path(dirname)
 
+    fout = ensureFileExtn(outpath,'.stl')
+
     # write output file
-    with open(outpath, 'w', encoding='UTF8') as f:
+    with open(fout, 'w', encoding='UTF8') as f:
         f.write(stlstr)
 
     # check output file exists
-    assert os.path.isfile(outpath)
+    assert os.path.isfile(fout)
+    return fout
 
-    if bin_en:
-        # convert to binary stl
-        binpath = stl2bin(outpath)
-        cmdstr = f'mv {binpath} {outpath}'
-        os.system(cmdstr)
-    
+def gen_scad_foo(outpath: str, module_en = True) -> None:
+    """ generate an .stl file """
 
+    if module_en:
+        stlstr="""
+        module box(w,h,d){
+            cube([w,h,d]);
+        }
+        """
+    else:
+        stlstr="""
+            cube([8,8,8]);
+            """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    fout = ensureFileExtn(outpath,'.scad')
+
+    # write output file
+    with open(fout, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+
+    # check output file exists
+    assert os.path.isfile(fout)
+    return fout
