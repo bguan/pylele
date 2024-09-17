@@ -6,8 +6,13 @@ from pathlib import Path
 
 import copy
 from math import sin, sqrt, ceil
-from solid2 import cube, sphere, polygon, text, cylinder, import_, import_scad
-from solid2.extensions.bosl2 import circle
+
+try:
+    from solid2 import cube, sphere, polygon, text, cylinder, import_, import_scad
+    from solid2.extensions.bosl2 import circle
+except:
+    # only a subset allowed when using implicitcad
+    from solid2 import cube, sphere, polygon, cylinder, import_scad
 
 import os
 import sys
@@ -17,7 +22,7 @@ from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
 from api.stlascii2stlbin import stlascii2stlbin
-from api.scad2stl import scad2stl
+from api.scad2stl import scad2stl, OPENSCAD
 
 FIDELITY_K = 4
 
@@ -25,6 +30,9 @@ class Sp2ShapeAPI(ShapeAPI):
     """
     SolidPython2 Pylele API implementation for test
     """
+
+    command = OPENSCAD
+    implicit = False
 
     def __init__(self, fidel: Fidelity):
         self.fidelity = fidel
@@ -41,7 +49,7 @@ class Sp2ShapeAPI(ShapeAPI):
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
-        return scad2stl(scad_file)
+        return scad2stl(scad_file,command=self.command, implicit=self.implicit)
         
     def exportBest(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
@@ -117,6 +125,11 @@ class Sp2ShapeAPI(ShapeAPI):
     def getJoinCutTol(self):
         return Implementation.SOLID2.joinCutTol()
 
+    def setCommand(self,command=OPENSCAD):
+        self.command = command
+    
+    def setImplicit(self,implicit=False):
+        self.implicit = implicit
 class Sp2Shape(Shape):
     """
     SolidPython2 Pylele Shape implementation for test

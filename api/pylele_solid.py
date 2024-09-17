@@ -22,6 +22,7 @@ from argparse import Namespace
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
+from api.scad2stl import scad2stl_parser
 
 def main_maker(module_name,class_name,args=None):
     """ Generate a main function for a LeleSolid instance """
@@ -152,6 +153,9 @@ def lele_solid_parser(parser=None):
     parser.add_argument("-refv", "--reference_volume",
                         help="Reference volume [mm2]. If specified, generate assertion if volume of generated .stl file differs from the reference",
                         type=float,default=None)
+    
+    parser = scad2stl_parser(parser=parser)
+
     return parser
 
 class LeleSolid(ABC):
@@ -308,6 +312,9 @@ class LeleSolid(ABC):
         """ Configure Solid, and save self.cli """
         self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
         self.check_has_api()
+        if self.cli.implementation == Implementation.SOLID2:
+            self.api.setCommand(self.cli.openscad)
+            self.api.setImplicit(self.cli.implicit)
 
     def cut(self, cutter: LeleSolid) -> LeleSolid:
         """ Cut solid with other shape """
