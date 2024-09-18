@@ -122,13 +122,16 @@ class Sp2ShapeAPI(ShapeAPI):
     def genImport(self, infile: str, extrude: float=None) -> Sp2Shape:
         return Sp2Import(infile,extrude=extrude)
 
-    def getJoinCutTol(self):
+    def genShape(self, solid = None) -> Sp2Shape:
+        return Sp2Shape(solid=solid, api=self)
+
+    def getJoinCutTol(self) -> float:
         return Implementation.SOLID2.joinCutTol()
 
-    def setCommand(self,command=OPENSCAD):
+    def setCommand(self,command=OPENSCAD) -> None:
         self.command = command
     
-    def setImplicit(self,implicit=False):
+    def setImplicit(self,implicit=False) -> None:
         self.implicit = implicit
 class Sp2Shape(Shape):
     """

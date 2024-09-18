@@ -11,7 +11,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_solid import LeleSolid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
 from api.pylele_api import Shape
 from api.pylele_utils import gen_scad_foo
-from api.sp2_api import Sp2Shape
 from solid2 import import_scad
 from solid2.extensions.bosl2.gears import worm_gear
 
@@ -23,11 +22,11 @@ class ScadExample(LeleSolid):
         ## import a scad module from a custom scad file
         fname = os.path.join(DEFAULT_TEST_DIR,'box.scad')
         mod = import_scad(gen_scad_foo(fname))
-        self.shape = Sp2Shape(solid=mod.box(8,8,80))
+        self.shape = self.api.genShape(solid=mod.box(8,8,80))
         
         ## import a scad module from bosl2 included in solidpython2
         self.shape = self.shape.join(
-            Sp2Shape(
+            self.api.genShape(
                 solid=worm_gear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1)
                 )
             )
