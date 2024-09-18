@@ -34,7 +34,7 @@ class Sp2ShapeAPI(ShapeAPI):
     command = OPENSCAD
     implicit = False
 
-    def __init__(self, fidel: Fidelity):
+    def __init__(self, fidel: Fidelity = Fidelity.LOW):
         self.fidelity = fidel
 
     def getFidelity(self) -> Fidelity:
@@ -94,7 +94,7 @@ class Sp2ShapeAPI(ShapeAPI):
         return Sp2Cone(l, r1=rad, direction='Z',api=self)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
-        return Sp2PolyExtrusionZ(path, ht, self)
+        return Sp2PolyExtrusionZ(path, ht, api=self)
 
     def genLineSplineExtrusionZ(self,
             start: tuple[float, float],
@@ -102,22 +102,22 @@ class Sp2ShapeAPI(ShapeAPI):
             ht: float,
         ) -> Sp2Shape:
         if ht < 0:
-            return Sp2LineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
+            return Sp2LineSplineExtrusionZ(start, path, abs(ht), api=self).mv(0,0,-abs(ht))
         else:
-            return Sp2LineSplineExtrusionZ(start, path, ht, self)
+            return Sp2LineSplineExtrusionZ(start, path, ht, api=self)
     
     def genLineSplineRevolveX(self,
             start: tuple[float, float],
             path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
             deg: float,
         ) -> Sp2Shape:
-        return Sp2LineSplineRevolveX(start, path, deg, self)
+        return Sp2LineSplineRevolveX(start, path, deg, api=self)
     
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> Sp2Shape:
-        return Sp2CirclePolySweep(rad, path, self)
+        return Sp2CirclePolySweep(rad, path, api=self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
-        return Sp2TextZ(txt, fontSize, tck, font, self)
+        return Sp2TextZ(txt, fontSize, tck, font, api=self)
     
     def genImport(self, infile: str, extrude: float=None) -> Sp2Shape:
         return Sp2Import(infile,extrude=extrude)
@@ -138,7 +138,7 @@ class Sp2Shape(Shape):
     SolidPython2 Pylele Shape implementation for test
     """
 
-    def __init__(self, solid = None, api: Sp2ShapeAPI = Sp2ShapeAPI):
+    def __init__(self, solid = None, api: Sp2ShapeAPI = Sp2ShapeAPI()):
         self.api:Sp2ShapeAPI = api
         self.solid = solid
 
