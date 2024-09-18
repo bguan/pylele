@@ -119,8 +119,8 @@ class Sp2ShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
         return Sp2TextZ(txt, fontSize, tck, font, self)
     
-    def genImport(self, infile: str) -> Sp2Shape:
-        return Sp2Import(infile,self)
+    def genImport(self, infile: str, extrude: float=None) -> Sp2Shape:
+        return Sp2Import(infile,extrude=extrude)
 
     def getJoinCutTol(self):
         return Implementation.SOLID2.joinCutTol()
@@ -135,9 +135,9 @@ class Sp2Shape(Shape):
     SolidPython2 Pylele Shape implementation for test
     """
 
-    def __init__(self, api: Sp2ShapeAPI):
+    def __init__(self, solid = None, api: Sp2ShapeAPI = Sp2ShapeAPI):
         self.api:Sp2ShapeAPI = api
-        self.solid = None
+        self.solid = solid
 
     def getAPI(self) -> Sp2ShapeAPI:
         return self.api
@@ -343,7 +343,8 @@ class Sp2Import(Sp2Shape):
     def __init__(
         self,
         infile: str,
-        api: Sp2ShapeAPI,
+        extrude: float = None,
+        api: Sp2ShapeAPI=Sp2ShapeAPI,
     ):
         super().__init__(api)
         assert os.path.isfile(infile) or os.path.isdir(infile), f'ERROR: file/directory {infile} does not exist!'
@@ -351,9 +352,6 @@ class Sp2Import(Sp2Shape):
 
         _, fext = os.path.splitext(infile)
 
-        # if os.path.isdir(infile) or fext=='.scad':
-        #    self.solid = import_scad(os.path.abspath(infile))
-        # else:
         # https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Importing_Geometry#import
         openscad_import_filetypes = ['.stl','.svg','.off','.amf','.3mf']
         assert fext in openscad_import_filetypes, f'ERROR: file extension {fext} not supported!'
@@ -363,6 +361,8 @@ class Sp2Import(Sp2Shape):
             self.infile = stlascii2stlbin(infile)
 
         self.solid = import_(os.path.abspath(self.infile))
+        if isinstance(extrude,float):
+            self.solid = self.solid.linear_extrude(extrude)
 
 if __name__ == '__main__':
     Sp2ShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR,"sp2-all.stl"))

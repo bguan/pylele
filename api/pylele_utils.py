@@ -362,3 +362,34 @@ def gen_scad_foo(outpath: str, module_en = True) -> str:
     # check output file exists
     assert os.path.isfile(fout)
     return fout
+
+def gen_svg_foo(outpath: str) -> str:
+    """ generate a .svg file """
+
+    stlstr="""<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg>
+        <svg xmlns="http://www.w3.org/2000/svg"
+            width="304" height="290">
+        <path d="M2,111 h300 l-242.7,176.3 92.7,-285.3 92.7,285.3 z" 
+            style="fill:#FB2;stroke:#BBB;stroke-width:15;stroke-linejoin:round"/>
+        </svg>
+        """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    fout = ensureFileExtn(outpath,'.svg')
+
+    # write output file
+    with open(fout, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+
+    # check output file exists
+    assert os.path.isfile(fout)
+    return fout
+
+
+
