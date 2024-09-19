@@ -46,7 +46,7 @@ jobs:
           # compression-level: 0 # no compression
     - name: convert to glb
       run: |
-        python3 ./api/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
+        python3 ./conversion/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
     - name: upload glb
       uses: actions/upload-artifact@v4
       with:

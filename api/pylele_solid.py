@@ -22,7 +22,7 @@ from argparse import Namespace
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
-from api.scad2stl import scad2stl_parser
+from conversion.scad2stl import scad2stl_parser
 
 def main_maker(module_name,class_name,args=None):
     """ Generate a main function for a LeleSolid instance """
