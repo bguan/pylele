@@ -21,8 +21,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 from api.pylele_utils import ensureFileExtn, descreteBezierChain, superGradient, encureClosed2DPath
-from api.stlascii2stlbin import stlascii2stlbin
-from api.scad2stl import scad2stl, OPENSCAD
+from conversion.stlascii2stlbin import stlascii2stlbin
+from conversion.scad2stl import scad2stl, OPENSCAD
 
 FIDELITY_K = 4
 
