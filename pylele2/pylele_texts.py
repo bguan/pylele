@@ -59,7 +59,7 @@ class LeleTexts(LeleBase):
             origFidel = self.api.fidelity
             self.api.setFidelity(Fidelity.LOW)
 
-        scLen = self.cli.scale_length
+        scLen = float(self.cli.scale_length)
         backRat = self.cfg.CHM_BACK_RATIO
         dep = self.cfg.EMBOSS_DEP
 

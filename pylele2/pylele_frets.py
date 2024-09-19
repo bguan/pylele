@@ -48,7 +48,7 @@ class LeleFrets(LeleBase):
         ntHt = self.cfg.NUT_HT
         ntWth = self.cfg.nutWth + fbTck/4 + .5  # to be wider than fretbd
         fWth = self.cfg.nutWth - 1  # to be narrower than fretbd
-        scLen = self.cli.scale_length
+        scLen = float(self.cli.scale_length)
         fbLen = self.cfg.fretbdLen
         fHt = self.cfg.FRET_HT
         maxFrets = self.cfg.MAX_FRETS

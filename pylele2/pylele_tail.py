@@ -29,7 +29,7 @@ class LeleTail(LeleBase):
         assert self.cli.end_flat_width > 4.0 + 2*cutAdj, 'end_flat_width too small! %f, should be larger than %f' % (self.cli.end_flat_width, 4+2*cutAdj)        
 
         tailX = cfg.tailX
-        chmBackX = self.cli.scale_length + cfg.chmBack
+        chmBackX = float(self.cli.scale_length) + cfg.chmBack
         tailLen = tailX - chmBackX + 2*cutAdj
         endWth = self.cli.end_flat_width + 2*cutAdj
         botRat = cfg.BOT_RATIO

@@ -1,3 +1,4 @@
+import os
 from math import inf, sqrt, sin, cos, atan2, pi
 from pathlib import Path
 from typing import Callable, Union
@@ -214,3 +215,181 @@ def isPathCounterClockwise(path2D: list[tuple[float, float]]) -> bool:
 def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath+extn
+
+def make_or_exist_path(out_path) -> None:
+    """ Check a directory exist, and generate if not """
+
+    if not os.path.isdir(out_path):
+        # Path.mkdir(out_path)
+        os.makedirs(out_path)
+
+    assert os.path.isdir(out_path), f"Cannot export to non directory: {out_path}"
+
+def gen_stl_foo(outpath: str, bin_en = True) -> str:
+    """ generate an .stl file """
+
+    stlstr="""
+        solid dart
+        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 -1.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal -8.09000E-001 5.87800E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal -3.09000E-001 -9.51100E-001 0.00000E+000
+            outer loop
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 1.00000E+001 1.00000E+000
+                vertex 6.10000E+001 2.50000E-001 1.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+                vertex 1.00000E+000 2.50000E-001 6.00000E+000
+            endloop
+        endfacet
+        facet normal 0.00000E+000 0.00000E+000 1.00000E+000
+            outer loop
+                vertex 3.10000E+001 1.00000E+001 6.00000E+000
+                vertex 6.10000E+001 2.50000E-001 6.00000E+000
+                vertex 3.10000E+001 4.15500E+001 6.00000E+000
+            endloop
+        endfacet
+        endsolid dart
+        """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    fout = ensureFileExtn(outpath,'.stl')
+
+    # write output file
+    with open(fout, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+
+    # check output file exists
+    assert os.path.isfile(fout)
+    return fout
+
+def gen_scad_foo(outpath: str, module_en = True) -> str:
+    """ generate a .scad file """
+
+    if module_en:
+        stlstr="""
+        module box(w,h,d){
+            cube([w,h,d]);
+        }
+        """
+    else:
+        stlstr="""
+            cube([8,8,8]);
+            """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    fout = ensureFileExtn(outpath,'.scad')
+
+    # write output file
+    with open(fout, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+
+    # check output file exists
+    assert os.path.isfile(fout)
+    return fout
+
+def gen_svg_foo(outpath: str) -> str:
+    """ generate a .svg file """
+
+    stlstr="""<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE svg>
+        <svg xmlns="http://www.w3.org/2000/svg"
+            width="304" height="290">
+        <path d="M2,111 h300 l-242.7,176.3 92.7,-285.3 92.7,285.3 z" 
+            style="fill:#FB2;stroke:#BBB;stroke-width:15;stroke-linejoin:round"/>
+        </svg>
+        """
+
+    # generate directory if it does not exist
+    fparts = os.path.split(outpath)
+    dirname = fparts[0]
+    print(dirname)
+    make_or_exist_path(dirname)
+
+    fout = ensureFileExtn(outpath,'.svg')
+
+    # write output file
+    with open(fout, 'w', encoding='UTF8') as f:
+        f.write(stlstr)
+
+    # check output file exists
+    assert os.path.isfile(fout)
+    return fout
+
+
+

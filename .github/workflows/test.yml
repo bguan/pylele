@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         # https://github.com/actions/setup-python/issues/853
-        python-version: ["3.11"] # Tested with ["3.10", "3.11"]
+        python-version: ["3.10", "3.11"] #["3.8", "3.8.5", "3.8.10", "3.9", "3.10"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
