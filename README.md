@@ -9,6 +9,7 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
 * [CadQuery](https://github.com/CadQuery/cadquery) (Most Accurate)
 * [Blender](https://github.com/blender/blender) (*Still a little buggy...*)
 * [Trimesh](https://github.com/mikedh/trimesh) (Fastest)
+* [SolidPython2](https://github.com/jeff-dh/SolidPython) (Supports .stl, .svg, .scad, and [BOSL2](https://github.com/BelfrySCAD/BOSL2) library import, fastest when using manifold option)
 
 Code and view generated models in your favorite development environment!
 
@@ -18,15 +19,17 @@ Code and view generated models in your favorite development environment!
 
 ## Simple Installation
 
-    Install on Ubuntu should be as simple as running the script:
+Install on Ubuntu should be as simple as running the script:
 
-    ```
-      ./install_dependencies.sh
-    ```
+```
+  ./install_dependencies.sh
+  pip install -r requirements.txt
+```
 
-    This was developed on Ubuntu 22.04.4.
+This was developed on Ubuntu 22.04.4.
+CI is currently testing with python 3.10 and 3.11 .
 
-## Detailed sInstallation
+## Detailed Installation
 * Python
   * **MacOS**
     * install xcode developer tools. Using admin user accout, in terminal command line shell:
