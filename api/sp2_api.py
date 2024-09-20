@@ -38,8 +38,10 @@ class Sp2ShapeAPI(ShapeAPI):
     def getFidelity(self) -> Fidelity:
         return self.fidelity
 
+
     def getImplementation(self) -> Implementation:
         return Implementation.SOLID2
+
 
     def setFidelity(self, fidel: Fidelity) -> None:
         self.fidelity = fidel
@@ -47,7 +49,7 @@ class Sp2ShapeAPI(ShapeAPI):
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
-        return scad2stl(scad_file, command=self.command, implicit=self.implicit)
+        return scad2stl(scad_file,command=self.command, implicit=self.implicit)
 
     def exportBest(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
