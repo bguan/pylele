@@ -70,7 +70,7 @@ def pylele_main():
         if cfg.half:
             p = p.half()
         p.exportSTL(str(expDir/f"{p.fileNameBase}"))
-        p.exportBest(str(expDir/f"{p.fileNameBase}"))
+        # p.exportBest(str(expDir/f"{p.fileNameBase}"))
 
 def cqeditor_main():
     cfg = LeleConfig(half=False, scaleLen=330, endWth=90, chmLift=1,

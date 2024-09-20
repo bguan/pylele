@@ -27,18 +27,18 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     fdotsCut = FretboardDots(cfg, isCut=True)
     fbJoiners = [frets]
     fbCutters = [fdotsCut, strCuts]
-    fbFillets = {}
     if cfg.sepFretbd or cfg.sepNeck:
         fbCutters.insert(0, topCut)
-        fbFillets[FILLET_RAD] = [(cfg.fretbdLen, 0, .5*cfg.fretbdHt)]
-    fretbd = Fretboard(cfg, False, fbJoiners, fbCutters, fbFillets)
+
+    fretbd = Fretboard(cfg, False, fbJoiners, fbCutters)
 
     # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
     # as joins happen before cuts
     if cfg.sepFretbd or cfg.sepNeck:
-        fretbd = fretbd \
-            .join(FretboardSpines(cfg, isCut=False)) \
-            .join(FretbdJoint(cfg, isCut=False))
+        fretbd = fretbd.join(FretbdJoint(cfg, isCut=False))
+
+    if cfg.sepFretbd or cfg.sepTop:
+        fretbd = fretbd.join(FretboardSpines(cfg, isCut=False))
 
     # gen neck
     neckJoiners = [Head(cfg).mv(cfg.joinCutTol, 0, 0)]
@@ -48,7 +48,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         spCut = Spines(cfg, isCut=True)
         neckCutters.append(spCut)
 
-    if cfg.sepFretbd:
+    if cfg.sepFretbd or cfg.sepTop:
         fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
         neckCutters.append(fbCut)
 
@@ -63,7 +63,6 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         f0Cut = Frets(cfg, isCut=True)
         neckCutters.extend([fbspCut, f0Cut])
 
-    # neckCutters.append(strCuts)
     neck = Neck(cfg, False, neckJoiners, neckCutters)
 
     # gen bridge
@@ -100,7 +99,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         else:
             topJoiners.append(guide)
 
-    topFillets = { FILLET_RAD: [(cfg.sndholeX, cfg.sndholeY, cfg.fretbdHt)] }
+    topFillets = { FILLET_RAD: [(cfg.sndholeX, cfg.sndholeY, cfg.brdgZ)] }
     if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
         wcfg: WormConfig = cfg.tnrCfg
         topFillets[wcfg.slitWth] = [
@@ -111,23 +110,20 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     top = Top(cfg, False, topJoiners, topCutters, topFillets)
 
     # gen body bottom
-    txtCut = Texts(cfg, isCut=True)
-    tailCut = TailEnd(cfg, isCut=True) if cfg.sepEnd else None
+    txtCut = None if cfg.noTxt else Texts(cfg, isCut=True)
+    tailCut = None if not cfg.sepEnd else TailEnd(cfg, isCut=True)
 
     bodyJoiners = []
     bodyCutters = [chmCut]
 
-    if txtCut is not None:
-        bodyCutters.append(txtCut)
-
-    if not spCut is None:
+    if spCut is not None:
         bodyCutters.append(spCut)
 
     if cfg.sepTop:
         rimCut = Rim(cfg, isCut=True)
         bodyCutters.append(rimCut)
     else:
-        bodyJoiners.append(top.mv(0, 0, -0.01)) # HACK: cadquery would fail text cut without the mv
+        bodyJoiners.append(top.mv(0, 0, -cfg.joinCutTol))
 
     if cfg.sepNeck:
         nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
@@ -146,6 +142,9 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         if cfg.tnrCfg.is_worm():
             bodyCutters.append(wormKeyCut)
 
+    if txtCut is not None:
+        bodyCutters.append(txtCut)
+
     body = Body(cfg, False, bodyJoiners, bodyCutters)
     parts.append(body)
 
@@ -161,7 +160,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if cfg.sepBrdg:
         parts.append(brdg)
 
-    if not guide is None and cfg.sepBrdg:
+    if guide is not None and cfg.sepBrdg:
         parts.append(guide)
 
     if cfg.sepEnd:

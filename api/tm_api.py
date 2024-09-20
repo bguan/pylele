@@ -1,16 +1,14 @@
 from __future__ import annotations
 import copy
 import math
-# import os
 from pathlib import Path
 import sys
 
 from nptyping import NDArray
 import numpy as np
 import trimesh as tm
-# from PIL import Image, ImageDraw, ImageFont
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from api.pylele_utils import descreteBezierChain, dimXY, encureClosed2DPath, ensureFileExtn, pathBounds, pathLen, radians, superGradient
+from api.pylele_utils import descreteBezierChain, dimXY, encureClosed2DPath, ensureFileExtn, radians, superGradient
 from shapely.geometry import Polygon
 from typing import Union
 
@@ -29,7 +27,7 @@ class TMShapeAPI(ShapeAPI):
 
     def getFidelity(self) -> Fidelity:
         return self.fidelity
-    
+
     def getImplementation(self) -> Implementation:
         return Implementation.TRIMESH
 
@@ -78,35 +76,35 @@ class TMShapeAPI(ShapeAPI):
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> TMShape:
         return TMPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(self, 
-        start: tuple[float, float], 
-        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]], 
+    def genLineSplineExtrusionZ(self,
+        start: tuple[float, float],
+        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]],
         ht: float,
     ) -> TMShape:
         if ht < 0:
             return TMLineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
         return TMLineSplineExtrusionZ(start, path, ht, self)
-    
-    def genLineSplineRevolveX(self, 
-        start: tuple[float, float], 
-        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]], 
+
+    def genLineSplineRevolveX(self,
+        start: tuple[float, float],
+        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]],
         deg: float,
     ) -> TMShape:
         return TMLineSplineRevolveX(start, path, deg, self)
-    
+
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> TMShape:
         return TMCirclePolySweep(rad, path, self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
         return TMTextZ(txt, fontSize, tck, font, self)
-        
+
     def getJoinCutTol(self) -> float:
         return Implementation.TRIMESH.joinCutTol()
-        
+
 
 
 class TMShape(Shape):
-    
+
     X_AXIS = (1, 0, 0)
     Y_AXIS = (0, 1, 0)
     Z_AXIS = (0, 0, 1)
@@ -134,7 +132,7 @@ class TMShape(Shape):
             tm.repair.fix_normals(self.solid)
             tm.repair.fix_winding(self.solid)
             tm.repair.fix_inversion(self.solid)
-        
+
         if self.solid.is_volume:
             return
         else:
@@ -147,10 +145,10 @@ class TMShape(Shape):
 
     def getImplSolid(self) -> tm.Trimesh:
         return self.solid
-    
+
     def segsByDim(self, dim: float) -> int:
         return math.ceil(math.sqrt(abs(dim)) * self.api.fidelity.smoothingSegments())
-    
+
     def cut(self, cutter: TMShape) -> TMShape:
         if cutter is None or cutter.solid is None:
             return self
@@ -163,12 +161,12 @@ class TMShape(Shape):
         duplicate = copy.copy(self)
         duplicate.solid = self.solid.copy()
         return duplicate
-    
-    def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
+
+    def filletByNearestEdges(self,
+        nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> TMShape:
-                
+
         def nearest_edge_to_point(mesh, point):
             edges = mesh.edges
             vertices = mesh.vertices
@@ -211,7 +209,7 @@ class TMShape(Shape):
     def join(self, joiner: TMShape) -> TMShape:
         if joiner is None or joiner.solid is None:
             return self
-        
+
         self.ensureVolume()
         joiner.ensureVolume()
         self.solid = tm.boolean.union([self.solid, joiner.solid])
@@ -223,7 +221,7 @@ class TMShape(Shape):
         start: tuple[float, float],
         lineSpline: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
     ) -> list[tuple[float, float]]:
-        
+
         lastX, lastY = start
         result = [start]
         for p_or_s in lineSpline:
@@ -269,7 +267,7 @@ class TMShape(Shape):
         rotMat = tm.transformations.rotation_matrix(angle=radians(ang), direction=dir)
         self.solid = self.solid.apply_transform(rotMat)
         return self
-    
+
     def rotateX(self, ang: float) -> TMShape:
         return self.rotate(ang, self.X_AXIS)
 
@@ -335,7 +333,7 @@ class TMLineSplineExtrusionZ(TMShape):
         self,
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
-        ht: float, 
+        ht: float,
         api: TMShapeAPI,
     ):
         super().__init__(api)
@@ -349,7 +347,7 @@ class TMLineSplineRevolveX(TMShape):
         self,
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
-        deg: float, 
+        deg: float,
         api: TMShapeAPI,
     ):
         super().__init__(api)
@@ -392,7 +390,7 @@ class TMLineSplineRevolveX(TMShape):
             self.solid = tm.boolean.difference([self.solid, cut])
 
         self.rotateZ(90).rotateY(90)
-        
+
 
 class TMCirclePolySweep(TMShape):
     def __init__(
@@ -426,7 +424,7 @@ class TMTextZ(TMShape):
         txt: str,
         fontSize: float,
         tck: float,
-        font: str, 
+        font: str,
         api: TMShapeAPI,
     ):
         super().__init__(api)

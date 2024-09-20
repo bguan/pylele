@@ -36,6 +36,7 @@ class LelePart(ABC):
         self.isCut = isCut
         self.joiners = joiners
         self.cutters = cutters
+        self.fillets = fillets
         self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
         self.color = None
         self.api = ShapeAPI.get(cfg.impl, cfg.fidelity)
@@ -319,14 +320,11 @@ class Neck(LelePart):
         if midTck > 0:
             neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
 
-        neckCone = self.api.genConeX(nkLen, ntWth/2, nkWth/2)
-        if True:
-            coneCut = self.api.genBox(2*nkLen, 2*nkWth, 2*nkWth).mv(nkLen, 0, nkWth)
-            neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, -midTck)
-        else:
-            coneCut = self.api.genBox(nkLen, nkWth, nkWth).mv(nkLen, 0, nkWth/2)
-            neckCone = neckCone.cut(coneCut).scale(1, 1, botRat).mv(0, 0, joinTol-midTck)
-        neck = neckCone if neck == None else neck.join(neckCone)
+        neckPath = [(nkLen, 0), (nkLen, nkWth/2), (0, ntWth/2)]
+        neckCone = self.api.genLineSplineRevolveX((0, 0), neckPath, -180)
+        neckCone = neckCone.scale(1, 1, botRat).mv(0, 0, -midTck)
+
+        neck = neckCone if neck == None else neck.join(neckCone.mv(0, 0, joinTol))
         return neck
 
 
@@ -408,10 +406,6 @@ class Top(LelePart):
         self.color = ColorEnum.WHITE
 
     def gen(self) -> Shape:
-        if self.isCut:
-            origFidel = self.cfg.fidelity
-            self.api.setFidelity(Fidelity.LOW)
-
         fitTol = FIT_TOL
         joinTol = self.cfg.joinCutTol
         cutAdj = (fitTol + joinTol) if self.isCut else 0
@@ -424,9 +418,6 @@ class Top(LelePart):
             top = top.mv(0, 0, midTck -joinTol)
             midR = self.api.genLineSplineExtrusionZ( bOrig, bPath, midTck )
             top = top.join(midR.mirrorXZ_and_join())
-
-        if self.isCut:
-            self.api.setFidelity(origFidel)
 
         return top
 
@@ -494,10 +485,6 @@ class Chamber(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
-
-        origFidel = self.api.fidelity
-        self.api.setFidelity(Fidelity.LOW)
-
         scLen = self.cfg.scaleLen
         topRat = self.cfg.TOP_RATIO
         botRat = self.cfg.BOT_RATIO
@@ -526,9 +513,6 @@ class Chamber(LelePart):
             chm = chm.mv(0, 0, lift)
 
         chm = chm.mv(scLen, 0, 0)
-
-        self.api.setFidelity(origFidel)
-
         return chm
 
 
@@ -858,10 +842,6 @@ class Strings(LelePart):
         self.color = ColorEnum.LITE_GRAY
 
     def gen(self) -> Shape:
-        if self.isCut:
-            origFidel = self.cfg.fidelity
-            self.api.setFidelity(Fidelity.MEDIUM)
-
         cutAdj = FIT_TOL if self.isCut else 0
         srad = self.cfg.STR_RAD + cutAdj
         paths = self.cfg.stringPaths
@@ -870,9 +850,6 @@ class Strings(LelePart):
         for p in paths:
             str = self.api.genCirclePolySweep(srad, p)
             strs = str if strs == None else strs.join(str)
-
-        if self.isCut:
-            self.api.setFidelity(origFidel)
 
         return strs
 
@@ -888,10 +865,6 @@ class Texts(LelePart):
         super().__init__(cfg, isCut, joiners, cutters, fillets)
 
     def gen(self) -> Shape:
-        if self.isCut:
-            origFidel = self.api.fidelity
-            self.api.setFidelity(Fidelity.LOW)
-
         scLen = self.cfg.scaleLen
         backRat = self.cfg.CHM_BACK_RATIO
         tsf = self.cfg.txtSzFonts
@@ -910,12 +883,12 @@ class Texts(LelePart):
                 ls = l if ls is None else ls.join(l)
             tx += sz
 
-        if self.isCut:
+        if ls is not None and self.isCut:
             # Orig impl is ls = ls.mirrorXZ() but Blender text mirroring can lead to invalid meshes
             ls = ls.rotateX(180)
             bodyCut = Body(self.cfg, isCut=True).mv(0, 0, self.cfg.EMBOSS_DEP)
             ls = ls.cut(bodyCut.shape)
-            self.api.setFidelity(origFidel)
+
         return ls
 
 class TailEnd(LelePart):
