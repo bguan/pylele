@@ -255,6 +255,37 @@ class TMShape(Shape):
         self.solid = tm.boolean.union([self.solid, joiner.solid])
         return self
 
+    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
+    def lineSplineXY(
+        self,
+        start: tuple[float, float],
+        lineSpline: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
+    ) -> list[tuple[float, float]]:
+
+        lastX, lastY = start
+        result = [start]
+        for p_or_s in lineSpline:
+            if isinstance(p_or_s, tuple):
+                # a point so draw line
+                x, y = p_or_s
+                result.append((x, y))
+                lastX, lastY = x, y
+            elif isinstance(p_or_s, list):
+                # a list of points and gradients/tangents to trace spline thru
+                spline: list[tuple[float, ...]] = p_or_s
+                x1, y1 = spline[0][0:2]
+                # insert first point if diff from last
+                if lastX != x1 or lastY != y1:
+                    dx0 = x1 - lastX
+                    dy0 = y1 - lastY
+                    grad0 = superGradient(dy=dy0, dx=dx0)
+                    spline.insert(0, (lastX, lastY, grad0, 0, .5))
+                curvePts = descreteBezierChain(spline, self.segsByDim)
+                result.extend(curvePts)
+                lastX, lastY = spline[-1][0:2]
+
+        return encureClosed2DPath(result)
+
     def mirrorXZ(self) -> TMShape:
         dup = copy.copy(self)
         reflectXZ = tm.transformations.reflection_matrix([0, 0, 0], [0, 1, 0])
