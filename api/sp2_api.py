@@ -39,10 +39,10 @@ class Sp2ShapeAPI(ShapeAPI):
 
     def getFidelity(self) -> Fidelity:
         return self.fidelity
-    
+
     def getImplementation(self) -> Implementation:
         return Implementation.SOLID2
-    
+
     def setFidelity(self, fidel: Fidelity) -> None:
         self.fidelity = fidel
 
@@ -50,12 +50,12 @@ class Sp2ShapeAPI(ShapeAPI):
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
         return scad2stl(scad_file,command=self.command, implicit=self.implicit)
-        
+
     def exportBest(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
         fname = ensureFileExtn(fname,'.scad')
         shape.solid.save_as_scad(filename=fname, outdir=outdir)
-        
+
         fout = os.path.join(outdir,fname)
         assert os.path.isfile(fout), f'ERROR: file {fout} does not exist!'
         return fout
@@ -65,7 +65,7 @@ class Sp2ShapeAPI(ShapeAPI):
 
     def genBox(self, l: float, wth: float, ht: float) -> Sp2Shape:
         return Sp2Box(l,wth,ht,api=self).mv(-l/2,-wth/2,-ht/2)
-    
+
     def genConeX(self, l: float, r1: float, r2: float) -> Sp2Shape:
         return Sp2Cone(l,r1=r1,r2=r2,direction='X',api=self).mv(l/2,0,0)
 
@@ -105,20 +105,20 @@ class Sp2ShapeAPI(ShapeAPI):
             return Sp2LineSplineExtrusionZ(start, path, abs(ht), api=self).mv(0,0,-abs(ht))
         else:
             return Sp2LineSplineExtrusionZ(start, path, ht, api=self)
-    
+
     def genLineSplineRevolveX(self,
             start: tuple[float, float],
             path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
             deg: float,
         ) -> Sp2Shape:
         return Sp2LineSplineRevolveX(start, path, deg, api=self)
-    
+
     def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> Sp2Shape:
         return Sp2CirclePolySweep(rad, path, api=self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
         return Sp2TextZ(txt, fontSize, tck, font, api=self)
-    
+
     def genImport(self, infile: str, extrude: float=None) -> Sp2Shape:
         return Sp2Import(infile,extrude=extrude)
 
@@ -130,7 +130,7 @@ class Sp2ShapeAPI(ShapeAPI):
 
     def setCommand(self,command=OPENSCAD) -> None:
         self.command = command
-    
+
     def setImplicit(self,implicit=False) -> None:
         self.implicit = implicit
 class Sp2Shape(Shape):
@@ -144,7 +144,7 @@ class Sp2Shape(Shape):
 
     def getAPI(self) -> Sp2ShapeAPI:
         return self.api
-    
+
     def getImplSolid(self):
         return self.solid
 
@@ -155,7 +155,7 @@ class Sp2Shape(Shape):
     def dup(self) -> Sp2Shape:
         return copy.copy(self)
 
-    def filletByNearestEdges(self, 
+    def filletByNearestEdges(self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> Sp2Shape:
@@ -166,7 +166,7 @@ class Sp2Shape(Shape):
     def join(self, joiner: Sp2Shape) -> Sp2Shape:
         self.solid = self.solid + joiner.solid
         return self
-    
+
     def segsByDim(self, dim: float) -> int:
         return ceil((abs(dim)) * self.api.fidelity.smoothingSegments()**.25)
 
@@ -176,7 +176,7 @@ class Sp2Shape(Shape):
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
     ):
-    
+
         # lastX, lastY = start
         result = [start]
 
@@ -199,7 +199,7 @@ class Sp2Shape(Shape):
                 curvePts = descreteBezierChain(spline, self.segsByDim)
                 result.extend(curvePts)
                 lastX, lastY = spline[-1][0:2]
-                
+
         return encureClosed2DPath(result)
 
     def mirrorXZ(self) -> Sp2Shape:
@@ -214,7 +214,7 @@ class Sp2Shape(Shape):
 
     def remove(self):
         pass
-    
+
     def rotateX(self, ang: float) -> Sp2Shape:
         self.solid = self.solid.rotate([ang,0,0])
         return self
@@ -275,7 +275,7 @@ class Sp2PolyExtrusionZ(Sp2Shape):
         self.ht = ht
         self.solid = polygon(path).linear_extrude(ht)
 
-# draw mix of straight lines from pt to pt, or draw spline with 
+# draw mix of straight lines from pt to pt, or draw spline with
 # [(x,y,grad,prev Ctl ratio, post Ctl ratio), ...], then extrude on Z-axis
 class Sp2LineSplineExtrusionZ(Sp2Shape):
     def __init__(
@@ -290,7 +290,7 @@ class Sp2LineSplineExtrusionZ(Sp2Shape):
         self.ht = ht
         self.solid = polygon(self.lineSplineXY(start, path)).linear_extrude(ht)
 
-# draw mix of straight lines from pt to pt, or draw spline with 
+# draw mix of straight lines from pt to pt, or draw spline with
 # [(x,y,grad, pre ctrl ratio, post ctl ratio), ...], then revolve on X-axis
 class Sp2LineSplineRevolveX(Sp2Shape):
     def __init__(
@@ -368,4 +368,4 @@ class Sp2Import(Sp2Shape):
             self.solid = self.solid.linear_extrude(extrude)
 
 if __name__ == '__main__':
-    Sp2ShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR,"sp2-all.stl"))
+    Sp2ShapeAPI(Fidelity.LOW).test(Path.cwd()  / DEFAULT_TEST_DIR / 'sp2_api')
