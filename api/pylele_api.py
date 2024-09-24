@@ -89,6 +89,16 @@ class Implementation(LeleStrEnum):
         # Tolerance for joins to have a little overlap
         return 0 if self == Implementation.CAD_QUERY else 0.01
 
+def supported_apis() -> list:
+    """ Returns the list of supported apis """
+    ver = sys.version_info
+    assert ver[0]==3
+    if ver[1] < 12:
+        return ['trimesh','cadquery','solid2','blender']
+    else:
+        # blender bpy package currently not supported with python 3.12
+        return ['trimesh','cadquery','solid2']
+    
 class Shape(ABC):
 
     MAX_DIM = 2000 # for max and min dimensions

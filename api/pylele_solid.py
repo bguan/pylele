@@ -19,7 +19,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from argparse import Namespace
                 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum,supported_apis
 from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
@@ -62,7 +62,7 @@ def test_loop(module,apis=None,tests=None): # ,component):
         }
 
     if apis is None:
-        apis = ['trimesh','cadquery','blender','solid2']
+        apis = supported_apis()
 
     for test,args in tests.items():
         for api in apis:
