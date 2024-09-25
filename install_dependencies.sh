@@ -2,7 +2,7 @@
 
 # ubuntu dependencies
 sudo apt update 
-sudo apt install python3-pip libgl1 openscad -y
+sudo apt install python3-pip pipenv libgl1 openscad -y
 
 # install fonts
 sudo apt install ttf-mscorefonts-installer -y

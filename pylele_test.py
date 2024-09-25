@@ -5,17 +5,18 @@
 """
 
 import os
+import sys
 import unittest
 import importlib
 from pathlib import Path
 
 # api
-from api.pylele_api import Fidelity
+from api.pylele_api import Fidelity, APIS_INFO, supported_apis
 from api.pylele_solid import DEFAULT_TEST_DIR
 
 def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
     """ Makes Test API folder and filename """
-    out_path = Path.cwd() / test_path / api_name
+    out_path = os.path.join(Path.cwd(), test_path, api_name)
 
     if not os.path.isdir(out_path):
         os.makedirs(out_path)
@@ -25,36 +26,44 @@ def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
     # print(outfname)
     return out_path
 
-def test_api(module_name,class_name):
+def test_api(api):
     """ Test a Shape API """
-    module = importlib.import_module(module_name)
-    outfname = make_api_path_and_filename(module_name)
-    class_ = getattr(module, class_name)
-    api = class_(Fidelity.LOW)
-    api.test(outfname)
+
+    if api in supported_apis()+['mock']:
+        module_name = APIS_INFO[api]['module']
+        class_name  = APIS_INFO[api]['class']
+
+        module = importlib.import_module(module_name)
+        outfname = make_api_path_and_filename(module_name)
+
+        class_ = getattr(module, class_name)
+        api = class_(Fidelity.LOW)
+        api.test(outfname)
+    else:
+        print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
 class PyleleTestMethods(unittest.TestCase):
     """ Pylele Test Class """
 
     ## API
     def test_mock_api(self):
         """ Test Mock API """
-        test_api(module_name='api.mock_api',class_name='MockShapeAPI')
+        test_api(api='mock')
     
     def test_cadquery_api(self):
         """ Test Cadquery API """
-        test_api(module_name='api.cq_api',class_name='CQShapeAPI')
+        test_api(api='cadquery')
 
     def test_blender_api(self):
         """ Test Blender API """
-        test_api(module_name='api.bpy_api',class_name='BlenderShapeAPI')
+        test_api(api='blender')
     
     def test_trimesh_api(self):
         """ Test Trimesh API """
-        test_api(module_name='api.tm_api',class_name='TMShapeAPI')
+        test_api(api='trimesh')
 
     def test_solid2_api(self):
         """ Test SolidPython2 API """
-        test_api(module_name='api.sp2_api',class_name='Sp2ShapeAPI')
+        test_api(api='solid2')
 
     ## Solid Parts
     from parts.tube import test_tube, test_tube_mock

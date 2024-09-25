@@ -3,8 +3,8 @@ nlopt==2.7.1
 cadquery==2.4.0
 bpy==4.0.0; python_version < '3.11'
 fake-bpy-module-4.0; python_version < '3.11'
-bpy==4.1.0; python_version >= '3.11' # blender python API
-fake-bpy-module-4.1; python_version >= '3.11' # blender python API
+bpy==4.1.0; python_version == '3.11' # blender python API
+fake-bpy-module-4.1; python_version == '3.11' # blender python API
 trimesh==4.4.8
 mathutils
 manifold3d

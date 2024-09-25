@@ -37,8 +37,8 @@ class LeleNeckAssembly(LeleBase):
             neckCutters.append(fbCut)
             self.add_part(fretbd)
         else:
-            if not self.cli.separate_top:
-                neckJoiners.append(fretbd)
+            # if not self.cli.separate_top:
+            neckJoiners.append(fretbd)
 
         ## Spines
         if self.cli.num_strings > 1:

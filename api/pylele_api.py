@@ -11,6 +11,14 @@ from abc import ABC, abstractmethod
 from fontTools.ttLib import TTFont
 from typing import Any, Union
 
+APIS_INFO = {
+    'mock'     : { 'module':'api.mock_api','class':'MockShapeAPI'},
+    'cadquery' : { 'module':'api.cq_api'  ,'class':'CQShapeAPI'},
+    'blender'  : { 'module':'api.bpy_api' ,'class':'BlenderShapeAPI'},
+    'trimesh'  : { 'module':'api.tm_api'  ,'class':'TMShapeAPI'},
+    'solid2'   : { 'module':'api.sp2_api' ,'class':'Sp2ShapeAPI'},
+}
+
 # consider update to StrEnum for python 3.11 and above
 # https://tsak.dev/posts/python-enum/
 class LeleStrEnum(str,Enum):
@@ -85,9 +93,30 @@ class Implementation(LeleStrEnum):
             case Implementation.SOLID2:
                 return 'S'
 
+    def module_name(self):
+        """ Returns the module name of the API """
+        return APIS_INFO[self]['module']
+
+    def class_name(self):
+        """ Returns the class name of the API """
+        return APIS_INFO[self]['class']
+    
     def joinCutTol(self) -> float:
         # Tolerance for joins to have a little overlap
         return 0 if self == Implementation.CAD_QUERY else 0.01
+
+def supported_apis() -> list:
+    """ Returns the list of supported apis """
+    ver = sys.version_info
+    assert ver[0]==3
+
+    apis = ['trimesh','cadquery','solid2']
+
+    if ver[1] < 12:
+        # blender bpy package currently not supported with python 3.12
+        apis.append('blender')
+
+    return apis
 
 class Shape(ABC):
 
@@ -182,36 +211,31 @@ class ShapeAPI(ABC):
     def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
         match impl:
             case Implementation.MOCK:
-                if cls._mock_api == None:
-                    mock_mod_name = 'api.mock_api'
-                    mock_mod = importlib.import_module(mock_mod_name)
+                if cls._mock_api is None:
+                    mock_mod = importlib.import_module(Implementation.MOCK.module_name())
                     cls._mock_api = mock_mod.MockShapeAPI(fidelity)
                 return cls._mock_api
 
             case Implementation.CAD_QUERY:
-                if cls._cq_api == None:
-                    cq_mod_name = 'api.cq_api'
-                    cq_mod = importlib.import_module(cq_mod_name)
+                if cls._cq_api is None:
+                    cq_mod = importlib.import_module(Implementation.CAD_QUERY.module_name())
                     cls._cq_api = cq_mod.CQShapeAPI(fidelity)
                 return cls._cq_api
             case Implementation.BLENDER:
-                if cls._blender_api == None:
-                    bpy_mod_name = 'api.bpy_api'
-                    bpy_mod = importlib.import_module(bpy_mod_name)
+                if cls._blender_api is None:
+                    bpy_mod = importlib.import_module(Implementation.BLENDER.module_name())
                     cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
                 return cls._blender_api
             
             case Implementation.TRIMESH:
-                if cls._trimesh_api == None:
-                    tm_mod_name = 'api.tm_api'
-                    tm_mod = importlib.import_module(tm_mod_name)
+                if cls._trimesh_api is None:
+                    tm_mod = importlib.import_module(Implementation.TRIMESH.module_name())
                     cls._tm_api = tm_mod.TMShapeAPI(fidelity)
                 return cls._tm_api
             
             case Implementation.SOLID2:
-                if cls._solid2_api == None:
-                    sp2_mod_name = 'api.sp2_api'
-                    sp2_mod = importlib.import_module(sp2_mod_name)
+                if cls._solid2_api is None:
+                    sp2_mod = importlib.import_module(Implementation.SOLID2.module_name())
                     cls._sp2_api = sp2_mod.Sp2ShapeAPI(fidelity)
                 return cls._sp2_api
 
