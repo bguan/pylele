@@ -301,6 +301,37 @@ def isPathCounterClockwise(path2D: list[tuple[float, float]]) -> bool:
         accSum += (nextX - x) * (nextY + y)
     return accSum > 0
 
+def lineSplineXY(
+        start: tuple[float, float],
+        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
+        segsByDim: int
+    ):
+    """ draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy) """
+
+    # lastX, lastY = start
+    result = [start]
+
+    for p_or_s in path:
+        if isinstance(p_or_s, tuple):
+            # a point so draw line
+            x, y = p_or_s
+            result.append((x, y))
+            lastX, lastY = x, y
+        elif isinstance(p_or_s, list):
+            # a list of points and gradients/tangents to trace spline thru
+            spline: list[tuple[float, ...]] = p_or_s
+            x1, y1 = spline[0][0:2]
+            # insert first point if diff from last
+            if lastX != x1 or lastY != y1:
+                dx0 = x1 - lastX
+                dy0 = y1 - lastY
+                grad0 = superGradient(dy=dy0, dx=dx0)
+                spline.insert(0, (lastX, lastY, grad0, 0, .5))
+            curvePts = descreteBezierChain(spline, segsByDim)
+            result.extend(curvePts)
+            lastX, lastY = spline[-1][0:2]
+            
+    return encureClosed2DPath(result)
 
 def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)

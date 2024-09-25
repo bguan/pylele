@@ -142,14 +142,6 @@ class MockShape(Shape):
     def join(self, joiner: MockShape) -> MockShape:
         return self
 
-    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
-    def lineSplineXY(
-        self,
-        start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-    ):
-        return MockSolid()
-
     def mirrorXZ(self) -> MockShape:
         return self
 

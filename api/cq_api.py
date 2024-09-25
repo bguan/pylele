@@ -15,6 +15,59 @@ from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_utils import ensureFileExtn, lineSplineXY
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 
+"""
+def lineSplineXY_cq0(
+    start: tuple[float, float],
+    lineSpline: list[tuple[float, float] | list[tuple[float, ...]]],
+    segsByDim: int
+) -> cq.Workplane:
+    
+    lastX, lastY = start
+    trace = cq.Workplane("XY").moveTo(lastX, lastY)
+                    
+    pts = lineSplineXY(start, lineSpline, segsByDim)
+
+    for ptx, pty in pts:
+        if ptx!=lastX or pty!=lastY:
+            trace = trace.lineTo(ptx, pty)
+            lastX, lastY = ptx, pty
+
+    trace = trace.close()
+    return trace
+"""
+
+# draw mix of straight lines from pt to pt, and draw spline when given 
+# list of (x,y,grad, pre ctrlLenRatio, post ctrlLenRatio)
+def lineSplineXY_cq(
+    start: tuple[float, float],
+    lineSpline: list[tuple[float, float] | list[tuple[float, ...]]],
+    segsByDim: int
+) -> cq.Workplane:
+    
+    lastX, lastY = start
+    trace = cq.Workplane("XY").moveTo(lastX, lastY)
+    
+    for p_or_s in lineSpline:
+        if isinstance(p_or_s, tuple):
+            # a point so draw line
+            lastX, lastY = p_or_s
+            trace = trace.lineTo(lastX, lastY)
+        elif isinstance(p_or_s, list):
+            # a list of points and gradients/tangents to trace spline thru
+            spline: list[tuple[float, ...]] = p_or_s
+            x1, y1 = spline[0][0:2]
+            # insert first point if diff from last
+            if lastX != x1 or lastY != y1:
+                dx0 = x1 - lastX
+                dy0 = y1 - lastY
+                grad0 = superGradient(dy=dy0, dx=dx0)
+                spline.insert(0, (lastX, lastY, grad0, 0, .5))
+            curvePts = descreteBezierChain(spline, segsByDim)
+            trace = trace.spline(curvePts)
+            lastX, lastY = spline[-1][0:2]
+
+    trace = trace.close()
+    return trace
 
 """
     Encapsulate CAD Query implementation specific calls
