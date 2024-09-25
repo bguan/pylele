@@ -139,12 +139,11 @@ class LeleFretboardAssembly(LeleBase):
         # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
         # as joins happen before cuts
         if self.cli.separate_fretboard or self.cli.separate_neck:
-            fretbd = fretbd.join(LeleFretboardSpines(cli=self.cli)).join(
-                LeleFretboardJoint(cli=self.cli)
-            )
-
+            fretbd = fretbd.join(LeleFretboardJoint(cli=self.cli))
+            if self.cli.num_spines > 0:
+                fretbd = fretbd.join(LeleFretboardSpines(cli=self.cli))
+        
         self.shape = fretbd.shape
-
         return self.shape
 
     def gen_parser(self, parser=None):
@@ -166,16 +165,17 @@ def main(args=None):
 def test_fretboard_assembly(self, apis=None):
     """Test Fretboard Assembly"""
     tests = {
-        "separate_fretboard": ["-F"],
-        "fret_nails": ["-ft", str(FretType.NAIL)],
-        "fret_wire": ["-ft", str(FretType.WIRE)],
-        "zerofret": ["-nt", str(NutType.ZEROFRET)],
-        "separate_nut": ["-NU"],
-        "separate_frets": ["-FR"],
-        "separate_dots": ["-D"],
-    }
-    test_loop(module=__name__, tests=tests, apis=apis)
-
+        'separate_fretboard' : ['-F'],
+        'fret_nails'         : ['-ft', str(FretType.NAIL)],
+        'fret_wire'          : ['-ft', str(FretType.WIRE)],
+        'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
+        'separate_nut'       : ['-NU'],
+        'separate_frets'     : ['-FR'],
+        'separate_dots'      : ['-D'],
+        }
+    for nspines in range(4):
+        tests[f'nspines{nspines}'] = ['-F','-nsp',f'{nspines}']
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_fretboard_assembly_mock(self):
     """Test Fretboard Assembly"""

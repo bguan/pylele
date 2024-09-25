@@ -74,6 +74,8 @@ def pylele_config_parser(parser = None):
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
                         type=float, default=0)
+    parser.add_argument("-nsp", "--num_spines", help="Number of neck spines",
+                        type=int, default=3, choices=[*range(4)])
 
     ## Body Type config options ###########################################
 
@@ -313,10 +315,13 @@ class LeleConfig:
 
         # Spine configs
         self.spineX = -self.headLen
-        self.spineLen = self.headLen + scaleLen + self.chmBack + 2
-        self.spineGap = 0 if numStrs == 2 else (1 if isOddStrs else 2)*nutStrGap
-        self.spineY1 = -self.spineGap/2
-        self.spineY2 = self.spineGap/2
+        self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
+        self.spineGap = (1 if isOddStrs else 2)*nutStrGap
+        self.spineY = []
+        if self.cli.num_spines in [1,3]:
+            self.spineY.append(0)
+        if self.cli.num_spines in [2,3]:
+            self.spineY += [-self.spineGap/2, self.spineGap/2]
 
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2

@@ -35,17 +35,16 @@ class LeleFretboardSpines(LeleBase):
         )
         fspX = self.cfg.NUT_HT
 
-        fsp = self.api.genBox(fspLen, spWth, fspTck).mv(
-            fspX + fspLen / 2 - 2 * cutAdj, spY1, -fspTck / 2
-        )
+        self.shape = None
+        for y_spine in self.cfg.spineY:
+            spine = self.api.genBox(fspLen, spWth, fspTck)\
+                .mv(fspX + fspLen/2 - 2*cutAdj, y_spine, -fspTck/2)
+            
+            if self.shape is None:
+                self.shape = spine
+            else:
+                self.shape = self.shape.join(spine)
 
-        if spY1 != spY2:
-            fsp2 = self.api.genBox(fspLen, spWth, fspTck).mv(
-                fspX + fspLen / 2 - 2 * cutAdj, spY2, -fspTck / 2
-            )
-            fsp = fsp.join(fsp2)
-
-        self.shape = fsp
         return self.shape
 
 
