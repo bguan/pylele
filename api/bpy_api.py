@@ -9,6 +9,11 @@ from mathutils import Vector
 import os
 from pathlib import Path
 import sys
+
+from fontTools.ttLib import TTFont
+from mathutils import Vector
+from api.pylele_api import Shape, ShapeAPI, Fidelity, Implementation
+from api.pylele_utils import lineSplineXY, descreteBezierChain, dimXY, ensureFileExtn, isPathCounterClockwise, radians, simplifyLineSpline, superGradient
 from typing import Any, Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
