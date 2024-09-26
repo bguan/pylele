@@ -4,8 +4,6 @@
     Pylele Tests
 """
 
-import os
-import sys
 import unittest
 import importlib
 from pathlib import Path

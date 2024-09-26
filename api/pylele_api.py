@@ -10,6 +10,8 @@ from abc import ABC, abstractmethod
 from fontTools.ttLib import TTFont
 from typing import Any, Union
 
+from api.pylele_api_constants import DEFAULT_TEST_DIR
+
 APIS_INFO = {
     "mock": {"module": "api.mock_api", "class": "MockShapeAPI"},
     "cadquery": {"module": "api.cq_api", "class": "CQShapeAPI"},
@@ -107,6 +109,27 @@ def supported_apis() -> list:
 
     return apis
 
+def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
+    """ Makes Test API folder and filename """
+    out_path = os.path.join(Path.cwd(), test_path, api_name)
+
+    if not os.path.isdir(out_path):
+        os.makedirs(out_path)
+    assert os.path.isdir(out_path)
+
+    # outfname = os.path.join(out_path,api_name+'.stl')
+    # print(outfname)
+    return out_path
+
+def test_api(api):
+    """ Test a Shape API """
+    if api in supported_apis()+['mock']:
+        sapi = ShapeAPI.get(impl=Implementation(api), fidelity = Fidelity.LOW)
+        module_name = APIS_INFO[api]['module']
+        outfname = make_api_path_and_filename(module_name)
+        sapi.test(outfname)
+    else:
+        print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
 
 class Shape(ABC):
 
