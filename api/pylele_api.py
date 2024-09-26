@@ -109,24 +109,22 @@ def supported_apis() -> list:
 
     return apis
 
-def make_api_path_and_filename(api_name,test_path=DEFAULT_TEST_DIR):
-    """ Makes Test API folder and filename """
+def make_test_path(api_name,test_path=DEFAULT_TEST_DIR):
+    """ Makes Test folder """
     out_path = os.path.join(Path.cwd(), test_path, api_name)
 
     if not os.path.isdir(out_path):
         os.makedirs(out_path)
     assert os.path.isdir(out_path)
 
-    # outfname = os.path.join(out_path,api_name+'.stl')
-    # print(outfname)
     return out_path
 
 def test_api(api):
     """ Test a Shape API """
     if api in supported_apis()+['mock']:
-        sapi = ShapeAPI.get(impl=Implementation(api), fidelity = Fidelity.LOW)
-        module_name = APIS_INFO[api]['module']
-        outfname = make_api_path_and_filename(module_name)
+        impl = Implementation(api)
+        sapi = ShapeAPI.get(impl=impl, fidelity = Fidelity.LOW)
+        outfname = make_test_path(impl.module_name())
         sapi.test(outfname)
     else:
         print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
@@ -205,13 +203,11 @@ class Shape(ABC):
 
 class ShapeAPI(ABC):
 
-    _api: ShapeAPI = None
-
     @classmethod
     def get(self: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
         mod = importlib.import_module(impl.module_name())
-        self._api = getattr(mod, impl.class_name())
-        return self._api(fidelity)
+        api = getattr(mod, impl.class_name())
+        return api(fidelity)
 
     def getFontname2FilepathMap(self) -> dict[str, str]:
 
