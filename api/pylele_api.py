@@ -200,65 +200,13 @@ class Shape(ABC):
 
 class ShapeAPI(ABC):
 
-    _mock_api: ShapeAPI = None
-    _cq_api: ShapeAPI = None
-    _blender_api: ShapeAPI = None
-    _trimesh_api: ShapeAPI = None
-    _solid2_api: ShapeAPI = None
+    _api: ShapeAPI = None
 
     @classmethod
-    def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
-        match impl:
-            case Implementation.MOCK:
-                if cls._mock_api == None:
-                    mock_mod_name = "api.mock_api"
-                    mock_mod = importlib.import_module(mock_mod_name)
-                if cls._mock_api is None:
-                    mock_mod = importlib.import_module(
-                        Implementation.MOCK.module_name()
-                    )
-                    cls._mock_api = mock_mod.MockShapeAPI(fidelity)
-                return cls._mock_api
-            case Implementation.CAD_QUERY:
-                if cls._cq_api == None:
-                    cq_mod_name = "api.cq_api"
-                    cq_mod = importlib.import_module(cq_mod_name)
-                if cls._cq_api is None:
-                    cq_mod = importlib.import_module(
-                        Implementation.CAD_QUERY.module_name()
-                    )
-                    cls._cq_api = cq_mod.CQShapeAPI(fidelity)
-                return cls._cq_api
-            case Implementation.BLENDER:
-                if cls._blender_api == None:
-                    bpy_mod_name = "api.bpy_api"
-                    bpy_mod = importlib.import_module(bpy_mod_name)
-                if cls._blender_api is None:
-                    bpy_mod = importlib.import_module(
-                        Implementation.BLENDER.module_name()
-                    )
-                    cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
-                return cls._blender_api
-            case Implementation.TRIMESH:
-                if cls._trimesh_api == None:
-                    tm_mod_name = "api.tm_api"
-                    tm_mod = importlib.import_module(tm_mod_name)
-                if cls._trimesh_api is None:
-                    tm_mod = importlib.import_module(
-                        Implementation.TRIMESH.module_name()
-                    )
-                    cls._tm_api = tm_mod.TMShapeAPI(fidelity)
-                return cls._tm_api
-            case Implementation.SOLID2:
-                if cls._solid2_api == None:
-                    sp2_mod_name = "api.sp2_api"
-                    sp2_mod = importlib.import_module(sp2_mod_name)
-                if cls._solid2_api is None:
-                    sp2_mod = importlib.import_module(
-                        Implementation.SOLID2.module_name()
-                    )
-                    cls._sp2_api = sp2_mod.Sp2ShapeAPI(fidelity)
-                return cls._sp2_api
+    def get(self: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
+        mod = importlib.import_module(impl.module_name())
+        self._api = getattr(mod, impl.class_name())
+        return self._api(fidelity)
 
     def getFontname2FilepathMap(self) -> dict[str, str]:
 
