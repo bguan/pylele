@@ -170,3 +170,4 @@ cython_debug/
 .DS_Store
 Anaconda3-2024.02-1-Linux-x86_64.sh
 get-pip.py
+*.bak
