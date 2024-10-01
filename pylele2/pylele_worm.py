@@ -245,7 +245,6 @@ class LeleWorm(LeleBase):
             )
             worm = worm.join(slit)
 
-        self.shape = worm
         return worm
 
     def gen_parser(self, parser=None):
