@@ -200,10 +200,12 @@ class Shape(ABC):
     @abstractmethod
     def show(self): ...
 
-    def __add__(self, operand):
+    def __add__(self, operand) -> Shape:
+        assert isinstance(operand,Shape)
         return self.join(operand)
     
-    def __sub__(self, operand):
+    def __sub__(self, operand) -> Shape:
+        assert isinstance(operand,Shape)
         return self.cut(operand)
 
 class ShapeAPI(ABC):
