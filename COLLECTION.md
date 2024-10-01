@@ -19,9 +19,11 @@
 * [Ukulele 3d print](https://www.thingiverse.com/thing:3415529)
 
 # Tuners
+* [Ukulele tuner - Model 3](https://www.thingiverse.com/thing:6779545)
 * [Ukulele tuning Pegs](https://www.thingiverse.com/thing:2861995)
 * [Ukulele machine Heads](https://www.thingiverse.com/thing:3028305)
 * [Ukuelele Tuners](https://www.thingiverse.com/thing:3028305)
+* [pegless worm gear tuners for travelele](https://www.thingiverse.com/thing:6664561)
 
 # 3d visualization
 * [pyrender](https://pyrender.readthedocs.io/en/latest/examples/quickstart.html#minimal-example-for-3d-viewer)
