@@ -200,6 +200,11 @@ class Shape(ABC):
     @abstractmethod
     def show(self): ...
 
+    def __add__(self, operand):
+        return self.join(operand)
+    
+    def __sub__(self, operand):
+        return self.cut(operand)
 
 class ShapeAPI(ABC):
 
@@ -543,7 +548,7 @@ class ShapeAPI(ABC):
         coneZ = self.genConeZ(10, 10, 5).mv(0, 0, 10)
         coneX = self.genConeX(10, 1, 2)
         rod = self.genRodZ(20, 1)
-        obj1 = box.join(ball).join(coneZ).join(rod).cut(coneX)
+        obj1 = box + ball + coneZ + rod - coneX
         coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
         objs.append(obj1)
