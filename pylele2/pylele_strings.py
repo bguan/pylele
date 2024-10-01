@@ -28,7 +28,7 @@ class LeleStrings(LeleBase):
         strs = None
         for p in paths:
             str = self.api.genCirclePolySweep(srad, p)
-            strs = str if strs is None else strs.join(str)
+            strs = str + strs
 
         if self.isCut:
             self.api.setFidelity(origFidel)
