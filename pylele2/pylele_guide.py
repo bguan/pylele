@@ -43,8 +43,8 @@ class LeleGuide(LeleBase):
 
         for y in self.cfg.guideYs:
             post = self.api.genRodZ(gdHt, gdR)
-            post = post.mv(gdX, y, gdZ + gdHt / 2)
-            guide = post if guide == None else guide.join(post)
+            post = post.mv(gdX, y, gdZ + gdHt/2)
+            guide = post + guide
 
         return guide
 
@@ -54,12 +54,14 @@ def main(args=None):
     return main_maker(module_name=__name__, class_name="LeleGuide", args=args)
 
 
-def test_guide(self, apis=None):
-    """Test Guide"""
-    tests = {"cut": ["-C"]}
-    test_loop(module=__name__, tests=tests, apis=apis)
-
-
+def test_guide(self,apis=None):
+    """ Test Guide """
+    tests = {
+        'default' : [],
+        'cut'     : ['-C']
+    }
+    test_loop(module=__name__,tests=tests,apis=apis)
+    
 def test_guide_mock(self):
     """Test Guide"""
     test_guide(self, apis=["mock"])
