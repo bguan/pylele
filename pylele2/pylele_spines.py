@@ -30,13 +30,10 @@ class LeleSpines(LeleBase):
 
         shape = None
         for y_spine in self.cfg.spineY:
-            spine = self.api.genBox(spLen, spWth, spHt)\
-                .mv(spX + spLen/2, y_spine, -fspTck - spHt/2)
+            spine = self.api.genBox(spLen, spWth, spHt)
+            spine <<= (spX + spLen/2, y_spine, -fspTck - spHt/2)
             
-            if shape is None:
-                shape = spine
-            else:
-                shape = shape.join(spine)
+            shape = spine + shape
         
         return shape
 

@@ -236,22 +236,30 @@ class Shape(ABC):
 
     def __add__(self, operand) -> Shape:
         """ Join using + """
+        if operand is None:
+            return self
         assert isinstance(operand,Shape)
         return self.join(operand)
     
     def __sub__(self, operand) -> Shape:
         """ cut using - """
+        if operand is None:
+            return self
         assert isinstance(operand,Shape)
         return self.cut(operand)
 
     def __mul__(self, operand) -> Shape:
         """ scale using * """
+        if operand is None:
+            return self
         direction = direction_operand(operand)
         x,y,z = direction.eval('*')
         return self.scale(x,y,z)
 
     def __lshift__(self, operand) -> Shape:
         """ move using << """
+        if operand is None:
+            return self
         direction = direction_operand(operand)
         x,y,z = direction.eval('+')
         return self.mv(x,y,z)
