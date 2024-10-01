@@ -24,6 +24,6 @@
 * [Ukuelele Tuners](https://www.thingiverse.com/thing:3028305)
 
 # 3d visualization
-*[pyrender](https://pyrender.readthedocs.io/en/latest/examples/quickstart.html#minimal-example-for-3d-viewer)
-*[pyvista](https://github.com/pyvista/pyvista)
-*[vedo](https://github.com/marcomusy/vedo)
+* [pyrender](https://pyrender.readthedocs.io/en/latest/examples/quickstart.html#minimal-example-for-3d-viewer)
+* [pyvista](https://github.com/pyvista/pyvista)
+* [vedo](https://github.com/marcomusy/vedo)
