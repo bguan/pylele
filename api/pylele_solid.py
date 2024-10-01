@@ -233,6 +233,9 @@ class LeleSolid(ABC):
     Pylele Generic Solid Body
     """
 
+    shape = None
+    parts = None
+
     @abstractmethod
     def gen(self) -> Shape:
         """Generate Shape"""
