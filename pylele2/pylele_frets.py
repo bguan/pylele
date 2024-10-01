@@ -85,7 +85,6 @@ class LeleFrets(LeleBase):
             if count > maxFrets:  # prevent runaway loop
                 break
 
-        self.shape = frets
         return frets
 
     def gen_parser(self, parser=None):

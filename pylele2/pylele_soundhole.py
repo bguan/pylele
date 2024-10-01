@@ -29,13 +29,10 @@ class LeleSoundhole(LeleBase):
         ang = sh_cfg.sndholeAng
         bodyWth = self.cfg.bodyWth
 
-        hole = (
-            self.api.genRodZ(bodyWth + midTck, minRad)
-            .scale(1, maxRad / minRad, 1)
-            .rotateZ(ang)
-            .mv(x, y, -midTck)
-        )
-        self.shape = hole
+        hole = self.api.genRodZ(bodyWth + midTck, minRad)\
+            .scale(1, maxRad/minRad, 1)\
+            .rotateZ(ang).mv(x, y, -midTck)
+
         return hole
 
 

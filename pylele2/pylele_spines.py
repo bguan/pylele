@@ -28,17 +28,17 @@ class LeleSpines(LeleBase):
         spWth = self.cfg.SPINE_WTH + 2*cutAdj
         fspTck = self.cfg.FRETBD_SPINE_TCK  + 2*self.api.getJoinCutTol()
 
-        self.shape = None
+        shape = None
         for y_spine in self.cfg.spineY:
             spine = self.api.genBox(spLen, spWth, spHt)\
                 .mv(spX + spLen/2, y_spine, -fspTck - spHt/2)
             
-            if self.shape is None:
-                self.shape = spine
+            if shape is None:
+                shape = spine
             else:
-                self.shape = self.shape.join(spine)
+                shape = shape.join(spine)
         
-        return self.shape
+        return shape
 
 
 def main(args=None):

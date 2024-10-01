@@ -110,7 +110,9 @@ class LeleChamber(LeleBase):
             chm = chm.mv(0, 0, lift)
 
         chm = chm.mv(scLen, 0, 0)
-        self.shape = chm
+
+        self.api.setFidelity(origFidel)
+
         return chm
 
     def gen_parser(self, parser=None):

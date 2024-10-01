@@ -67,8 +67,6 @@ class LeleNut(LeleBase):
             strings = LeleStrings(isCut=True, cli=self.cli)
             nut = nut.cut(strings.gen_full())
 
-        self.shape = nut
-
         return nut
 
     def gen_parser(self, parser=None):

@@ -166,7 +166,6 @@ class LeleBridge(LeleBase):
         if not self.isCut and not self.cli.bridge_piezo:
             brdg = brdg.cut(strings.gen_full())
 
-        self.shape = brdg
         return brdg
 
     def gen_parser(self, parser=None):

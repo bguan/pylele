@@ -22,16 +22,14 @@ class ScadExample(LeleSolid):
         ## import a scad module from a custom scad file
         fname = os.path.join(DEFAULT_TEST_DIR,'box.scad')
         mod = import_scad(gen_scad_foo(fname))
-        self.shape = self.api.genShape(solid=mod.box(8,8,80))
+        shape = self.api.genShape(solid=mod.box(8,8,80))
         
         ## import a scad module from bosl2 included in solidpython2
-        self.shape = self.shape.join(
-            self.api.genShape(
+        shape += self.api.genShape(
                 solid=worm_gear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1)
-                )
             )
             
-        return self.shape
+        return shape
 
 def main(args=None):
     """ Generate a Tube """

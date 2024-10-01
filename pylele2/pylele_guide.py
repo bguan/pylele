@@ -46,7 +46,6 @@ class LeleGuide(LeleBase):
             post = post.mv(gdX, y, gdZ + gdHt / 2)
             guide = post if guide == None else guide.join(post)
 
-        self.shape = guide
         return guide
 
 

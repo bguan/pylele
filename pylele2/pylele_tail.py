@@ -128,7 +128,6 @@ class LeleTail(LeleBase):
             rim_cut.gen_full()
             tail = tail.cut(rim_cut.shape)
 
-        self.shape = tail
         return tail
 
     def gen_parser(self, parser=None):

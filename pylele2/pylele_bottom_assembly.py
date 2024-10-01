@@ -87,11 +87,9 @@ class LeleBottomAssembly(LeleBase):
         ## Body
         body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
 
-        self.shape = body.gen_full()
-
-        return self.shape
-
-    def gen_parser(self, parser=None):
+        return body.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """

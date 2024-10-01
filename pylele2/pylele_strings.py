@@ -30,12 +30,10 @@ class LeleStrings(LeleBase):
             str = self.api.genCirclePolySweep(srad, p)
             strs = str if strs is None else strs.join(str)
 
-        self.shape = strs
+        if self.isCut:
+            self.api.setFidelity(origFidel)
 
         return strs
-
-        pass
-
 
 def main(args=None):
     """Generate Strings"""

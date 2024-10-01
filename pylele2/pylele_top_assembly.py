@@ -106,14 +106,11 @@ class LeleTopAssembly(LeleBase):
                 for xyz in self.cfg.tnrXYZs
             ]
 
-        top = LeleTop(
-            cli=self.cli, joiners=topJoiners, cutters=topCutters, fillets=topFillets
-        )
-        self.shape = top.gen_full()
+        top = LeleTop(cli=self.cli, joiners=topJoiners, cutters=topCutters, fillets=topFillets)
 
-        return self.shape
-
-    def gen_parser(self, parser=None):
+        return top.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """

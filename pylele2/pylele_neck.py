@@ -36,7 +36,6 @@ class LeleNeck(LeleBase):
 
         neck = neckCone if neck == None else neck.join(neckCone.mv(0, 0, joinTol))
 
-        self.shape = neck
         return neck
 
 

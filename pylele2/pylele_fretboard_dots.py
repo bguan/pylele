@@ -86,8 +86,7 @@ class LeleFretboardDots(LeleBase):
             flen /= SEMI_RATIO
             acclen += flen
             n += 1
-
-        self.shape = dots
+    
         return dots
 
     def gen_parser(self, parser=None):

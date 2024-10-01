@@ -83,18 +83,16 @@ class LeleNeckAssembly(LeleBase):
             )
 
         ## Neck
-        self.shape = LeleNeck(
-            cli=self.cli,
-            joiners=neckJoiners,
-            cutters=neckCutters,
-        )
-
+        shape = LeleNeck(cli=self.cli,
+                        joiners=neckJoiners,
+                        cutters=neckCutters)
+        
         fretbd.gen_full()
         self.add_parts(fretbd.get_parts())
 
-        return self.shape.gen_full()
-
-    def gen_parser(self, parser=None):
+        return shape.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """
