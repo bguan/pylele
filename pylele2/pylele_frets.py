@@ -75,11 +75,9 @@ class LeleFrets(LeleBase):
                 fret = self.api.genBox(FRET_WIRE_WIDTH, 2 * fy, fHt).mv(fx, 0, fz)
             else:
                 fret = self.api.genRodY(2 * fy, fHt).mv(fx, 0, fz)
-
-            if frets is None:
-                frets = fret
-            else:
-                frets = frets.join(fret)
+            
+            frets = fret + frets
+            
             gap = gap / SEMI_RATIO
             count += 1
             if count > maxFrets:  # prevent runaway loop
