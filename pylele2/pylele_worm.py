@@ -7,25 +7,11 @@
 import os
 import argparse
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+from api.pylele_api import Shape, default_or_alternate
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, WormConfig, TunerType
 
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_solid import main_maker, test_loop
-from pylele_config_common import TunerType
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-
-from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
-
-
-def default_or_alternate(def_val, alt_val=None):
-    """Override default value with alternate value, if available"""
-    if alt_val is None:
-        return def_val
-    return alt_val
-
-
-def pylele_worm_parser(parser=None):
+def pylele_worm_parser(parser = None):
     """
     Pylele Worm Parser
     """

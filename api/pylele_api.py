@@ -41,9 +41,6 @@ class Fidelity(LeleStrEnum):
     def __repr__(self):
         return f"Fidelity({self.value} tol={self.exportTol()}, seg={self.smoothingSegments()})"
 
-    def __str__(self):
-        return self.value
-
     def exportTol(self) -> float:
         match self:
             case Fidelity.LOW:
@@ -75,9 +72,6 @@ class Implementation(LeleStrEnum):
 
     def __repr__(self):
         return f"Implementation({self.value})"
-
-    def __str__(self):
-        return self.value
 
     def code(self) -> str:
         """ Return Code that identifies Implementation """
@@ -129,6 +123,46 @@ def test_api(api):
     else:
         print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
 
+
+def default_or_alternate(def_val, alt_val=None):
+    """ Override default value with alternate value, if available"""
+    if alt_val is None:
+        return def_val
+    return alt_val
+    # return def_val if alt_val is None else al
+
+class Direction(object):
+    """ A class to represent direction vectors """
+    x = None
+    y = None
+    z = None
+
+    def __init__(self, x: float = None, y: float = None, z: float = None):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def eval(self, op = '+'):
+
+        if op == '+':
+            neutral = 0
+        elif op == '*':
+            neutral = 1
+
+        x = default_or_alternate(neutral, self.x)
+        y = default_or_alternate(neutral, self.y)
+        z = default_or_alternate(neutral, self.z)
+
+        return x,y,z
+
+def direction_operand(operand) -> Direction:
+    """ returns a direction operand """
+    if isinstance(operand,tuple):
+        assert len(operand)==3
+        return Direction(operand[0],operand[1],operand[2])
+    if isinstance(operand,Direction):
+        return operand
+    assert False
 class Shape(ABC):
 
     MAX_DIM = 2000  # for max and min dimensions
@@ -201,13 +235,27 @@ class Shape(ABC):
     def show(self): ...
 
     def __add__(self, operand) -> Shape:
+        """ Join using + """
         assert isinstance(operand,Shape)
         return self.join(operand)
     
     def __sub__(self, operand) -> Shape:
+        """ cut using - """
         assert isinstance(operand,Shape)
         return self.cut(operand)
 
+    def __mul__(self, operand) -> Shape:
+        """ scale using * """
+        dir = direction_operand(operand)
+        x,y,z = dir.eval('*')
+        return self.scale(x,y,z)
+
+    def __lshift__(self, operand) -> Shape:
+        """ move using << """
+        dir = direction_operand(operand)
+        x,y,z = dir.eval('+')
+        return self.mv(x,y,z)
+        
 class ShapeAPI(ABC):
 
     @classmethod
@@ -634,6 +682,31 @@ class ShapeAPI(ABC):
         obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
         objs.append(obj11)
 
+        # move operator shortcut
+        obj12 = obj11 << Direction(x=1)
+        obj13 = obj11 << Direction(y=1)
+        obj14 = obj11 << Direction(z=1)
+        obj15 = obj11 << (0,1,2)
+
+        # scale operator shortcut
+        obj16 = obj11 * Direction(x=1)
+        obj17 = obj11 * Direction(y=1)
+        obj18 = obj11 * Direction(z=1)
+        obj19 = obj11 * (1,2,3)
+
+        # move operator shortcut
+        obj12 = obj11 << Direction(x=1)
+        obj13 = obj11 << Direction(y=1)
+        obj14 = obj11 << Direction(z=1)
+        obj15 = obj11 << (0,1,2)
+
+        # scale operator shortcut
+        obj16 = obj11 * Direction(x=1)
+        obj17 = obj11 * Direction(y=1)
+        obj18 = obj11 * Direction(z=1)
+        obj19 = obj11 * (1,2,3)
+
         joined = None
         [joined := (obj if joined is None else joined.join(obj)) for obj in objs]
+        
         self.exportSTL(joined, expDir / f"{implCode}-all")
