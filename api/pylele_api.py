@@ -246,14 +246,14 @@ class Shape(ABC):
 
     def __mul__(self, operand) -> Shape:
         """ scale using * """
-        dir = direction_operand(operand)
-        x,y,z = dir.eval('*')
+        direction = direction_operand(operand)
+        x,y,z = direction.eval('*')
         return self.scale(x,y,z)
 
     def __lshift__(self, operand) -> Shape:
         """ move using << """
-        dir = direction_operand(operand)
-        x,y,z = dir.eval('+')
+        direction = direction_operand(operand)
+        x,y,z = direction.eval('+')
         return self.mv(x,y,z)
         
 class ShapeAPI(ABC):
