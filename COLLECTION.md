@@ -17,6 +17,8 @@
 * [ParamUKE](https://github.com/berkbig/ParamUKE): openscad acoustic ukulele with customizable body
 * [LightningUke](https://github.com/UkuleleDesign/LightningUke/tree/master): electric 3d printed ukulele
 * [Ukulele 3d print](https://www.thingiverse.com/thing:3415529)
+* [Solid Body Ukulele (2.5D CNC Project)](https://www.thingiverse.com/thing:1643756/files)
+* [Ukulelin](https://www.thingiverse.com/thing:4639515)
 
 # Tuners
 * [Ukulele tuner - Model 3](https://www.thingiverse.com/thing:6779545)
@@ -24,6 +26,8 @@
 * [Ukulele machine Heads](https://www.thingiverse.com/thing:3028305)
 * [Ukuelele Tuners](https://www.thingiverse.com/thing:3028305)
 * [pegless worm gear tuners for travelele](https://www.thingiverse.com/thing:6664561)
+* [Friction tuner for the gourd shaped ukulele](https://www.thingiverse.com/thing:5423915/files)
+* [Ukulele unipeg](https://www.thingiverse.com/thing:913501/files)
 
 # 3d visualization
 * [pyrender](https://pyrender.readthedocs.io/en/latest/examples/quickstart.html#minimal-example-for-3d-viewer)
