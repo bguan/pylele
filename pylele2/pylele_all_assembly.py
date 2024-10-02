@@ -70,7 +70,8 @@ class LeleAllAssembly(LeleBase):
             self.add_part(LeleTail(cli=self.cli))
 
         ## Body
-        return LeleBottomAssembly(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters).gen_full()
+        self.shape = LeleBottomAssembly(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
+        return self.shape.gen_full()
     
     def gen_parser(self,parser=None):
         """
