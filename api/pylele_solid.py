@@ -15,11 +15,12 @@ from pathlib import Path
 import sys
 import time
 import trimesh
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, supported_apis
-from api.pylele_api_constants import ColorEnum, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+from pathlib import Path
+from abc import ABC, abstractmethod
+from argparse import Namespace
+                
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum,supported_apis, direction_operand
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
 
@@ -150,6 +151,15 @@ def stl_check_volume(
         )
     return rpt
 
+def solid_operand(joiner)->ShapeAPI:
+    """ returns a ShapeAPI compatible operand """
+    if joiner is None:
+        return joiner
+    if isinstance(joiner,LeleSolid):
+        joiner._gen_full_if_no_shape()
+        return joiner.shape
+    if isinstance(joiner, ShapeAPI):
+        return joiner
 
 def lele_solid_parser(parser=None):
     """
@@ -233,7 +243,6 @@ class LeleSolid(ABC):
     Pylele Generic Solid Body
     """
 
-    shape = None
     parts = None
 
     @abstractmethod
@@ -398,11 +407,11 @@ class LeleSolid(ABC):
             self.api.setImplicit(self.cli.implicit)
 
     def cut(self, cutter: LeleSolid) -> LeleSolid:
-        """Cut solid with other shape"""
-        # assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
+        """ Cut solid with other shape """
         self._gen_full_if_no_shape()
-        cutter._gen_full_if_no_shape()
-        self.shape = self.shape.cut(cutter.shape)
+        self.shape = self.shape.cut(
+            solid_operand(cutter)
+        )
         return self
 
     def _make_out_path(self):
@@ -507,11 +516,12 @@ class LeleSolid(ABC):
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
-        """Join solid with other solid"""
-        # assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
+        """ Join solid with other solid """
+
         self._gen_full_if_no_shape()
-        joiner._gen_full_if_no_shape()
-        self.shape = self.shape.join(joiner.shape)
+        self.shape = self.shape.join(
+            solid_operand(joiner)
+        )
         return self
 
     def mirrorXZ(self) -> LeleSolid:
@@ -526,14 +536,30 @@ class LeleSolid(ABC):
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
         self._gen_full_if_no_shape()
         self.shape = self.shape.mv(x, y, z)
+        
         return self
 
     def show(self):
         """Show solid"""
         self._gen_full_if_no_shape()
         return self.shape.show()
+    
+    def __add__(self, operand):
+        """ Join using + """
+        return self.join(operand)
+    
+    def __sub__(self, operand):
+        """ cut using - """
+        return self.cut(operand)
+    
+    def __mul__(self, x,y,z) -> Shape:
+        """ scale using * """
+        return self.scale(x,y,z)
 
-
-if __name__ == "__main__":
+    def __lshift__(self, x,y,z) -> Shape:
+        """ move using << """
+        return self.mv(x,y,z)
+ 
+if __name__ == '__main__':
     prs = lele_solid_parser()
     print(prs.parse_args())

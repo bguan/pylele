@@ -71,34 +71,31 @@ class LeleFretboardAssembly(LeleBase):
     """Pylele Fretboard Assembly Generator class"""
 
     def gen(self) -> Shape:
-        """Generate Fretboard Assembly"""
-
-        joinTol = self.api.getJoinCutTol()
-        nut = LeleNut(cli=self.cli, isCut=nut_is_cut(self.cli))
-        frets = LeleFrets(cli=self.cli)
-        topCut = (
-            LeleTop(isCut=True, cli=self.cli).mv(0, 0, -self.api.getJoinCutTol())
-            if self.cli.separate_fretboard or self.cli.separate_neck
-            else None
-        )
-
-        fbJoiners = []
-        fbCutters = []
+        """ Generate Fretboard Assembly """
+        
         fbFillets = {}
+        if self.cli.separate_fretboard or self.cli.separate_neck:
+            if self.cli.implementation == Implementation.CAD_QUERY:
+                fbFillets[FILLET_RAD] = [(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]
+
+        fretbd = LeleFretboard(
+                               fillets=fbFillets,
+                               cli=self.cli
+                               )
 
         ## dots
         if self.cli.separate_dots:
-            self.add_part(LeleFretboardDots(isCut=True, cli=self.cli))
-        fbCutters.append(LeleFretboardDots(isCut=False, cli=self.cli))
+            fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
+            fretbd -= fdotsCut
+            self.add_part(fdotsCut)
 
         ## frets
+        frets = LeleFrets(cli=self.cli)
         if self.cli.fret_type == FretType.PRINT and not self.cli.separate_frets:
-            fbJoiners.append(frets)
-        elif (
-            self.cli.fret_type in [FretType.NAIL, FretType.WIRE]
-            or self.cli.separate_frets
-        ):
-            fbCutters.append(frets)
+            fretbd += frets
+        elif self.cli.fret_type in [FretType.NAIL, FretType.WIRE] or \
+            self.cli.separate_frets:
+                fretbd -=frets
         else:
             assert f"Unsupported FretType: {self.cli.fret_type} !"
 
@@ -106,44 +103,27 @@ class LeleFretboardAssembly(LeleBase):
             self.add_part(frets)
 
         ## nut
+        nut = LeleNut(cli=self.cli,isCut=nut_is_cut(self.cli))
+
         if self.cli.separate_nut:
             self.add_part(nut)
 
         if nut_is_join(self.cli):
-            fbJoiners.append(nut)
+            fretbd += nut
         elif nut_is_cut(self.cli):
-            fbCutters.append(nut)
-
-        if self.cli.separate_fretboard or self.cli.separate_top:
-            fbJoiners.append(
-                LeleFretboardSpines(cli=self.cli, isCut=False).mv(0, 0, joinTol)
-            )
+            fretbd -= nut
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
-            fbCutters.insert(0, topCut)
-            # blender mesh based edges can't handle curves
-            if self.cli.implementation == Implementation.CAD_QUERY:
-                fbFillets[FILLET_RAD] = [
-                    (self.cfg.fretbdLen, 0, 0.5 * self.cfg.fretbdHt)
-                ]
-
-        fretbd = LeleFretboard(
-            joiners=fbJoiners,
-            cutters=fbCutters,
-            fillets=fbFillets,
-            cli=self.cli,
-        )
-
-        fretbd.gen_full()
+            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.api.getJoinCutTol())
 
         # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
         # as joins happen before cuts
         if self.cli.separate_fretboard or self.cli.separate_neck:
-            fretbd = fretbd.join(LeleFretboardJoint(cli=self.cli))
+            fretbd += LeleFretboardJoint(cli=self.cli)
             if self.cli.num_spines > 0:
-                fretbd = fretbd.join(LeleFretboardSpines(cli=self.cli))
+                fretbd += LeleFretboardSpines(cli=self.cli)
         
-        return fretbd.shape
+        return fretbd.gen_full()
     
     def gen_parser(self,parser=None):
         """
