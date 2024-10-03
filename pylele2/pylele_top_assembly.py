@@ -46,17 +46,15 @@ class LeleTopAssembly(LeleBase):
         top -= LeleTuners(cli=self.cli, isCut=True)
 
         # fillet worm tuners slit
-        if TunerType[self.cli.tuner_type].value.is_worm() and \
-            not self.cli.body_type == LeleBodyType.FLAT:
-            wcfg: WormConfig = TunerType[self.cli.tuner_type].value
-            top = top.filletByNearestEdges(
-                nearestPts=[
-                    (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
-                    for xyz in self.cfg.tnrXYZs
-                ],
-                rad = wcfg.slitWth
-            )
-
+        tuners = TunerType[self.cli.tuner_type].value
+        if tuners.is_worm():
+            for xyz in self.cfg.tnrXYZs:
+                top = top.filletByNearestEdges(
+                    nearestPts=[
+                        (xyz[0] - tuners.slitLen, xyz[1], xyz[2] + tuners.holeHt)
+                    ],
+                    rad = tuners.slitWth
+                )
         if self.cli.separate_top:
             top += LeleRim(cli=self.cli, isCut=False)
         if not self.cli.body_type in [LeleBodyType.FLAT]:
