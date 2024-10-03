@@ -45,7 +45,7 @@ class LeleBottomAssembly(LeleBase):
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             chamber = LeleChamber(cli=self.cli, isCut=True)
             if not self.cli.body_type in [LeleBodyType.TRAVEL]:
-                chamber -= LeleBrace(cli=self.cli)
+                # chamber -= LeleBrace(cli=self.cli)
                 body -= chamber
 
         ## Spines
