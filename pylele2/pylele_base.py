@@ -30,22 +30,21 @@ class LeleBase(LeleSolid):
     def __init__(
         self,
         isCut: bool = False,
-        joiners: list[LeleSolid] = [],
-        cutters: list[LeleSolid] = [],
-        fillets: dict[tuple[float, float, float], float] = {},
-        args=None,
-        cli=None,
+        # joiners: list[LeleSolid] = [],
+        # cutters: list[LeleSolid] = [],
+        # fillets: dict[tuple[float, float, float], float] = {},
+        args = None,
+        cli = None
     ):
         """Initialization Method for Base ukuelele element"""
 
-        super().__init__(
-            isCut=isCut,
-            joiners=joiners,
-            cutters=cutters,
-            fillets=fillets,
-            args=args,
-            cli=cli,
-        )
+        super().__init__(isCut=isCut,
+                         # joiners=joiners, 
+                         # cutters=cutters,
+                         # fillets=fillets,
+                         args = args,
+                         cli=cli
+                         )
 
     def configure(self):
 

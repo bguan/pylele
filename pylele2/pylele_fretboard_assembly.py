@@ -73,15 +73,7 @@ class LeleFretboardAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
         
-        fbFillets = {}
-        if self.cli.separate_fretboard or self.cli.separate_neck:
-            if self.cli.implementation == Implementation.CAD_QUERY:
-                fbFillets[FILLET_RAD] = [(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]
-
-        fretbd = LeleFretboard(
-                               fillets=fbFillets,
-                               cli=self.cli
-                               )
+        fretbd = LeleFretboard( cli=self.cli )
 
         ## dots
         if self.cli.separate_dots:
@@ -115,13 +107,12 @@ class LeleFretboardAssembly(LeleBase):
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
             fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.api.getJoinCutTol())
-
-        # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
-        # as joins happen before cuts
-        if self.cli.separate_fretboard or self.cli.separate_neck:
             fretbd += LeleFretboardJoint(cli=self.cli)
             if self.cli.num_spines > 0:
                 fretbd += LeleFretboardSpines(cli=self.cli)
+            fretbd = fretbd.filletByNearestEdges(
+                rad = FILLET_RAD, nearestPts=[(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]
+            )
         
         return fretbd.gen_full()
     
