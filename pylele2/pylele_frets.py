@@ -60,13 +60,13 @@ class LeleFrets(LeleBase):
         maxFrets = self.cfg.MAX_FRETS
         wideAng = self.cfg.neckWideAng
         riseAng = self.cfg.fretbdRiseAng
-        frets = None
 
         # Not generating frets, if they are cut ?
         fx = 0
         gap = (scLen / 2) / accumDiv(1, 12, SEMI_RATIO)
         count = 0
-        while fx < (fbLen - gap - 2 * fHt):
+        frets =  None
+        while (fx < (fbLen - gap - 2 * fHt)):
             fx = fx + gap
             fy = fWth / 2 + math.tan(radians(wideAng)) * fx
             fz = fbTck + math.tan(radians(riseAng)) * fx
