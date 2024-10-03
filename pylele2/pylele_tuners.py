@@ -22,28 +22,30 @@ class LeleTuners(LeleBase):
     """Pylele Tuners Generator class"""
 
     def gen(self) -> Shape:
-        """Generate Tuners"""
+        """ Generate Tuners """
+        
+        if self.isCut:
+            origFidel = self.cli.fidelity
+            self.api.setFidelity(Fidelity.MEDIUM)
 
+        tuners = TunerType[self.cli.tuner_type].value
         tXYZs = self.cfg.tnrXYZs
+
         tnrs = None
         for txyz in tXYZs:
-            tnr = (
-                LelePeg(isCut=self.isCut, cli=self.cli)
-                if TunerType[self.cli.tuner_type].value.is_peg()
-                else (
-                    LeleWorm(isCut=self.isCut, cli=self.cli)
-                    if TunerType[self.cli.tuner_type].value.is_worm()
-                    else None
-                )
-            )
-            if not tnr is None:
-                tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
-                tnrs = tnr if tnrs is None else tnrs.join(tnr)
+            if tuners.is_peg():
+                tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
+            else: # if tuners.is_worm():
+                tnr = LeleWorm(isCut=self.isCut, cli=self.cli).gen_full()
+            # if not tnr is None:
+            tnr = tnr.mv(txyz[0], txyz[1], txyz[2])
+            tnrs = tnr + tnrs
 
-        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
-            worm = LeleWormKey(cli=self.cli, isCut=self.isCut)
-            worm.gen_full()
-            tnrs = tnrs.join(worm.shape)
+        if tuners.is_worm() and self.cli.worm_has_key:
+            tnrs += LeleWormKey(cli=self.cli,isCut=self.isCut).gen_full()
+
+        if self.isCut:
+            self.api.setFidelity(origFidel)
 
         return tnrs
 
