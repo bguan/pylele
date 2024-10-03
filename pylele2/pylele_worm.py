@@ -200,50 +200,42 @@ class LeleWorm(LeleBase):
         )
 
         # Note: Origin is middle of slit, near tip of axle
+
+        ## Axle
         axlX = 0
         axlY = -0.5  # sltWth/2 -axlLen/2
         axlZ = 0
+        
         axl = self.api.genRodY(axlLen, axlRad).mv(axlX, axlY, axlZ)
         if self.isCut:
-            axlExtCut = self.api.genBox(100, axlLen, 2 * axlRad).mv(
-                50 + axlX, axlY, axlZ
-            )
-            axl = axl.join(axlExtCut)
-
-        if self.isCut and self.cli.worm_axle_hole:
-            axl2 = self.api.genRodY(100.0, self.cli.worm_axle_hole_radius).mv(
-                axlX, axlY, axlZ
-            )
-            axl = axl.join(axl2)
-
+            axl += self.api.genBox(100, axlLen, 2*axlRad)\
+                .mv(50 + axlX, axlY, axlZ)       
+            if self.cli.worm_axle_hole:
+                axl += self.api.genRodY(100.0, self.cli.worm_axle_hole_radius)\
+                    .mv(axlX, axlY, axlZ)
+        ## Disk
         dskX = axlX
         dskY = axlY - axlLen / 2 - dskTck / 2
         dskZ = axlZ
+        
         dsk = self.api.genRodY(dskTck, dskRad).mv(dskX, dskY, dskZ)
         if self.isCut:
-            dskExtCut = self.api.genBox(100, dskTck, 2 * dskRad).mv(
-                50 + dskX, dskY, dskZ
-            )
-            dsk = dsk.join(dskExtCut)
+            dsk += self.api.genBox(
+                100, dskTck, 2*dskRad).mv(50 + dskX, dskY, dskZ)
 
+        ## Drive
         drvX = dskX
         drvY = dskY
         drvZ = dskZ + offset
         drv = self.api.genRodX(drvLen, drvRad).mv(drvX, drvY, drvZ)
         if self.isCut:
-            drvExtCut = self.api.genRodX(100, drvRad).mv(50 + drvX, drvY, drvZ)
-            drv = drv.join(drvExtCut)
+            drv += self.api.genRodX(100, drvRad).mv(50 + drvX, drvY, drvZ)
 
-        worm = axl.join(dsk).join(drv)
+        worm = axl + dsk + drv
 
+        ## Slit
         if self.isCut:
-            (front, _, _, _, _, _) = (
-                tnrCfg.dims()
-            )  # enable open back slit w/o long slit front
-            slit = self.api.genBox(sltLen, sltWth, 100).mv(
-                sltLen / 2 - front, 0, 50 - 2 * axlRad
-            )
-            worm = worm.join(slit)
+            worm += self.api.genBox(sltLen, sltWth, 100).mv(0, 0, 50 - 2*axlRad)
 
         return worm
 
