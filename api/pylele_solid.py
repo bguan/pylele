@@ -81,6 +81,7 @@ def test_loop(module, apis=None, tests=None):  # ,component):
                         api=api,
                         args=args,
                         )
+        test_count += 1
 class PrettyPrintDict(dict):
     """A class to print all entries of a dict"""
 
