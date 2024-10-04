@@ -473,7 +473,10 @@ class LeleSolid(ABC):
     ) -> LeleSolid:
         """Apply fillet to solid"""
         self._gen_full_if_no_shape()
-        self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
+        try:
+            self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
+        except:
+            print(f'WARNING: fillet failed at point {nearestPts}, with radius {rad}!')
         return self
 
     def half(self) -> LeleSolid:
