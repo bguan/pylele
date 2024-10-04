@@ -71,17 +71,16 @@ def test_loop(module, apis=None, tests=None):  # ,component):
     if apis is None:
         apis = supported_apis()
 
-    for test, args in tests.items():
+    test_count = 0
+    for test,args in tests.items():
         for api in apis:
             test_iteration(
-                module=module,
-                component=module,
-                test=test,
-                api=api,
-                args=args,
-            )
-
-
+                        module=module,
+                        component=module,
+                        test=f'{test_count:02d}_{test}',
+                        api=api,
+                        args=args,
+                        )
 class PrettyPrintDict(dict):
     """A class to print all entries of a dict"""
 
