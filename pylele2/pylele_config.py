@@ -173,13 +173,16 @@ class LeleConfig:
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
-        cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
+        
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
         cfg.sndholeAng = degrees(
             atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
         )
+
+        cfg.sndholeX = scaleLen - .5*self.chmFront
+        cfg.sndholeY = -(self.chmWth/2 - 2*cfg.sndholeMinRad)
+
         return cfg
 
     def fbSpineLen(self) -> float:
