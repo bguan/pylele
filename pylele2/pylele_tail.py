@@ -45,88 +45,43 @@ class LeleTail(LeleBase):
         tailLen = tailX - chmBackX + 2 * cutAdj
         endWth = self.cli.end_flat_width + 2 * cutAdj
         botRat = cfg.BOT_RATIO
-        if self.cli.body_type in [
-            LeleBodyType.FLAT,
-            LeleBodyType.HOLLOW,
-            LeleBodyType.TRAVEL,
-        ]:
+        rimWth = cfg.rimWth+ 2*cutAdj
+        
+        ## flat middle section
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
             midBotTck = self.cli.flat_body_thickness
         else:
-            midBotTck = cfg.extMidBotTck + 2 * cutAdj
-        rimWth = cfg.rimWth + 2 * cutAdj
-        topCut = self.api.genBox(2000, 2000, 2000).mv(0, 0, 1000)
+            midBotTck = cfg.extMidBotTck + 2*cutAdj
 
-        top = None
         if midBotTck > 0:
-            extTop = self.api.genBox(
-                10 if self.isCut else rimWth, endWth, midBotTck
-            ).mv(tailX + (5 - rimWth if self.isCut else -rimWth / 2), 0, -midBotTck / 2)
-            inrTop = self.api.genBox(2 * tailLen, endWth - 2 * rimWth, midBotTck).mv(
-                tailX - rimWth - tailLen, 0, -midBotTck / 2
-            )
-            top = extTop.join(inrTop)
+            extTop = self.api.genBox(10 if self.isCut else rimWth, endWth, midBotTck)\
+                .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
+            inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
+                .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
+            tail = extTop + inrTop
 
-        if self.cli.body_type in [
-            LeleBodyType.FLAT,
-            LeleBodyType.HOLLOW,
-            LeleBodyType.TRAVEL,
-        ]:
-            extBot = None
-            inrBot = None
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
+            # flat bodies do not have rounded bottom
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
-                top = top.mv(5, 0, 0)  # for whatever reason...
+                tail = tail.mv(5,0,0) # for whatever reason...
         else:
-            extBot = (
-                self.api.genRodX(10 if self.isCut else rimWth, endWth / 2)
-                .scale(1, 1, botRat)
-                .mv(tailX + (5 - rimWth if self.isCut else -rimWth / 2), 0, -midBotTck)
-            )
-            inrBot = (
-                self.api.genRodX(2 * tailLen, endWth / 2 - rimWth)
-                .scale(1, 1, botRat)
-                .mv(tailX - rimWth - tailLen, 0, -midBotTck)
-            )
-
-        if inrBot is None and extBot is None:
-            bot = None
-        else:
-            if extBot is None:
-                bot = inrBot
-            else:
-                bot = extBot.join(inrBot).cut(topCut)
-
-        if top is None:
-            tail = bot
-        else:
-            if bot is None:
-                tail = top
-            else:
-                tail = top.join(bot)
-            # tail = top
+            # rounded bottom
+            extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2)\
+                .scale(1, 1, botRat)\
+                .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
+            inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth)\
+                .scale(1, 1, botRat)\
+                .mv(tailX - rimWth -tailLen, 0, -midBotTck)
+            tail += extBot + inrBot
+            # remove upper section of the rounde bodies
+            tail -= self.api.genBox(2000, 2000, 2000).mv(0,0,1000)
 
         # Tuners
-        if not self.isCut:
-            tuners_cut = LeleTuners(cli=self.cli, isCut=True)
-            tuners_cut.gen_full()
-            tail = tail.cut(tuners_cut.shape)
-
-        # Spines
-        if not self.isCut:
-            spine_cut = LeleSpines(cli=self.cli, isCut=True)
-            spine_cut.gen_full()
-            tail = tail.cut(spine_cut.shape)
-
-        # Chamber
-        if not self.isCut and self.cli.body_type == LeleBodyType.GOURD:
-            chm_cut = LeleChamber(cli=self.cli, isCut=True)
-            chm_cut.gen_full()
-            tail = tail.cut(chm_cut.shape)
-
-        # Rim
-        if not self.isCut and self.cli.separate_top:
-            rim_cut = LeleRim(cli=self.cli, isCut=True)
-            rim_cut.gen_full()
-            tail = tail.cut(rim_cut.shape)
+        tuners_cut=LeleTuners(cli=self.cli,isCut=True).gen_full()
+        if self.isCut:
+            tail += tuners_cut
+        else:
+            tail -= tuners_cut
 
         return tail
 
@@ -145,10 +100,9 @@ def test_tail(self, apis=None):
     """Test Tail"""
 
     tests = {
-        "cut": ["-t", "worm", "-E", "-e", "90", "-C"],
-        "separate_tail": ["-t", "worm", "-E", "-e", "90"],
-        "worm": WORM,
-        "bigworm": BIGWORM,
+        'worm'         : WORM,
+        'worm_cut'     : WORM + ['-C'],
+        'bigworm'      : BIGWORM,
     }
 
     test_body = {}
