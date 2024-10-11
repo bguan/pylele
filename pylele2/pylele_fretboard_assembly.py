@@ -110,9 +110,6 @@ class LeleFretboardAssembly(LeleBase):
             fretbd += LeleFretboardJoint(cli=self.cli)
             if self.cli.num_spines > 0:
                 fretbd += LeleFretboardSpines(cli=self.cli)
-            fretbd = fretbd.filletByNearestEdges(
-                rad = FILLET_RAD, nearestPts=[(self.cfg.fretbdLen, 0, .5*self.cfg.fretbdHt)]
-            )
         
         return fretbd.gen_full()
     
