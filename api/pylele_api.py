@@ -123,7 +123,6 @@ def test_api(api):
     else:
         print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
 
-
 def default_or_alternate(def_val, alt_val=None):
     """ Override default value with alternate value, if available"""
     if alt_val is None:
@@ -163,6 +162,7 @@ def direction_operand(operand) -> Direction:
     if isinstance(operand,Direction):
         return operand
     assert False
+
 class Shape(ABC):
 
     MAX_DIM = 2000  # for max and min dimensions
@@ -392,7 +392,50 @@ class ShapeAPI(ABC):
     def genRodY(self, l: float, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genRodZ(self, l: float, rad: float) -> Shape: ...
+    def genRodZ(self, l: float, rad: float) -> Shape: 
+        ...
+
+    def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
+        """ generate a mask to round an edge """
+
+        radi = rad + tol
+        if direction == 'x':
+            mask  = self.genBox(l,radi,radi).mv(0,radi/2,radi/2)
+            mask -= self.genRodX(l,rad=radi)
+            mask  = mask.rotateX(rot)
+        elif direction == 'y':
+            mask  = self.genBox(radi,l,radi).mv(radi/2,0,radi/2)
+            mask -= self.genRodY(l,rad=radi)
+            mask  = mask.rotateY(rot)
+        elif direction == 'z':
+            mask  = self.genBox(radi,radi,l).mv(radi/2,radi/2,0)
+            mask -= self.genRodZ(l,rad=radi)
+            mask  = mask.rotateZ(rot)
+        else:
+            assert False
+
+        return mask
+
+    def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
+        """ generate a mask to round an edge """
+
+        radi = rad + tol
+        if direction == 'x':
+            mask  = self.genBox(l,radi,radi).mv(0,radi/2,radi/2)
+            mask -= self.genRodX(l,rad=radi)
+            mask  = mask.rotateX(rot)
+        elif direction == 'y':
+            mask  = self.genBox(radi,l,radi).mv(radi/2,0,radi/2)
+            mask -= self.genRodY(l,rad=radi)
+            mask  = mask.rotateY(rot)
+        elif direction == 'z':
+            mask  = self.genBox(radi,radi,l).mv(radi/2,radi/2,0)
+            mask -= self.genRodZ(l,rad=radi)
+            mask  = mask.rotateZ(rot)
+        else:
+            assert False
+
+        return mask
 
     def genRndRodX(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         rndRodZ = self.genRndRodZ(l, rad, domeRatio)
@@ -596,6 +639,15 @@ class ShapeAPI(ABC):
             1, [(-20, 0, 0), (20, 0, 40), (40, 20, 40), (60, 20, 0)]
         )
         self.exportSTL(sweep, expDir / f"{implCode}-sweep")
+
+        edgex = self.gen_rounded_edge_mask(direction='x',l=30, rad = 10)
+        self.exportSTL(edgex, expDir / f"{implCode}-edgex")
+
+        edgey = self.gen_rounded_edge_mask(direction='y',l=30, rad = 10)
+        self.exportSTL(edgey, expDir / f"{implCode}-edgey")
+
+        edgez = self.gen_rounded_edge_mask(direction='z',l=30, rad = 10)
+        self.exportSTL(edgez, expDir / f"{implCode}-edgez")
 
         # More complex tests
 
