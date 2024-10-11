@@ -48,6 +48,7 @@ class LeleTopAssembly(LeleBase):
         tuners = TunerType[self.cli.tuner_type].value
         if tuners.is_worm():
             # fillet worm tuners slit
+            """
             for xyz in self.cfg.tnrXYZs:
                 top = top.filletByNearestEdges(
                     nearestPts=[
@@ -55,6 +56,8 @@ class LeleTopAssembly(LeleBase):
                     ],
                     rad = tuners.slitWth
                 )
+            """
+            pass
         elif tuners.is_peg():
             # gen guide if using tuning pegs
             guide = LeleGuide(cli=self.cli)

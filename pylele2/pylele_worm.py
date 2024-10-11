@@ -209,7 +209,7 @@ class LeleWorm(LeleBase):
         axl = self.api.genRodY(axlLen, axlRad).mv(axlX, axlY, axlZ)
         if self.isCut:
             axl += self.api.genBox(100, axlLen, 2*axlRad)\
-                .mv(50 + axlX, axlY, axlZ)       
+                .mv(50 + axlX, axlY, axlZ)
             if self.cli.worm_axle_hole:
                 axl += self.api.genRodY(100.0, self.cli.worm_axle_hole_radius)\
                     .mv(axlX, axlY, axlZ)
@@ -235,7 +235,14 @@ class LeleWorm(LeleBase):
 
         ## Slit
         if self.isCut:
-            worm += self.api.genBox(sltLen, sltWth, 100).mv(0, 0, 50 - 2*axlRad)
+            fillet_rad = sltLen
+            slit  = self.api.genBox(sltLen, sltWth, 100).mv(0, 0, 50 - 2*axlRad)
+            # round the slit edge so that strings can slip easily
+            slit += self.api.gen_rounded_edge_mask(direction='y',l=sltWth,rad=fillet_rad)\
+                .mv(-sltLen-fillet_rad/2,
+                    0,
+                    drvRad + dskRad + axlRad + self.cfg.extMidTopTck + self.cfg.bodyWth/2 * self.cfg.TOP_RATIO - fillet_rad - 2.5)
+            worm += slit
 
         return worm
 
