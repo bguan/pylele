@@ -156,7 +156,7 @@ def solid_operand(joiner)->ShapeAPI:
     if joiner is None:
         return joiner
     if isinstance(joiner,LeleSolid):
-        joiner._gen_full_if_no_shape()
+        joiner.gen_full()
         return joiner.shape
     if isinstance(joiner, ShapeAPI):
         return joiner
@@ -312,8 +312,8 @@ class LeleSolid(ABC):
         else:
             self.parts = parts
 
-    def _gen_if_no_shape(self):
-        """Generate shape if attribute not present"""
+    def gen_full(self):
+        """ Generate shape if attribute not present """
         if not self.has_shape():
             print(f"# Shape missing: Generating {self.fileNameBase}... ")
 
@@ -326,18 +326,7 @@ class LeleSolid(ABC):
             self.shape = self.gen()
             print(f"# Done generating shape! {self.fileNameBase}")
         self.check_has_shape()
-
-    def gen_full(self):
-        """Generate full shape including joiners, cutters, and fillets"""
-        # generate self.shape
-        self._gen_if_no_shape()                
         return self.shape
-
-    def _gen_full_if_no_shape(self):
-        """Generate full shape including joiners, cutters, and fillets, if shape is not already present"""
-        if not self.has_shape():
-            self.gen_full()
-        self.check_has_shape()
 
     def gen_parser(self, parser=None):
         """
@@ -376,7 +365,7 @@ class LeleSolid(ABC):
 
     def cut(self, cutter: LeleSolid) -> LeleSolid:
         """ Cut solid with other shape """
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.cut(
             solid_operand(cutter)
         )
@@ -419,7 +408,7 @@ class LeleSolid(ABC):
         print(f"Output File: {out_fname}")
 
         start_time = time.time()
-        self._gen_full_if_no_shape()
+        self.gen_full()
 
         self.api.exportSTL(self.shape, out_fname)
 
@@ -471,8 +460,8 @@ class LeleSolid(ABC):
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> LeleSolid:
-        """Apply fillet to solid"""
-        self._gen_full_if_no_shape()
+        """ Apply fillet to solid """
+        self.gen_full()
         try:
             self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
         except:
@@ -482,14 +471,14 @@ class LeleSolid(ABC):
     def half(self) -> LeleSolid:
         """Cut solid in half to create a sectioned view"""
         # assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
         """ Join solid with other solid """
 
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.join(
             solid_operand(joiner)
         )
@@ -498,21 +487,21 @@ class LeleSolid(ABC):
     def mirrorXZ(self) -> LeleSolid:
         """Mirror solid along XZ axis"""
         # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
         """Move solid in direction specified"""
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.mv(x, y, z)
         
         return self
 
     def show(self):
-        """Show solid"""
-        self._gen_full_if_no_shape()
+        """ Show solid """
+        self.gen_full()
         return self.shape.show()
     
     def __add__(self, operand):
