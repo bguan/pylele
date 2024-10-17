@@ -74,6 +74,7 @@ class PyleleTestMethods(unittest.TestCase):
     from parts.screw import test_screw, test_screw_mock
     from parts.import3d import test_import3d
     from parts.scad_example import test_scad_example
+    from parts.rounded_box import test_rounded_box, test_rounded_box_mock
 
     ## Pylele Individual Parts
     from pylele2.pylele_frets import test_frets, test_frets_mock

@@ -10,12 +10,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape, Implementation
-from api.pylele_api_constants import FILLET_RAD, FIT_TOL
-from api.pylele_solid import main_maker, test_loop
-from pylele_config_common import TunerType, WormConfig
-
-from pylele2.pylele_base import LeleBase
-
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD, TunerType
+from pylele2.pylele_worm import WormConfig
+from parts.rounded_box import RoundedBox
 
 class LeleWormKey(LeleBase):
     """Pylele Worm Key Generator class"""
@@ -37,25 +34,24 @@ class LeleWormKey(LeleBase):
         kyRad = wcfg.buttonKeyRad + cutAdj
         kyLen = wcfg.buttonKeyLen + 2 * cutAdj
 
-        key = self.api.genPolyRodX(kyLen, kyRad, 6).mv(
-            joinTol - kyLen / 2 - kbHt - btnHt, 0, 0
-        )
-        base = (
-            self.api.genPolyRodX(kbHt, kbRad, 36)
-            if isBlender
-            else self.api.genRodX(kbHt, kbRad)
-        )
-        base = base.mv(-kbHt / 2 - btnHt, 0, 0)
-        btn = self.api.genBox(100 if self.isCut else btnHt, btnTck, btnWth).mv(
-            50 - btnHt if self.isCut else -btnHt / 2, 0, 0
-        )
+        key = self.api.genPolyRodX(kyLen, kyRad, 6).mv(joinTol -kyLen/2 -kbHt -btnHt, 0, 0)
+        base = self.api.genPolyRodX(kbHt, kbRad, 36) if isBlender else self.api.genRodX(kbHt, kbRad)
+        base = base.mv(-kbHt/2 -btnHt, 0, 0)
 
         if self.isCut:
+            btn = self.api.genBox(100, btnTck, btnWth)\
+                .mv(50 -btnHt, 0, 0)
             btn += self.api.genRodX(100 if self.isCut else btnHt, btnWth/2)\
                 .scale(1, .5, 1)\
-                .mv(50 -btnHt if self.isCut else -btnHt/2, btnTck/2, 0)
+                .mv(50 -btnHt, btnTck/2, 0)
         else:
-            btn = btn.filletByNearestEdges([], FILLET_RAD)
+            box = RoundedBox(args=['-x', f'{btnHt}',
+                                   '-y', f'{btnTck}',
+                                   '-z', f'{btnWth}',
+                                   '-i', self.cli.implementation]
+                                   )\
+                .mv(-btnHt/2, 0, 0)
+            btn = box.gen_full()
 
         btn += base + key
         maxTnrY = max([y for _, y, _ in txyzs])
