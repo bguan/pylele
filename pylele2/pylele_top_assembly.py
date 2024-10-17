@@ -25,6 +25,8 @@ from pylele2.pylele_soundhole import LeleSoundhole
 from pylele2.pylele_rim import LeleRim
 from pylele2.pylele_worm import pylele_worm_parser
 from pylele2.pylele_top import LeleTop
+from pylele2.pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser
+from pylele2.pylele_strings import LeleStrings
 from pylele2.pylele_fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
@@ -43,21 +45,13 @@ class LeleTopAssembly(LeleBase):
         top = LeleTop(cli=self.cli)
         
         # tuners
-        top -= LeleTuners(cli=self.cli, isCut=True)
+        tuners = LeleTuners(cli=self.cli, isCut=True)
+        top -= tuners
 
-        tuners = TunerType[self.cli.tuner_type].value
         if tuners.is_worm():
             # fillet worm tuners slit
-            """
-            for xyz in self.cfg.tnrXYZs:
-                top = top.filletByNearestEdges(
-                    nearestPts=[
-                        (xyz[0] - tuners.slitLen, xyz[1], xyz[2] + tuners.holeHt)
-                    ],
-                    rad = tuners.slitWth
-                )
-            """
-            pass
+            top = tuners.worm_fillet(top)
+
         elif tuners.is_peg():
             # gen guide if using tuning pegs
             guide = LeleGuide(cli=self.cli)
@@ -72,13 +66,11 @@ class LeleTopAssembly(LeleBase):
         if not self.cli.body_type in [LeleBodyType.FLAT]:
             top -= LeleChamber(cli=self.cli,isCut=True)
         if not self.cli.body_type in [LeleBodyType.FLAT,LeleBodyType.TRAVEL]:
-            top -= LeleSoundhole(cli=self.cli, isCut=True)
-            # soundhole fillet
-            sh_cfg = self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
-            top = top.filletByNearestEdges(
-                nearestPts=[(sh_cfg.sndholeX, sh_cfg.sndholeY, self.cfg.fretbdHt)],
-                rad = FILLET_RAD
-            )
+            # soundhole
+            sh  = LeleSoundhole(cli=self.cli, isCut=True)
+            top -= sh
+            top = sh.fillet(top)
+
             # brace
             top += LeleBrace(cli=self.cli)
 

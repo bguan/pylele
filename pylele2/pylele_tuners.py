@@ -21,6 +21,14 @@ from pylele2.pylele_worm_key import LeleWormKey
 class LeleTuners(LeleBase):
     """Pylele Tuners Generator class"""
 
+    def is_peg(self):
+        tuners = TunerType[self.cli.tuner_type].value
+        return tuners.is_peg()
+
+    def is_worm(self):
+        tuners = TunerType[self.cli.tuner_type].value
+        return tuners.is_worm()
+
     def gen(self) -> Shape:
         """ Generate Tuners """
         
@@ -28,12 +36,11 @@ class LeleTuners(LeleBase):
             origFidel = self.cli.fidelity
             self.api.setFidelity(Fidelity.MEDIUM)
 
-        tuners = TunerType[self.cli.tuner_type].value
         tXYZs = self.cfg.tnrXYZs
 
         tnrs = None
         for txyz in tXYZs:
-            if tuners.is_peg():
+            if self.is_peg():
                 tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
             else: # if tuners.is_worm():
                 tnr = LeleWorm(isCut=self.isCut, cli=self.cli).gen_full()
@@ -41,15 +48,34 @@ class LeleTuners(LeleBase):
             tnr = tnr.mv(txyz[0], txyz[1], txyz[2])
             tnrs = tnr + tnrs
 
-        if tuners.is_worm() and self.cli.worm_has_key:
+        if self.is_worm() and self.cli.worm_has_key:
             tnrs += LeleWormKey(cli=self.cli,isCut=self.isCut).gen_full()
 
         if self.isCut:
             self.api.setFidelity(origFidel)
 
         return tnrs
+    
+    def worm_fillet(self, top):
+        """ Apply fillet to worm cut """
+        assert self.isCut
+        assert self.is_worm()
+        
+        tnr = LeleWorm(isCut=self.isCut, cli=self.cli)
+        # tnr._gen_full_if_no_shape()
+        tuners = tnr.worm_config()
+        
+        for xyz in self.cfg.tnrXYZs:
+            top = top.filletByNearestEdges(
+                nearestPts=[
+                    (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.holeHt)
+                ],
+                rad = tuners.sltWth
+                )
+        return top
 
-    def gen_parser(self, parser=None):
+
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """
