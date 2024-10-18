@@ -97,14 +97,14 @@ def test_neck_assembly(self, apis=None):
     """Test Neck Assembly"""
 
     tests = {
-        "fret_nails": ["-ft", str(FretType.NAIL)],
-        "zerofret": ["-nt", str(NutType.ZEROFRET)],
-        "separate_neck": ["-N"],
-        "separate_fretboard": ["-F"],
-        "separate_nut": ["-NU"],
-        "separate_frets": ["-FR"],
-        "separate_all": ["-N", "-FR", "-NU", "-F"],
-        "flat_body": ["-bt", LeleBodyType.FLAT],
+        'fret_wire'          : ['-ft', str(FretType.WIRE)],
+        'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
+        'separate_neck'      : ['-N'],
+        'separate_fretboard' : ['-F'],
+        'separate_nut'       : ['-NU'],
+        'separate_frets'     : ['-FR'],
+        'separate_all'       : ['-N','-FR','-NU','-F'],
+        'flat_body'          : ['-bt',LeleBodyType.FLAT]
     }
 
     test_loop(module=__name__, tests=tests, apis=apis)

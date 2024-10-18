@@ -47,26 +47,6 @@ def pylele_fretboard_assembly_parser(parser=None):
     )
     return parser
 
-
-def nut_is_cut(cli):
-    """Returns True if Nut is a cutter"""
-    if cli.separate_nut or (
-        cli.nut_type == NutType.ZEROFRET and cli.fret_type == FretType.NAIL
-    ):
-        return True
-    return False
-
-
-def nut_is_join(cli):
-    """Returns True if Nut is a joiner"""
-    if not cli.separate_nut and (
-        cli.nut_type == NutType.NUT
-        or (cli.nut_type == NutType.ZEROFRET and cli.fret_type == FretType.PRINT)
-    ):
-        return True
-    return False
-
-
 class LeleFretboardAssembly(LeleBase):
     """Pylele Fretboard Assembly Generator class"""
 
@@ -83,27 +63,22 @@ class LeleFretboardAssembly(LeleBase):
 
         ## frets
         frets = LeleFrets(cli=self.cli)
-        if self.cli.fret_type == FretType.PRINT and not self.cli.separate_frets:
+        if not self.cli.separate_frets:
             fretbd += frets
-        elif self.cli.fret_type in [FretType.NAIL, FretType.WIRE] or \
-            self.cli.separate_frets:
-                fretbd -=frets
         else:
-            assert f"Unsupported FretType: {self.cli.fret_type} !"
+            fretbd -= frets
 
         if self.cli.separate_frets:
             self.add_part(frets)
 
         ## nut
-        nut = LeleNut(cli=self.cli,isCut=nut_is_cut(self.cli))
+        nut = LeleNut(cli=self.cli,isCut=self.cli.separate_nut)
 
         if self.cli.separate_nut:
             self.add_part(nut)
-
-        if nut_is_join(self.cli):
-            fretbd += nut
-        elif nut_is_cut(self.cli):
             fretbd -= nut
+        else:
+            fretbd += nut
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
             fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.api.getJoinCutTol())
@@ -133,7 +108,7 @@ def test_fretboard_assembly(self, apis=None):
     """Test Fretboard Assembly"""
     tests = {
         'separate_fretboard' : ['-F'],
-        'fret_nails'         : ['-ft', str(FretType.NAIL)],
+        'fret_round'         : ['-ft', str(FretType.ROUND)],
         'fret_wire'          : ['-ft', str(FretType.WIRE)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_nut'       : ['-NU'],
