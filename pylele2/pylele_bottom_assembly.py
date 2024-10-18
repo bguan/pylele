@@ -18,10 +18,10 @@ from pylele2.pylele_base import LeleBase
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
+
 from pylele2.pylele_body import LeleBody
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
-from pylele2.pylele_brace import LeleBrace
 from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser

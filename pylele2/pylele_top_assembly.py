@@ -27,11 +27,7 @@ from pylele2.pylele_worm import pylele_worm_parser
 from pylele2.pylele_top import LeleTop
 from pylele2.pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser
 from pylele2.pylele_strings import LeleStrings
-from pylele2.pylele_fretboard_assembly import (
-    LeleFretboardAssembly,
-    pylele_fretboard_assembly_parser,
-)
-
+from pylele2.pylele_worm_key import LeleWormKey
 
 class LeleTopAssembly(LeleBase):
     """Pylele Body Top Assembly Generator class"""
@@ -51,6 +47,9 @@ class LeleTopAssembly(LeleBase):
         if tuners.is_worm():
             # fillet worm tuners slit
             top = tuners.worm_fillet(top)
+
+            if self.cli.worm_has_key:
+                self.add_part(LeleWormKey(cli=self.cli))
 
         elif tuners.is_peg():
             # gen guide if using tuning pegs
