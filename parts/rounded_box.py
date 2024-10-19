@@ -66,10 +66,7 @@ class RoundedBox(LeleSolid):
         """ default implementation """
 
         # Main cube
-        box = self.api.genBox(self.cli.x - 2*self.cli.r,
-                              self.cli.y - 2*self.cli.r,
-                              self.cli.z - 2*self.cli.r)
-
+        box = None
         xcoords,ycoords,zcoords = self._coords()
 
         # lateral faces
@@ -78,7 +75,7 @@ class RoundedBox(LeleSolid):
                                    self.cli.y - 2*self.cli.r,
                                    self.cli.z - 2*self.cli.r)
             lbox <<= (x,0,0)
-            box += lbox
+            box = lbox + box
 
         for y in ycoords:
             lbox = self.api.genBox(self.cli.x - 2*self.cli.r,
@@ -96,10 +93,10 @@ class RoundedBox(LeleSolid):
 
         # Add edges (cylinders) to connect the fillets
 
-        # X-direction edges
+        # X-direction edges + corner spheres
         for z in zcoords:
             for y in ycoords:
-                edge = self.api.genRodX(self.cli.x - 2*self.cli.r, rad=self.cli.r)
+                edge = self.api.genRndRodX(self.cli.x, rad=self.cli.r)
                 edge <<= (0, y, z)
                 box += edge
 
@@ -116,14 +113,7 @@ class RoundedBox(LeleSolid):
                 edge = self.api.genRodZ(self.cli.z - 2*self.cli.r, rad=self.cli.r)
                 edge <<= (x, y, 0)
                 box += edge
-
-        # Add fillets (spheres) at the corners
-        for x in xcoords:
-            for y in ycoords:
-                for z in zcoords:
-                    box += self.api.genBall(rad=self.cli.r).mv(x,y,z)
-
-        # Union everything together
+                    
         return box
 
     def gen(self) -> Shape:
