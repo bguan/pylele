@@ -63,20 +63,17 @@ class LeleFretboardAssembly(LeleBase):
 
         ## frets
         frets = LeleFrets(cli=self.cli)
-        if not self.cli.separate_frets:
-            fretbd += frets
-        else:
-            fretbd -= frets
-
         if self.cli.separate_frets:
+            fretbd -= frets
             self.add_part(frets)
+        else:
+            fretbd += frets
 
         ## nut
         nut = LeleNut(cli=self.cli,isCut=self.cli.separate_nut)
-
         if self.cli.separate_nut:
-            self.add_part(nut)
             fretbd -= nut
+            self.add_part(nut)
         else:
             fretbd += nut
 
