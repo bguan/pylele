@@ -103,11 +103,14 @@ def main(args=None):
     return main_maker(module_name=__name__, class_name="LeleFrets", args=args)
 
 
-def test_frets(self, apis=None):
-    """Test Frets"""
-    tests = {"wire": ["-ft", "wire"]}
-    test_loop(module=__name__, tests=tests, apis=apis)
+def test_frets(self,apis=None):
+    """ Test Frets """
+    
+    tests = {}
+    for ft in FretType:
+        tests[ft] = ['-ft',ft]
 
+    test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_frets_mock(self):
     """Test Frets"""
