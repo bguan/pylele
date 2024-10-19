@@ -8,7 +8,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_loop, main_maker
+from solid2 import sphere
+from api.pylele_solid import LeleSolid, test_loop, main_maker, Implementation
 from api.pylele_api import Shape
 
 class RoundedBox(LeleSolid):
@@ -22,16 +23,54 @@ class RoundedBox(LeleSolid):
         parser.add_argument("-r", "--r", help="Rounding radius [mm]", type=float, default=1)
         return parser
 
-    def gen(self) -> Shape:
+    def gen_cadquery(self) -> Shape:
+        """ cadquery implementation """
+        assert self.cli.implementation in [Implementation.CAD_QUERY]
+
+        # Main cube
+        box = self.api.genBox(self.cli.x,
+                              self.cli.y,
+                              self.cli.z)
+
+        return box.filletByNearestEdges([], self.cli.r)
+
+    def _coords(self):
         
+        xcoords = [-self.cli.x/2+self.cli.r, self.cli.x/2-self.cli.r]
+        ycoords = [-self.cli.y/2+self.cli.r, self.cli.y/2-self.cli.r]
+        zcoords = [-self.cli.z/2+self.cli.r, self.cli.z/2-self.cli.r]
+
+        return xcoords,ycoords,zcoords
+
+    def gen_solidpython(self) -> Shape:
+        """ solidpython implementation """
+        assert self.cli.implementation in [Implementation.SOLID2]
+
+        xcoords,ycoords,zcoords = self._coords()
+
+        box = None
+        # put spheres on corners
+        for x in xcoords:
+            for y in ycoords:
+                for z in zcoords:
+                    corner = sphere(self.cli.r).translate(x,y,z)
+                    if box is None:
+                        box = corner
+                    else:
+                        box += corner
+        
+        # hull from the corners
+        return self.api.genShape( box.hull() )
+
+    def gen_default(self) -> Shape:
+        """ default implementation """
+
         # Main cube
         box = self.api.genBox(self.cli.x - 2*self.cli.r,
                               self.cli.y - 2*self.cli.r,
                               self.cli.z - 2*self.cli.r)
 
-        xcoords = [-self.cli.x/2+self.cli.r, self.cli.x/2-self.cli.r]
-        ycoords = [-self.cli.y/2+self.cli.r, self.cli.y/2-self.cli.r]
-        zcoords = [-self.cli.z/2+self.cli.r, self.cli.z/2-self.cli.r]
+        xcoords,ycoords,zcoords = self._coords()
 
         # lateral faces
         for x in xcoords:
@@ -86,6 +125,18 @@ class RoundedBox(LeleSolid):
 
         # Union everything together
         return box
+
+    def gen(self) -> Shape:
+        """ generate rounded box """
+        
+        if self.cli.implementation == Implementation.CAD_QUERY:
+            return self.gen_cadquery()
+        elif self.cli.implementation == Implementation.SOLID2:
+            return self.gen_solidpython()
+        else:
+            return self.gen_default()
+        
+        assert False
 
 def main(args=None):
     """ Generate a Rounded Box """
