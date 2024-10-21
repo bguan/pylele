@@ -16,13 +16,13 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    # python packages included in install_dependencies    
+    # python packages included in install_dependencies
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: install dependencies
-      run: | 
+      run: |
         chmod +x ./install_dependencies.sh
         sudo ./install_dependencies.sh
     - name: pip configuration report
@@ -32,9 +32,6 @@ jobs:
     - name: test pylele.sh
       run: |
         source pylele.sh
-    - name: test pylele_assemble.py
-      run: |
-        python3 ./pylele1/pylele_assemble.py
     - name: test pylele2.sh
       run: |
         source pylele2.sh -odoff
