@@ -594,8 +594,9 @@ class Bridge(LelePart):
             brdgTop = (
                 cfg.api().genRodY(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt - jctol)
             )
+            brdg = brdg.join(brdgTop).cut(frontCut).cut(backCut)
 
-            self.shape = brdg.join(brdgTop).cut(frontCut).cut(backCut)
+        self.shape = brdg
 
 
 class Guide(LelePart):
