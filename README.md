@@ -93,7 +93,30 @@ CI is currently testing with python 3.10 and 3.11 .
       ```
       > pip install bpy
       ```
-* [Trimesh](https://github.com/mikedh/trimesh) - **Coming Soon!**
+* [Trimesh](https://github.com/mikedh/trimesh) (*Still missing 3D text and filleting...*)
+  * Linux installation of dependencies (I tried on Intel I7 Asus laptop running Ubuntu 24.04 Noble Numbat)
+    * In a terminal shell inside a python 3.11+ virtual env:
+      ```
+      > pip install trimesh
+      ```
+  * MacOS Apple Silicon installation (I tried on M2 Macbook Air running Sonoma 14.5)
+    * In a terminal shell inside a python 3.11+ virtual env:
+      ```
+      > pip install trimesh
+      ```
+* [SolidPython2](https://github.com/jeff-dh/SolidPython) (*Still missing filleting...*)
+  * Linux installation of dependencies (I tried on Intel I7 Asus laptop running Ubuntu 24.04 Noble Numbat)
+    * In a terminal shell inside a python 3.11+ virtual env:
+      ```
+      > sudo apt install openscad
+      > pip install solidpython2
+      ```
+  * MacOS Apple Silicon installation (I tried on M2 Macbook Air running Sonoma 14.5)
+    * In a terminal shell inside a python 3.11+ virtual env:
+      ```
+      > brew install openscad
+      > pip install solidpython2
+      ```
 
 ## Similar Projects
 * [ukulele.scad](https://github.com/roadyyy/ukulele.scad)
