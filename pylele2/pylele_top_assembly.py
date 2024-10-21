@@ -25,7 +25,11 @@ from pylele2.pylele_soundhole import LeleSoundhole
 from pylele2.pylele_rim import LeleRim
 from pylele2.pylele_worm import pylele_worm_parser
 from pylele2.pylele_top import LeleTop
-from pylele2.pylele_fretboard_assembly import LeleFretboardAssembly, pylele_fretboard_assembly_parser
+from pylele2.pylele_fretboard_assembly import (
+    LeleFretboardAssembly,
+    pylele_fretboard_assembly_parser,
+)
+
 from pylele2.pylele_strings import LeleStrings
 from pylele2.pylele_worm_key import LeleWormKey
 

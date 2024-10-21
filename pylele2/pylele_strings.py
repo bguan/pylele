@@ -30,9 +30,6 @@ class LeleStrings(LeleBase):
             str = self.api.genCirclePolySweep(srad, p)
             strs = str + strs
 
-        if self.isCut:
-            self.api.setFidelity(origFidel)
-
         return strs
 
 def main(args=None):

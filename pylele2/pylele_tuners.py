@@ -30,11 +30,7 @@ class LeleTuners(LeleBase):
         return tuners.is_worm()
 
     def gen(self) -> Shape:
-        """ Generate Tuners """
-        
-        if self.isCut:
-            origFidel = self.cli.fidelity
-            self.api.setFidelity(Fidelity.MEDIUM)
+        """Generate Tuners"""
 
         tXYZs = self.cfg.tnrXYZs
 
@@ -51,8 +47,6 @@ class LeleTuners(LeleBase):
         if self.is_worm() and self.cli.worm_has_key:
             tnrs += LeleWormKey(cli=self.cli,isCut=self.isCut).gen_full()
 
-        if self.isCut:
-            self.api.setFidelity(origFidel)
 
         return tnrs
     

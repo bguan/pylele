@@ -32,6 +32,7 @@ class LeleStrEnum(str, Enum):
     def list(self):
         return list(self)
 
+
 class Fidelity(LeleStrEnum):
     LOW = "low"
     MEDIUM = "medium"

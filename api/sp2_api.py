@@ -49,7 +49,7 @@ class Sp2ShapeAPI(ShapeAPI):
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
-        return scad2stl(scad_file,command=self.command, implicit=self.implicit)
+        return scad2stl(scad_file, command=self.command, implicit=self.implicit)
 
     def exportBest(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
@@ -91,7 +91,7 @@ class Sp2ShapeAPI(ShapeAPI):
         return Sp2Cone(l, r1=rad, r2=rad, direction="Y", sides=None, api=self)
 
     def genRodZ(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, r1=rad, direction='Z',api=self)
+        return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
     
     def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         stem_len = l - 2*rad*domeRatio

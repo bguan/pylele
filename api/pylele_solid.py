@@ -61,8 +61,9 @@ def test_iteration(module, component, test, api, args=None):
     mod.main(args=largs)
     pass
 
-def test_loop(module,apis=None,tests=None): # ,component):
-    """ loop over a list of tests """
+
+def test_loop(module, apis=None, tests=None):  # ,component):
+    """loop over a list of tests"""
 
     # generate a default testcase if not specified
     if tests is None:

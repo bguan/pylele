@@ -10,7 +10,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape, Direction
-from pylele2.pylele_base import LeleBase, test_loop, main_maker
+from api.pylele_solid import main_maker, test_loop
+from pylele2.pylele_base import LeleBase
+
 from pylele2.pylele_strings import LeleStrings
 
 class LeleHead(LeleBase):

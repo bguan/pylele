@@ -19,8 +19,8 @@ class LeleSoundhole(LeleBase):
         return self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
 
     def gen(self) -> Shape:
-        """ Generate Soundhole """
-        sh_cfg = self.soundhole_config()
+        """Generate Soundhole"""
+        sh_cfg = self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
 
         x = sh_cfg.sndholeX
         y = sh_cfg.sndholeY
