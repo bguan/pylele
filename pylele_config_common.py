@@ -140,7 +140,7 @@ class WormConfig(TunerConfig):
         driveLen: float = 14,
         driveOffset: float = 9.75,
         gapAdj: float = 1,
-        tailAdj: float = 2,
+        tailAdj: float = 0,
         buttonTck: float = 9.5,
         buttonWth: float = 16,
         buttonHt: float = 8,
