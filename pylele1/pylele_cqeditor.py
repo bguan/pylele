@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
 import os
+from pathlib import Path
 from random import randint
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api_constants import FILLET_RAD
+from api.pylele_utils import make_or_exist_path
 from pylele1.pylele_parts import Strings, Tuners, Spines, WormKey
 from pylele1.pylele_config import Implementation, LeleConfig, TunerType, ModelLabel
 from pylele1.pylele_assemble import assemble
 
 """
-    Main Logic of Pylele for CQEditor
+    Main Logic of Pylele when launched from CQEditor
 """
 
 
@@ -47,11 +49,19 @@ def cqeditor_main():
             if p.color is None
             else p.color.value
         )
-        # show_object() is dynamically injected by CQ-Editor
-        show_object(  # type: ignore
-            p.show(), name=p.name, options={"color": color}
-        )
+
+        if 'show_object' in globals():
+            # show_object() is dynamically injected by CQ-Editor
+            show_object(  # type: ignore
+                p.show(),
+                name=p.name,
+                options={"color": color},
+            )
+        else:
+            out_path = Path("build")
+            make_or_exist_path(out_path)
+            p.exportSTL(str(out_path / f"{p.name}"))
 
 
-if __name__ == "__cq_main__":
+if __name__ in ["__main__", "__cq_main__"]:
     cqeditor_main()
