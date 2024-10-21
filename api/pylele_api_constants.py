@@ -1,14 +1,17 @@
+#!/usr/bin/env python3
 from enum import Enum
 
-FIT_TOL = .1
-FILLET_RAD = .4
+FIT_TOL = 0.1
+FILLET_RAD = 0.4
 
-DEFAULT_TEST_DIR='test'
-DEFAULT_BUILD_DIR='build'
+DEFAULT_TEST_DIR = "test"
+DEFAULT_BUILD_DIR = "build"
+
 
 # Colors
 class ColorEnum(Enum):
-    """ Color Enumerator """
+    """Color Enumerator"""
+
     BLACK = (0, 0, 0)
     CARBON = (16, 16, 16)
     GRAY = (128, 128, 128)

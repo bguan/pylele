@@ -2,23 +2,20 @@
 
 import datetime
 import os
-from random import randint
-import sys
 from pathlib import Path
-
-import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from pylele1.pylele_assemble import assemble, test
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+
+from pylele1.pylele_parts import WormKey
+from pylele1.pylele_config import LeleConfig, TunerType
 from pylele1.pylele_cli import parseCLI
-from pylele1.pylele_config import Implementation, LeleConfig, FILLET_RAD, TunerType, ModelLabel
-from pylele1.pylele_parts import Strings, Tuners, WormKey, Spines
-from api.pylele_api_constants import DEFAULT_BUILD_DIR
+from pylele1.pylele_assemble import assemble
 
 """
     Main Logic of Pylele
 """
+
 
 def pylele_main():
 
@@ -44,7 +41,7 @@ def pylele_main():
         noTxt=cli.no_text,
         txtSzFonts=cli.texts_size_font,
         modelLbl=cli.model_label,
-        half=cli.half,
+        split=cli.split,
         tnrType=TunerType[cli.tuner_type],
         fidelity=cli.fidelity,
         impl=cli.implementation,
@@ -54,43 +51,29 @@ def pylele_main():
     if not expDir.exists():
         expDir.mkdir()
     elif not expDir.is_dir():
-        print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
+        print(
+            "Cannot export to non directory: %s" % expDir,
+            file=sys.stderr,
+        )
         sys.exit(os.EX_SOFTWARE)
 
-    expDir = expDir / (datetime.datetime.now().strftime("%y%m%d-%H%M-")+cfg.genModelStr())
+    expDir = expDir / (
+        datetime.datetime.now().strftime("%y%m%d-%H%M-") + cfg.genModelStr()
+    )
     if not expDir.exists():
         expDir.mkdir()
 
-    with open(expDir / 'config.txt', 'w') as f:
+    with open(expDir / "config.txt", "w") as f:
         f.write(repr(cfg))
 
     parts = assemble(cfg)
 
     for p in parts:
-        if cfg.half:
+        if cfg.split and not isinstance(p, WormKey):
             p = p.half()
-        p.exportSTL(str(expDir/f"{p.fileNameBase}"))
-        # p.exportBest(str(expDir/f"{p.fileNameBase}"))
+        p.exportSTL(str(expDir / f"{p.name}"))
+        p.exportBest(str(expDir / f"{p.name}"))
 
-def cqeditor_main():
-    cfg = LeleConfig(half=False, scaleLen=330, endWth=90, chmLift=1,
-        impl=Implementation.CAD_QUERY, tnrType=TunerType.WORM, modelLbl=ModelLabel.LONG,
-        sepEnd=True, sepTop=True, sepNeck=True, sepFretbd=True, sepBrdg=True)
-    strs = Strings(cfg, isCut=False)
-    tnrs = Tuners(cfg, isCut=False, fillets={FILLET_RAD:[]})
-    sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
-    parts = assemble(cfg)
-    parts.extend([strs, tnrs])
-    if not sps is None:
-        parts.append(sps)
-    for p in parts:
-        if cfg.half:
-            p = p.half()
-        color = (randint(0, 255), randint(0, 255), randint(0, 255)) if p.color is None else p.color.value
-        # show_object seems to be dynamically injected by CQ-Editor
-        show_object(p.show(), name=p.fileNameBase, options={'color': color}) # type: ignore
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pylele_main()
-elif __name__ == '__cq_main__':
-    cqeditor_main()

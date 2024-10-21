@@ -7,6 +7,7 @@ from math import atan, inf, sqrt, tan
 
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Fidelity, Implementation, LeleStrEnum
@@ -23,8 +24,8 @@ class LeleBodyType(LeleStrEnum):
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
-WORM    = ['-t','worm'   ,'-e','60','-E','-wah','-wsl','35','-whk']
-BIGWORM = ['-t','bigworm','-e','85','-E','-wah','-wsl','45','-whk','-fbt','35']
+WORM    = ['-t','worm'   ,'-e','90','-E','-wah','-wsl','35','-whk']
+BIGWORM = ['-t','bigworm','-e','125','-E','-wah','-wsl','35','-whk','-fbt','35']
 
 CONFIGURATIONS = {
         'default'        : [],
@@ -44,8 +45,8 @@ class AttrDict(dict):
 
 def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> float:
     """ Adjust Tuner Z """
-    return 0 if tnrType.is_worm() or tY > endWth/2 else \
-            ((endWth/2)**2 - tY**2)**.5 * top_ratio - 1
+    return 0 if tnrType.is_worm() or tY > endWth/2 \
+        else (((endWth/2)**2 - tY**2)**.5 * top_ratio/2 + .5)
 
 def pylele_config_parser(parser = None):
     """
@@ -60,16 +61,16 @@ def pylele_config_parser(parser = None):
                         help="Configuration",
                         type=str,choices=CONFIGURATIONS.keys(),
                         default=None)
-    
+
     ## Numeric config options ###########################################
-    parser.add_argument("-s", "--scale_length", 
+    parser.add_argument("-s", "--scale_length",
                         help=f"Scale Length [mm], or {LeleScaleEnum.list()}, default: {LeleScaleEnum.SOPRANO.name}={LeleScaleEnum.SOPRANO.value}",
                         type=LeleScaleEnum.type, default=LeleScaleEnum.SOPRANO)
     parser.add_argument("-n", "--num_strings", help="Number of strings, default 4",
                         type=int, default=4)
     parser.add_argument("-a", "--action", help="Strings action [mm], default 2",
                         type=float, default=2)
-    parser.add_argument("-g", "--nut_string_gap", help="Nut to String gap [mm], default 9",
+    parser.add_argument("-g", "--nut_string_gap", help="Strings gap at nut [mm], default 9",
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
                         type=float, default=0)
@@ -82,7 +83,7 @@ def pylele_config_parser(parser = None):
                     choices=list(LeleBodyType),
                     default=LeleBodyType.GOURD
                     )
-    
+
     parser.add_argument("-fbt", "--flat_body_thickness", help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
                         type=float, default=DEFAULT_FLAT_BODY_THICKNESS)
 
@@ -116,16 +117,13 @@ def pylele_config_parser(parser = None):
     parser.add_argument("-E", "--separate_end",
                         help="Split end block from body.",
                         action='store_true')
-    parser.add_argument("-H", "--half",
-                        help="Half Split",
-                        action='store_true')
 
     return parser
 
 
 class LeleConfig:
     """ Pylele Configuration Class """
-    TOP_HEAD_RATIO = 1/4
+    TOP_HEAD_RATIO = 1/6
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
     CHM_BACK_RATIO = 1/2 # to chmFront
@@ -133,12 +131,11 @@ class LeleConfig:
     EMBOSS_DEP = .5
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
-    FRETBD_SPINE_TCK = 2 # need to be > 1mm more than RIM_TCK for fillets
+    FRETBD_SPINE_TCK = 2
     FRETBD_TCK = 2
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.1  # to nutWth
-    # HEAD_LEN = 12
     MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
@@ -170,7 +167,7 @@ class LeleConfig:
                 (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
                 (-cutAdj, -self.nutWth/2 - cutAdj),
             ]
-    
+
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
@@ -182,7 +179,7 @@ class LeleConfig:
             atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
         )
         return cfg
-    
+
     def fbSpineLen(self) -> float:
         """ Spine Length """
         return self.neckLen - self.NUT_HT + self.neckJntLen
@@ -197,40 +194,29 @@ class LeleConfig:
         else:
             self.cli = cli
 
-        scaleLen=float(self.cli.scale_length)        
+        scaleLen=float(self.cli.scale_length)
         action=self.cli.action
         numStrs=self.cli.num_strings
         nutStrGap=self.cli.nut_string_gap
         endWth=self.cli.end_flat_width
         wallTck=self.cli.wall_thickness
+        self.joinCutTol = self.cli.implementation.joinCutTol()
         tnrType=TunerType[self.cli.tuner_type].value
-            
-        # Engine Implementation Config
-        # self.impl = impl
-        # self.fidelity = fidelity
-        # self.joinCutTol = impl.joinCutTol()
-        # self.tnrCfg = tnrType
-        # self.body_type = body_type
-        
+
         # Length based configs
-        # self.scaleLen = scaleLen
         self.fretbdLen = scaleLen * self.FRETBD_RATIO
         self.fretbdRiseAng = 1 + numStrs/10
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
-        bodyBackLen = self.chmBack + wallTck + tnrType.tailAllow()
+        (tnrFront, tnrBack, _, _, _, _) = tnrType.dims()
+        bodyBackLen = self.chmBack + wallTck + tnrFront + tnrBack
         self.tailX = scaleLen + bodyBackLen
-        # tnrType.is_peg() = isinstance(tnrType, PegConfig)
-        # self.isWorm = isinstance(tnrType, WormConfig)
-        # self.numStrs = numStrs
-        # self.nutStrGap = nutStrGap
         self.nutWth = max(2,numStrs) * nutStrGap
+        tnrSetback = tnrType.tailAllow()
         if tnrType.is_peg():
-            tnrSetback = tnrType.tailAllow()/2 - 3.1
             self.neckWideAng = self.MIN_NECK_WIDE_ANG
             self.tnrGap = tnrType.minGap()
         else:
-            tnrSetback = tnrType.tailAllow()/2 + 1
             tnrX = scaleLen + bodyBackLen - tnrSetback
             tnrW = tnrType.minGap() * numStrs
             tnrNeckWideAng = degrees(atan((tnrW - self.nutWth)/2/tnrX))
@@ -238,32 +224,19 @@ class LeleConfig:
             tnrsWth = self.nutWth + 2*tnrX*tan(radians(self.neckWideAng))
             self.tnrGap = tnrsWth / numStrs
 
-        # self.half = half
-        # self.sepTop = sepTop
-        # self.sepNeck = sepNeck
-        # self.sepFretbd = sepFretbd
-        # self.sepBrdg = sepBrdg
-        # self.sepEnd = sepEnd
-        # self.modelLbl = modelLbl
         isOddStrs = numStrs % 2 == 1
-        # self.endWth = endWth
-        # self.action = action
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * tan(radians(self.neckWideAng)) * scaleLen
         brdgStrGap = self.brdgWth / (numStrs-.5)
 
         self.neckLen = scaleLen * self.NECK_RATIO
-        # self.dotRad = dotRad
-        # self.fret2Dots = fret2Dots
-        # self.extMidTopTck = self.extMidTopTck
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs
         self.neckWth = self.nutWth + \
             2 * tan(radians(self.neckWideAng)) * self.neckLen
-        # self.neckOrig = (0, 0)
         self.neckPath = [
-            (0, self.nutWth/2), 
+            (0, self.nutWth/2),
             (self.neckLen, self.neckWth/2),
             (self.neckLen, -self.neckWth/2),
             (0, -self.nutWth/2)
@@ -280,17 +253,7 @@ class LeleConfig:
         self.fretbdHt = self.FRETBD_TCK + \
             tan(radians(self.fretbdRiseAng)) * self.fretbdLen
 
-        # self.fbOrig = (0, 0)
-        # self.fbPath = genFbPath()
-        # self.fbCutOrig = (-FIT_TOL, 0)
-        # self.fbCutPath = genFbPath(isCut=True)
-        # self.fbSpX = self.NUT_HT
-        # self.fbSpineLen = self.neckLen - self.NUT_HT + self.neckJntLen
-
         # Chamber Configs
-        # self.chmLift = chmLift
-        # self.chmRot = chmRot
-        # self.chmWth = self.brdgWth * 3
         self.chmWth = self.brdgWth if self.cli.body_type==LeleBodyType.TRAVEL else self.brdgWth * self.CHM_BRDG_RATIO
         self.rimWth = wallTck/2
 
@@ -313,18 +276,14 @@ class LeleConfig:
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
-        # bodyLen = bodyFrontLen + bodyBackLen
-        # self.fullLen = self.HEAD_LEN + scaleLen + bodyLen
         self.bodyOrig = (self.neckLen, 0)
         def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
             cutAdj = FIT_TOL if isCut else 0
             nkLen = self.neckLen
             nkWth = self.neckWth + 2*cutAdj
             bWth = self.bodyWth + 2*cutAdj
-            bFrLen = self.bodyFrontLen + cutAdj
             bBkLen = bodyBackLen + cutAdj
             eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
-            endFactor = sqrt(endWth/bWth)
             bodySpline = [
                 (nkLen + neckDX, nkWth/2 + neckDY, neckDY/neckDX, .5, .3),
                 (scaleLen, bWth/2, 0, .6),
@@ -354,7 +313,7 @@ class LeleConfig:
 
         # Spine configs
         self.spineX = -self.headLen
-        self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
+        self.spineLen = self.headLen + scaleLen + self.chmBack + 2
         self.spineGap = 0 if numStrs == 2 else (1 if isOddStrs else 2)*nutStrGap
         self.spineY1 = -self.spineGap/2
         self.spineY2 = self.spineGap/2
@@ -365,13 +324,13 @@ class LeleConfig:
         self.guideZ = -self.GUIDE_SET \
             + self.TOP_RATIO * sqrt(bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
-            + 2*tan(radians(self.neckWideAng))*self.guideX
+            + 2*tan(radians(self.neckWideAng))*self.guideX+ 2*self.GUIDE_RAD
         gGap = self.guideWth/numStrs
         self.guidePostGap = gGap
         gGapAdj = self.GUIDE_RAD
 
         # start calc from middle out
-        gY = gGapAdj if isOddStrs else gGap/2 + gGapAdj
+        gY = gGapAdj if isOddStrs else gGap/2 + gGapAdj + .5*self.STR_RAD
         self.guideYs = [gGapAdj +2*self.STR_RAD, -gGapAdj -2*self.STR_RAD] \
             if isOddStrs else [gY + self.STR_RAD, -gY - self.STR_RAD]
         for _ in range((numStrs-1)//2):
@@ -381,7 +340,7 @@ class LeleConfig:
         # Tuner config
         # approx spline bout curve with ellipse but 'fatter'
         tXMax = bodyBackLen - tnrSetback
-        fatRat = .65 if endWth == 0 else .505 + (endWth/self.bodyWth)**1.05
+        fatRat = .7 + (endWth/self.bodyWth)/2
         tYMax = fatRat*self.bodyWth - tnrSetback
         tX = tXMax
         tY = 0
@@ -434,7 +393,7 @@ class LeleConfig:
 
         # Strings config
         strOddMidPath = [
-            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .5*self.SPINE_HT),
+            (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .2*self.SPINE_HT),
             (0, 0, self.FRETBD_TCK + self.NUT_HT + self.STR_RAD/2),
             (scaleLen, 0, self.brdgZ + self.brdgHt + 1.5*self.STR_RAD),
         ]
@@ -442,12 +401,12 @@ class LeleConfig:
         if tnrType.is_peg():  # Worm drives has no string guide
             strOddMidPath.append(
                 (self.guideX, 0,
-                 self.guideZ + self.guideHt - self.GUIDE_RAD - self.STR_RAD)
+                 self.guideZ + self.guideHt - self.GUIDE_RAD - 1.5*self.STR_RAD)
             )
 
         strOddMidPath.append(
             (scaleLen + bodyBackLen - tnrSetback, 0,
-             tMidZ + tnrType.holeHt)
+             tMidZ + tnrType.strHt())
         )
 
         strEvenMidPathR = []
@@ -461,7 +420,7 @@ class LeleConfig:
             strY = (self.tnrGap/2) if pt == strOddMidPath[-1] \
                 else nutStrGap/2 + pt[0]*tan(strEvenMidAng)
             strZ = (
-                tZBase + tnrType.holeHt) if pt == strOddMidPath[-1] else pt[2]
+                tZBase + tnrType.strHt()) if pt == strOddMidPath[-1] else pt[2]
             strEvenMidPathR.append((pt[0], strY, strZ))
             strEvenMidPathL.append((pt[0], -strY, strZ))
 
@@ -482,7 +441,7 @@ class LeleConfig:
                     ]
                     strX = strPegXYZ[0]
                     strY = strPegXYZ[1]
-                    strZ = strPegXYZ[2] + tnrType.holeHt
+                    strZ = strPegXYZ[2] + tnrType.strHt()
                 else:
                     strBrdgDY = (strCnt + (0 if isOddStrs else .5))\
                         * (brdgStrGap - nutStrGap)
@@ -509,7 +468,7 @@ class LeleConfig:
             model += 'B'
         if self.sepEnd:
             model += 'E'
-        
+
         model += f"-{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
 
         if inclDate:

@@ -1,25 +1,44 @@
+#!/usr/bin/env python3
+
 from __future__ import annotations
 import copy
-import math
-from pathlib import Path
-import sys
-
+from math import pi, cos, sin, ceil
 from nptyping import NDArray
 import numpy as np
-import trimesh as tm
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from api.pylele_utils import descreteBezierChain, dimXY, encureClosed2DPath, ensureFileExtn, radians, superGradient
+import os
+from pathlib import Path
 from shapely.geometry import Polygon
+import sys
+import trimesh as tm
 from typing import Union
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
+from api.pylele_utils import (
+    dimXY,
+    encureClosed2DPath,
+    ensureFileExtn,
+    lineSplineXY,
+    radians,
+)
 
 
 """
     Encapsulate Trimesh implementation specific calls
 """
+
+
 class TMShapeAPI(ShapeAPI):
 
-    rotZtoX: NDArray = tm.transformations.rotation_matrix(angle=radians(90), direction=(0, 1, 0))
-    rotZtoY: NDArray = tm.transformations.rotation_matrix(angle=radians(-90), direction=(1, 0, 0))
+    rotZtoX: NDArray = tm.transformations.rotation_matrix(
+        angle=radians(90),
+        direction=(0, 1, 0),
+    )
+    rotZtoY: NDArray = tm.transformations.rotation_matrix(
+        angle=radians(-90),
+        direction=(1, 0, 0),
+    )
 
     def __init__(self, fidel: Fidelity):
         super().__init__()
@@ -35,10 +54,10 @@ class TMShapeAPI(ShapeAPI):
         self.fidelity = fidel
 
     def exportSTL(self, shape: TMShape, path: Union[str, Path]) -> None:
-       shape.solid.export(ensureFileExtn(path,'.stl'))
+        shape.solid.export(ensureFileExtn(path, ".stl"))
 
     def exportBest(self, shape: TMShape, path: Union[str, Path]) -> None:
-       shape.solid.export(ensureFileExtn(path,'.glb'))
+        shape.solid.export(ensureFileExtn(path, ".glb"))
 
     def genBall(self, rad: float) -> TMShape:
         return TMBall(rad, self)
@@ -76,23 +95,31 @@ class TMShapeAPI(ShapeAPI):
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> TMShape:
         return TMPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(self,
+    def genLineSplineExtrusionZ(
+        self,
         start: tuple[float, float],
-        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]],
+        path: list[
+            tuple[float, float] | list[tuple[float, float, float, float, float]]
+        ],
         ht: float,
     ) -> TMShape:
         if ht < 0:
-            return TMLineSplineExtrusionZ(start, path, abs(ht), self).mv(0,0,-abs(ht))
+            return TMLineSplineExtrusionZ(start, path, abs(ht), self).mv(0, 0, -abs(ht))
         return TMLineSplineExtrusionZ(start, path, ht, self)
 
-    def genLineSplineRevolveX(self,
+    def genLineSplineRevolveX(
+        self,
         start: tuple[float, float],
-        path: list[tuple[float, float] | list[tuple[float, float, float, float, float]]],
+        path: list[
+            tuple[float, float] | list[tuple[float, float, float, float, float]]
+        ],
         deg: float,
     ) -> TMShape:
         return TMLineSplineRevolveX(start, path, deg, self)
 
-    def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> TMShape:
+    def genCirclePolySweep(
+        self, rad: float, path: list[tuple[float, float, float]]
+    ) -> TMShape:
         return TMCirclePolySweep(rad, path, self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
@@ -100,7 +127,6 @@ class TMShapeAPI(ShapeAPI):
 
     def getJoinCutTol(self) -> float:
         return Implementation.TRIMESH.joinCutTol()
-
 
 
 class TMShape(Shape):
@@ -111,15 +137,19 @@ class TMShape(Shape):
 
     def __init__(self, api: TMShapeAPI):
         super().__init__()
-        self.api:TMShapeAPI = api
-        self.solid:tm.Trimesh = None
+        self.api: TMShapeAPI = api
+        self.solid: tm.Trimesh = None
 
     def ensureVolume(self) -> None:
         if self.solid.is_volume:
             return
         else:
-            print("warning: solid is NOT a valid volume, attempt minor repair...", file=sys.stderr)
-            self.solid.update_faces(self.solid.nondegenerate_faces())
+            print(
+                "warning: solid is NOT a valid volume, attempt minor repair...",
+                file=sys.stderr,
+            )
+            jctol = self.api.getImplementation().joinCutTol()
+            self.solid.update_faces(self.solid.nondegenerate_faces(jctol / 2))
             self.solid.update_faces(self.solid.unique_faces())
             self.solid.remove_infinite_values()
             self.solid.remove_unreferenced_vertices()
@@ -127,18 +157,23 @@ class TMShape(Shape):
         if self.solid.is_volume:
             return
         else:
-            print("warning: solid is NOT a valid volume, attempt major repair...", file=sys.stderr)
+            print(
+                "warning: solid is NOT a valid volume, attempt major repair...",
+                file=sys.stderr,
+            )
             tm.repair.fill_holes(self.solid)
-            tm.repair.fix_normals(self.solid)
+            tm.repair.fix_normals(self.solid, multibody=True)
             tm.repair.fix_winding(self.solid)
-            tm.repair.fix_inversion(self.solid)
+            tm.repair.fix_inversion(self.solid, multibody=True)
 
         if self.solid.is_volume:
             return
         else:
-            print("warning: repaired mesh is still NOT a valid volume, make a convex hull as last resort...", file=sys.stderr)
+            print(
+                "warning: repaired mesh is still NOT a valid volume, make a convex hull as last resort...",
+                file=sys.stderr,
+            )
             self.solid = self.solid.convex_hull
-
 
     def getAPI(self) -> TMShapeAPI:
         return self.api
@@ -147,7 +182,7 @@ class TMShape(Shape):
         return self.solid
 
     def segsByDim(self, dim: float) -> int:
-        return math.ceil(math.sqrt(abs(dim)) * self.api.fidelity.smoothingSegments())
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
 
     def cut(self, cutter: TMShape) -> TMShape:
         if cutter is None or cutter.solid is None:
@@ -162,7 +197,8 @@ class TMShape(Shape):
         duplicate.solid = self.solid.copy()
         return duplicate
 
-    def filletByNearestEdges(self,
+    def filletByNearestEdges(
+        self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> TMShape:
@@ -171,7 +207,7 @@ class TMShape(Shape):
             edges = mesh.edges
             vertices = mesh.vertices
 
-            min_distance = float('inf')
+            min_distance = float("inf")
             nearest_edge = None
 
             for edge in edges:
@@ -189,7 +225,9 @@ class TMShape(Shape):
             # Vector from v0 to v1
             v0_to_v1 = v1 - v0
             # Project point onto the line defined by v0 and v1
-            projection_length = np.dot(v0_to_point, v0_to_v1) / np.dot(v0_to_v1, v0_to_v1)
+            projection_length = np.dot(v0_to_point, v0_to_v1) / np.dot(
+                v0_to_v1, v0_to_v1
+            )
             projection = v0 + projection_length * v0_to_v1
 
             # Clamp the projection to the segment [v0, v1]
@@ -202,7 +240,9 @@ class TMShape(Shape):
             distance = np.linalg.norm(point - projection)
             return distance
 
-        print("Trimesh: filletByNearestEdges(...) not implemented yet.", file=sys.stderr)
+        print(
+            "Trimesh: filletByNearestEdges(...) not implemented yet.", file=sys.stderr
+        )
 
         return self
 
@@ -214,37 +254,6 @@ class TMShape(Shape):
         joiner.ensureVolume()
         self.solid = tm.boolean.union([self.solid, joiner.solid])
         return self
-
-    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
-    def lineSplineXY(
-        self,
-        start: tuple[float, float],
-        lineSpline: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
-    ) -> list[tuple[float, float]]:
-
-        lastX, lastY = start
-        result = [start]
-        for p_or_s in lineSpline:
-            if isinstance(p_or_s, tuple):
-                # a point so draw line
-                x, y = p_or_s
-                result.append((x, y))
-                lastX, lastY = x, y
-            elif isinstance(p_or_s, list):
-                # a list of points and gradients/tangents to trace spline thru
-                spline: list[tuple[float, ...]] = p_or_s
-                x1, y1 = spline[0][0:2]
-                # insert first point if diff from last
-                if lastX != x1 or lastY != y1:
-                    dx0 = x1 - lastX
-                    dy0 = y1 - lastY
-                    grad0 = superGradient(dy=dy0, dx=dx0)
-                    spline.insert(0, (lastX, lastY, grad0, 0, .5))
-                curvePts = descreteBezierChain(spline, self.segsByDim)
-                result.extend(curvePts)
-                lastX, lastY = spline[-1][0:2]
-
-        return encureClosed2DPath(result)
 
     def mirrorXZ(self) -> TMShape:
         dup = copy.copy(self)
@@ -290,8 +299,10 @@ class TMShape(Shape):
 class TMBall(TMShape):
     def __init__(self, rad: float, api: TMShapeAPI):
         super().__init__(api)
-        segs = self.segsByDim(rad)
-        self.solid = tm.creation.uv_sphere(radius=rad, count=(segs,segs), validate=True)
+        segs = self.segsByDim(2 * pi * rad)
+        self.solid = tm.creation.uv_sphere(
+            radius=rad, count=(segs, segs), validate=True
+        )
 
 
 class TMBox(TMShape):
@@ -303,13 +314,22 @@ class TMBox(TMShape):
         self.solid = tm.creation.box(extents=(l, wth, ht), validate=True)
 
 
-
 class TMCone(TMShape):
-    def __init__(self, l: float, r1: float, r2: float, sides: float, rotMat: NDArray, api: TMShapeAPI):
+    def __init__(
+        self,
+        l: float,
+        r1: float,
+        r2: float,
+        sides: float,
+        rotMat: NDArray,
+        api: TMShapeAPI,
+    ):
         super().__init__(api)
-        sects = self.segsByDim(max(r1, r2)) if sides is None else sides
+        sects = self.segsByDim(2 * pi * max(r1, r2)) if sides is None else sides
         linestring = [[0, 0], [r1, 0], [r2, l], [0, l]]
-        self.solid = tm.creation.revolve(linestring=linestring, sections=sects, transform=rotMat, validate=True)
+        self.solid = tm.creation.revolve(
+            linestring=linestring, sections=sects, transform=rotMat, validate=True
+        )
 
 
 class TMPolyExtrusionZ(TMShape):
@@ -317,14 +337,21 @@ class TMPolyExtrusionZ(TMShape):
         super().__init__(api)
         path = encureClosed2DPath(path)
         polygon = Polygon(path)
-        self.solid = tm.creation.extrude_polygon(polygon, tck, cap_base=True, cap_top=True, tolerance=1e-5, validate=True)
+        self.solid = tm.creation.extrude_polygon(
+            polygon, tck, cap_base=True, cap_top=True, tolerance=1e-5, validate=True
+        )
         self.ensureVolume()
 
+
 class TMRod(TMShape):
-    def __init__(self, l: float, rad: float, sides: float, rotMat: NDArray, api: TMShapeAPI):
+    def __init__(
+        self, l: float, rad: float, sides: float, rotMat: NDArray, api: TMShapeAPI
+    ):
         super().__init__(api)
-        segs = self.segsByDim(rad) if sides is None else sides
-        self.solid = tm.creation.cylinder(radius=rad, height=l, sections=segs, transform=rotMat, validate=True)
+        segs = self.segsByDim(2 * pi * rad) if sides is None else sides
+        self.solid = tm.creation.cylinder(
+            radius=rad, height=l, sections=segs, transform=rotMat, validate=True
+        )
 
 
 # draw mix of straight lines from pt to pt, or draw spline with [(x,y,dx,dy), ...], then extrude on Z-axis
@@ -332,58 +359,81 @@ class TMLineSplineExtrusionZ(TMShape):
     def __init__(
         self,
         start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
+        path: list[
+            Union[tuple[float, float], list[tuple[float, float, float, float, float]]]
+        ],
         ht: float,
         api: TMShapeAPI,
     ):
         super().__init__(api)
         self.path = path
         self.ht = ht
-        polygon = Polygon(self.lineSplineXY(start, path))
-        self.solid = tm.creation.extrude_polygon(polygon, ht) #, validate=True)
+        polygon = Polygon(lineSplineXY(start, path, self.segsByDim))
+        self.solid = tm.creation.extrude_polygon(polygon, ht)  # , validate=True)
+
 
 class TMLineSplineRevolveX(TMShape):
     def __init__(
         self,
         start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float, float]]]],
+        path: list[
+            Union[tuple[float, float], list[tuple[float, float, float, float, float]]]
+        ],
         deg: float,
         api: TMShapeAPI,
     ):
         super().__init__(api)
-        _, dimY = dimXY(start, path)
-        segsY = self.segsByDim(dimY)
+        dimX, dimY = dimXY(start, path)
+        segsY = self.segsByDim(2 * pi * dimY)
         self.path = path
         self.deg = deg
-        linestring = self.lineSplineXY(start, path)
-        stringSwapXY = [ (y, x) for x, y in linestring ]
+        linestring = lineSplineXY(start, path, self.segsByDim)
+        stringSwapXY = [(y, x) for x, y in linestring]
 
         # revolve by 360 then cut away wedge to get valid volume as work around for
         # https://github.com/mikedh/trimesh/issues/2269
-        self.solid = tm.creation.revolve(stringSwapXY, radians(360), segsY, validate=True)
+        self.solid = tm.creation.revolve(
+            stringSwapXY, radians(360), segsY, validate=True
+        )
 
         if abs(deg) < 360:
 
             maxDim = Shape.MAX_DIM
             if deg >= 0:
-                cut = tm.creation.box([2*maxDim, 2*maxDim, 2*maxDim]).apply_translation((0, -maxDim, 0))
+                cut = tm.creation.box(
+                    [2 * maxDim, 2 * maxDim, 2 * maxDim]
+                ).apply_translation((0, -maxDim, 0))
                 if deg < 180:
                     cut2 = cut.copy()
-                    rotMat = tm.transformations.rotation_matrix(angle=-radians(180-deg), direction=(0, 0, 1))
+                    rotMat = tm.transformations.rotation_matrix(
+                        angle=-radians(180 - deg),
+                        direction=(0, 0, 1),
+                    )
                     cut = tm.boolean.union([cut, cut2.apply_transform(rotMat)])
                 elif deg > 180:
-                    cut2 = cut.copy().apply_translation((0, 2*maxDim, 0))
-                    rotMat = tm.transformations.rotation_matrix(angle=radians(deg-180), direction=(0, 0, 1))
+                    cut2 = cut.copy().apply_translation((0, 2 * maxDim, 0))
+                    rotMat = tm.transformations.rotation_matrix(
+                        angle=radians(deg - 180),
+                        direction=(0, 0, 1),
+                    )
                     cut = tm.boolean.difference([cut, cut2.apply_transform(rotMat)])
             else:
-                cut = tm.creation.box([2*maxDim, 2*maxDim, 2*maxDim]).apply_translation((0, maxDim, 0))
+                cut = tm.creation.box(
+                    [2 * maxDim, 2 * maxDim, 2 * maxDim]
+                ).apply_translation((0, maxDim, 0))
                 if abs(deg) < 180:
                     cut2 = cut.copy()
-                    rotMat = tm.transformations.rotation_matrix(angle=radians(180-abs(deg)), direction=(0, 0, 1))
+                    rotMat = tm.transformations.rotation_matrix(
+                        angle=radians(180 - abs(deg)),
+                        direction=(0, 0, 1),
+                    )
                     cut = tm.boolean.union([cut, cut2.apply_transform(rotMat)])
                 elif abs(deg) > 180:
-                    cut2 = cut.copy().apply_translation((0, -2*maxDim, 0))
-                    rotMat = tm.transformations.rotation_matrix(angle=-radians(abs(deg)-180), direction=(0, 0, 1))
+                    cut2 = cut.copy().apply_translation((0, -2 * maxDim, 0))
+                    rotMat = tm.transformations.rotation_matrix(
+                        angle=-radians(abs(deg) - 180),
+                        direction=(0, 0, 1),
+                    )
                     cut = tm.boolean.difference([cut, cut2.apply_transform(rotMat)])
 
             self.ensureVolume()
@@ -404,15 +454,15 @@ class TMCirclePolySweep(TMShape):
         def circle_polygon_points(n, r):
             points = []
             for i in range(n):
-                angle = 2 * math.pi * i / n
-                x = r * math.cos(angle)
-                y = r * math.sin(angle)
+                angle = 2 * pi * i / n
+                x = r * cos(angle)
+                y = r * sin(angle)
                 points.append((x, y))
             return points
 
         self.path = path
         self.rad = rad
-        segs = self.segsByDim(rad)
+        segs = self.segsByDim(2 * pi * rad)
         polygon = Polygon(circle_polygon_points(segs, rad))
         self.solid = tm.creation.sweep_polygon(polygon, path, validate=True)
 
@@ -435,8 +485,11 @@ class TMTextZ(TMShape):
         self.fontSize = fontSize
         self.tck = tck
         self.font = font
-        self.solid = tm.creation.box(extents=(.5*fontSize*len(txt), fontSize, tck), validate=True)
-        self.mv(0, 0, tck/2)
+        self.solid = tm.creation.box(
+            extents=(0.5 * fontSize * len(txt), fontSize, tck), validate=True
+        )
+        self.mv(0, 0, tck / 2)
 
-if __name__ == '__main__':
-    TMShapeAPI(Fidelity.LOW).test(Path.cwd()  / 'test' / 'trimesh_api')
+
+if __name__ == "__main__":
+    TMShapeAPI(Fidelity.LOW).test(Path.cwd() / "test" / "trimesh_api")

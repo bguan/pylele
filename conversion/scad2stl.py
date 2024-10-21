@@ -7,7 +7,7 @@ import os
 import argparse
 from packaging import version
 
-OPENSCAD='openscad'
+OPENSCAD='openscad --export-format binstl'
 IMPLICITCAD='~/.cabal/bin/extopenscad'
 
 def scad2stl_parser(parser=None):

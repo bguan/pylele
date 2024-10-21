@@ -1,151 +1,183 @@
 #!/usr/bin/env python3
-
-
 import os
 import sys
-from pathlib import Path
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from pylele1.pylele_config import FILLET_RAD, Fidelity, Implementation, LeleConfig, TunerType, WormConfig
-from pylele1.pylele_parts import LelePart, Body, Brace, Bridge, Chamber, \
-    Fretboard, FretboardDots, FretboardSpines, Frets, FretbdJoint, \
-    Guide, Head, Neck, NeckJoint, Rim, \
-    Soundhole, Spines, Strings, Texts, TailEnd, Top, Tuners, WormKey
-from api.pylele_api_constants import DEFAULT_TEST_DIR
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+
+from api.pylele_api_constants import FILLET_RAD
+from pylele1.pylele_config import LeleConfig, WormConfig
+from pylele1.pylele_parts import (
+    LelePart,
+    Body,
+    Brace,
+    Bridge,
+    Chamber,
+    Fretboard,
+    FretboardDots,
+    FretboardSpines,
+    Frets,
+    FretbdJoint,
+    Guide,
+    Head,
+    Neck,
+    NeckJoint,
+    Rim,
+    Soundhole,
+    Spines,
+    Strings,
+    Texts,
+    TailEnd,
+    Top,
+    Tuners,
+    WormKey,
+)
 
 """
     Assembling the parts together
 """
+
+
 def assemble(cfg: LeleConfig) -> list[LelePart]:
 
+    jctol = cfg.joinCutTol
     parts = []
 
+    # reusable cutters
+    strCuts = Strings(cfg, isCut=True)
+    spCut = None if cfg.numStrs <= 1 else Spines(cfg, isCut=True)
+    chmCut = Chamber(cfg, isCut=True).cut(Brace(cfg))
+    tnrsCut = Tuners(cfg, isCut=True)
+    rimCut = Rim(cfg, isCut=True)
+    fbspCut = (
+        FretboardSpines(cfg, isCut=True)
+        if cfg.sepFretbd or cfg.sepNeck or cfg.sepTop
+        else None
+    )
+
     # gen fretbd
-    strCuts = Strings(cfg, isCut=True) # use by others too
-    topCut = Top(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol) if cfg.sepFretbd or cfg.sepNeck else None
-    frets = Frets(cfg)
-    fdotsCut = FretboardDots(cfg, isCut=True)
-    fbJoiners = [frets]
-    fbCutters = [fdotsCut, strCuts]
+    frets = Frets(cfg).cut(strCuts)
+    fretbd = Fretboard(cfg).join(frets).cut(FretboardDots(cfg, isCut=True))
     if cfg.sepFretbd or cfg.sepNeck:
-        fbCutters.insert(0, topCut)
-
-    fretbd = Fretboard(cfg, False, fbJoiners, fbCutters)
-
-    # Can't use joiners for fretbd joint & spines, as fbCutters will remove them
-    # as joins happen before cuts
+        fretbd = fretbd.cut(Top(cfg, isCut=True).mv(0, 0, -jctol))
     if cfg.sepFretbd or cfg.sepNeck:
         fretbd = fretbd.join(FretbdJoint(cfg, isCut=False))
-
     if cfg.sepFretbd or cfg.sepTop:
         fretbd = fretbd.join(FretboardSpines(cfg, isCut=False))
 
+    # gen head
+    f0cut = Frets(cfg, isCut=True, upToFret=0)
+    head = Head(cfg).cut(strCuts).cut(f0cut)
+    if spCut is not None:
+        head = head.cut(spCut)
+
     # gen neck
-    neckJoiners = [Head(cfg).mv(cfg.joinCutTol, 0, 0)]
-    neckCutters = [strCuts]
-
-    if cfg.numStrs > 1:
-        spCut = Spines(cfg, isCut=True)
-        neckCutters.append(spCut)
-
-    if cfg.sepFretbd or cfg.sepTop:
-        fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-        neckCutters.append(fbCut)
+    neck = Neck(cfg).join(head.mv(jctol, 0, 0))
 
     if cfg.sepNeck:
-        neckJoiners.append(NeckJoint(cfg, isCut=False).mv(-cfg.joinCutTol, 0, 0))
-
-    if cfg.sepNeck and not cfg.sepFretbd:
-        neckJoiners.append(fretbd)
-
+        neck = neck.join(NeckJoint(cfg, isCut=False).mv(-jctol, 0, 0))
+    if spCut is not None:
+        neck = neck.cut(spCut)
     if cfg.sepFretbd or cfg.sepTop:
-        fbspCut = FretboardSpines(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-        f0Cut = Frets(cfg, isCut=True)
-        neckCutters.extend([fbspCut, f0Cut])
-
-    neck = Neck(cfg, False, neckJoiners, neckCutters)
+        neck = neck.cut(fbspCut)
+    if cfg.sepFretbd or cfg.sepTop:
+        neck = neck.cut(Fretboard(cfg, isCut=True).mv(0, 0, -jctol))
+    if cfg.sepNeck and not cfg.sepFretbd:
+        neck = neck.join(fretbd)
 
     # gen bridge
-    brdg = Bridge(cfg, cutters=[strCuts])
+    brdg = Bridge(cfg).cut(strCuts)
 
     # gen guide if using tuning pegs rather than worm drive
     guide = Guide(cfg) if cfg.tnrCfg.is_peg() else None
 
     # gen body top
-    chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
-    tnrsCut = Tuners(cfg, isCut=True)
-    wormKeyCut = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=True)
-    topJoiners = []
-    topCutters = [chmCut, tnrsCut, Soundhole(cfg, isCut=True)]
+    top = Top(cfg)
 
     if cfg.sepTop:
-        topJoiners.append(Rim(cfg, isCut=False))
+        top = top.join(Rim(cfg, isCut=False))
+
+    top = top.cut(chmCut).cut(tnrsCut).cut(Soundhole(cfg))
 
     if cfg.sepFretbd or cfg.sepNeck:
-        fbJntCut = FretbdJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, -cfg.joinCutTol)
-        topCutters.append(fbJntCut)
-
-    if not cfg.sepFretbd and not cfg.sepNeck:
-        topJoiners.append(fretbd)
+        top = top.cut(FretbdJoint(cfg, isCut=True).mv(-jctol, 0, -jctol))
 
     if cfg.sepBrdg:
-        topCutters.append(Bridge(cfg, isCut=True))
+        top = top.cut(Bridge(cfg, isCut=True))
+        if not guide is None:
+            top = top.cut(Guide(cfg, isCut=True))
     else:
-        topJoiners.append(brdg)
+        top = top.join(brdg)
+        if not guide is None:
+            top = top.join(guide)
 
-    if not guide is None:
-        if cfg.sepBrdg:
-            topCutters.append(Guide(cfg, isCut=True))
-        else:
-            topJoiners.append(guide)
+    if cfg.sepTop and not cfg.sepFretbd and not cfg.sepNeck:
+        top = top.join(fretbd)
 
-    topFillets = { FILLET_RAD: [(cfg.sndholeX, cfg.sndholeY, cfg.brdgZ)] }
-    if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
+    # problematic edge selection?
+    top = top.filletByNearestEdges(
+        [
+            (cfg.sndholeX, cfg.sndholeY, cfg.brdgZ),
+            (cfg.sndholeX, cfg.sndholeY, 0),
+        ],
+        FILLET_RAD,
+    )
+
+    if cfg.tnrCfg.is_worm():
         wcfg: WormConfig = cfg.tnrCfg
-        topFillets[wcfg.slitWth] = [
-            (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.holeHt)
-            for xyz in cfg.tnrXYZs
-        ]
-
-    top = Top(cfg, False, topJoiners, topCutters, topFillets)
+        top = top.filletByNearestEdges(
+            [
+                (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.strHt())
+                for xyz in cfg.tnrXYZs
+            ],
+            wcfg.slitWth,
+        )
 
     # gen body bottom
-    txtCut = None if cfg.noTxt else Texts(cfg, isCut=True)
-    tailCut = None if not cfg.sepEnd else TailEnd(cfg, isCut=True)
+    body = Body(cfg)
 
-    bodyJoiners = []
-    bodyCutters = [chmCut]
+    if not cfg.noTxt:
+        txtCut = Texts(cfg, isCut=True).cut(body)
+        body = body.cut(txtCut.mv(0, 0, cfg.EMBOSS_DEP))
 
+    if not cfg.sepNeck:
+        body = body.join(neck.mv(jctol, 0, 0))
+
+    body = body.cut(chmCut)
     if spCut is not None:
-        bodyCutters.append(spCut)
-
+        body = body.cut(spCut)
     if cfg.sepTop:
-        rimCut = Rim(cfg, isCut=True)
-        bodyCutters.append(rimCut)
-    else:
-        bodyJoiners.append(top.mv(0, 0, -cfg.joinCutTol))
+        body = body.cut(rimCut)
 
     if cfg.sepNeck:
-        nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
-        bodyCutters.append(nkJntCut)
-    else:
-        bodyJoiners.append(neck.mv(cfg.joinCutTol, 0,0))
+        body = body.cut(NeckJoint(cfg, isCut=True).mv(-jctol, 0, jctol))
+    elif cfg.sepFretbd or cfg.sepTop:
+        body = body.cut(fbspCut)
 
-    if cfg.sepFretbd or cfg.sepTop:
-        bodyCutters.append(fbspCut)
+    wormKeyCut = None if not cfg.tnrCfg.is_worm() else WormKey(cfg, isCut=True)
 
     if cfg.sepEnd:
-        tailCut = TailEnd(cfg, isCut=True)
-        bodyCutters.append(tailCut)
+        body = body.cut(TailEnd(cfg, isCut=True).mv(0, 0, jctol))
     else:
-        bodyCutters.append(tnrsCut)
-        if cfg.tnrCfg.is_worm():
-            bodyCutters.append(wormKeyCut)
+        body = body.cut(tnrsCut)
+        if wormKeyCut is not None:
+            body = body.cut(wormKeyCut)
 
-    if txtCut is not None:
-        bodyCutters.append(txtCut)
+    if not cfg.sepTop:
+        if not cfg.sepFretbd and not cfg.sepNeck:
+            # HACK mv needed for Cadquery sometimes
+            top = top.join(fretbd.mv(0.01, 0, 0))
+        body = body.join(top.mv(0, 0, -jctol))
 
-    body = Body(cfg, False, bodyJoiners, bodyCutters)
+    if cfg.sepEnd:
+        tail = TailEnd(cfg, isCut=False).cut(tnrsCut).cut(chmCut)
+        if spCut is not None:
+            tail = tail.cut(spCut)
+        if cfg.sepTop:
+            tail = tail.cut(rimCut)
+        if wormKeyCut is not None:
+            tail = tail.cut(wormKeyCut)
+        parts.append(tail)
+
     parts.append(body)
 
     if cfg.sepFretbd:
@@ -163,104 +195,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     if guide is not None and cfg.sepBrdg:
         parts.append(guide)
 
-    if cfg.sepEnd:
-        tailCutters = [tnrsCut, chmCut, spCut]
-        if cfg.sepTop:
-            tailCutters.append(rimCut)
-        if cfg.tnrCfg.is_worm():
-            tailCutters.append(wormKeyCut)
-        tail = TailEnd(cfg, isCut=False, joiners=[], cutters=tailCutters)
-        parts.append(tail)
-
     if cfg.tnrCfg.is_worm():
         parts.append(WormKey(cfg, isCut=False))
 
     return parts
-
-def test(cfg: LeleConfig):
-
-    expDir = Path.cwd()/DEFAULT_TEST_DIR
-    if not expDir.exists():
-        expDir.mkdir()
-    elif not expDir.is_dir():
-        print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
-        sys.exit(os.EX_SOFTWARE)
-    implCode = cfg.impl.code()
-    fidelCode = cfg.fidelity.code()
-
-    with open(expDir / f"{implCode}{fidelCode}-config.txt", 'w') as f:
-        f.write(repr(cfg))
-
-    strCuts = Strings(cfg, isCut=True).mv(0, 0, cfg.joinCutTol)
-
-    frets = Frets(cfg)
-    fbsp = FretboardSpines(cfg, isCut=False).mv(0, 0, cfg.joinCutTol)
-    fbJnt = FretbdJoint(cfg, isCut=False)
-    topCut = Top(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-    fdotsCut = FretboardDots(cfg, isCut=True)
-    fretbd = Fretboard(
-        cfg,
-        False,
-        [frets, fbsp],
-        [topCut, fdotsCut, strCuts],
-    ).join(fbJnt)
-    fretbd.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{fretbd.fileNameBase}"))
-
-    head = Head(cfg)
-    fbCut = Fretboard(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-    spCut = Spines(cfg, isCut=True)
-    fbspCut = FretboardSpines(cfg, isCut=True).mv(0, 0, -cfg.joinCutTol)
-    f0Cut = Frets(cfg, isCut=True)
-    nkJnt = NeckJoint(cfg, isCut=False)
-
-    neck = Neck(cfg, False, [head, nkJnt], [spCut, fbCut, f0Cut, strCuts, fbspCut])
-    neck.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{neck.fileNameBase}"))
-
-    brdg = Bridge(cfg, isCut=False, cutters=[strCuts])
-    rim = Rim(cfg, isCut=False)
-    chmCut = Chamber(cfg, isCut=True, cutters=[Brace(cfg)])
-    tnrsCut = Tuners(cfg, isCut=True)
-    fbJntCut = FretbdJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, -cfg.joinCutTol)
-    shCut = Soundhole(cfg, isCut=True)
-    topFillets = {}
-    if cfg.tnrCfg.is_worm() and cfg.impl == Implementation.CAD_QUERY:
-        wcfg: WormConfig = cfg.tnrCfg
-        topFillets[wcfg.slitWth] = [
-            (wx - wcfg.slitLen/2, wy, cfg.brdgZ) for wx, wy, _ in cfg.tnrXYZs
-        ]
-
-    topJoins = [brdg, rim]
-    if cfg.tnrCfg.is_peg():
-        topJoins.append(Guide(cfg, False))
-    top = Top(cfg,
-        joiners=topJoins,
-        cutters=[fbJntCut, tnrsCut, shCut, chmCut],
-        fillets=topFillets,
-    )
-    top.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{top.fileNameBase}"))
-
-    rimCut = Rim(cfg, isCut=True)
-    txtCut = Texts(cfg, isCut=True)
-    txtCut.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{txtCut.fileNameBase}"))
-
-    nkJntCut = NeckJoint(cfg, isCut=True).mv(-cfg.joinCutTol, 0, cfg.joinCutTol)
-    bodyCuts = [topCut, nkJntCut, spCut, tnrsCut, chmCut, rimCut, txtCut]
-    if cfg.tnrCfg.is_worm():
-        wkCut = WormKey(cfg, isCut=True)
-        bodyCuts.append(wkCut)
-        wkey = WormKey(cfg, isCut=False)
-        wkey.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{wkey.fileNameBase}"))
-
-    body = Body(cfg, cutters=bodyCuts)
-    body.exportSTL(os.path.join(DEFAULT_TEST_DIR,f"{body.fileNameBase}"))
-
-
-if __name__ == "__main__":
-    cfg = LeleConfig(
-        impl=Implementation.TRIMESH,
-        fidelity=Fidelity.LOW,
-        sepFretbd=True,
-        sepNeck=True,
-        sepTop=True,
-    )
-    test(cfg)

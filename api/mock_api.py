@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 from __future__ import annotations
-from typing import Union
-from pathlib import Path
-import copy
-
 import os
+from pathlib import Path
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+from typing import Union
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_api_constants import DEFAULT_BUILD_DIR
@@ -24,10 +23,10 @@ class MockShapeAPI(ShapeAPI):
 
     def getFidelity(self) -> Fidelity:
         return self.fidelity
-    
+
     def getImplementation(self) -> Implementation:
         return Implementation.MOCK
-    
+
     def setFidelity(self, fidel: Fidelity) -> None:
         self.fidelity = fidel
 
@@ -70,37 +69,46 @@ class MockShapeAPI(ShapeAPI):
     def genRodZ(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> MockShape:
+    def genPolyExtrusionZ(
+        self, path: list[tuple[float, float]], ht: float
+    ) -> MockShape:
         return MockShape(self)
 
-    def genLineSplineExtrusionZ(self, 
-            start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
-            ht: float,
-        ) -> MockShape:
+    def genLineSplineExtrusionZ(
+        self,
+        start: tuple[float, float],
+        path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
+        ht: float,
+    ) -> MockShape:
         return MockShape(self)
-    
-    def genLineSplineRevolveX(self, 
-            start: tuple[float, float], 
-            path: list[tuple[float, float] | list[tuple[float, float, float, float]]], 
-            deg: float,
-        ) -> MockShape:
+
+    def genLineSplineRevolveX(
+        self,
+        start: tuple[float, float],
+        path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
+        deg: float,
+    ) -> MockShape:
         return MockShape(self)
-    
-    def genCirclePolySweep(self, rad: float, path: list[tuple[float, float, float]]) -> MockShape:
+
+    def genCirclePolySweep(
+        self, rad: float, path: list[tuple[float, float, float]]
+    ) -> MockShape:
         return MockShape(self)
 
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
-    
+
     def getJoinCutTol(self):
         return Implementation.MOCK.joinCutTol()
+
 
 class MockSolid(object):
     """
     Mock Solid for test
     """
+
     pass
+
 
 class MockShape(Shape):
     """
@@ -108,12 +116,12 @@ class MockShape(Shape):
     """
 
     def __init__(self, api: MockShapeAPI):
-        self.api:MockShapeAPI = api
+        self.api: MockShapeAPI = api
         self.solid = None
 
     def getAPI(self) -> MockShapeAPI:
         return self.api
-    
+
     def getImplSolid(self):
         return self.solid
 
@@ -124,8 +132,9 @@ class MockShape(Shape):
     def dup(self) -> MockShape:
         return self
 
-    def filletByNearestEdges(self, 
-        nearestPts: list[tuple[float, float, float]], 
+    def filletByNearestEdges(
+        self,
+        nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> MockShape:
         return self
@@ -149,7 +158,7 @@ class MockShape(Shape):
 
     def remove(self):
         pass
-    
+
     def rotateX(self, ang: float) -> MockShape:
         return self
 
@@ -165,5 +174,6 @@ class MockShape(Shape):
     def show(self):
         return self.solid
 
-if __name__ == '__main__':
-    MockShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_BUILD_DIR,"mock-all.stl"))
+
+if __name__ == "__main__":
+    MockShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_BUILD_DIR, "mock-all.stl"))

@@ -34,27 +34,40 @@ class TunerConfig(ABC):
     """ Tuner Configuration """
     def __init__(
         self,
-        holeHt: float = 8,
         code: str = '?',
     ):
-        self.holeHt = holeHt
         self.code = code
 
     @abstractmethod
     def minGap(self) -> float:
-        pass
-    
+        ...
+
     @abstractmethod
+    def dims(self) -> tuple[float, float, float, float, float, float]:
+        """
+        (left, right, front, back, top, bottom)
+        """
+        ...
+
     def tailAllow(self) -> float:
-        pass
+        (_, back, _, _, _, _) = self.dims()
+        return back
+
+
+    @abstractmethod
+    def strHt(self) -> float:
+        """
+        string height above tuner at 0
+        """
+        ...
 
     @abstractmethod
     def is_peg(self) -> bool:
-        pass
+        ...
 
     @abstractmethod
     def is_worm(self) -> bool:
-        pass
+        ...
 
     def __repr__(self):
         properties = '\n'.join(f"{key}={value!r}" for key, value in vars(self).items())
@@ -63,6 +76,9 @@ class TunerConfig(ABC):
 # Tuner config
 
 class PegConfig(TunerConfig):
+
+    STEM_ABOVE_HOLE: float = 4
+
     """ Peg Configuration """
     def __init__(
         self,
@@ -72,31 +88,48 @@ class PegConfig(TunerConfig):
         btnRad: float = 11.5,
         midTck: float = 10,
         holeHt: float = 8,
+        tailAdj: float = -5,
         code: str = 'P',
     ):
-        super().__init__(holeHt, code = code)
+        super().__init__(code = code)
+        self.holeHt = holeHt
         self.majRad = majRad
         self.minRad = minRad
         self.botLen = botLen
         self.btnRad = btnRad
         self.midTck = midTck
+        self.tailAdj = tailAdj
 
     def minGap(self) -> float:
         return 2*max(self.majRad, self.btnRad) + .5
 
-    def tailAllow(self) -> float:
-        return self.majRad + self.btnRad - 1.5
-    
+    def dims(self) -> tuple[float, float, float, float, float, float]:
+        maxRad = max(self.majRad, self.btnRad)
+        return (
+            maxRad,                             # front
+            maxRad + self.tailAdj,              # back
+            self.majRad,                        # left
+            self.majRad,                        # right
+            self.holeHt + self.STEM_ABOVE_HOLE, # top
+            self.midTck + self.botLen,          # bottom
+        )
+
     def is_peg(self) -> bool:
         return True
 
     def is_worm(self) -> bool:
         return False
+
+    def strHt(self) -> float:
+        return self.holeHt
+
+
 class WormConfig(TunerConfig):
+
     """ Worm Configuration """
     def __init__(
         self,
-        holeHt: float = 23,
+        slitHt: float = 23,
         slitLen: float = 10,
         slitWth: float = 3,
         diskTck: float = 5,
@@ -107,6 +140,7 @@ class WormConfig(TunerConfig):
         driveLen: float = 14,
         driveOffset: float = 9.75,
         gapAdj: float = 1,
+        tailAdj: float = 2,
         buttonTck: float = 9.5,
         buttonWth: float = 16,
         buttonHt: float = 8,
@@ -116,7 +150,8 @@ class WormConfig(TunerConfig):
         buttonKeybaseHt: float = 3,
         code: str = 'W',
     ):
-        super().__init__(holeHt, code = code)
+        super().__init__(code = code)
+        self.slitHt = slitHt
         self.slitLen = slitLen
         self.slitWth = slitWth
         self.diskTck = diskTck
@@ -127,6 +162,7 @@ class WormConfig(TunerConfig):
         self.driveLen = driveLen
         self.driveOffset = driveOffset
         self.gapAdj = gapAdj
+        self.tailAdj = tailAdj
         self.buttonTck = buttonTck
         self.buttonWth = buttonWth
         self.buttonHt = buttonHt
@@ -138,14 +174,27 @@ class WormConfig(TunerConfig):
     def minGap(self) -> float:
         return self.diskTck + self.axleLen + self.gapAdj
 
-    def tailAllow(self) -> float:
-        return self.driveLen
-    
+    def dims(self) -> tuple[float, float, float, float, float, float]:
+        halfX = max(self.diskRad, self.slitLen/2, self.driveLen/2)
+        return (
+            halfX,                              # front
+            halfX + self.tailAdj,               # back
+            max(self.driveRad, self.diskTck/2)
+            + self.diskTck/2 + self.axleLen/2,  # left
+            self.axleLen/2,                     # right
+            self.slitHt - 2*self.axleRad,       # top
+            self.diskRad,                       # bottom
+        )
+
     def is_peg(self) -> bool:
         return False
 
     def is_worm(self) -> bool:
         return True
+
+    def strHt(self) -> float:
+        return self.slitHt
+
 
 FRICTION_PEG_CFG = PegConfig()
 GOTOH_PEG_CFG = PegConfig(
@@ -155,11 +204,12 @@ GOTOH_PEG_CFG = PegConfig(
     btnRad=9.5,
     midTck=11,
     holeHt=10,
+    tailAdj=-2,
     code = 'G',
 )
 WORM_TUNER_CFG = WormConfig()
 BIGWORM_TUNER_CFG = WormConfig(
-    holeHt=30,
+    slitHt=30,
     slitLen=10,
     diskTck=5 * 1.5,
     diskRad=7.7 * 1.5,
