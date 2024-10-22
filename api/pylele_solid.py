@@ -13,6 +13,11 @@ import importlib
 import os
 from pathlib import Path
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+from copy import deepcopy
+
+import argparse
+import datetime
 import time
 import trimesh
 from pathlib import Path
@@ -44,23 +49,20 @@ def test_iteration(module, component, test, api, args=None):
     else:
         largs = deepcopy(args)
 
-    print(f"#### Test {component} {test} {api}")
-    outdir = os.path.join(DEFAULT_TEST_DIR, component, test, api)
+    print(f'#### Test {component} {test} {api}')
+    outdir = os.path.join(DEFAULT_TEST_DIR,component,test,api)
     largs += [
-        "-o",
-        outdir,
-        "-i",
-        api,
-        "-odoff",  # do not append date
-        "-stlc",  # enable stl volume analysis during test
-    ]
+        '-o', outdir,
+        '-i', api,
+        '-odoff', # do not append date
+        '-stlc' # enable stl volume analysis during test
+                ]
     print(largs)
     mod.main(args=largs)
     pass
 
-
-def test_loop(module, apis=None, tests=None):  # ,component):
-    """loop over a list of tests"""
+def test_loop(module,apis=None,tests=None): # ,component):
+    """ loop over a list of tests """
 
     # generate a default testcase if not specified
     if tests is None:
