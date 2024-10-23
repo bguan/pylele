@@ -23,8 +23,6 @@ from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
 from conversion.stlascii2stlbin import stlascii2stlbin
 from conversion.scad2stl import scad2stl, OPENSCAD
 
-FIDELITY_K = 4
-
 
 class Sp2ShapeAPI(ShapeAPI):
     """
@@ -177,9 +175,7 @@ class Sp2Shape(Shape):
         return self
 
     def segsByDim(self, dim: float) -> int:
-        return FIDELITY_K * ceil(
-            abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments()
-        )
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
 
     def mirrorXZ(self) -> Sp2Shape:
         cmirror = self.solid.mirror([0, 1, 0])
