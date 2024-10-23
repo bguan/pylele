@@ -7,6 +7,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
+from copy import deepcopy
 import datetime
 import importlib
 import os
@@ -38,11 +39,13 @@ def test_iteration(module, component, test, api, args=None):
     mod = importlib.import_module(module)
 
     if args is None:
-        args = []
+        largs = []
+    else:
+        largs = deepcopy(args)
 
     print(f"#### Test {component} {test} {api}")
     outdir = os.path.join(DEFAULT_TEST_DIR, component, test, api)
-    args += [
+    largs += [
         "-o",
         outdir,
         "-i",
@@ -50,8 +53,8 @@ def test_iteration(module, component, test, api, args=None):
         "-odoff",  # do not append date
         "-stlc",  # enable stl volume analysis during test
     ]
-    print(args)
-    mod.main(args=args)
+    print(largs)
+    mod.main(args=largs)
     pass
 
 
