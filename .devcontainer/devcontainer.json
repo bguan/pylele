@@ -1,6 +1,6 @@
 {
   "name": "Python 3",
-  "image": "mcr.microsoft.com/devcontainers/python:0-3.11",
+  "image": "mcr.microsoft.com/devcontainers/python:0-3.12",
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:1": {}
   },
