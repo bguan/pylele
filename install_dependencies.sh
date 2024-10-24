@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # ubuntu dependencies
-sudo apt update 
-sudo apt install python3-pip pipenv libgl1 -y
+sudo apt update
+sudo apt install python3-pip pipenv libgl1 openscad -y
 
 # install openscad-nightly for huge performance gain
-sudo apt install snapd
-sudo snap install openscad-nightly
-sudo snap alias openscad-nightly openscad
+# sudo apt install snapd
+# sudo snap install openscad-nightly
+# sudo snap alias openscad-nightly openscad
 
 # install fonts
 sudo apt install ttf-mscorefonts-installer -y
