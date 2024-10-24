@@ -97,7 +97,7 @@ class Sp2ShapeAPI(ShapeAPI):
         stem_len = l - 2*rad*domeRatio
         rod = None
         for bz in [stem_len/2, -stem_len/2]:
-            ball = sphere(rad,_fn=self.fidelity.smoothingSegments()*FIDELITY_K)\
+            ball = sphere(rad,_fn=self.fidelity.smoothingSegments())\
                 .scale([1, 1, domeRatio]).translate([0, 0, bz])
             if rod is None:
                 rod = ball

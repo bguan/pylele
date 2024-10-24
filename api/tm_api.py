@@ -12,6 +12,7 @@ import sys
 import trimesh as tm
 from typing import Union
 
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation

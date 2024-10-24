@@ -10,8 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape, Implementation
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD, TunerType
-from pylele2.pylele_worm import WormConfig
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD, TunerType, WormConfig
 from parts.rounded_box import RoundedBox
 
 class LeleWormKey(LeleBase):

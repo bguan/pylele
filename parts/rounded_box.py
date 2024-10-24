@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from solid2 import sphere
 from api.pylele_solid import LeleSolid, test_loop, main_maker, Implementation
 from api.pylele_api import Shape
-from api.sp2_api import FIDELITY_K
+# from api.sp2_api import FIDELITY_K
 
 class RoundedBox(LeleSolid):
     """ Generate a Tube """
@@ -46,7 +46,7 @@ class RoundedBox(LeleSolid):
     def gen_solidpython(self) -> Shape:
         """ solidpython implementation """
         assert self.cli.implementation in [Implementation.SOLID2]
-        fn = self.api.fidelity.smoothingSegments()*FIDELITY_K
+        fn = self.api.fidelity.smoothingSegments()# *FIDELITY_K
 
         xcoords,ycoords,zcoords = self._coords()
 

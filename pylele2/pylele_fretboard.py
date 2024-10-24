@@ -10,7 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api import Shape
 from api.pylele_utils import degrees
-from pylele2.pylele_base import LeleBase, test_loop, main_maker, FIT_TOL, FILLET_RAD
+from api.pylele_solid import test_loop, main_maker, FIT_TOL, FILLET_RAD
+from pylele2.pylele_base import LeleBase
 
 class LeleFretboard(LeleBase):
     """Pylele Fretboard Generator class"""

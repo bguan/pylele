@@ -190,6 +190,12 @@ class LeleWorm(LeleBase):
 
         cutAdj = FIT_TOL if self.isCut else 0
         c = WormConfig()
+        
+        # enable open back slit w/o long slit front
+        (c.front, _, _, _, _, _) = (
+                tnrCfg.dims()
+            )
+
         c.sltLen = default_or_alternate(tnrCfg.slitLen,self.cli.worm_slit_length)
         c.sltWth = default_or_alternate(tnrCfg.slitWth,self.cli.worm_slit_width)
         c.drvRad = default_or_alternate(tnrCfg.driveRad + cutAdj,self.cli.worm_drive_radius)
@@ -199,6 +205,7 @@ class LeleWorm(LeleBase):
         c.axlLen = default_or_alternate(tnrCfg.axleLen + 2*cutAdj,self.cli.worm_axle_length)
         c.offset = default_or_alternate(tnrCfg.driveOffset,self.cli.worm_drive_offset)
         c.drvLen = default_or_alternate(tnrCfg.driveLen + 2*cutAdj,self.cli.worm_drive_length)
+
 
         return c
     
@@ -243,15 +250,10 @@ class LeleWorm(LeleBase):
 
         ## Slit
         if self.isCut:
-            (front, _, _, _, _, _) = (
-                tnrCfg.dims()
-            )  # enable open back slit w/o long slit front
-            slit = self.api.genBox(sltLen, sltWth, 100).mv(
-                sltLen / 2 - front, 0, 50 - 2 * axlRad
+            worm += self.api.genBox(c.sltLen, c.sltWth, 100).mv(
+                c.sltLen / 2 - c.front, 0, 50 - 2 * c.axlRad
             )
-            worm = worm.join(slit)
-
-        self.shape = worm
+        
         return worm
 
     def gen_parser(self, parser=None):

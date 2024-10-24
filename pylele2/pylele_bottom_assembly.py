@@ -38,7 +38,7 @@ class LeleBottomAssembly(LeleBase):
         body = LeleBody(cli=self.cli)
 
         ## Text
-        if self.cli.text_en:
+        if not self.cli.no_text:
             body -= LeleTexts(cli=self.cli, isCut=True)
 
         ## Chamber
@@ -113,9 +113,8 @@ def test_bottom_assembly(self, apis=None):
 
 
 def test_bottom_assembly_mock(self):
-    """Test Bottom Assembly Mock"""
+    """ Test Bottom Assembly Mock """
     test_bottom_assembly(self, apis=["mock"])
-
 
 if __name__ == "__main__":
     main()

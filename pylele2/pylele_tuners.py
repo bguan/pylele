@@ -62,12 +62,11 @@ class LeleTuners(LeleBase):
         for xyz in self.cfg.tnrXYZs:
             top = top.filletByNearestEdges(
                 nearestPts=[
-                    (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.holeHt)
+                    (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.strHt())
                 ],
                 rad = tuners.sltWth
                 )
         return top
-
 
     def gen_parser(self,parser=None):
         """

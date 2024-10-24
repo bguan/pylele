@@ -101,7 +101,7 @@ class LeleChamber(LeleBase):
             botBack = self.api.genQuarterBall(rad, False, False).scale(
                 backRat, 1, botRat
             )
-            chm = topFront.join(topBack).join(botFront).join(botBack)
+            chm = topFront + topBack + botFront + botBack
 
         if rotY != 0:
             chm = chm.rotateY(rotY)
@@ -109,8 +109,7 @@ class LeleChamber(LeleBase):
         if lift != 0:
             chm = chm.mv(0, 0, lift)
 
-        chm = chm.mv(scLen, 0, 0)
-        return chm
+        return chm.mv(scLen, 0, 0)
 
     def gen_parser(self, parser=None):
         parser = pylele_chamber_parser(parser=parser)
