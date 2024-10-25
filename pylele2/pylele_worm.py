@@ -15,7 +15,7 @@ from pylele_config_common import TunerType
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from pylele2.pylele_base import LeleBase, WormConfig
 
 
 def default_or_alternate(def_val, alt_val=None):
