@@ -3,6 +3,7 @@
 * [manifold3d](https://github.com/elalish/manifold): fast(ests?) 3d modeling library used by trimesh and openscad
 * [pythonscad](https://pythonscad.org/): native python interpreter for scad renderer
 * [anchorscad](https://github.com/owebeeone/anchorscad)
+* [py_scadparser](https://github.com/jeff-dh/py_scadparser): openscad parser in python
 * [Vapory](https://github.com/Zulko/vapory): povray image generation of solid geometry
 
 # Ukulele: 3d print
