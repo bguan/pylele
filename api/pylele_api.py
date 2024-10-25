@@ -741,27 +741,27 @@ class ShapeAPI(ABC):
         joined += obj11
 
         # move operator shortcut
-        obj12 = obj11 << Direction(x=1)
-        obj13 = obj11 << Direction(y=1)
-        obj14 = obj11 << Direction(z=1)
-        obj15 = obj11 << (0,1,2)
+        obj12 = self.genBall(5) << Direction(x=1)
+        obj13 = self.genBall(5) << Direction(y=1)
+        obj14 = self.genBall(5) << Direction(z=1)
+        obj15 = self.genBall(5) << (0,1,2)
 
         # scale operator shortcut
-        obj16 = obj11 * Direction(x=1)
-        obj17 = obj11 * Direction(y=1)
-        obj18 = obj11 * Direction(z=1)
-        obj19 = obj11 * (1,2,3)
+        obj16 = self.genBall(5) * Direction(x=1)
+        obj17 = self.genBall(5) * Direction(y=1)
+        obj18 = self.genBall(5) * Direction(z=1)
+        obj19 = self.genBall(5) * (1,2,3)
 
         # move operator shortcut
-        obj12 = obj11 << Direction(x=1)
-        obj13 = obj11 << Direction(y=1)
-        obj14 = obj11 << Direction(z=1)
-        obj15 = obj11 << (0,1,2)
+        obj20 = self.genBall(5) << Direction(x=1)
+        obj21 = self.genBall(5) << Direction(y=1)
+        obj22 = self.genBall(5) << Direction(z=1)
+        obj23 = self.genBall(5) << (0,1,2)
 
         # scale operator shortcut
-        obj16 = obj11 * Direction(x=1)
-        obj17 = obj11 * Direction(y=1)
-        obj18 = obj11 * Direction(z=1)
-        obj19 = obj11 * (1,2,3)
+        obj24 = self.genBall(5) * Direction(x=1)
+        obj25 = self.genBall(5) * Direction(y=1)
+        obj26 = self.genBall(5) * Direction(z=1)
+        obj27 = self.genBall(5) * (1,2,3)
 
         self.exportSTL(joined, expDir / f"{implCode}-all")
