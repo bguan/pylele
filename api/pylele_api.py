@@ -651,8 +651,6 @@ class ShapeAPI(ABC):
 
         # More complex tests
 
-        objs = []
-
         box = self.genBox(10, 10, 2).mv(0, 0, -10)
         ball = self.genBall(5).scale(1, 2, 1)
         coneZ = self.genConeZ(10, 10, 5).mv(0, 0, 10)
@@ -661,37 +659,37 @@ class ShapeAPI(ABC):
         obj1 = box + ball + coneZ + rod - coneX
         coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
-        objs.append(obj1)
+        joined = obj1
 
         rx = self.genRodX(10, 3)
         ry = self.genRodY(10, 3)
         rz = self.genRodZ(10, 3)
         obj2 = rx.join(ry).join(rz).mv(10, -10, 5)
-        objs.append(obj2)
+        joined += obj2
 
         rr1 = self.genRndRodX(10, 3).scale(0.5, 1, 1).mv(0, -20, 0)
         rr2 = self.genRndRodX(10, 3).scale(1, 0.5, 1).mv(0, 0, 0)
         rr3 = self.genRndRodX(10, 3).scale(1, 1, 0.5).mv(0, 20, 0)
         rr4 = self.genRndRodY(50, 1)
         obj3 = rr1.join(rr2).join(rr3).join(rr4).mv(0, 0, -20)
-        objs.append(obj3)
+        joined += obj3
 
         rrx = self.genRndRodX(10, 3, 0.25)
         rry = self.genRndRodY(10, 3, 0.5)
         rrz = self.genRndRodZ(10, 3)
         obj4 = rrx.join(rry).join(rrz).half().mv(-10, 10, 5)
-        objs.append(obj4)
+        joined += obj4
 
         pe = self.genPolyExtrusionZ([(-10, 30), (10, 30), (10, -30), (-10, -30)], 10)
         tz = self.genTextZ("Hello World", 10, 5, "Arial").rotateZ(90).mv(0, 0, 10)
         obj5 = pe.join(tz).mv(30, -30, 0)
         mirror = obj5.mirrorXZ().mv(10, 0, 0)
         obj5 = obj5.join(mirror)
-        objs.append(obj5)
+        joined += obj5
 
         rndBox = self.genBox(10, 10, 10).filletByNearestEdges([(5, 0, 5)], 1)
         obj6 = rndBox.mv(-10, -10, 5)
-        objs.append(obj6)
+        joined += obj6
 
         dome = self.genLineSplineExtrusionZ(
             start=(0, 0),
@@ -711,7 +709,7 @@ class ShapeAPI(ABC):
             ht=5,
         )
         obj7 = dome.rotateY(-45).mv(-10, 15, 0)
-        objs.append(obj7)
+        joined += obj7
 
         donutStart = (60, 0.1)
         donutPath = [
@@ -729,18 +727,18 @@ class ShapeAPI(ABC):
             0, 0, self.getJoinCutTol()
         )
         obj8 = dome2.join(dome3).mv(0, 0, -10)
-        objs.append(obj8)
+        joined += obj8
 
         obj9 = self.genCirclePolySweep(
             1, [(-20, 0, 0), (20, 0, 40), (40, 20, 40), (60, 20, 0)]
         )
-        objs.append(obj9)
+        joined += obj9
 
         obj10 = self.genQuarterBall(10, True, True).scale(2, 1, 0.5).mv(-30, -20, 0)
-        objs.append(obj10)
+        joined += obj10
 
         obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
-        objs.append(obj11)
+        joined += obj11
 
         # move operator shortcut
         obj12 = obj11 << Direction(x=1)
@@ -766,7 +764,4 @@ class ShapeAPI(ABC):
         obj18 = obj11 * Direction(z=1)
         obj19 = obj11 * (1,2,3)
 
-        joined = None
-        [joined := (obj if joined is None else joined.join(obj)) for obj in objs]
-        
         self.exportSTL(joined, expDir / f"{implCode}-all")
