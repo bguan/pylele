@@ -35,9 +35,6 @@ class BlenderShapeAPI(ShapeAPI):
         super().__init__()
         self.fidelity = fidel
 
-    def getImplementation(self) -> Implementation:
-        return Implementation.BLENDER
-
     def exportSTL(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)

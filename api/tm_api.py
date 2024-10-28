@@ -45,9 +45,6 @@ class TMShapeAPI(ShapeAPI):
         super().__init__()
         self.fidelity = fidel
 
-    def getImplementation(self) -> Implementation:
-        return Implementation.TRIMESH
-
     def exportSTL(self, shape: TMShape, path: Union[str, Path]) -> None:
         shape.solid.export(ensureFileExtn(path, ".stl"))
 
@@ -140,7 +137,7 @@ class TMShape(Shape):
                 "warning: solid is NOT a valid volume, attempt minor repair...",
                 file=sys.stderr,
             )
-            jctol = self.api.getImplementation().joinCutTol()
+            jctol = Implementation.TRIMESH.joinCutTol()
             self.solid.update_faces(self.solid.nondegenerate_faces(jctol / 2))
             self.solid.update_faces(self.solid.unique_faces())
             self.solid.remove_infinite_values()

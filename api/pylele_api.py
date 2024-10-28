@@ -347,9 +347,6 @@ class ShapeAPI(ABC):
     def __init__(self) -> None:
         self.font2path: dict[str, str] = self.getFontname2FilepathMap()
 
-    @abstractmethod
-    def getImplementation(self) -> Implementation: ...
-
     def getFontPath(self, fontName: str) -> str:
         return self.font2path[fontName] if fontName in self.font2path else None
 
@@ -498,7 +495,7 @@ class ShapeAPI(ABC):
             print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
             sys.exit(os.EX_SOFTWARE)
 
-        implCode = self.getImplementation().code()
+        implCode = self.implementation.code()
 
         # Simple Tests
 

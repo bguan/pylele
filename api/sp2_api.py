@@ -35,9 +35,6 @@ class Sp2ShapeAPI(ShapeAPI):
     def __init__(self, fidel: Fidelity = Fidelity.LOW):
         self.fidelity = fidel
 
-    def getImplementation(self) -> Implementation:
-        return Implementation.SOLID2
-
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)

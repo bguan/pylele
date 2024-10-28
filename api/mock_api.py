@@ -21,9 +21,6 @@ class MockShapeAPI(ShapeAPI):
     def __init__(self, fidel: Fidelity):
         self.fidelity = fidel
 
-    def getImplementation(self) -> Implementation:
-        return Implementation.MOCK
-
     def exportSTL(self, shape: MockShape, path: str) -> None:
         gen_stl_foo(path)
 
