@@ -48,9 +48,6 @@ class LelePart(ABC):
     def exportBest(self, path: Union[str, Path]) -> None:
         self.shape.getAPI().exportBest(self.shape, str(path))
 
-    def exportBest(self, path: Union[str, Path]) -> None:
-        self.shape.getAPI().exportBest(self.shape, str(path))
-
     def filletByNearestEdges(
         self,
         nearestPts: list[tuple[float, float, float]],
