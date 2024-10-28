@@ -167,10 +167,13 @@ def direction_operand(operand) -> Direction:
 class Shape(ABC):
 
     MAX_DIM = 2000  # for max and min dimensions
+    solid = None
+    api = None
 
-    @abstractmethod
-    def getAPI(self) -> ShapeAPI: ...
-
+    def __init__(self, api: ShapeAPI, solid=None):
+        self.api: ShapeAPI = api
+        self.solid = solid
+   
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
 
@@ -186,7 +189,7 @@ class Shape(ABC):
 
     def halfByPlane(self, plane: tuple[bool, bool, bool]) -> Shape:
         halfCutter = (
-            self.getAPI()
+            self.api
             .genBox(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM)
             .mv(
                 self.MAX_DIM / 2 if plane[0] else 0,

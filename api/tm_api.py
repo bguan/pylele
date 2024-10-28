@@ -124,11 +124,6 @@ class TMShape(Shape):
     Y_AXIS = (0, 1, 0)
     Z_AXIS = (0, 0, 1)
 
-    def __init__(self, api: TMShapeAPI):
-        super().__init__()
-        self.api: TMShapeAPI = api
-        self.solid: tm.Trimesh = None
-
     def ensureVolume(self) -> None:
         if self.solid.is_volume:
             return
@@ -163,9 +158,6 @@ class TMShape(Shape):
                 file=sys.stderr,
             )
             self.solid = self.solid.convex_hull
-
-    def getAPI(self) -> TMShapeAPI:
-        return self.api
 
     def segsByDim(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())

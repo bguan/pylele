@@ -144,13 +144,6 @@ class Sp2Shape(Shape):
     SolidPython2 Pylele Shape implementation for test
     """
 
-    def __init__(self, api: Sp2ShapeAPI, solid=None):
-        self.api: Sp2ShapeAPI = api
-        self.solid = solid
-
-    def getAPI(self) -> Sp2ShapeAPI:
-        return self.api
-
     def cut(self, cutter: Sp2Shape) -> Sp2Shape:
         self.solid = self.solid - cutter.solid
         return self

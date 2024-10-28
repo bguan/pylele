@@ -102,13 +102,6 @@ class MockShape(Shape):
     Mock Pylele Shape implementation for test
     """
 
-    def __init__(self, api: MockShapeAPI):
-        self.api: MockShapeAPI = api
-        self.solid = None
-
-    def getAPI(self) -> MockShapeAPI:
-        return self.api
-
     def cut(self, cutter: MockShape) -> MockShape:
         self.solid = None
         return self

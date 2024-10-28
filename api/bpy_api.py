@@ -125,14 +125,6 @@ class BlenderShape(Shape):
     REPAIR_MIN_REZ = 0.005
     REPAIR_LOOPS = 2
 
-    def __init__(self, api: BlenderShapeAPI):
-        super().__init__()
-        self.api = api
-        self.solid = None
-
-    def getAPI(self) -> BlenderShapeAPI:
-        return self.api
-
     def findBounds(self) -> tuple[float, float, float, float, float, float]:
         """
         Returns the bounding box of a Blender object in world space as a tuple:

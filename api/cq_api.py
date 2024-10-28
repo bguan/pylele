@@ -157,13 +157,6 @@ class CQShapeAPI(ShapeAPI):
 
 class CQShape(Shape):
 
-    def __init__(self, api: CQShapeAPI):
-        self.api: CQShapeAPI = api
-        self.solid: cq.Workplane = None
-
-    def getAPI(self) -> CQShapeAPI:
-        return self.api
-
     def cut(self, cutter: CQShape) -> CQShape:
         self.solid = self.solid.cut(cutter.solid)
         return self
