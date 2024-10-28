@@ -167,9 +167,6 @@ class TMShape(Shape):
     def getAPI(self) -> TMShapeAPI:
         return self.api
 
-    def getImplSolid(self) -> tm.Trimesh:
-        return self.solid
-
     def segsByDim(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
 

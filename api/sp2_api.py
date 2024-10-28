@@ -151,9 +151,6 @@ class Sp2Shape(Shape):
     def getAPI(self) -> Sp2ShapeAPI:
         return self.api
 
-    def getImplSolid(self):
-        return self.solid
-
     def cut(self, cutter: Sp2Shape) -> Sp2Shape:
         self.solid = self.solid - cutter.solid
         return self

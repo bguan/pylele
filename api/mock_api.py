@@ -109,9 +109,6 @@ class MockShape(Shape):
     def getAPI(self) -> MockShapeAPI:
         return self.api
 
-    def getImplSolid(self):
-        return self.solid
-
     def cut(self, cutter: MockShape) -> MockShape:
         self.solid = None
         return self

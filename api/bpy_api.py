@@ -133,9 +133,6 @@ class BlenderShape(Shape):
     def getAPI(self) -> BlenderShapeAPI:
         return self.api
 
-    def getImplSolid(self) -> Any:
-        return self.solid
-
     def findBounds(self) -> tuple[float, float, float, float, float, float]:
         """
         Returns the bounding box of a Blender object in world space as a tuple:

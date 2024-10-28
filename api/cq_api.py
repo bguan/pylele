@@ -164,9 +164,6 @@ class CQShape(Shape):
     def getAPI(self) -> CQShapeAPI:
         return self.api
 
-    def getImplSolid(self) -> cq.Workplane:
-        return self.solid
-
     def cut(self, cutter: CQShape) -> CQShape:
         self.solid = self.solid.cut(cutter.solid)
         return self

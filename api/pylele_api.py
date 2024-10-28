@@ -172,9 +172,6 @@ class Shape(ABC):
     def getAPI(self) -> ShapeAPI: ...
 
     @abstractmethod
-    def getImplSolid(self) -> Any: ...
-
-    @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
 
     @abstractmethod
