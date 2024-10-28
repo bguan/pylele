@@ -164,10 +164,6 @@ class CQShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self):
-        return Implementation.CAD_QUERY.joinCutTol()
-
-
 class CQShape(Shape):
 
     def __init__(self, api: CQShapeAPI):

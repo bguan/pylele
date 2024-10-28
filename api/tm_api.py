@@ -126,9 +126,6 @@ class TMShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
         return TMTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self) -> float:
-        return Implementation.TRIMESH.joinCutTol()
-
 
 class TMShape(Shape):
 

@@ -128,10 +128,6 @@ class BlenderShapeAPI(ShapeAPI):
     ) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self) -> float:
-        return Implementation.BLENDER.joinCutTol()
-
-
 class BlenderShape(Shape):
 
     # MAX_DIM = 10000 # for max and min dimensions

@@ -61,6 +61,7 @@ class Fidelity(LeleStrEnum):
 
     def code(self) -> str:
         return str(self)[0].upper()
+    
 class Implementation(LeleStrEnum):
     """Pylele API implementations"""
 
@@ -265,9 +266,12 @@ class Shape(ABC):
         return self.mv(x,y,z)
         
 class ShapeAPI(ABC):
+    
+    implementation = None
 
     @classmethod
     def get(self: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
+        self.implementation = impl
         mod = importlib.import_module(impl.module_name())
         api = getattr(mod, impl.class_name())
         return api(fidelity)
@@ -488,8 +492,8 @@ class ShapeAPI(ABC):
         )
         return rod.cut(cutter)
 
-    @abstractmethod
-    def getJoinCutTol(self): ...
+    def getJoinCutTol(self):
+        return self.implementation.joinCutTol()
 
     def test(self, outpath: str | Path) -> None:
 

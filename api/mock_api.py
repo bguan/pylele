@@ -98,10 +98,6 @@ class MockShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
 
-    def getJoinCutTol(self):
-        return Implementation.MOCK.joinCutTol()
-
-
 class MockSolid(object):
     """
     Mock Solid for test

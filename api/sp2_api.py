@@ -143,9 +143,6 @@ class Sp2ShapeAPI(ShapeAPI):
     def genShape(self, solid=None) -> Sp2Shape:
         return Sp2Shape(solid=solid, api=self)
 
-    def getJoinCutTol(self) -> float:
-        return Implementation.SOLID2.joinCutTol()
-
     def setCommand(self, command=OPENSCAD) -> None:
         self.command = command
 
