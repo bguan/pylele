@@ -5,6 +5,7 @@
 * [anchorscad](https://github.com/owebeeone/anchorscad): Openscad python generator with nice syntax
 * [pySdfScad](https://github.com/traverseda/PySdfScad): Openscad python interpreter based on [Forgleman Sdf library](https://github.com/fogleman/sdf), also including an openscad parser in python.
 * [py_scadparser](https://github.com/jeff-dh/py_scadparser): openscad parser in python
+* [python-brlcad](https://github.com/kanzure/python-brlcad/tree/master): python bindings to [BRL-CAD](https://brlcad.org/) solid construction geometry library [trusted by US Army since 1983](https://en.wikipedia.org/wiki/BRL-CAD).
 * [Vapory](https://github.com/Zulko/vapory): povray image generation of solid geometry
 
 # Ukulele: 3d print
