@@ -25,8 +25,7 @@ class LeleFretboardSpines(LeleBase):
         fspTck = self.cfg.FRETBD_SPINE_TCK + 2 * (
             self.api.getJoinCutTol() if self.isCut else 0
         )
-        spY1 = self.cfg.spineY1
-        spY2 = self.cfg.spineY2
+
         spWth = self.cfg.SPINE_WTH + 2 * cutAdj  # to align with spine cuts
         fspLen = (
             self.cfg.fbSpineLen()
