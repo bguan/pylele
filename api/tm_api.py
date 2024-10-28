@@ -45,14 +45,8 @@ class TMShapeAPI(ShapeAPI):
         super().__init__()
         self.fidelity = fidel
 
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
     def getImplementation(self) -> Implementation:
         return Implementation.TRIMESH
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: TMShape, path: Union[str, Path]) -> None:
         shape.solid.export(ensureFileExtn(path, ".stl"))

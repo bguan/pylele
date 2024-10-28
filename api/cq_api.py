@@ -79,14 +79,8 @@ class CQShapeAPI(ShapeAPI):
         super().__init__()
         self.fidelity = fidel
 
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
     def getImplementation(self) -> Implementation:
         return Implementation.CAD_QUERY
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(

@@ -348,16 +348,10 @@ class ShapeAPI(ABC):
         self.font2path: dict[str, str] = self.getFontname2FilepathMap()
 
     @abstractmethod
-    def getFidelity(self) -> Fidelity: ...
-
-    @abstractmethod
     def getImplementation(self) -> Implementation: ...
 
     def getFontPath(self, fontName: str) -> str:
         return self.font2path[fontName] if fontName in self.font2path else None
-
-    @abstractmethod
-    def setFidelity(self, fidel: Fidelity) -> None: ...
 
     @abstractmethod
     def exportSTL(self, shape: Shape, path: Union[str, Path]) -> None: ...

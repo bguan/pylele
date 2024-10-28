@@ -35,16 +35,8 @@ class Sp2ShapeAPI(ShapeAPI):
     def __init__(self, fidel: Fidelity = Fidelity.LOW):
         self.fidelity = fidel
 
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-
     def getImplementation(self) -> Implementation:
         return Implementation.SOLID2
-
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
