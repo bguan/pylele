@@ -416,27 +416,6 @@ class ShapeAPI(ABC):
 
         return mask
 
-    def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
-        """ generate a mask to round an edge """
-
-        radi = rad + tol
-        if direction == 'x':
-            mask  = self.genBox(l,radi,radi).mv(0,radi/2,radi/2)
-            mask -= self.genRodX(l,rad=radi)
-            mask  = mask.rotateX(rot)
-        elif direction == 'y':
-            mask  = self.genBox(radi,l,radi).mv(radi/2,0,radi/2)
-            mask -= self.genRodY(l,rad=radi)
-            mask  = mask.rotateY(rot)
-        elif direction == 'z':
-            mask  = self.genBox(radi,radi,l).mv(radi/2,radi/2,0)
-            mask -= self.genRodZ(l,rad=radi)
-            mask  = mask.rotateZ(rot)
-        else:
-            assert False
-
-        return mask
-
     def genRndRodX(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         rndRodZ = self.genRndRodZ(l, rad, domeRatio)
         return rndRodZ.rotateY(90)
