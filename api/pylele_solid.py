@@ -131,6 +131,7 @@ def stl_check_volume(
     out_fname: str,
     check_en: bool = True,
     reference_volume: float = None,
+    reference_volume_tolerance: float = 10
 ) -> dict:
     """Check the volume of an .stl mesh against a reference value"""
     rpt = {}
@@ -147,7 +148,9 @@ def stl_check_volume(
         rpt["bounding_box"] = mesh.bounding_box.extents
 
         assert volume_match_reference(
-            volume=mesh.volume, reference=reference_volume
+            volume=mesh.volume, 
+            reference=reference_volume,
+            tolerance=reference_volume_tolerance/100
         ), "volume: %f, reference: %f" % (
             rpt["volume"],
             reference_volume,
@@ -228,6 +231,13 @@ def lele_solid_parser(parser=None):
         + "if volume of generated .stl file differs from the reference",
         type=float,
         default=None,
+    )
+    parser.add_argument(
+        "-refvt",
+        "--reference_volume_tolerance",
+        help="Reference volume tolerance [%]",
+        type=float,
+        default=10,
     )
     parser.add_argument(
         "-S",
@@ -443,6 +453,7 @@ class LeleSolid(ABC):
             check_en=self.cli.stl_check_en
             and not self.cli.implementation == Implementation.MOCK,
             reference_volume=self.cli.reference_volume,
+            reference_volume_tolerance=self.cli.reference_volume_tolerance,
         )
 
         end_time = time.time()

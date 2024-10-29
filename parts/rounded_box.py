@@ -137,7 +137,7 @@ def main(args=None):
 
 def test_rounded_box(self,apis=None):
     """ Test Rounded Box """
-    tests={'default':['-refv','105']}
+    tests={'default':['-refv','105','-refvt','15']}
     test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_rounded_box_mock(self):
