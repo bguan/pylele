@@ -9,7 +9,10 @@ permissions: write-all
 jobs:
   review:
     runs-on: ubuntu-latest
-    steps:
+    steps:               
+      - name: AI Code Review Action           
+        uses: freeedcom/ai-codereviewer@v2.7.0
+        
       - name: Checkout Repo
         uses: actions/checkout@v3
 
