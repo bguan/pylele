@@ -87,9 +87,14 @@ class Implementation(LeleStrEnum):
         return APIS_INFO[self]["class"]
 
     def joinCutTol(self) -> float:
-        # Tolerance for joins to have a little overlap
+        """ Tolerance for joins to have a little overlap """
         return 0 if self == Implementation.CAD_QUERY else 0.01
-
+    
+    def get_api(self, fidelity: Fidelity = Fidelity.LOW) -> ShapeAPI:
+        """ Get the handler to the selected implementation API """
+        mod = importlib.import_module(self.module_name())
+        api = getattr(mod, self.class_name())
+        return api(implementation = self, fidelity=fidelity)
 
 def supported_apis() -> list:
     """Returns the list of supported apis"""
@@ -118,7 +123,7 @@ def test_api(api):
     """ Test a Shape API """
     if api in supported_apis()+['mock']:
         impl = Implementation(api)
-        sapi = ShapeAPI.get(impl=impl, fidelity = Fidelity.LOW)
+        sapi = impl.get_api(fidelity = Fidelity.LOW)
         outfname = make_test_path(impl.module_name())
         sapi.test(outfname)
     else:
@@ -264,88 +269,87 @@ class Shape(ABC):
         direction = direction_operand(operand)
         x,y,z = direction.eval('+')
         return self.mv(x,y,z)
-        
+
+def getFontname2FilepathMap() -> dict[str, str]:
+
+    font2path: dict[str, str] = {}
+
+    # Define directories to search for fonts
+    if sys.platform == "win32":
+        font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
+    elif sys.platform == "darwin":
+        font_dirs = [
+            "/Library/Fonts",
+            "/System/Library/Fonts",
+            os.path.expanduser("~/Library/Fonts"),
+        ]
+    else:  # Assume Linux or other UNIX-like system
+        font_dirs = [
+            "/usr/share/fonts",
+            "/usr/local/share/fonts",
+            os.path.expanduser("~/.fonts"),
+        ]
+
+    def list_fonts(directory):
+        fonts = []
+
+        # Helper function to get the string by its name ID
+        def get_name(font: TTFont, nameID: int):
+            name_record = font["name"].getName(
+                nameID=nameID, platformID=3, platEncID=1
+            )
+            if name_record is None:
+                name_record = font["name"].getName(
+                    nameID=nameID, platformID=1, platEncID=0
+                )
+            return name_record.toStr() if name_record else "Unknown"
+
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.lower().endswith((".ttf", ".otf")):
+                    font_path = os.path.join(root, file)
+                    try:
+                        font = TTFont(font_path)
+                        # Get the Font Family Name (name ID 1)
+                        family = get_name(font, 1)
+                        # Get the Font Subfamily Name (Style) (name ID 2)
+                        style = get_name(font, 2)
+
+                        font_name = (
+                            family
+                            if style == "Normal" or style == "Regular"
+                            else family + " " + style
+                        )
+                        fonts.append((font_name, font_path))
+                    except Exception as e:
+                        print(f"Error reading {font_path}: {e}")
+        return fonts
+
+    # Collect fonts from all directories
+    all_fonts = []
+    for directory in font_dirs:
+        if os.path.exists(directory):
+            all_fonts.extend(list_fonts(directory))
+
+    # Print the font names and paths
+    for name, path in all_fonts:
+        # print(f"Font: {name}, Path: {path}")
+        font2path[name] = path
+
+    return font2path
+
 class ShapeAPI(ABC):
+    """ Prototype for Implementation API """
     
     implementation = None
+    fidelity = None
+    font2path = getFontname2FilepathMap()
 
-    @classmethod
-    def get(self: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
-        self.implementation = impl
-        mod = importlib.import_module(impl.module_name())
-        api = getattr(mod, impl.class_name())
-        return api(fidelity)
-
-    def getFontname2FilepathMap(self) -> dict[str, str]:
-
-        font2path: dict[str, str] = {}
-
-        # Define directories to search for fonts
-        if sys.platform == "win32":
-            font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
-        elif sys.platform == "darwin":
-            font_dirs = [
-                "/Library/Fonts",
-                "/System/Library/Fonts",
-                os.path.expanduser("~/Library/Fonts"),
-            ]
-        else:  # Assume Linux or other UNIX-like system
-            font_dirs = [
-                "/usr/share/fonts",
-                "/usr/local/share/fonts",
-                os.path.expanduser("~/.fonts"),
-            ]
-
-        def list_fonts(directory):
-            fonts = []
-
-            # Helper function to get the string by its name ID
-            def get_name(font: TTFont, nameID: int):
-                name_record = font["name"].getName(
-                    nameID=nameID, platformID=3, platEncID=1
-                )
-                if name_record is None:
-                    name_record = font["name"].getName(
-                        nameID=nameID, platformID=1, platEncID=0
-                    )
-                return name_record.toStr() if name_record else "Unknown"
-
-            for root, _, files in os.walk(directory):
-                for file in files:
-                    if file.lower().endswith((".ttf", ".otf")):
-                        font_path = os.path.join(root, file)
-                        try:
-                            font = TTFont(font_path)
-                            # Get the Font Family Name (name ID 1)
-                            family = get_name(font, 1)
-                            # Get the Font Subfamily Name (Style) (name ID 2)
-                            style = get_name(font, 2)
-
-                            font_name = (
-                                family
-                                if style == "Normal" or style == "Regular"
-                                else family + " " + style
-                            )
-                            fonts.append((font_name, font_path))
-                        except Exception as e:
-                            print(f"Error reading {font_path}: {e}")
-            return fonts
-
-        # Collect fonts from all directories
-        all_fonts = []
-        for directory in font_dirs:
-            if os.path.exists(directory):
-                all_fonts.extend(list_fonts(directory))
-
-        # Print the font names and paths
-        for name, path in all_fonts:
-            # print(f"Font: {name}, Path: {path}")
-            font2path[name] = path
-
-        return font2path
-
-    def __init__(self) -> None:
-        self.font2path: dict[str, str] = self.getFontname2FilepathMap()
+    def __init__(self,
+                 implementation : Implementation,
+                 fidelity: Fidelity = Fidelity.LOW):
+        self.implementation = implementation
+        self.fidelity = fidelity
 
     def getFontPath(self, fontName: str) -> str:
         return self.font2path[fontName] if fontName in self.font2path else None

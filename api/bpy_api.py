@@ -31,10 +31,6 @@ from api.pylele_utils import (
 
 class BlenderShapeAPI(ShapeAPI):
 
-    def __init__(self, fidel: Fidelity):
-        super().__init__()
-        self.fidelity = fidel
-
     def exportSTL(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)

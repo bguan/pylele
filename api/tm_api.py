@@ -41,10 +41,6 @@ class TMShapeAPI(ShapeAPI):
         direction=(1, 0, 0),
     )
 
-    def __init__(self, fidel: Fidelity):
-        super().__init__()
-        self.fidelity = fidel
-
     def exportSTL(self, shape: TMShape, path: Union[str, Path]) -> None:
         shape.solid.export(ensureFileExtn(path, ".stl"))
 

@@ -85,6 +85,7 @@ def test_loop(module, apis=None, tests=None):  # ,component):
                         args=args,
                         )
         test_count += 1
+        
 class PrettyPrintDict(dict):
     """A class to print all entries of a dict"""
 
@@ -370,7 +371,7 @@ class LeleSolid(ABC):
     
     def configure(self):
         """Configure Solid, and save self.cli"""
-        self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
+        self.api = self.cli.implementation.get_api(self.cli.fidelity)
         self.check_has_api()
         if self.cli.implementation == Implementation.SOLID2:
             self.api.setCommand(self.cli.openscad)

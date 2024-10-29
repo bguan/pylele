@@ -18,9 +18,6 @@ class MockShapeAPI(ShapeAPI):
     Mock Pylele API implementation for test
     """
 
-    def __init__(self, fidel: Fidelity):
-        self.fidelity = fidel
-
     def exportSTL(self, shape: MockShape, path: str) -> None:
         gen_stl_foo(path)
 

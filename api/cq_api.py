@@ -21,9 +21,6 @@ from api.pylele_api_constants import DEFAULT_TEST_DIR
 
 
 class CQShapeAPI(ShapeAPI):
-    def __init__(self, fidel: Fidelity):
-        super().__init__()
-        self.fidelity = fidel
 
     def exportSTL(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
