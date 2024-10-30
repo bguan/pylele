@@ -958,8 +958,8 @@ class TailEnd(LelePart):
         super().__init__(cfg, isCut, color)
 
         cfg = cfg
-        joinTol = cfg.joinCutTol
-        cutAdj = (FIT_TOL + 2 * joinTol) if isCut else 0
+        jcTol = cfg.joinCutTol
+        cutAdj = (FIT_TOL + jcTol) if isCut else 0
         tailX = cfg.tailX
         chmBackX = cfg.scaleLen + cfg.chmBack
         tailLen = tailX - chmBackX + 2 * cutAdj
@@ -995,10 +995,13 @@ class TailEnd(LelePart):
             .mv(tailX - rimWth - tailLen, 0, -midBotTck)
         )
         topCut = cfg.api().genBox(2000, 2000, 2000).mv(0, 0, 1000)
-        bot = extBot.join(inrBot.mv(joinTol, 0, 0)).cut(topCut)
+        bot = extBot.join(inrBot.mv(jcTol, 0, 0)).cut(topCut)
         if top is None:
             tail = bot
         else:
             tail = top.join(bot)
+
+        if isCut:
+            tail = tail.mv(0, 0, jcTol)
 
         self.shape = tail

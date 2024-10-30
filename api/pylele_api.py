@@ -18,6 +18,7 @@ APIS_INFO = {
     "blender": {"module": "api.bpy_api", "class": "BlenderShapeAPI"},
     "trimesh": {"module": "api.tm_api", "class": "TMShapeAPI"},
     "solid2": {"module": "api.sp2_api", "class": "Sp2ShapeAPI"},
+    "manifold": {"module": "api.mf_api", "class": "MFShapeAPI"},
 }
 
 
@@ -61,7 +62,7 @@ class Fidelity(LeleStrEnum):
 
     def code(self) -> str:
         return str(self)[0].upper()
-    
+
 class Implementation(LeleStrEnum):
     """Pylele API implementations"""
 
@@ -70,6 +71,7 @@ class Implementation(LeleStrEnum):
     BLENDER = "blender"
     TRIMESH = "trimesh"
     SOLID2 = "solid2"
+    MANIFOLD = "manifold"
 
     def __repr__(self):
         return f"Implementation({self.value})"
@@ -89,7 +91,7 @@ class Implementation(LeleStrEnum):
     def joinCutTol(self) -> float:
         """ Tolerance for joins to have a little overlap """
         return 0 if self == Implementation.CAD_QUERY else 0.01
-    
+
     def get_api(self, fidelity: Fidelity = Fidelity.LOW) -> ShapeAPI:
         """ Get the handler to the selected implementation API """
         mod = importlib.import_module(self.module_name())
@@ -101,7 +103,7 @@ def supported_apis() -> list:
     ver = sys.version_info
     assert ver[0] == 3
 
-    apis = ["trimesh", "cadquery", "solid2"]
+    apis = ["trimesh", "cadquery", "solid2", "manifold"]
 
     if ver[1] < 12:
         # blender bpy package currently not supported with python 3.12
@@ -178,7 +180,7 @@ class Shape(ABC):
     def __init__(self, api: ShapeAPI, solid=None):
         self.api: ShapeAPI = api
         self.solid = solid
-   
+
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
 
@@ -246,7 +248,7 @@ class Shape(ABC):
             return self
         assert isinstance(operand,Shape)
         return self.join(operand)
-    
+
     def __sub__(self, operand) -> Shape:
         """ cut using - """
         if operand is None:
@@ -340,14 +342,16 @@ def getFontname2FilepathMap() -> dict[str, str]:
 
 class ShapeAPI(ABC):
     """ Prototype for Implementation API """
-    
+
     implementation = None
     fidelity = None
     font2path = getFontname2FilepathMap()
 
-    def __init__(self,
-                 implementation : Implementation,
-                 fidelity: Fidelity = Fidelity.LOW):
+    def __init__(
+        self,
+        implementation : Implementation,
+        fidelity: Fidelity = Fidelity.LOW,
+    ):
         self.implementation = implementation
         self.fidelity = fidelity
 
@@ -391,7 +395,7 @@ class ShapeAPI(ABC):
     def genRodY(self, l: float, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genRodZ(self, l: float, rad: float) -> Shape: 
+    def genRodZ(self, l: float, rad: float) -> Shape:
         ...
 
     def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
