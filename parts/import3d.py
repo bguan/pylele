@@ -23,8 +23,7 @@ class Import3d(LeleSolid):
 
     def gen(self) -> Shape:
         assert self.cli.implementation in [Implementation.SOLID2]
-        self.shape = self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
-        return self.shape
+        return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
 
 def main(args=None):
     """ Generate a solid from an imported file """

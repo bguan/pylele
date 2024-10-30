@@ -444,7 +444,7 @@ class LeleConfig:
         return model
 
     def api(self):
-        return ShapeAPI.get(self.impl, self.fidelity)
+        return self.impl.get_api(fidelity=self.fidelity)
 
     def __repr__(self):
         class_vars_str = "\n".join(

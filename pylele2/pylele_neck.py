@@ -32,11 +32,10 @@ class LeleNeck(LeleBase):
 
         neckPath = [(nkLen, 0), (nkLen, nkWth / 2), (0, ntWth / 2)]
         neckCone = self.api.genLineSplineRevolveX((0, 0), neckPath, -180)
-        neckCone = neckCone.scale(1, 1, botRat).mv(0, 0, -midTck)
+        neckCone = neckCone.scale(1, 1, botRat).mv(0, 0, -midTck + joinTol)
 
-        neck = neckCone if neck == None else neck.join(neckCone.mv(0, 0, joinTol))
+        neck = neckCone + neck
 
-        self.shape = neck
         return neck
 
 

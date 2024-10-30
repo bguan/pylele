@@ -74,7 +74,6 @@ class LelePeg(LeleBase):
 
         peg = top.join(mid).join(btn).join(bot)
 
-        self.shape = peg
         return peg
 
 

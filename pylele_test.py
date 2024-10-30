@@ -4,48 +4,8 @@
     Pylele Tests
 """
 
-import os
-import sys
 import unittest
-import importlib
-from pathlib import Path
-import unittest
-
-# api
-from api.pylele_api import Fidelity, APIS_INFO, supported_apis
-from api.pylele_api import Fidelity
-from api.pylele_solid import DEFAULT_TEST_DIR
-
-
-def make_api_path_and_filename(api_name, test_path=DEFAULT_TEST_DIR):
-    """Makes Test API folder and filename"""
-    out_path = os.path.join(Path.cwd(), test_path, api_name)
-
-    if not os.path.isdir(out_path):
-        os.makedirs(out_path)
-    assert os.path.isdir(out_path)
-
-    return out_path
-
-
-def test_api(api):
-    """Test a Shape API"""
-
-    if api in supported_apis() + ["mock"]:
-        module_name = APIS_INFO[api]["module"]
-        class_name = APIS_INFO[api]["class"]
-
-        module = importlib.import_module(module_name)
-        outfname = make_api_path_and_filename(module_name)
-
-        class_ = getattr(module, class_name)
-        api = class_(Fidelity.LOW)
-        api.test(outfname)
-    else:
-        print(
-            f"WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!"
-        )
-
+from api.pylele_api import test_api
 
 class PyleleTestMethods(unittest.TestCase):
     """Pylele Test Class"""
@@ -76,6 +36,7 @@ class PyleleTestMethods(unittest.TestCase):
     from parts.screw import test_screw, test_screw_mock
     from parts.import3d import test_import3d
     from parts.scad_example import test_scad_example
+    from parts.rounded_box import test_rounded_box, test_rounded_box_mock
 
     ## Pylele Individual Parts
     from pylele2.pylele_frets import test_frets, test_frets_mock

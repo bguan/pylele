@@ -10,12 +10,13 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_base import LeleBase
-
-
+from pylele2.pylele_base import LeleBase, test_loop, main_maker, FILLET_RAD
 class LeleSoundhole(LeleBase):
     """Pylele Soundhole Generator class"""
+
+    def soundhole_config(self):
+        """ soundhoole configuration """
+        return self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
 
     def gen(self) -> Shape:
         """Generate Soundhole"""
@@ -29,14 +30,24 @@ class LeleSoundhole(LeleBase):
         ang = sh_cfg.sndholeAng
         bodyWth = self.cfg.bodyWth
 
-        hole = (
-            self.api.genRodZ(bodyWth + midTck, minRad)
-            .scale(1, maxRad / minRad, 1)
-            .rotateZ(ang)
-            .mv(x, y, -midTck)
-        )
-        self.shape = hole
+        hole = self.api.genRodZ(bodyWth + midTck, minRad)\
+            .scale(1, maxRad/minRad, 1)\
+            .rotateZ(ang).mv(x, y, -midTck)
+
         return hole
+    
+    def fillet(self, top:LeleBase):
+        """ Fillet soundhole """
+
+        # soundhole fillet
+        sh_cfg = self.soundhole_config()
+
+        top = top.filletByNearestEdges(
+            nearestPts=[(sh_cfg.sndholeX, sh_cfg.sndholeY, self.cfg.fretbdHt)],
+            rad = FILLET_RAD
+        )
+        
+        return top
 
 
 def main(args=None):

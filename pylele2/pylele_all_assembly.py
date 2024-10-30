@@ -34,24 +34,22 @@ class LeleAllAssembly(LeleBase):
 
         joinTol = self.api.getJoinCutTol()
 
-        ## Initialize Joiners and Cutters
-        bodyJoiners = []
-        bodyCutters = []
+        ## Body
+        body = LeleBottomAssembly(cli=self.cli)
 
-        ## Spines
-        if self.cli.num_strings > 1:
-            bodyCutters.append(LeleSpines(cli=self.cli, isCut=True).mv(0, 0, joinTol))
-
+        ## Spines (maybe redundant)
+        if self.cli.num_spines > 0:
+            body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
+            
         ## Top
         top = LeleTopAssembly(cli=self.cli).mv(0, 0, -joinTol)
         top.gen_full()
         if self.cli.separate_top:
-            bodyCutters.append(LeleRim(cli=self.cli, isCut=True))
+            body -= LeleRim(cli=self.cli, isCut=True)
             self.add_part(top)
         else:
-            bodyJoiners.append(top)
-            if top.has_parts():
-                self.add_parts(top.get_parts())
+            body += top
+            self.add_parts(top)
 
         ## Neck
         neck = LeleNeckAssembly(cli=self.cli).mv(-joinTol, 0, 0)
@@ -59,21 +57,16 @@ class LeleAllAssembly(LeleBase):
         if self.cli.separate_neck:
             self.add_part(neck)
         else:
-            bodyJoiners.append(neck)
-            if neck.has_parts():
-                self.add_parts(neck.get_parts())
+            body += neck
+            self.add_parts(neck)
 
         ## Tail
         if self.cli.separate_end:
             self.add_part(LeleTail(cli=self.cli))
 
-        ## Body
-        self.shape = LeleBottomAssembly(
-            cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters
-        )
-        return self.shape.gen_full()
-
-    def gen_parser(self, parser=None):
+        return body.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """

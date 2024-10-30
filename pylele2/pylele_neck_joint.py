@@ -31,7 +31,6 @@ class LeleNeckJoint(LeleBase):
             nkLen + jntLen / 2, 0, -jntTck / 2
         )
 
-        self.shape = jnt
         return jnt
 
 

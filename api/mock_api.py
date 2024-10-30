@@ -18,18 +18,6 @@ class MockShapeAPI(ShapeAPI):
     Mock Pylele API implementation for test
     """
 
-    def __init__(self, fidel: Fidelity):
-        self.fidelity = fidel
-
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-    def getImplementation(self) -> Implementation:
-        return Implementation.MOCK
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
-
     def exportSTL(self, shape: MockShape, path: str) -> None:
         gen_stl_foo(path)
 
@@ -98,10 +86,6 @@ class MockShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
 
-    def getJoinCutTol(self):
-        return Implementation.MOCK.joinCutTol()
-
-
 class MockSolid(object):
     """
     Mock Solid for test
@@ -114,16 +98,6 @@ class MockShape(Shape):
     """
     Mock Pylele Shape implementation for test
     """
-
-    def __init__(self, api: MockShapeAPI):
-        self.api: MockShapeAPI = api
-        self.solid = None
-
-    def getAPI(self) -> MockShapeAPI:
-        return self.api
-
-    def getImplSolid(self):
-        return self.solid
 
     def cut(self, cutter: MockShape) -> MockShape:
         self.solid = None
@@ -141,14 +115,6 @@ class MockShape(Shape):
 
     def join(self, joiner: MockShape) -> MockShape:
         return self
-
-    # draw mix of straight lines from pt to pt, draw spline when given list of (x,y,dx,dy)
-    def lineSplineXY(
-        self,
-        start: tuple[float, float],
-        path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
-    ):
-        return MockSolid()
 
     def mirrorXZ(self) -> MockShape:
         return self

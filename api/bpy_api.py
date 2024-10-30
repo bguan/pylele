@@ -9,6 +9,11 @@ from mathutils import Vector
 import os
 from pathlib import Path
 import sys
+
+from fontTools.ttLib import TTFont
+from mathutils import Vector
+from api.pylele_api import Shape, ShapeAPI, Fidelity, Implementation
+from api.pylele_utils import lineSplineXY, descreteBezierChain, dimXY, ensureFileExtn, isPathCounterClockwise, radians, simplifyLineSpline, superGradient
 from typing import Any, Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
@@ -25,19 +30,6 @@ from api.pylele_utils import (
 
 
 class BlenderShapeAPI(ShapeAPI):
-
-    def __init__(self, fidel: Fidelity):
-        super().__init__()
-        self.fidelity = fidel
-
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-    def getImplementation(self) -> Implementation:
-        return Implementation.BLENDER
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
@@ -123,26 +115,11 @@ class BlenderShapeAPI(ShapeAPI):
     ) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self) -> float:
-        return Implementation.BLENDER.joinCutTol()
-
-
 class BlenderShape(Shape):
 
     # MAX_DIM = 10000 # for max and min dimensions
     REPAIR_MIN_REZ = 0.005
     REPAIR_LOOPS = 2
-
-    def __init__(self, api: BlenderShapeAPI):
-        super().__init__()
-        self.api = api
-        self.solid = None
-
-    def getAPI(self) -> BlenderShapeAPI:
-        return self.api
-
-    def getImplSolid(self) -> Any:
-        return self.solid
 
     def findBounds(self) -> tuple[float, float, float, float, float, float]:
         """

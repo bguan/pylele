@@ -24,6 +24,10 @@ class LeleFretboardJoint(LeleBase):
         cutAdj = (FIT_TOL + self.api.getJoinCutTol()) if self.isCut else 0
         fbHt = self.cfg.fretbdHt
         nkLen = self.cfg.neckLen
+        jntLen = self.cfg.neckJntLen + 2*cutAdj
+        jntWth = self.cfg.neckJntWth + 2*cutAdj # to align with spine cuts
+        jntTck = .8*fbHt + 2*cutAdj
+        jnt = self.api.genBox(jntLen, jntWth, jntTck).mv(nkLen+jntLen/2, 0, jntTck/2)
         jntLen = self.cfg.neckJntLen + 2 * cutAdj
         jntWth = self.cfg.neckJntWth + 2 * cutAdj  # to align with spine cuts
         jntTck = 0.8 * fbHt + 2 * cutAdj

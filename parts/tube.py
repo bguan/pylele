@@ -14,11 +14,6 @@ from api.pylele_api import Shape
 class Tube(LeleSolid):
     """ Generate a Tube """
 
-    out_diameter = 5
-    in_diameter = 3
-    heigth = 5
-    dome_ratio = 0.01
-
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
         parser.add_argument("-out", "--out_diameter", help="Outer diameter [mm]", type=float, default=5)
@@ -27,13 +22,9 @@ class Tube(LeleSolid):
         return parser
 
     def gen(self) -> Shape:
-        # outer = self.api.genRndRodX(self.cli.heigth, self.cli.out_diameter, domeRatio=self.dome_ratio)
-        # inner = self.api.genRndRodX(self.cli.heigth+1, self.cli.in_diameter, domeRatio=self.dome_ratio)
         outer = self.api.genRodX(self.cli.heigth, self.cli.out_diameter/2)
         inner = self.api.genRodX(self.cli.heigth+1, self.cli.in_diameter/2)
-        solid = outer.cut(inner)
-        self.shape = solid
-        return self.shape
+        return outer - inner
 
 def main(args=None):
     """ Generate a Tube """
@@ -50,7 +41,7 @@ def test_tube(self,apis=None):
     test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_tube_mock(self):
-    """ Test Tube """
+    """ Test Tube Mock """
     ## Cadquery and Blender
     test_tube(self, apis=['mock'])
 

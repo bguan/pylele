@@ -13,13 +13,19 @@ import importlib
 import os
 from pathlib import Path
 import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+from copy import deepcopy
+
+import argparse
+import datetime
 import time
 import trimesh
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, supported_apis
-from api.pylele_api_constants import ColorEnum, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+from pathlib import Path
+from abc import ABC, abstractmethod
+from argparse import Namespace
+                
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum,supported_apis, direction_operand
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
 
@@ -43,16 +49,14 @@ def test_iteration(module, component, test, api, args=None):
     else:
         largs = deepcopy(args)
 
-    print(f"#### Test {component} {test} {api}")
-    outdir = os.path.join(DEFAULT_TEST_DIR, component, test, api)
+    print(f'#### Test {component} {test} {api}')
+    outdir = os.path.join(DEFAULT_TEST_DIR,component,test,api)
     largs += [
-        "-o",
-        outdir,
-        "-i",
-        api,
-        "-odoff",  # do not append date
-        "-stlc",  # enable stl volume analysis during test
-    ]
+        '-o', outdir,
+        '-i', api,
+        '-odoff', # do not append date
+        '-stlc' # enable stl volume analysis during test
+                ]
     print(largs)
     mod.main(args=largs)
     pass
@@ -70,17 +74,18 @@ def test_loop(module, apis=None, tests=None):  # ,component):
     if apis is None:
         apis = supported_apis()
 
-    for test, args in tests.items():
+    test_count = 0
+    for test,args in tests.items():
         for api in apis:
             test_iteration(
-                module=module,
-                component=module,
-                test=test,
-                api=api,
-                args=args,
-            )
-
-
+                        module=module,
+                        component=module,
+                        test=f'{test_count:02d}_{test}',
+                        api=api,
+                        args=args,
+                        )
+        test_count += 1
+        
 class PrettyPrintDict(dict):
     """A class to print all entries of a dict"""
 
@@ -127,6 +132,7 @@ def stl_check_volume(
     out_fname: str,
     check_en: bool = True,
     reference_volume: float = None,
+    reference_volume_tolerance: float = 10
 ) -> dict:
     """Check the volume of an .stl mesh against a reference value"""
     rpt = {}
@@ -143,13 +149,24 @@ def stl_check_volume(
         rpt["bounding_box"] = mesh.bounding_box.extents
 
         assert volume_match_reference(
-            volume=mesh.volume, reference=reference_volume
+            volume=mesh.volume, 
+            reference=reference_volume,
+            tolerance=reference_volume_tolerance/100
         ), "volume: %f, reference: %f" % (
             rpt["volume"],
             reference_volume,
         )
     return rpt
 
+def solid_operand(joiner)->ShapeAPI:
+    """ returns a ShapeAPI compatible operand """
+    if joiner is None:
+        return joiner
+    if isinstance(joiner,LeleSolid):
+        joiner.gen_full()
+        return joiner.shape
+    if isinstance(joiner, ShapeAPI):
+        return joiner
 
 def lele_solid_parser(parser=None):
     """
@@ -217,6 +234,13 @@ def lele_solid_parser(parser=None):
         default=None,
     )
     parser.add_argument(
+        "-refvt",
+        "--reference_volume_tolerance",
+        help="Reference volume tolerance [%]",
+        type=float,
+        default=10,
+    )
+    parser.add_argument(
         "-S",
         "--split",
         help="Split in half",
@@ -232,6 +256,8 @@ class LeleSolid(ABC):
     """
     Pylele Generic Solid Body
     """
+
+    parts = None
 
     @abstractmethod
     def gen(self) -> Shape:
@@ -300,8 +326,8 @@ class LeleSolid(ABC):
         else:
             self.parts = parts
 
-    def _gen_if_no_shape(self):
-        """Generate shape if attribute not present"""
+    def gen_full(self):
+        """ Generate shape if attribute not present """
         if not self.has_shape():
             print(f"# Shape missing: Generating {self.fileNameBase}... ")
 
@@ -314,44 +340,7 @@ class LeleSolid(ABC):
             self.shape = self.gen()
             print(f"# Done generating shape! {self.fileNameBase}")
         self.check_has_shape()
-
-    def gen_full(self):
-        """Generate full shape including joiners, cutters, and fillets"""
-        # generate self.shape
-        self._gen_if_no_shape()
-
-        for j in self.joiners:
-            if not j.has_shape():
-                print(f"# Warning: joiner {j} has no shape!")
-                j.gen_full()
-            self.shape = self.shape.join(j.shape)
-
-        for c in self.cutters:
-            if not c.has_shape():
-                print(f"# Warning: cutter {c} has no shape!")
-                c.gen_full()
-            self.shape = self.shape.cut(c.shape)
-
-        for rad in self.fillets.keys():
-            try:
-                self.shape = self.shape.filletByNearestEdges(
-                    nearestPts=self.fillets[rad], rad=rad
-                )
-            except:
-                print(
-                    f"# WARNING: Failed Fillet in {self.fileNameBase} on nearest edges {self.fillets[rad]}, with radius {rad}"
-                )
-
-        if self.cli.split and not self.isCut:
-            self.shape = self.shape.half()
-
         return self.shape
-
-    def _gen_full_if_no_shape(self):
-        """Generate full shape including joiners, cutters, and fillets, if shape is not already present"""
-        if not self.has_shape():
-            self.gen_full()
-        self.check_has_shape()
 
     def gen_parser(self, parser=None):
         """
@@ -366,9 +355,6 @@ class LeleSolid(ABC):
     def __init__(
         self,
         isCut: bool = False,
-        joiners: list[LeleSolid] = [],
-        cutters: list[LeleSolid] = [],
-        fillets: dict[float, list[tuple[float, float, float]]] = {},
         args=None,
         cli=None,
     ):
@@ -378,28 +364,25 @@ class LeleSolid(ABC):
             self.cli = cli
 
         self.isCut = self.cli.is_cut or isCut
-        self.color = self.cli.color  # ColorEnum[self.cli.color]
+        # self.color = self.cli.color # ColorEnum[self.cli.color]
         self.outdir = self.cli.outdir
 
-        self.joiners = joiners
-        self.cutters = cutters
-        self.fillets = fillets
-        self.fileNameBase = self.__class__.__name__ + ("_cut" if self.isCut else "")
-
+        self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
+    
     def configure(self):
         """Configure Solid, and save self.cli"""
-        self.api = ShapeAPI.get(self.cli.implementation, self.cli.fidelity)
+        self.api = self.cli.implementation.get_api(self.cli.fidelity)
         self.check_has_api()
         if self.cli.implementation == Implementation.SOLID2:
             self.api.setCommand(self.cli.openscad)
             self.api.setImplicit(self.cli.implicit)
 
     def cut(self, cutter: LeleSolid) -> LeleSolid:
-        """Cut solid with other shape"""
-        # assert self.has_shape(), f'# Cannot cut {self.fileNameBase} because main shape has not been generated yet! '
-        self._gen_full_if_no_shape()
-        cutter._gen_full_if_no_shape()
-        self.shape = self.shape.cut(cutter.shape)
+        """ Cut solid with other shape """
+        self.gen_full()
+        self.shape = self.shape.cut(
+            solid_operand(cutter)
+        )
         return self
 
     def _make_out_path(self):
@@ -429,7 +412,6 @@ class LeleSolid(ABC):
     def exportSTL(
         self,
         out_path=None,
-        check_volume=True,
         report_en=True,
     ) -> str:
         """Generate .stl output file"""
@@ -439,7 +421,7 @@ class LeleSolid(ABC):
         print(f"Output File: {out_fname}")
 
         start_time = time.time()
-        self._gen_full_if_no_shape()
+        self.gen_full()
 
         self.api.exportSTL(self.shape, out_fname)
 
@@ -471,6 +453,7 @@ class LeleSolid(ABC):
             check_en=self.cli.stl_check_en
             and not self.cli.implementation == Implementation.MOCK,
             reference_volume=self.cli.reference_volume,
+            reference_volume_tolerance=self.cli.reference_volume_tolerance,
         )
 
         end_time = time.time()
@@ -491,46 +474,66 @@ class LeleSolid(ABC):
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> LeleSolid:
-        """Apply fillet to solid"""
-        self._gen_full_if_no_shape()
-        self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
+        """ Apply fillet to solid """
+        self.gen_full()
+        try:
+            self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
+        except:
+            print(f'WARNING: fillet failed at point {nearestPts}, with radius {rad}!')
         return self
 
     def half(self) -> LeleSolid:
         """Cut solid in half to create a sectioned view"""
         # assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.half()
         return self
 
     def join(self, joiner: LeleSolid) -> LeleSolid:
-        """Join solid with other solid"""
-        # assert self.has_shape(), f'# Cannot join {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
-        joiner._gen_full_if_no_shape()
-        self.shape = self.shape.join(joiner.shape)
+        """ Join solid with other solid """
+
+        self.gen_full()
+        self.shape = self.shape.join(
+            solid_operand(joiner)
+        )
         return self
 
     def mirrorXZ(self) -> LeleSolid:
         """Mirror solid along XZ axis"""
         # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         mirror = self.shape.mirrorXZ()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:
         """Move solid in direction specified"""
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
-        self._gen_full_if_no_shape()
+        self.gen_full()
         self.shape = self.shape.mv(x, y, z)
+        
         return self
 
     def show(self):
-        """Show solid"""
-        self._gen_full_if_no_shape()
+        """ Show solid """
+        self.gen_full()
         return self.shape.show()
+    
+    def __add__(self, operand):
+        """ Join using + """
+        return self.join(operand)
+    
+    def __sub__(self, operand):
+        """ cut using - """
+        return self.cut(operand)
+    
+    def __mul__(self, x,y,z) -> Shape:
+        """ scale using * """
+        return self.scale(x,y,z)
 
-
-if __name__ == "__main__":
+    def __lshift__(self, x,y,z) -> Shape:
+        """ move using << """
+        return self.mv(x,y,z)
+ 
+if __name__ == '__main__':
     prs = lele_solid_parser()
     print(prs.parse_args())

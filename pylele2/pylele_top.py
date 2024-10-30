@@ -34,7 +34,6 @@ class LeleTop(LeleBase):
             midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
             top = top.join(midR.mirrorXZ_and_join())
 
-        self.shape = top
         return top
 
 

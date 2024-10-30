@@ -10,8 +10,23 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_solid import LeleSolid, export_dict2text
-from pylele2.pylele_config import LeleConfig, pylele_config_parser, CONFIGURATIONS
+from api.pylele_solid import (
+    LeleSolid,
+    LeleStrEnum,
+    export_dict2text,
+    test_loop,
+    main_maker,
+    FIT_TOL,
+    FILLET_RAD
+)
+
+from pylele2.pylele_config import (
+    LeleConfig,
+    WormConfig, 
+    TunerType,
+    pylele_config_parser,
+    CONFIGURATIONS
+)
 
 
 def pylele_base_parser(parser=None):
@@ -30,22 +45,21 @@ class LeleBase(LeleSolid):
     def __init__(
         self,
         isCut: bool = False,
-        joiners: list[LeleSolid] = [],
-        cutters: list[LeleSolid] = [],
-        fillets: dict[tuple[float, float, float], float] = {},
-        args=None,
-        cli=None,
+        # joiners: list[LeleSolid] = [],
+        # cutters: list[LeleSolid] = [],
+        # fillets: dict[tuple[float, float, float], float] = {},
+        args = None,
+        cli = None
     ):
         """Initialization Method for Base ukuelele element"""
 
-        super().__init__(
-            isCut=isCut,
-            joiners=joiners,
-            cutters=cutters,
-            fillets=fillets,
-            args=args,
-            cli=cli,
-        )
+        super().__init__(isCut=isCut,
+                         # joiners=joiners, 
+                         # cutters=cutters,
+                         # fillets=fillets,
+                         args = args,
+                         cli=cli
+                         )
 
     def configure(self):
 

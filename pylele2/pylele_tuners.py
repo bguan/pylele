@@ -21,33 +21,54 @@ from pylele2.pylele_worm_key import LeleWormKey
 class LeleTuners(LeleBase):
     """Pylele Tuners Generator class"""
 
+    def is_peg(self):
+        tuners = TunerType[self.cli.tuner_type].value
+        return tuners.is_peg()
+
+    def is_worm(self):
+        tuners = TunerType[self.cli.tuner_type].value
+        return tuners.is_worm()
+
     def gen(self) -> Shape:
         """Generate Tuners"""
 
         tXYZs = self.cfg.tnrXYZs
+
         tnrs = None
         for txyz in tXYZs:
-            tnr = (
-                LelePeg(isCut=self.isCut, cli=self.cli)
-                if TunerType[self.cli.tuner_type].value.is_peg()
-                else (
-                    LeleWorm(isCut=self.isCut, cli=self.cli)
-                    if TunerType[self.cli.tuner_type].value.is_worm()
-                    else None
-                )
-            )
-            if not tnr is None:
-                tnr = tnr.mv(txyz[0], txyz[1], txyz[2]).shape
-                tnrs = tnr if tnrs is None else tnrs.join(tnr)
+            if self.is_peg():
+                tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
+            else: # if tuners.is_worm():
+                tnr = LeleWorm(isCut=self.isCut, cli=self.cli).gen_full()
+            # if not tnr is None:
+            tnr = tnr.mv(txyz[0], txyz[1], txyz[2])
+            tnrs = tnr + tnrs
 
-        if TunerType[self.cli.tuner_type].value.is_worm() and self.cli.worm_has_key:
-            worm = LeleWormKey(cli=self.cli, isCut=self.isCut)
-            worm.gen_full()
-            tnrs = tnrs.join(worm.shape)
+        if self.is_worm() and self.cli.worm_has_key:
+            tnrs += LeleWormKey(cli=self.cli,isCut=self.isCut).gen_full()
+
 
         return tnrs
+    
+    def worm_fillet(self, top):
+        """ Apply fillet to worm cut """
+        assert self.isCut
+        assert self.is_worm()
+        
+        tnr = LeleWorm(isCut=self.isCut, cli=self.cli)
+        # tnr._gen_full_if_no_shape()
+        tuners = tnr.worm_config()
+        
+        for xyz in self.cfg.tnrXYZs:
+            top = top.filletByNearestEdges(
+                nearestPts=[
+                    (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.strHt())
+                ],
+                rad = tuners.sltWth
+                )
+        return top
 
-    def gen_parser(self, parser=None):
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """

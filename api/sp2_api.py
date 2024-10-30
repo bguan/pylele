@@ -32,18 +32,6 @@ class Sp2ShapeAPI(ShapeAPI):
     command = OPENSCAD
     implicit = False
 
-    def __init__(self, fidel: Fidelity = Fidelity.LOW):
-        self.fidelity = fidel
-
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-    def getImplementation(self) -> Implementation:
-        return Implementation.SOLID2
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
-
     def exportSTL(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
         scad_file = self.exportBest(shape=shape, path=basefname)
@@ -90,6 +78,18 @@ class Sp2ShapeAPI(ShapeAPI):
 
     def genRodZ(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
+    
+    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        stem_len = l - 2*rad*domeRatio
+        rod = None
+        for bz in [stem_len/2, -stem_len/2]:
+            ball = sphere(rad,_fn=self.fidelity.smoothingSegments())\
+                .scale([1, 1, domeRatio]).translate([0, 0, bz])
+            if rod is None:
+                rod = ball
+            else:
+                rod += ball
+        return self.genShape(rod.hull())
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
         return Sp2PolyExtrusionZ(path, ht, api=self)
@@ -129,9 +129,6 @@ class Sp2ShapeAPI(ShapeAPI):
     def genShape(self, solid=None) -> Sp2Shape:
         return Sp2Shape(solid=solid, api=self)
 
-    def getJoinCutTol(self) -> float:
-        return Implementation.SOLID2.joinCutTol()
-
     def setCommand(self, command=OPENSCAD) -> None:
         self.command = command
 
@@ -143,16 +140,6 @@ class Sp2Shape(Shape):
     """
     SolidPython2 Pylele Shape implementation for test
     """
-
-    def __init__(self, api: Sp2ShapeAPI, solid=None):
-        self.api: Sp2ShapeAPI = api
-        self.solid = solid
-
-    def getAPI(self) -> Sp2ShapeAPI:
-        return self.api
-
-    def getImplSolid(self):
-        return self.solid
 
     def cut(self, cutter: Sp2Shape) -> Sp2Shape:
         self.solid = self.solid - cutter.solid

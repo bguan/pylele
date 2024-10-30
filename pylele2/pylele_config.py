@@ -29,11 +29,10 @@ BIGWORM = ['-t','bigworm','-e','125','-E','-wah','-wsl','35','-whk','-fbt','35']
 
 CONFIGURATIONS = {
         'default'        : [],
-        'gourd_worm'     : WORM,
+        'worm'           : WORM, # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT],
-        'flat_bigworm'   : BIGWORM + ['-bt', LeleBodyType.FLAT],
-        'hollow_bigworm' : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel_bigworm' : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25']
+        'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25']
     }
 
 class AttrDict(dict):
@@ -74,6 +73,8 @@ def pylele_config_parser(parser = None):
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
                         type=float, default=0)
+    parser.add_argument("-nsp", "--num_spines", help="Number of neck spines",
+                        type=int, default=3, choices=[*range(4)])
 
     ## Body Type config options ###########################################
 
@@ -171,13 +172,16 @@ class LeleConfig:
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
-        cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth - self.fretbdWth)/2
+        
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
         cfg.sndholeAng = degrees(
             atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
         )
+
+        cfg.sndholeX = scaleLen - .5*self.chmFront
+        cfg.sndholeY = -(self.chmWth/2 - 2*cfg.sndholeMinRad)
+
         return cfg
 
     def fbSpineLen(self) -> float:
@@ -313,10 +317,13 @@ class LeleConfig:
 
         # Spine configs
         self.spineX = -self.headLen
-        self.spineLen = self.headLen + scaleLen + self.chmBack + 2
-        self.spineGap = 0 if numStrs == 2 else (1 if isOddStrs else 2)*nutStrGap
-        self.spineY1 = -self.spineGap/2
-        self.spineY2 = self.spineGap/2
+        self.spineLen = self.headLen + scaleLen + self.chmBack + self.rimWth
+        self.spineGap = (1 if isOddStrs else 2)*nutStrGap
+        self.spineY = []
+        if self.cli.num_spines in [1,3]:
+            self.spineY.append(0)
+        if self.cli.num_spines in [2,3]:
+            self.spineY += [-self.spineGap/2, self.spineGap/2]
 
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2

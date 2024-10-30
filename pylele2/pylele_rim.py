@@ -33,7 +33,6 @@ class LeleRim(LeleBase):
             rimBack.mv(scLen - joinTol, 0, joinTol - tck / 2)
         )
 
-        self.shape = rimFront
         return rimFront
 
 

@@ -25,8 +25,7 @@ class LeleFretboardSpines(LeleBase):
         fspTck = self.cfg.FRETBD_SPINE_TCK + 2 * (
             self.api.getJoinCutTol() if self.isCut else 0
         )
-        spY1 = self.cfg.spineY1
-        spY2 = self.cfg.spineY2
+
         spWth = self.cfg.SPINE_WTH + 2 * cutAdj  # to align with spine cuts
         fspLen = (
             self.cfg.fbSpineLen()
@@ -35,18 +34,14 @@ class LeleFretboardSpines(LeleBase):
         )
         fspX = self.cfg.NUT_HT
 
-        fsp = self.api.genBox(fspLen, spWth, fspTck).mv(
-            fspX + fspLen / 2 - 2 * cutAdj, spY1, -fspTck / 2
-        )
+        shape = None
+        for y_spine in self.cfg.spineY:
+            spine = self.api.genBox(fspLen, spWth, fspTck)
+            spine <<= (fspX + fspLen/2 - 2*cutAdj, y_spine, -fspTck/2)
+            
+            shape = spine + shape
 
-        if spY1 != spY2:
-            fsp2 = self.api.genBox(fspLen, spWth, fspTck).mv(
-                fspX + fspLen / 2 - 2 * cutAdj, spY2, -fspTck / 2
-            )
-            fsp = fsp.join(fsp2)
-
-        self.shape = fsp
-        return self.shape
+        return shape
 
 
 def main(args=None):

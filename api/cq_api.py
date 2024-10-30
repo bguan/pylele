@@ -15,25 +15,12 @@ from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
 from api.pylele_utils import ensureFileExtn, lineSplineXY
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 
-
 """
     Encapsulate CAD Query implementation specific calls
 """
 
 
 class CQShapeAPI(ShapeAPI):
-    def __init__(self, fidel: Fidelity):
-        super().__init__()
-        self.fidelity = fidel
-
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-    def getImplementation(self) -> Implementation:
-        return Implementation.CAD_QUERY
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
@@ -111,21 +98,7 @@ class CQShapeAPI(ShapeAPI):
     def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self):
-        return Implementation.CAD_QUERY.joinCutTol()
-
-
 class CQShape(Shape):
-
-    def __init__(self, api: CQShapeAPI):
-        self.api: CQShapeAPI = api
-        self.solid: cq.Workplane = None
-
-    def getAPI(self) -> CQShapeAPI:
-        return self.api
-
-    def getImplSolid(self) -> cq.Workplane:
-        return self.solid
 
     def cut(self, cutter: CQShape) -> CQShape:
         self.solid = self.solid.cut(cutter.solid)

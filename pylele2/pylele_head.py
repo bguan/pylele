@@ -9,10 +9,11 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
+from api.pylele_api import Shape, Direction
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_base import LeleBase
 
+from pylele2.pylele_strings import LeleStrings
 
 class LeleHead(LeleBase):
     """Pylele Head Generator class"""
@@ -33,37 +34,32 @@ class LeleHead(LeleBase):
         path = self.cfg.headPath
         joinTol = self.api.getJoinCutTol()
 
-        hd = (
-            self.api.genLineSplineRevolveX(orig, path, -180)
-            .scale(1, 1, botRat)
-            .mv(0, 0, joinTol - midTck)
-        )
+        hd = self.api.genLineSplineRevolveX(orig, path, -180)
+        hd *= Direction(z=botRat)
+        hd <<= Direction(z=joinTol/2 -midTck)
 
         if midTck > 0:
-            midR = self.api.genLineSplineExtrusionZ(orig, path, midTck).mv(
-                0, 0, -midTck
-            )
-            hd = hd.join(midR.mirrorXZ_and_join())
+            midR = self.api.genLineSplineExtrusionZ(orig, path, midTck)
+            midR <<= (0, 0, -midTck)
+            hd += midR.mirrorXZ_and_join()
 
         if topRat > 0:
-            top = (
-                self.api.genLineSplineRevolveX(orig, path, 180)
-                .scale(1, 1, topRat)
-                .mv(0, 0, -joinTol)
-            )
-            hd = hd.join(top)
+            top = self.api.genLineSplineRevolveX(orig, path, 180)
+            top *=  (1, 1, topRat)
+            top <<= (0, 0, -joinTol/2)
+            hd += top
 
-        topCut = self.api.genRodY(2 * hdWth, hdLen).mv(
-            -ntHt, 0, 0.8 * hdLen + fbTck + ntHt
-        )
-        frontCut = (
-            self.api.genRodY(2 * hdWth, 0.7 * spHt)
-            .scale(0.5, 1, 1)
-            .mv(-hdLen, 0, -fspTck - 0.65 * spHt)
-        )
-        hd = hd.cut(frontCut).cut(topCut)
+        topCut = self.api.genRodY(2*hdWth, hdLen)
+        topCut <<= (-ntHt, 0, .8*hdLen + fbTck + ntHt)
+        
+        frontCut = self.api.genRodY(2*hdWth, .7*spHt)
+        frontCut *=  (.5, 1, 1)
+        frontCut <<= (-hdLen, 0, -fspTck - .65*spHt)
+        
+        strings = LeleStrings(cli=self.cli,isCut=True).gen_full()
+    
+        hd = hd - frontCut - topCut - strings
 
-        self.shape = hd
         return hd
 
 

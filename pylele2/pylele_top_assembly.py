@@ -30,6 +30,8 @@ from pylele2.pylele_fretboard_assembly import (
     pylele_fretboard_assembly_parser,
 )
 
+from pylele2.pylele_strings import LeleStrings
+from pylele2.pylele_worm_key import LeleWormKey
 
 class LeleTopAssembly(LeleBase):
     """Pylele Body Top Assembly Generator class"""
@@ -39,81 +41,57 @@ class LeleTopAssembly(LeleBase):
 
         cutTol = self.api.getJoinCutTol()
 
-        # gen bridge
-        brdg = LeleBridge(cli=self.cli)
+        # top
+        top = LeleTop(cli=self.cli)
+        
+        # tuners
+        tuners = LeleTuners(cli=self.cli, isCut=True)
+        top -= tuners
 
-        # gen guide if using tuning pegs rather than worm drive
-        guide = (
-            LeleGuide(cli=self.cli)
-            if TunerType[self.cli.tuner_type].value.is_peg()
-            else None
-        )
+        if tuners.is_worm():
+            # fillet worm tuners slit
+            top = tuners.worm_fillet(top)
 
-        # gen body top
-        fbJntCut = (
-            LeleFretboardJoint(cli=self.cli, isCut=True).mv(-cutTol, 0, -cutTol)
-            if self.cli.separate_fretboard or self.cli.separate_neck
-            else None
-        )
-        tnrsCut = LeleTuners(cli=self.cli, isCut=True)
-        topJoiners = []
-        topCutters = [tnrsCut]
+            if self.cli.worm_has_key:
+                self.add_part(LeleWormKey(cli=self.cli))
 
-        if not self.cli.body_type in [LeleBodyType.FLAT]:
-            chmCutters = []
-            if not self.cli.body_type in [LeleBodyType.TRAVEL]:
-                chmCutters.append(LeleBrace(cli=self.cli))
-            topCutters.append(
-                LeleChamber(cli=self.cli, cutters=chmCutters)
-            )
-        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
-            topCutters.append(LeleSoundhole(cli=self.cli, isCut=True))
-
-        if self.cli.separate_top:
-            topJoiners.append(LeleRim(cli=self.cli, isCut=False))
-
-        if self.cli.separate_top:
-            if not self.cli.separate_fretboard:
-                topJoiners.append(LeleFretboardAssembly(cli=self.cli, isCut=False))
-
-        if self.cli.separate_fretboard or self.cli.separate_neck:
-            topCutters.append(fbJntCut)
-
-        if self.cli.separate_bridge:
-            topCutters.append(LeleBridge(cli=self.cli, isCut=True))
-            self.add_part(brdg)
-        else:
-            topJoiners.append(brdg)
-
-        if not guide is None:
+        elif tuners.is_peg():
+            # gen guide if using tuning pegs
+            guide = LeleGuide(cli=self.cli)
             if self.cli.separate_guide:
-                topCutters.append(LeleGuide(cli=self.cli, isCut=True))
+                top -= LeleGuide(cli=self.cli, isCut=True)
                 self.add_part(guide)
             else:
-                topJoiners.append(guide)
+                top +=guide
 
-        sh_cfg = self.cfg.soundhole_config(scaleLen=self.cli.scale_length)
-        topFillets = {
-            FILLET_RAD: [(sh_cfg.sndholeX, sh_cfg.sndholeY, self.cfg.fretbdHt)]
-        }
-        if (
-            TunerType[self.cli.tuner_type].value.is_worm()
-            and not self.cli.body_type == LeleBodyType.FLAT
-        ):
-            wcfg: WormConfig = TunerType[self.cli.tuner_type].value
-            topFillets[wcfg.slitWth] = [
-                (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.strHt())
-                for xyz in self.cfg.tnrXYZs
-            ]
+        if self.cli.separate_top:
+            top += LeleRim(cli=self.cli, isCut=False)
+        if not self.cli.body_type in [LeleBodyType.FLAT]:
+            top -= LeleChamber(cli=self.cli,isCut=True)
+        if not self.cli.body_type in [LeleBodyType.FLAT,LeleBodyType.TRAVEL]:
+            # soundhole
+            sh  = LeleSoundhole(cli=self.cli, isCut=True)
+            top -= sh
+            top = sh.fillet(top)
 
-        top = LeleTop(
-            cli=self.cli, joiners=topJoiners, cutters=topCutters, fillets=topFillets
-        )
-        self.shape = top.gen_full()
+            # brace
+            top += LeleBrace(cli=self.cli)
 
-        return self.shape
+        if self.cli.separate_fretboard or self.cli.separate_neck:
+            top -= LeleFretboardJoint(cli=self.cli, isCut=True)\
+                .mv(-self.api.getJoinCutTol(), 0, -self.api.getJoinCutTol())
 
-    def gen_parser(self, parser=None):
+        # gen bridge
+        brdg = LeleBridge(cli=self.cli)
+        if self.cli.separate_bridge:
+            top -= LeleBridge(cli=self.cli, isCut=True)
+            self.add_part(brdg)
+        else:
+            top += brdg
+
+        return top.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """

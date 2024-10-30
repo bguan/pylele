@@ -10,9 +10,11 @@ SEMI_RATIO = 2**(1/12)
 
 class LeleScaleEnum(IntEnum):
     """ Enumerator for Scale Length Names """
-    SOPRANO = 330
-    CONCERT = 370
-    TENOR   = 430
+    SOPRANINO = 260
+    SOPRANO   = 330
+    CONCERT   = 370
+    TENOR     = 430
+    GUITAR    = 650
 
     def type(length:str)->int:
         """ Returns scale length in mm

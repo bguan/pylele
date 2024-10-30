@@ -18,10 +18,10 @@ from pylele2.pylele_base import LeleBase
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
+
 from pylele2.pylele_body import LeleBody
 from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_fretboard_spines import LeleFretboardSpines
-from pylele2.pylele_brace import LeleBrace
 from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
@@ -32,70 +32,49 @@ class LeleBottomAssembly(LeleBase):
     """Pylele Body Bottom Assembly Generator class"""
 
     def gen(self) -> Shape:
-        """Generate Body Bottom Assembly"""
-
-        cutTol = self.api.getJoinCutTol()
-
-        ## Initialize Joiners and Cutters
-        bodyJoiners = []
-        bodyCutters = []
-
-        ## Chamber
-        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
-            chamber_cutters = []
-            if not self.cli.body_type in [LeleBodyType.TRAVEL]:
-                chamber_cutters.append(LeleBrace(cli=self.cli))
-            bodyCutters.append(
-                LeleChamber(cli=self.cli, isCut=True, cutters=chamber_cutters)
-            )
-
-        ## Spines
-        if self.cli.num_strings > 1:
-            bodyCutters.append(
-                LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
-            )
-
-        ## Neck Joint
-        if self.cli.separate_neck:
-            bodyCutters.append(
-                LeleNeckJoint(cli=self.cli, isCut=True).mv(-cutTol, 0, cutTol)
-            )
-
-        ## Fretboard Spines
-        if (
-            self.cli.separate_fretboard
-            or self.cli.separate_neck
-            or self.cli.separate_top
-        ):
-            bodyCutters.append(
-                LeleFretboardSpines(cli=self.cli, isCut=True).mv(2 * FIT_TOL, 0, cutTol)
-            )
-
-        ## Tuners
-        if not self.cli.separate_top or not self.cli.separate_end:
-            tnrsCut = LeleTuners(cli=self.cli, isCut=True)
-            bodyCutters.append(tnrsCut)
-
-        ## Tail
-        if TunerType[self.cli.tuner_type].value.is_worm():
-            if self.cli.separate_end:
-                bodyCutters.append(LeleTail(cli=self.cli, isCut=True))
-            elif self.cli.body_type in [LeleBodyType.HOLLOW]:
-                # join tail to body if flat hollow and not separate end
-                bodyJoiners.append(LeleTail(cli=self.cli))
+        """ Generate Body Bottom Assembly """
+       
+        ## Body
+        body = LeleBody(cli=self.cli)
 
         ## Text
         if not self.cli.no_text:
-            bodyCutters.append(LeleTexts(cli=self.cli, isCut=True))
+            body -= LeleTexts(cli=self.cli, isCut=True)
 
-        ## Body
-        body = LeleBody(cli=self.cli, joiners=bodyJoiners, cutters=bodyCutters)
+        ## Chamber
+        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
+            body -= LeleChamber(cli=self.cli, isCut=True)
 
-        self.shape = body.gen_full()
+        ## Spines
+        if self.cli.num_strings > 1:
+            body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
 
-        return self.shape
+        ## Neck Joint
+        if self.cli.separate_neck:
+            body -= LeleNeckJoint(cli=self.cli, isCut=True)\
+                .mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol())
 
-    def gen_parser(self, parser=None):
+        ## Fretboard Spines
+        if (self.cli.separate_fretboard or
+            self.cli.separate_neck or
+            self.cli.separate_top) and self.cli.num_spines > 0:
+            body -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
+            
+        ## Tuners
+        if not self.cli.separate_end:
+            body -= LeleTuners(cli=self.cli, isCut=True)
+           
+        ## Tail
+        if TunerType[self.cli.tuner_type].value.is_worm():
+            if self.cli.separate_end:
+                body -= LeleTail(cli=self.cli, isCut=True)
+            elif self.cli.body_type in [LeleBodyType.HOLLOW]:
+                # join tail to body if flat hollow and not separate end
+                body += LeleTail(cli=self.cli)
+
+        return body.gen_full()
+    
+    def gen_parser(self,parser=None):
         """
         pylele Command Line Interface
         """
@@ -134,9 +113,8 @@ def test_bottom_assembly(self, apis=None):
 
 
 def test_bottom_assembly_mock(self):
-    """Test Bottom Assembly Mock"""
+    """ Test Bottom Assembly Mock """
     test_bottom_assembly(self, apis=["mock"])
-
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,8 @@ from abc import ABC, abstractmethod
 from fontTools.ttLib import TTFont
 from typing import Any, Union
 
+from api.pylele_api_constants import DEFAULT_TEST_DIR
+
 APIS_INFO = {
     "mock": {"module": "api.mock_api", "class": "MockShapeAPI"},
     "cadquery": {"module": "api.cq_api", "class": "CQShapeAPI"},
@@ -39,9 +41,6 @@ class Fidelity(LeleStrEnum):
     def __repr__(self):
         return f"Fidelity({self.value} tol={self.exportTol()}, seg={self.smoothingSegments()})"
 
-    def __str__(self):
-        return self.value
-
     def exportTol(self) -> float:
         match self:
             case Fidelity.LOW:
@@ -61,15 +60,8 @@ class Fidelity(LeleStrEnum):
                 return 18
 
     def code(self) -> str:
-        match self:
-            case Fidelity.LOW:
-                return "L"
-            case Fidelity.MEDIUM:
-                return "M"
-            case Fidelity.HIGH:
-                return "H"
-
-
+        return str(self)[0].upper()
+    
 class Implementation(LeleStrEnum):
     """Pylele API implementations"""
 
@@ -82,22 +74,9 @@ class Implementation(LeleStrEnum):
     def __repr__(self):
         return f"Implementation({self.value})"
 
-    def __str__(self):
-        return self.value
-
     def code(self) -> str:
-        """Return Code that identifies Implementation"""
-        match self:
-            case Implementation.MOCK:
-                return "M"
-            case Implementation.CAD_QUERY:
-                return "C"
-            case Implementation.BLENDER:
-                return "B"
-            case Implementation.TRIMESH:
-                return "T"
-            case Implementation.SOLID2:
-                return "S"
+        """ Return Code that identifies Implementation """
+        return str(self)[0].upper()
 
     def module_name(self):
         """Returns the module name of the API"""
@@ -108,9 +87,14 @@ class Implementation(LeleStrEnum):
         return APIS_INFO[self]["class"]
 
     def joinCutTol(self) -> float:
-        # Tolerance for joins to have a little overlap
+        """ Tolerance for joins to have a little overlap """
         return 0 if self == Implementation.CAD_QUERY else 0.01
-
+    
+    def get_api(self, fidelity: Fidelity = Fidelity.LOW) -> ShapeAPI:
+        """ Get the handler to the selected implementation API """
+        mod = importlib.import_module(self.module_name())
+        api = getattr(mod, self.class_name())
+        return api(implementation = self, fidelity=fidelity)
 
 def supported_apis() -> list:
     """Returns the list of supported apis"""
@@ -125,17 +109,76 @@ def supported_apis() -> list:
 
     return apis
 
+def make_test_path(api_name,test_path=DEFAULT_TEST_DIR):
+    """ Makes Test folder """
+    out_path = os.path.join(Path.cwd(), test_path, api_name)
+
+    if not os.path.isdir(out_path):
+        os.makedirs(out_path)
+    assert os.path.isdir(out_path)
+
+    return out_path
+
+def test_api(api):
+    """ Test a Shape API """
+    if api in supported_apis()+['mock']:
+        impl = Implementation(api)
+        sapi = impl.get_api(fidelity = Fidelity.LOW)
+        outfname = make_test_path(impl.module_name())
+        sapi.test(outfname)
+    else:
+        print(f'WARNING: Skipping test of {api} api, because unsupported with python version {sys.version}!')
+
+def default_or_alternate(def_val, alt_val=None):
+    """ Override default value with alternate value, if available"""
+    if alt_val is None:
+        return def_val
+    return alt_val
+    # return def_val if alt_val is None else al
+
+class Direction(object):
+    """ A class to represent direction vectors """
+    x = None
+    y = None
+    z = None
+
+    def __init__(self, x: float = None, y: float = None, z: float = None):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def eval(self, op = '+'):
+
+        if op == '+':
+            neutral = 0
+        elif op == '*':
+            neutral = 1
+
+        x = default_or_alternate(neutral, self.x)
+        y = default_or_alternate(neutral, self.y)
+        z = default_or_alternate(neutral, self.z)
+
+        return x,y,z
+
+def direction_operand(operand) -> Direction:
+    """ returns a direction operand """
+    if isinstance(operand,tuple):
+        assert len(operand)==3
+        return Direction(operand[0],operand[1],operand[2])
+    if isinstance(operand,Direction):
+        return operand
+    assert False
 
 class Shape(ABC):
 
     MAX_DIM = 2000  # for max and min dimensions
+    solid = None
+    api = None
 
-    @abstractmethod
-    def getAPI(self) -> ShapeAPI: ...
-
-    @abstractmethod
-    def getImplSolid(self) -> Any: ...
-
+    def __init__(self, api: ShapeAPI, solid=None):
+        self.api: ShapeAPI = api
+        self.solid = solid
+   
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
 
@@ -151,7 +194,7 @@ class Shape(ABC):
 
     def halfByPlane(self, plane: tuple[bool, bool, bool]) -> Shape:
         halfCutter = (
-            self.getAPI()
+            self.api
             .genBox(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM)
             .mv(
                 self.MAX_DIM / 2 if plane[0] else 0,
@@ -197,151 +240,119 @@ class Shape(ABC):
     @abstractmethod
     def show(self): ...
 
+    def __add__(self, operand) -> Shape:
+        """ Join using + """
+        if operand is None:
+            return self
+        assert isinstance(operand,Shape)
+        return self.join(operand)
+    
+    def __sub__(self, operand) -> Shape:
+        """ cut using - """
+        if operand is None:
+            return self
+        assert isinstance(operand,Shape)
+        return self.cut(operand)
+
+    def __mul__(self, operand) -> Shape:
+        """ scale using * """
+        if operand is None:
+            return self
+        direction = direction_operand(operand)
+        x,y,z = direction.eval('*')
+        return self.scale(x,y,z)
+
+    def __lshift__(self, operand) -> Shape:
+        """ move using << """
+        if operand is None:
+            return self
+        direction = direction_operand(operand)
+        x,y,z = direction.eval('+')
+        return self.mv(x,y,z)
+
+def getFontname2FilepathMap() -> dict[str, str]:
+
+    font2path: dict[str, str] = {}
+
+    # Define directories to search for fonts
+    if sys.platform == "win32":
+        font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
+    elif sys.platform == "darwin":
+        font_dirs = [
+            "/Library/Fonts",
+            "/System/Library/Fonts",
+            os.path.expanduser("~/Library/Fonts"),
+        ]
+    else:  # Assume Linux or other UNIX-like system
+        font_dirs = [
+            "/usr/share/fonts",
+            "/usr/local/share/fonts",
+            os.path.expanduser("~/.fonts"),
+        ]
+
+    def list_fonts(directory):
+        fonts = []
+
+        # Helper function to get the string by its name ID
+        def get_name(font: TTFont, nameID: int):
+            name_record = font["name"].getName(
+                nameID=nameID, platformID=3, platEncID=1
+            )
+            if name_record is None:
+                name_record = font["name"].getName(
+                    nameID=nameID, platformID=1, platEncID=0
+                )
+            return name_record.toStr() if name_record else "Unknown"
+
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.lower().endswith((".ttf", ".otf")):
+                    font_path = os.path.join(root, file)
+                    try:
+                        font = TTFont(font_path)
+                        # Get the Font Family Name (name ID 1)
+                        family = get_name(font, 1)
+                        # Get the Font Subfamily Name (Style) (name ID 2)
+                        style = get_name(font, 2)
+
+                        font_name = (
+                            family
+                            if style == "Normal" or style == "Regular"
+                            else family + " " + style
+                        )
+                        fonts.append((font_name, font_path))
+                    except Exception as e:
+                        print(f"Error reading {font_path}: {e}")
+        return fonts
+
+    # Collect fonts from all directories
+    all_fonts = []
+    for directory in font_dirs:
+        if os.path.exists(directory):
+            all_fonts.extend(list_fonts(directory))
+
+    # Print the font names and paths
+    for name, path in all_fonts:
+        # print(f"Font: {name}, Path: {path}")
+        font2path[name] = path
+
+    return font2path
 
 class ShapeAPI(ABC):
+    """ Prototype for Implementation API """
+    
+    implementation = None
+    fidelity = None
+    font2path = getFontname2FilepathMap()
 
-    _mock_api: ShapeAPI = None
-    _cq_api: ShapeAPI = None
-    _blender_api: ShapeAPI = None
-    _trimesh_api: ShapeAPI = None
-    _solid2_api: ShapeAPI = None
-
-    @classmethod
-    def get(cls: type[ShapeAPI], impl: Implementation, fidelity: Fidelity) -> ShapeAPI:
-        match impl:
-            case Implementation.MOCK:
-                if cls._mock_api == None:
-                    mock_mod_name = "api.mock_api"
-                    mock_mod = importlib.import_module(mock_mod_name)
-                if cls._mock_api is None:
-                    mock_mod = importlib.import_module(
-                        Implementation.MOCK.module_name()
-                    )
-                    cls._mock_api = mock_mod.MockShapeAPI(fidelity)
-                return cls._mock_api
-            case Implementation.CAD_QUERY:
-                if cls._cq_api == None:
-                    cq_mod_name = "api.cq_api"
-                    cq_mod = importlib.import_module(cq_mod_name)
-                if cls._cq_api is None:
-                    cq_mod = importlib.import_module(
-                        Implementation.CAD_QUERY.module_name()
-                    )
-                    cls._cq_api = cq_mod.CQShapeAPI(fidelity)
-                return cls._cq_api
-            case Implementation.BLENDER:
-                if cls._blender_api == None:
-                    bpy_mod_name = "api.bpy_api"
-                    bpy_mod = importlib.import_module(bpy_mod_name)
-                if cls._blender_api is None:
-                    bpy_mod = importlib.import_module(
-                        Implementation.BLENDER.module_name()
-                    )
-                    cls._blender_api = bpy_mod.BlenderShapeAPI(fidelity)
-                return cls._blender_api
-            case Implementation.TRIMESH:
-                if cls._trimesh_api == None:
-                    tm_mod_name = "api.tm_api"
-                    tm_mod = importlib.import_module(tm_mod_name)
-                if cls._trimesh_api is None:
-                    tm_mod = importlib.import_module(
-                        Implementation.TRIMESH.module_name()
-                    )
-                    cls._tm_api = tm_mod.TMShapeAPI(fidelity)
-                return cls._tm_api
-            case Implementation.SOLID2:
-                if cls._solid2_api == None:
-                    sp2_mod_name = "api.sp2_api"
-                    sp2_mod = importlib.import_module(sp2_mod_name)
-                if cls._solid2_api is None:
-                    sp2_mod = importlib.import_module(
-                        Implementation.SOLID2.module_name()
-                    )
-                    cls._sp2_api = sp2_mod.Sp2ShapeAPI(fidelity)
-                return cls._sp2_api
-
-    def getFontname2FilepathMap(self) -> dict[str, str]:
-
-        font2path: dict[str, str] = {}
-
-        # Define directories to search for fonts
-        if sys.platform == "win32":
-            font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
-        elif sys.platform == "darwin":
-            font_dirs = [
-                "/Library/Fonts",
-                "/System/Library/Fonts",
-                os.path.expanduser("~/Library/Fonts"),
-            ]
-        else:  # Assume Linux or other UNIX-like system
-            font_dirs = [
-                "/usr/share/fonts",
-                "/usr/local/share/fonts",
-                os.path.expanduser("~/.fonts"),
-            ]
-
-        def list_fonts(directory):
-            fonts = []
-
-            # Helper function to get the string by its name ID
-            def get_name(font: TTFont, nameID: int):
-                name_record = font["name"].getName(
-                    nameID=nameID, platformID=3, platEncID=1
-                )
-                if name_record is None:
-                    name_record = font["name"].getName(
-                        nameID=nameID, platformID=1, platEncID=0
-                    )
-                return name_record.toStr() if name_record else "Unknown"
-
-            for root, _, files in os.walk(directory):
-                for file in files:
-                    if file.lower().endswith((".ttf", ".otf")):
-                        font_path = os.path.join(root, file)
-                        try:
-                            font = TTFont(font_path)
-                            # Get the Font Family Name (name ID 1)
-                            family = get_name(font, 1)
-                            # Get the Font Subfamily Name (Style) (name ID 2)
-                            style = get_name(font, 2)
-
-                            font_name = (
-                                family
-                                if style == "Normal" or style == "Regular"
-                                else family + " " + style
-                            )
-                            fonts.append((font_name, font_path))
-                        except Exception as e:
-                            print(f"Error reading {font_path}: {e}")
-            return fonts
-
-        # Collect fonts from all directories
-        all_fonts = []
-        for directory in font_dirs:
-            if os.path.exists(directory):
-                all_fonts.extend(list_fonts(directory))
-
-        # Print the font names and paths
-        for name, path in all_fonts:
-            # print(f"Font: {name}, Path: {path}")
-            font2path[name] = path
-
-        return font2path
-
-    def __init__(self) -> None:
-        self.font2path: dict[str, str] = self.getFontname2FilepathMap()
-
-    @abstractmethod
-    def getFidelity(self) -> Fidelity: ...
-
-    @abstractmethod
-    def getImplementation(self) -> Implementation: ...
+    def __init__(self,
+                 implementation : Implementation,
+                 fidelity: Fidelity = Fidelity.LOW):
+        self.implementation = implementation
+        self.fidelity = fidelity
 
     def getFontPath(self, fontName: str) -> str:
         return self.font2path[fontName] if fontName in self.font2path else None
-
-    @abstractmethod
-    def setFidelity(self, fidel: Fidelity) -> None: ...
 
     @abstractmethod
     def exportSTL(self, shape: Shape, path: Union[str, Path]) -> None: ...
@@ -380,7 +391,29 @@ class ShapeAPI(ABC):
     def genRodY(self, l: float, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genRodZ(self, l: float, rad: float) -> Shape: ...
+    def genRodZ(self, l: float, rad: float) -> Shape: 
+        ...
+
+    def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
+        """ generate a mask to round an edge """
+
+        radi = rad + tol
+        if direction == 'x':
+            mask  = self.genBox(l,radi,radi).mv(0,radi/2,radi/2)
+            mask -= self.genRodX(l,rad=radi)
+            mask  = mask.rotateX(rot)
+        elif direction == 'y':
+            mask  = self.genBox(radi,l,radi).mv(radi/2,0,radi/2)
+            mask -= self.genRodY(l,rad=radi)
+            mask  = mask.rotateY(rot)
+        elif direction == 'z':
+            mask  = self.genBox(radi,radi,l).mv(radi/2,radi/2,0)
+            mask -= self.genRodZ(l,rad=radi)
+            mask  = mask.rotateZ(rot)
+        else:
+            assert False
+
+        return mask
 
     def genRndRodX(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         rndRodZ = self.genRndRodZ(l, rad, domeRatio)
@@ -454,8 +487,8 @@ class ShapeAPI(ABC):
         )
         return rod.cut(cutter)
 
-    @abstractmethod
-    def getJoinCutTol(self): ...
+    def getJoinCutTol(self):
+        return self.implementation.joinCutTol()
 
     def test(self, outpath: str | Path) -> None:
 
@@ -466,7 +499,7 @@ class ShapeAPI(ABC):
             print("Cannot export to non directory: %s" % expDir, file=sys.stderr)
             sys.exit(os.EX_SOFTWARE)
 
-        implCode = self.getImplementation().code()
+        implCode = self.implementation.code()
 
         # Simple Tests
 
@@ -585,49 +618,56 @@ class ShapeAPI(ABC):
         )
         self.exportSTL(sweep, expDir / f"{implCode}-sweep")
 
-        # More complex tests
+        edgex = self.gen_rounded_edge_mask(direction='x',l=30, rad = 10)
+        self.exportSTL(edgex, expDir / f"{implCode}-edgex")
 
-        objs = []
+        edgey = self.gen_rounded_edge_mask(direction='y',l=30, rad = 10)
+        self.exportSTL(edgey, expDir / f"{implCode}-edgey")
+
+        edgez = self.gen_rounded_edge_mask(direction='z',l=30, rad = 10)
+        self.exportSTL(edgez, expDir / f"{implCode}-edgez")
+
+        # More complex tests
 
         box = self.genBox(10, 10, 2).mv(0, 0, -10)
         ball = self.genBall(5).scale(1, 2, 1)
         coneZ = self.genConeZ(10, 10, 5).mv(0, 0, 10)
         coneX = self.genConeX(10, 1, 2)
         rod = self.genRodZ(20, 1)
-        obj1 = box.join(ball).join(coneZ).join(rod).cut(coneX)
+        obj1 = box + ball + coneZ + rod - coneX
         coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
-        objs.append(obj1)
+        joined = obj1
 
         rx = self.genRodX(10, 3)
         ry = self.genRodY(10, 3)
         rz = self.genRodZ(10, 3)
         obj2 = rx.join(ry).join(rz).mv(10, -10, 5)
-        objs.append(obj2)
+        joined += obj2
 
         rr1 = self.genRndRodX(10, 3).scale(0.5, 1, 1).mv(0, -20, 0)
         rr2 = self.genRndRodX(10, 3).scale(1, 0.5, 1).mv(0, 0, 0)
         rr3 = self.genRndRodX(10, 3).scale(1, 1, 0.5).mv(0, 20, 0)
         rr4 = self.genRndRodY(50, 1)
         obj3 = rr1.join(rr2).join(rr3).join(rr4).mv(0, 0, -20)
-        objs.append(obj3)
+        joined += obj3
 
         rrx = self.genRndRodX(10, 3, 0.25)
         rry = self.genRndRodY(10, 3, 0.5)
         rrz = self.genRndRodZ(10, 3)
         obj4 = rrx.join(rry).join(rrz).half().mv(-10, 10, 5)
-        objs.append(obj4)
+        joined += obj4
 
         pe = self.genPolyExtrusionZ([(-10, 30), (10, 30), (10, -30), (-10, -30)], 10)
         tz = self.genTextZ("Hello World", 10, 5, "Arial").rotateZ(90).mv(0, 0, 10)
         obj5 = pe.join(tz).mv(30, -30, 0)
         mirror = obj5.mirrorXZ().mv(10, 0, 0)
         obj5 = obj5.join(mirror)
-        objs.append(obj5)
+        joined += obj5
 
         rndBox = self.genBox(10, 10, 10).filletByNearestEdges([(5, 0, 5)], 1)
         obj6 = rndBox.mv(-10, -10, 5)
-        objs.append(obj6)
+        joined += obj6
 
         dome = self.genLineSplineExtrusionZ(
             start=(0, 0),
@@ -647,7 +687,7 @@ class ShapeAPI(ABC):
             ht=5,
         )
         obj7 = dome.rotateY(-45).mv(-10, 15, 0)
-        objs.append(obj7)
+        joined += obj7
 
         donutStart = (60, 0.1)
         donutPath = [
@@ -665,19 +705,41 @@ class ShapeAPI(ABC):
             0, 0, self.getJoinCutTol()
         )
         obj8 = dome2.join(dome3).mv(0, 0, -10)
-        objs.append(obj8)
+        joined += obj8
 
         obj9 = self.genCirclePolySweep(
             1, [(-20, 0, 0), (20, 0, 40), (40, 20, 40), (60, 20, 0)]
         )
-        objs.append(obj9)
+        joined += obj9
 
         obj10 = self.genQuarterBall(10, True, True).scale(2, 1, 0.5).mv(-30, -20, 0)
-        objs.append(obj10)
+        joined += obj10
 
         obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
-        objs.append(obj11)
+        joined += obj11
 
-        joined = None
-        [joined := (obj if joined is None else joined.join(obj)) for obj in objs]
+        # move operator shortcut
+        obj12 = self.genBall(5) << Direction(x=1)
+        obj13 = self.genBall(5) << Direction(y=1)
+        obj14 = self.genBall(5) << Direction(z=1)
+        obj15 = self.genBall(5) << (0,1,2)
+
+        # scale operator shortcut
+        obj16 = self.genBall(5) * Direction(x=1)
+        obj17 = self.genBall(5) * Direction(y=1)
+        obj18 = self.genBall(5) * Direction(z=1)
+        obj19 = self.genBall(5) * (1,2,3)
+
+        # move operator shortcut
+        obj20 = self.genBall(5) << Direction(x=1)
+        obj21 = self.genBall(5) << Direction(y=1)
+        obj22 = self.genBall(5) << Direction(z=1)
+        obj23 = self.genBall(5) << (0,1,2)
+
+        # scale operator shortcut
+        obj24 = self.genBall(5) * Direction(x=1)
+        obj25 = self.genBall(5) * Direction(y=1)
+        obj26 = self.genBall(5) * Direction(z=1)
+        obj27 = self.genBall(5) * (1,2,3)
+
         self.exportSTL(joined, expDir / f"{implCode}-all")

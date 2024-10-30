@@ -54,9 +54,9 @@ class LeleBody(LeleBase):
 
             if midTck > 0:
                 # Generates flat middle section of body
-                bot = bot.mv(0, 0, -midTck)
+                bot <<= (0, 0, -midTck)
                 midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -midTck)
-                bot = bot.join(midR.mirrorXZ_and_join())
+                bot += midR.mirrorXZ_and_join()
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
@@ -67,13 +67,7 @@ class LeleBody(LeleBase):
                 bOrig, bPath, -self.cli.flat_body_thickness
             )
             bot = midR.mirrorXZ_and_join()
-            bot = bot.join(bot_below)
-
-            if self.cli.body_type in [LeleBodyType.TRAVEL]:
-                # just for development
-                chamber = LeleChamber(cli=self.cli, isCut=True)
-                chamber.gen_full()
-                bot = bot.cut(chamber.shape)
+            bot += bot_below
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
 
@@ -85,17 +79,16 @@ class LeleBody(LeleBase):
                 bOrig, bPath, -self.cli.flat_body_thickness
             )
             # inner wall
-            midR2 = midR.dup().mv(0, -self.cli.wall_thickness, 0)
-            midR = midR.cut(midR2)
+            midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
+            midR -= midR2
             bot = midR.mirrorXZ_and_join()
-            bot = bot.join(bot_below)
+            bot += bot_below
 
         else:
             assert (
                 self.cli.body_type in LeleBodyType.list()
             ), f"Unsupported Body Type {self.cli.body_type}"
 
-        self.shape = bot
         return bot
 
     def gen_parser(self, parser=None):
