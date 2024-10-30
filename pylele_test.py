@@ -31,6 +31,10 @@ class PyleleTestMethods(unittest.TestCase):
         """Test SolidPython2 API"""
         test_api(api="solid2")
 
+    def test_manifold_api(self):
+        """Test Manifold API"""
+        test_api(api="manifold")
+
     ## Solid Parts
     from parts.tube import test_tube, test_tube_mock
     from parts.screw import test_screw, test_screw_mock
