@@ -412,7 +412,6 @@ class LeleSolid(ABC):
     def exportSTL(
         self,
         out_path=None,
-        check_volume=True,
         report_en=True,
     ) -> str:
         """Generate .stl output file"""
