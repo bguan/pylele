@@ -253,7 +253,29 @@ class LeleSolid(ABC):
     Pylele Generic Solid Body
     """
 
+    cli   = None
     parts = None
+    isCut = False
+    outdir = ''
+    fileNameBase = ''
+
+    def __init__(
+        self,
+        isCut: bool = False,
+        args=None,
+        cli=None,
+    ):
+        if cli is None:
+            self.cli = self.parse_args(args=args)
+        else:
+            self.cli = cli
+
+        self.isCut = self.cli.is_cut or isCut
+        self.outdir = self.cli.outdir
+
+        self.fileNameBase = self.__class__.__name__
+        if self.isCut:
+            self.fileNameBase += '_cut'
 
     @abstractmethod
     def gen(self) -> Shape:
