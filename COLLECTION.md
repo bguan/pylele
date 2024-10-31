@@ -4,6 +4,7 @@
 * [pythonscad](https://pythonscad.org/): native python interpreter for scad renderer
 * [anchorscad](https://github.com/owebeeone/anchorscad): Openscad python generator with nice syntax
 * [pySdfScad](https://github.com/traverseda/PySdfScad): Openscad python interpreter based on [Forgleman Sdf library](https://github.com/fogleman/sdf), also including an openscad parser in python.
+** [pysdf](https://github.com/nobodyinperson/sdf): sdf library fork with several extensions, also available on [pypi](https://pypi.org/project/pysdf/)
 * [py_scadparser](https://github.com/jeff-dh/py_scadparser): openscad parser in python
 * [python-brlcad](https://github.com/kanzure/python-brlcad/tree/master): python bindings to [BRL-CAD](https://brlcad.org/) solid construction geometry library [trusted by US Army since 1983](https://en.wikipedia.org/wiki/BRL-CAD).
 * [libfivepy](https://gitlab.com/rcmz/libfivepy): python bindings to 3d modeling library [libfive](https://libfive.com/)
