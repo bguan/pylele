@@ -8,14 +8,13 @@ import os
 import argparse
 import sys
 
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_solid import main_maker, test_loop
-from pylele_config_common import TunerType
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
+from pylele_config_common import TunerType, WormConfig
 from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase, WormConfig
+from api.pylele_api_constants import FIT_TOL
+from api.pylele_solid import main_maker, test_loop
+from pylele2.pylele_base import LeleBase
 
 
 def default_or_alternate(def_val, alt_val=None):
@@ -184,33 +183,42 @@ class LeleWorm(LeleBase):
     """Pylele Worm Generator class"""
 
     def worm_config(self):
-        """ worm configuration """
+        """worm configuration"""
         tnrCfg = TunerType[self.cli.tuner_type].value
         assert tnrCfg.is_worm()
 
         cutAdj = FIT_TOL if self.isCut else 0
         c = WormConfig()
-        
+
         # enable open back slit w/o long slit front
-        (c.front, _, _, _, _, _) = (
-                tnrCfg.dims()
-            )
+        (c.front, _, _, _, _, _) = tnrCfg.dims()
 
-        c.sltLen = default_or_alternate(tnrCfg.slitLen,self.cli.worm_slit_length)
-        c.sltWth = default_or_alternate(tnrCfg.slitWth,self.cli.worm_slit_width)
-        c.drvRad = default_or_alternate(tnrCfg.driveRad + cutAdj,self.cli.worm_drive_radius)
-        c.dskRad = default_or_alternate(tnrCfg.diskRad + cutAdj,self.cli.worm_disk_radius)
-        c.dskTck = default_or_alternate(tnrCfg.diskTck + 2*cutAdj,self.cli.worm_disk_thickness)
-        c.axlRad = default_or_alternate(tnrCfg.axleRad + cutAdj,self.cli.worm_axle_radius)
-        c.axlLen = default_or_alternate(tnrCfg.axleLen + 2*cutAdj,self.cli.worm_axle_length)
-        c.offset = default_or_alternate(tnrCfg.driveOffset,self.cli.worm_drive_offset)
-        c.drvLen = default_or_alternate(tnrCfg.driveLen + 2*cutAdj,self.cli.worm_drive_length)
-
+        c.sltLen = default_or_alternate(tnrCfg.slitLen, self.cli.worm_slit_length)
+        c.sltWth = default_or_alternate(tnrCfg.slitWth, self.cli.worm_slit_width)
+        c.drvRad = default_or_alternate(
+            tnrCfg.driveRad + cutAdj, self.cli.worm_drive_radius
+        )
+        c.dskRad = default_or_alternate(
+            tnrCfg.diskRad + cutAdj, self.cli.worm_disk_radius
+        )
+        c.dskTck = default_or_alternate(
+            tnrCfg.diskTck + 2 * cutAdj, self.cli.worm_disk_thickness
+        )
+        c.axlRad = default_or_alternate(
+            tnrCfg.axleRad + cutAdj, self.cli.worm_axle_radius
+        )
+        c.axlLen = default_or_alternate(
+            tnrCfg.axleLen + 2 * cutAdj, self.cli.worm_axle_length
+        )
+        c.offset = default_or_alternate(tnrCfg.driveOffset, self.cli.worm_drive_offset)
+        c.drvLen = default_or_alternate(
+            tnrCfg.driveLen + 2 * cutAdj, self.cli.worm_drive_length
+        )
 
         return c
-    
+
     def gen(self) -> Shape:
-        """ Generate Worm """
+        """Generate Worm"""
 
         c = self.worm_config()
 
@@ -220,23 +228,26 @@ class LeleWorm(LeleBase):
         axlX = 0
         axlY = -0.5  # sltWth/2 -axlLen/2
         axlZ = 0
-        
+
         axl = self.api.genRodY(c.axlLen, c.axlRad).mv(axlX, axlY, axlZ)
         if self.isCut:
-            axl += self.api.genBox(100, c.axlLen, 2*c.axlRad)\
-                .mv(50 + axlX, axlY, axlZ)
+            axl += self.api.genBox(100, c.axlLen, 2 * c.axlRad).mv(
+                50 + axlX, axlY, axlZ
+            )
             if self.cli.worm_axle_hole:
-                axl += self.api.genRodY(100.0, self.cli.worm_axle_hole_radius)\
-                    .mv(axlX, axlY, axlZ)
+                axl += self.api.genRodY(100.0, self.cli.worm_axle_hole_radius).mv(
+                    axlX, axlY, axlZ
+                )
         ## Disk
         dskX = axlX
-        dskY = axlY - c.axlLen/2 - c.dskTck/2
+        dskY = axlY - c.axlLen / 2 - c.dskTck / 2
         dskZ = axlZ
-        
+
         dsk = self.api.genRodY(c.dskTck, c.dskRad).mv(dskX, dskY, dskZ)
         if self.isCut:
-            dsk += self.api.genBox(
-                100, c.dskTck, 2*c.dskRad).mv(50 + dskX, dskY, dskZ)
+            dsk += self.api.genBox(100, c.dskTck, 2 * c.dskRad).mv(
+                50 + dskX, dskY, dskZ
+            )
 
         ## Drive
         drvX = dskX
@@ -253,7 +264,7 @@ class LeleWorm(LeleBase):
             worm += self.api.genBox(c.sltLen, c.sltWth, 100).mv(
                 c.sltLen / 2 - c.front, 0, 50 - 2 * c.axlRad
             )
-        
+
         return worm
 
     def gen_parser(self, parser=None):

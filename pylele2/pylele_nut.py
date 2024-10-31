@@ -10,8 +10,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, Direction
-from pylele2.pylele_base import LeleBase, LeleStrEnum, test_loop, main_maker, FIT_TOL
+from api.pylele_api import LeleStrEnum, Shape, Direction
+from api.pylele_api_constants import FIT_TOL
+from api.pylele_solid import main_maker, test_loop
+from pylele2.pylele_base import LeleBase
 from pylele2.pylele_strings import LeleStrings
 
 
@@ -58,7 +60,7 @@ class LeleNut(LeleBase):
         f0Bot    = self.api.genRndRodY(ntWth, ntHt, 1/4)
         f0Bot   -= self.api.genBox(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
         f0Bot   *= Direction(z=fbTck/ntHt)
-        
+
         nut = f0Top + f0Bot
         nut  <<= (f0X, 0, fbTck)
 

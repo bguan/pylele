@@ -11,8 +11,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, ShapeAPI
-from api.pylele_solid import test_loop, main_maker, LeleStrEnum
+from api.pylele_api import LeleStrEnum, Shape, ShapeAPI
+from api.pylele_solid import test_loop, main_maker
 from api.pylele_utils import radians, accumDiv
 from pylele_config_common import SEMI_RATIO
 from pylele2.pylele_base import LeleBase
@@ -82,12 +82,12 @@ class LeleFrets(LeleBase):
             fx = fx + gap
             fy = fWth / 2 + math.tan(radians(wideAng)) * fx
             fz = fbTck + math.tan(radians(riseAng)) * fx
-            
+
             fret = gen_fret(api=self.api, y=fy, h=fHt, ftype=self.cli.fret_type)
             fret <<= (fx, 0, fz)
 
             frets = fret + frets
-            
+
             gap = gap / SEMI_RATIO
             count += 1
             if count > maxFrets:  # prevent runaway loop
@@ -108,7 +108,7 @@ def main(args=None):
 
 def test_frets(self,apis=None):
     """ Test Frets """
-    
+
     tests = {}
     for ft in FretType:
         tests[ft] = ['-ft',ft]
