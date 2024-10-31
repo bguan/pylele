@@ -13,19 +13,13 @@ import importlib
 import os
 from pathlib import Path
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
-from copy import deepcopy
-
-import argparse
-import datetime
 import time
 import trimesh
-from pathlib import Path
-from abc import ABC, abstractmethod
-from argparse import Namespace
-                
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum,supported_apis, direction_operand
-from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation ,supported_apis
+from api.pylele_api_constants import ColorEnum, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
 
@@ -85,7 +79,8 @@ def test_loop(module, apis=None, tests=None):  # ,component):
                         args=args,
                         )
         test_count += 1
-        
+
+
 class PrettyPrintDict(dict):
     """A class to print all entries of a dict"""
 
@@ -149,7 +144,7 @@ def stl_check_volume(
         rpt["bounding_box"] = mesh.bounding_box.extents
 
         assert volume_match_reference(
-            volume=mesh.volume, 
+            volume=mesh.volume,
             reference=reference_volume,
             tolerance=reference_volume_tolerance/100
         ), "volume: %f, reference: %f" % (
@@ -368,7 +363,7 @@ class LeleSolid(ABC):
         self.outdir = self.cli.outdir
 
         self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
-    
+
     def configure(self):
         """Configure Solid, and save self.cli"""
         self.api = self.cli.implementation.get_api(self.cli.fidelity)
@@ -510,22 +505,21 @@ class LeleSolid(ABC):
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
         self.gen_full()
         self.shape = self.shape.mv(x, y, z)
-        
         return self
 
     def show(self):
         """ Show solid """
         self.gen_full()
         return self.shape.show()
-    
+
     def __add__(self, operand):
         """ Join using + """
         return self.join(operand)
-    
+
     def __sub__(self, operand):
         """ cut using - """
         return self.cut(operand)
-    
+
     def __mul__(self, x,y,z) -> Shape:
         """ scale using * """
         return self.scale(x,y,z)
@@ -533,7 +527,7 @@ class LeleSolid(ABC):
     def __lshift__(self, x,y,z) -> Shape:
         """ move using << """
         return self.mv(x,y,z)
- 
+
 if __name__ == '__main__':
     prs = lele_solid_parser()
     print(prs.parse_args())

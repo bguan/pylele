@@ -8,7 +8,9 @@ from enum import Enum
 from pathlib import Path
 from abc import ABC, abstractmethod
 from fontTools.ttLib import TTFont
-from typing import Any, Union
+from typing import Union
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from api.pylele_api_constants import DEFAULT_TEST_DIR
 

@@ -12,7 +12,7 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, test_api
+from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
 
 
@@ -22,15 +22,6 @@ from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
 
 
 class MFShapeAPI(ShapeAPI):
-
-    def getFidelity(self) -> Fidelity:
-        return self.fidelity
-
-    def getImplementation(self) -> Implementation:
-        return Implementation.MANIFOLD
-
-    def setFidelity(self, fidel: Fidelity) -> None:
-        self.fidelity = fidel
 
     def exportSTL(self, shape: MFShape, path: Union[str, Path]) -> None:
 
@@ -172,7 +163,7 @@ class MFShapeAPI(ShapeAPI):
         return MFTextZ(txt, fontSize, tck, font, self)
 
     def getJoinCutTol(self) -> float:
-        return Implementation.MANIFOLD.joinCutTol()
+        return self.implementation.joinCutTol()
 
 
 class MFShape(Shape):

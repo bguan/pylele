@@ -12,10 +12,9 @@ import sys
 import trimesh as tm
 from typing import Union
 
-import os
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
+from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import (
     dimXY,
     encureClosed2DPath,
@@ -128,7 +127,7 @@ class TMShape(Shape):
                 "warning: solid is NOT a valid volume, attempt minor repair...",
                 file=sys.stderr,
             )
-            jctol = Implementation.TRIMESH.joinCutTol()
+            jctol = self.api.implementation.joinCutTol()
             self.solid.update_faces(self.solid.nondegenerate_faces(jctol / 2))
             self.solid.update_faces(self.solid.unique_faces())
             self.solid.remove_infinite_values()
@@ -466,4 +465,4 @@ class TMTextZ(TMShape):
 
 
 if __name__ == "__main__":
-    TMShapeAPI(Fidelity.LOW).test(Path.cwd() / "test" / "trimesh_api")
+    test_api("trimesh")

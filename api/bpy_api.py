@@ -4,21 +4,16 @@ from __future__ import annotations
 import bpy
 import bmesh
 import copy
-from math import ceil, pi, cos, sin
+from math import ceil, pi
 from mathutils import Vector
 import os
 from pathlib import Path
 import sys
-
-from fontTools.ttLib import TTFont
-from mathutils import Vector
-from api.pylele_api import Shape, ShapeAPI, Fidelity, Implementation
-from api.pylele_utils import lineSplineXY, descreteBezierChain, dimXY, ensureFileExtn, isPathCounterClockwise, radians, simplifyLineSpline, superGradient
-from typing import Any, Union
+from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, ShapeAPI, Fidelity, Implementation
+from api.pylele_api import Shape, ShapeAPI, test_api
 from api.pylele_utils import (
     dimXY,
     ensureFileExtn,
@@ -27,6 +22,11 @@ from api.pylele_utils import (
     radians,
     simplifyLineSpline,
 )
+
+
+"""
+    Encapsulate Blender implementation specific calls
+"""
 
 
 class BlenderShapeAPI(ShapeAPI):
@@ -114,6 +114,7 @@ class BlenderShapeAPI(ShapeAPI):
         self, txt: str, fontSize: float, tck: float, font: str
     ) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
+
 
 class BlenderShape(Shape):
 
@@ -750,8 +751,4 @@ class BlenderTextZ(BlenderShape):
 
 
 if __name__ == "__main__":
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    # Set the desired origin location
-    bpy.context.scene.cursor.location = (0, 0, 0)
-    bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
-    BlenderShapeAPI(Fidelity.LOW).test(Path.cwd() / "test" / "blender_api")
+    test_api("blender")

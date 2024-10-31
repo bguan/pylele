@@ -8,8 +8,7 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from api.pylele_api_constants import DEFAULT_BUILD_DIR
+from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import gen_stl_foo
 
 
@@ -142,4 +141,4 @@ class MockShape(Shape):
 
 
 if __name__ == "__main__":
-    MockShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_BUILD_DIR, "mock-all.stl"))
+    test_api("mock")

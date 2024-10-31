@@ -11,9 +11,9 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
+from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import ensureFileExtn, lineSplineXY
-from api.pylele_api_constants import DEFAULT_TEST_DIR
+
 
 """
     Encapsulate CAD Query implementation specific calls
@@ -344,4 +344,4 @@ class CQTextZ(CQShape):
 
 
 if __name__ == "__main__":
-    CQShapeAPI(Fidelity.LOW).test(os.path.join(DEFAULT_TEST_DIR, "cq-all.stl"))
+    test_api("cadquery")

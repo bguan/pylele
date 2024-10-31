@@ -17,8 +17,7 @@ except:
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation
-from api.pylele_api_constants import DEFAULT_TEST_DIR
+from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
 from conversion.stlascii2stlbin import stlascii2stlbin
 from conversion.scad2stl import scad2stl, OPENSCAD
@@ -78,7 +77,7 @@ class Sp2ShapeAPI(ShapeAPI):
 
     def genRodZ(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
-    
+
     def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         stem_len = l - 2*rad*domeRatio
         rod = None
@@ -353,4 +352,4 @@ class Sp2Import(Sp2Shape):
 
 
 if __name__ == "__main__":
-    Sp2ShapeAPI(Fidelity.LOW).test(Path.cwd() / DEFAULT_TEST_DIR / "sp2_api")
+    test_api("solid2")
