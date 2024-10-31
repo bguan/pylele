@@ -5,24 +5,26 @@
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from argparse import ArgumentParser, Namespace
-from copy import deepcopy
+
 import datetime
 import importlib
-import os
-from pathlib import Path
-import sys
+import platform
 import time
 import trimesh
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+from pathlib import Path
+from abc import ABC, abstractmethod
+from argparse import ArgumentParser, Namespace
+from copy import deepcopy
 
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation ,supported_apis
-from api.pylele_api_constants import ColorEnum, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+                
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum, supported_apis, direction_operand
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
-
 
 def main_maker(module_name, class_name, args=None):
     """Generate a main function for a LeleSolid instance"""
@@ -32,7 +34,6 @@ def main_maker(module_name, class_name, args=None):
     solid.export_args()  # includes export_configuration for LeleBase
     out_fname = solid.exportSTL()
     return solid, out_fname
-
 
 def test_iteration(module, component, test, api, args=None):
     """Helper to generate a testcase launching the main function in a module"""
@@ -388,7 +389,7 @@ class LeleSolid(ABC):
         outfname = self.fileNameBase
         if not self.cli.outdir_date_off:
             outfname += (
-                (datetime.datetime.now().strftime("-%y%m%d-%H%M-"))
+                (datetime.datetime.now().strftime("-%y%m%d-%H%M%S-"))
                 + self.cli.implementation.code()
                 + self.cli.fidelity.code()
             )
@@ -456,6 +457,8 @@ class LeleSolid(ABC):
         render_time = end_time - start_time
         print(f"Rendering time: {render_time} [s]")
         rpt["render_time"] = render_time
+        rpt["datetime"] = datetime.datetime.now().strftime("%y-%m-%d/%H:%M:%S")
+        rpt |= platform.uname()._asdict()
 
         if report_en:
             export_dict2text(
