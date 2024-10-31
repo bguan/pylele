@@ -253,11 +253,13 @@ class LeleSolid(ABC):
     Pylele Generic Solid Body
     """
 
-    cli   = None
-    parts = None
-    isCut = False
-    outdir = ''
-    fileNameBase = ''
+    cli          : Namespace = None
+    isCut        : bool = False
+    outdir       : str = ''
+    fileNameBase : str = ''
+    api          : ShapeAPI = None
+    shape        : Shape = None
+    parts        : list = None
 
     def __init__(
         self,
