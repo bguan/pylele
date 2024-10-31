@@ -70,7 +70,7 @@ class LeleBase(LeleSolid):
         self.configure_if_hasnt()
         export_dict2text(
             outpath=self._make_out_path(),
-            fname=self.fileNameBase + "_cfg.txt",
+            fname=self.fileNameBase + "_cfg",
             dictdata=self.cfg,
         )
 

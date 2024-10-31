@@ -11,6 +11,7 @@ import importlib
 import platform
 import time
 import trimesh
+import json
 
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -93,18 +94,25 @@ class PrettyPrintDict(dict):
         return properties
 
 
-def export_dict2text(outpath, fname, dictdata) -> str:
+def export_dict2text(outpath, fname, dictdata, fmt='.txt') -> str:
     """save info in input dictionary to output file"""
 
     if isinstance(dictdata, Namespace):
         dictdata = vars(dictdata)
 
-    if isinstance(dictdata, dict):
+    if isinstance(dictdata, dict) and fmt=='.txt':
         dictdata = PrettyPrintDict(dictdata)
 
-    out_fname = os.path.join(outpath, fname)
+    out_fname = os.path.join(outpath, fname+fmt)
+    print(out_fname)
     with open(out_fname, "w", encoding="UTF8") as f:
-        f.write(repr(dictdata))
+        if fmt=='.txt':
+            f.write(repr(dictdata))
+        elif fmt=='.json':
+            json.dump(dictdata, f, indent=4)
+        else:
+            assert fmt in ['.txt','.json'], f'ERROR: export format {fmt} not supported!'
+
     assert os.path.isfile(out_fname)
 
 
@@ -425,7 +433,7 @@ class LeleSolid(ABC):
         """Export Pylele Solid input arguments"""
         export_dict2text(
             outpath=self._make_out_path(),
-            fname=self.fileNameBase + "_args.txt",
+            fname=self.fileNameBase + "_args",
             dictdata=self.cli,
         )
 
@@ -486,7 +494,7 @@ class LeleSolid(ABC):
 
         if report_en:
             export_dict2text(
-                outpath=out_path, fname=self.fileNameBase + "_rpt.txt", dictdata=rpt
+                outpath=out_path, fname=self.fileNameBase + "_rpt", dictdata=rpt, fmt='.json'
             )
 
         return out_fname
