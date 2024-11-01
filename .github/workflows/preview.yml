@@ -49,7 +49,7 @@ jobs:
         SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
       run: |
         # Format the current date and time
-        model_name="pylele2_$(date +'%Y-%m-%d-%H:%M:%S')"
+        model_name="pylele2_$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
         response=$(curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
             -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
             -F "name=${model_name}" \
@@ -75,7 +75,7 @@ jobs:
 
         echo "Model uploaded successfully. Model ID: $model_uid"
         echo "Model URL: https://sketchfab.com/3d-models/$model_name-$model_uid"
-        echo "::set-output name=model_url::https://sketchfab.com/models/$model_name-$model_uid"
+        echo "::set-output name=model_url::https://sketchfab.com/3d-models/$model_name-$model_uid"
 
     # - name: Update GitHub Pages HTML
     #  run: |
