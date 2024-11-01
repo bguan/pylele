@@ -26,6 +26,8 @@ jobs:
       run: |
         chmod +x ./install_dependencies.sh
         sudo ./install_dependencies.sh
+    - name: Install jq
+      run: sudo apt-get update && sudo apt-get install -y jq
     #- name: pip configuration report
     #  run: |
     #    mkdir test
