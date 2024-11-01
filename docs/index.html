@@ -7,6 +7,55 @@
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Model Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; /* Light gray background */
+            color: #333; /* Dark gray text */
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #1CAAD9; /* Custom color for the heading */
+        }
+
+        .sketchfab-embed-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px auto; /* Margin to separate from other elements */
+            max-width: 90%; /* Maximum width for the iframe container */
+            overflow: hidden; /* Hide overflow to keep the layout clean */
+        }
+
+        iframe {
+            width: 100%; /* Full width of the container */
+            height: 600px; /* Fixed height for the iframe */
+            border: none; /* Remove default border */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        }
+
+        p {
+            text-align: center;
+            font-size: 14px; /* Slightly larger font size for better readability */
+            margin-top: 10px;
+            color: #4A4A4A; /* Gray text color for the footer */
+        }
+
+        a {
+            color: #1CAAD9; /* Link color */
+            text-decoration: none; /* Remove underline */
+            font-weight: bold; /* Bold links */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Underline on hover for better UX */
+        }
+    </style>
 </head>
 <body>
     <!-- 
@@ -18,6 +67,27 @@
     -->
 
     <h1>3D Model Preview</h1>
-    <div class="sketchfab-embed-wrapper"> <iframe title="LeleAllAssembly" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/3cfffa21a3794a75a59ee7e550a45f4e/embed?autospin=1&autostart=1&ui_theme=dark"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/leleallassembly-3cfffa21a3794a75a59ee7e550a45f4e?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> LeleAllAssembly </a> by <a href="https://sketchfab.com/bat52?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> bat52 </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+    <div class="sketchfab-embed-wrapper"> 
+        <iframe title="LeleAllAssembly" 
+            frameborder="0" 
+            allowfullscreen 
+            mozallowfullscreen="true" 
+            webkitallowfullscreen="true" 
+            allow="autoplay; fullscreen; xr-spatial-tracking" 
+            xr-spatial-tracking execution-while-out-of-viewport 
+            execution-while-not-rendered web-share 
+            src="https://sketchfab.com/models/3cfffa21a3794a75a59ee7e550a45f4e/embed?autospin=1&autostart=1&ui_theme=dark"> 
+        </iframe> 
+        <!--
+        <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> 
+            <a href="https://sketchfab.com/3d-models/leleallassembly-3cfffa21a3794a75a59ee7e550a45f4e?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> LeleAllAssembly </a> by <a href="https://sketchfab.com/bat52?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> bat52 </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a>
+        </p>
+        -->
+        <p>
+            <a href="https://sketchfab.com/3d-models/leleallassembly-3cfffa21a3794a75a59ee7e550a45f4e?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow">LeleAllAssembly</a> by 
+            <a href="https://sketchfab.com/bat52?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow">bat52</a> on 
+            <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=3cfffa21a3794a75a59ee7e550a45f4e" target="_blank" rel="nofollow">Sketchfab</a>
+        </p>
+    </div>
 </body>
 </html>
