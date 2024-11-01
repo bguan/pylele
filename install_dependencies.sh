@@ -4,9 +4,9 @@
 sudo apt update
 sudo apt install python3-pip pipenv libgl1 openscad -y
 
-# install openscad-nightly for huge performance gain
+install openscad-nightly for huge performance gain
 sudo apt install snapd
-sudo snap install openscad-nightly --devmode
+sudo snap install openscad-nightly --classic # --devmode
 sudo snap alias openscad-nightly openscad
 
 # install fonts
