@@ -74,7 +74,7 @@ jobs:
         fi
 
         echo "Model uploaded successfully. Model ID: $model_uid"
-        echo "Model URL: https://sketchfab.com/models/$model_name-$model_uid"
+        echo "Model URL: https://sketchfab.com/3d-models/$model_name-$model_uid"
         echo "::set-output name=model_url::https://sketchfab.com/models/$model_name-$model_uid"
 
     # - name: Update GitHub Pages HTML
