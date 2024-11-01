@@ -5,5 +5,9 @@
 </head>
 <body>
     <stl-viewer url="LeleAllAssembly.stl" width="500px" height="500px" model-color="#18A0FB" background-color="#F0F0F0"></stl-viewer>
+    <script>
+        const viewer = document.querySelector('stl-viewer');
+        viewer.load('LeleAllAssembly.stl');
+    </script>
 </body>
 </html>
