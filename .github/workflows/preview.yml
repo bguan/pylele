@@ -53,7 +53,19 @@ jobs:
             -F "tags=model,stl,python,ukulele,music" \
             https://api.sketchfab.com/v3/models
 
-        model_id=$(echo $response | jq -r '.id')  # Requires 'jq' to parse JSON
+        # Extract model ID using jq if available, or fallback with grep/sed
+        if command -v jq &> /dev/null; then
+          model_id=$(echo "$response" | jq -r '.uid')
+        else
+          model_id=$(echo "$response" | grep -o '"uid":"[^"]*"' | sed 's/"uid":"\(.*\)"/\1/')
+        fi
+
+        # Check if model_id is empty, indicating failure
+        if [ -z "$model_id" ]; then
+          echo "Error: Failed to upload STL to Sketchfab. Response: $response"
+          exit 1
+        fi
+
         echo "Model uploaded successfully. Model ID: $model_id"
         echo "Model URL: https://sketchfab.com/models/$model_id"
         echo "::set-output name=model_url::https://sketchfab.com/models/$model_id"
