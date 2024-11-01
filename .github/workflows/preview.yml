@@ -47,7 +47,7 @@ jobs:
         SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
       run: |
         # Format the current date and time
-        model_name="pylele2_$(date+'%Y-%m-%d-%H:%M:%S')"
+        model_name="pylele2_$(date +'%Y-%m-%d-%H:%M:%S')"
         curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
             -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
             -F "name=${model_name}" \
