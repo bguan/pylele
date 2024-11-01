@@ -5,32 +5,46 @@
 """
 
 import unittest
+import os
+import csv
+
+from json_tricks import load
+
+from openpyxl import Workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
 from api.pylele_api import test_api, DEFAULT_TEST_DIR
 
-import os
-import csv
-from json_tricks import load
+REPORT_COLS=["subdir_level_1", 
+             "subdir_level_2", 
+             "subdir_level_3",
+             "subdir_level_4",
+             "render_time", 
+             "convex_hull_volume",
+             "bounding_box",
+             "datetime",
+             ]
+REPORT_EXCLUDE={"subdir_level_3":"mock"}
 
-import os
-import csv
-from json_tricks import load
-
-import os
-import csv
-from json_tricks import load
-
-def json_to_csv(directory, output_csv):
+def json_to_csv(directory, output_csv, include_filename=False,
+                filter_out=REPORT_EXCLUDE,
+                column_order=REPORT_COLS):
     """
     Recursively searches for JSON files in the specified directory and its subdirectories,
     extracts data from files with '_rpt.json' in their filename using json-tricks,
     and saves it to a CSV file with separate columns for each subdirectory level.
+    Optionally filters out rows based on specified criteria and orders columns based on a custom list.
 
     Parameters:
     - directory (str): Path to the root directory to search for JSON files.
     - output_csv (str): Path to the output CSV file.
+    - include_filename (bool): If True, includes the filename as a column in the CSV.
+    - filter_out (dict): Dictionary of column-value pairs to filter out from the output.
+    - column_order (list): List of column names specifying the desired order in the output.
     """
     rows = []
     headers = set()
+    filter_out = filter_out or {}
 
     # Walk through the directory structure
     for root, _, files in os.walk(directory):
@@ -58,27 +72,78 @@ def json_to_csv(directory, output_csv):
                         row[col_name] = subdir
                         headers.add(col_name)
                     
-                    # Add filename as a column
-                    # row["filename"] = file
-                    # headers.add("filename")
+                    # Optionally add filename as a column
+                    if include_filename:
+                        row["filename"] = file
+                        headers.add("filename")
+
+                    # Filter out rows based on filter_out criteria
+                    if any(row.get(k) == v for k, v in filter_out.items()):
+                        continue  # Skip this row if it matches filter criteria
                     
                     rows.append(row)
                 
                 except (ValueError, IOError) as e:
                     print(f"Error reading {file_path}: {e}")
 
-    # Sort headers so that subdir columns come first, followed by filename, then JSON keys
-    sorted_headers = sorted([h for h in headers if h.startswith("subdir_level_")])
-    sorted_headers.append("filename")
-    sorted_headers.extend(sorted([h for h in headers if not h.startswith("subdir_level_") and h != "filename"]))
-    
+    # Determine the final order of headers based on column_order
+    if column_order:
+        # Only include columns specified in column_order and present in headers
+        ordered_headers = [col for col in column_order if col in headers]
+    else:
+        # If no column_order specified, include all headers in alphabetical order
+        ordered_headers = sorted(headers)
+
     # Write to CSV file
     with open(output_csv, 'w', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=sorted_headers)
+        writer = csv.DictWriter(csv_file, fieldnames=ordered_headers, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
 
     print(f"Data saved to {output_csv}")
+
+def csv_to_xls(csv_file, xls_file):
+    """
+    Converts a CSV file into an Excel .xlsx file with a table that has default filtering active.
+    
+    Parameters:
+    - csv_file (str): Path to the input CSV file.
+    - xls_file (str): Path to the output Excel file.
+    """
+    # Create a new workbook and active worksheet
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Data"
+
+    # Open the CSV file and read its content
+    with open(csv_file, newline='') as f:
+        reader = csv.reader(f)
+        headers = next(reader)  # Get the headers
+
+        # Write headers
+        ws.append(headers)
+        
+        # Write the rest of the rows
+        for row in reader:
+            ws.append(row)
+
+    # Define the range for the table (including all rows and columns)
+    last_column = chr(64 + len(headers))  # ASCII to column name (e.g., 'A', 'B', ..., 'Z')
+    table_ref = f"A1:{last_column}{ws.max_row}"
+
+    # Create a table with autofiltering enabled
+    table = Table(displayName="TableWithFilter", ref=table_ref)
+    style = TableStyleInfo(
+        name="TableStyleMedium9", showFirstColumn=False,
+        showLastColumn=False, showRowStripes=True, showColumnStripes=True
+    )
+    table.tableStyleInfo = style
+    ws.add_table(table)
+
+    # Save the workbook as an .xlsx file
+    wb.save(xls_file)
+
+    print(f"Data from '{csv_file}' has been saved to '{xls_file}' with default filtering enabled.")
 
 class PyleleTestMethods(unittest.TestCase):
     """Pylele Test Class"""
@@ -168,7 +233,12 @@ class PyleleTestMethods(unittest.TestCase):
     def test_report(self):
         """ Generate Test Report """
         print("# Generate Test Report")
-        json_to_csv(DEFAULT_TEST_DIR, os.path.join(DEFAULT_TEST_DIR,"test_report.csv"))
+
+        basefname = os.path.join(DEFAULT_TEST_DIR,"test_report")
+        csvfname = basefname + '.csv'
+        xlsfname = basefname + '.xlsx'
+        json_to_csv(DEFAULT_TEST_DIR, csvfname)
+        csv_to_xls(csvfname, xlsfname)
 
 if __name__ == "__main__":
     unittest.main()

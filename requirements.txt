@@ -18,3 +18,4 @@ solidpython2
 numpy-stl
 packaging
 json-tricks
+openpyxl
