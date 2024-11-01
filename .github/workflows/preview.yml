@@ -42,22 +42,21 @@ jobs:
         mkdir -p docs
         cp build/LeleAllAssembly/LeleAllAssembly.stl docs/
 
-    #- name: Upload to Sketchfab
-    #  env:
-    #    SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
-    #  run: |
-    #    curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
-    #        -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
-    #        -F "name=pylele2" \
-    #        -F "description=Uploaded via GitHub Actions" \
-    #        -F "tags=model,stl" \
-    #        https://api.sketchfab.com/v3/models
+    - name: Upload to Sketchfab
+      env:
+        SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
+      run: |
+        curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
+            -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
+            -F "name=pylele2" \
+            -F "description=Uploaded via GitHub Actions" \
+            -F "tags=model,stl,python,ukulele,music" \
+            https://api.sketchfab.com/v3/models
 
-    #          model_id=$(echo $response | jq -r '.id')  # Requires 'jq' to parse JSON
-    #      echo "Model uploaded successfully. Model ID: $model_id"
-    #      echo "Model URL: https://sketchfab.com/models/$model_id"
-          
-    #      echo "::set-output name=model_url::https://sketchfab.com/models/$model_id"
+        model_id=$(echo $response | jq -r '.id')  # Requires 'jq' to parse JSON
+        echo "Model uploaded successfully. Model ID: $model_id"
+        echo "Model URL: https://sketchfab.com/models/$model_id"
+        echo "::set-output name=model_url::https://sketchfab.com/models/$model_id"
 
     # - name: Update GitHub Pages HTML
     #  run: |
