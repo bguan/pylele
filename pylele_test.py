@@ -102,10 +102,6 @@ def json_to_csv(directory, output_csv, include_filename=False,
 
     print(f"Data saved to {output_csv}")
 
-import csv
-from openpyxl import Workbook
-from openpyxl.worksheet.table import Table, TableStyleInfo
-
 def csv_to_xls(csv_file, xls_file):
     """
     Converts a CSV file into an Excel .xlsx file with a table that has default filtering active.
