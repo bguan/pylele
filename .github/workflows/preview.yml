@@ -55,22 +55,25 @@ jobs:
             -F "tags=model,stl,python,ukulele,music" \
             https://api.sketchfab.com/v3/models
 
-        # Extract model ID using jq if available, or fallback with grep/sed
-        if command -v jq &> /dev/null; then
-          model_id=$(echo "$response" | jq -r '.uid')
-        else
-          model_id=$(echo "$response" | grep -o '"uid":"[^"]*"' | sed 's/"uid":"\(.*\)"/\1/')
-        fi
+        echo "Sketchfab query response: $response"
+
+        # Extract uri and uid using jq
+        model_uri=$(echo "$response" | jq -r '.uri')
+        model_uid=$(echo "$response" | jq -r '.uid')
+
+        # Output the extracted values
+        echo "Model URI: $model_uri"
+        echo "Model UID: $model_uid"
 
         # Check if model_id is empty, indicating failure
-        if [ -z "$model_id" ]; then
-          echo "Error: Failed to upload STL to Sketchfab. Response: $response"
+        if [ -z "$model_uid" ]; then
+          echo "Error: Failed to upload STL to Sketchfab."
           exit 1
         fi
 
-        echo "Model uploaded successfully. Model ID: $model_id"
-        echo "Model URL: https://sketchfab.com/models/$model_name-$model_id"
-        echo "::set-output name=model_url::https://sketchfab.com/models/$model_name-$model_id"
+        echo "Model uploaded successfully. Model ID: $model_uid"
+        echo "Model URL: https://sketchfab.com/models/$model_name-$model_uid"
+        echo "::set-output name=model_url::https://sketchfab.com/models/$model_name-$model_uid"
 
     # - name: Update GitHub Pages HTML
     #  run: |
