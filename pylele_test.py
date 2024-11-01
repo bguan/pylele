@@ -102,6 +102,10 @@ def json_to_csv(directory, output_csv, include_filename=False,
 
     print(f"Data saved to {output_csv}")
 
+import csv
+from openpyxl import Workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
 def csv_to_xls(csv_file, xls_file):
     """
     Converts a CSV file into an Excel .xlsx file with a table that has default filtering active.
@@ -125,7 +129,18 @@ def csv_to_xls(csv_file, xls_file):
         
         # Write the rest of the rows
         for row in reader:
-            ws.append(row)
+            new_row = []
+            for cell in row:
+                # Try to convert each cell to a number
+                try:
+                    # Convert to float and then to int if no decimal part
+                    numeric_value = float(cell)
+                    cell_value = int(numeric_value) if numeric_value.is_integer() else numeric_value
+                except ValueError:
+                    # If conversion fails, keep it as a string
+                    cell_value = cell
+                new_row.append(cell_value)
+            ws.append(new_row)
 
     # Define the range for the table (including all rows and columns)
     last_column = chr(64 + len(headers))  # ASCII to column name (e.g., 'A', 'B', ..., 'Z')
