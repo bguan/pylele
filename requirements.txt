@@ -17,3 +17,4 @@ fonttools
 solidpython2
 numpy-stl
 packaging
+json-tricks

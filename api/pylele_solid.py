@@ -11,7 +11,7 @@ import importlib
 import platform
 import time
 import trimesh
-import json
+from json_tricks import dumps
 
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -109,7 +109,7 @@ def export_dict2text(outpath, fname, dictdata, fmt='.txt') -> str:
         if fmt=='.txt':
             f.write(repr(dictdata))
         elif fmt=='.json':
-            json.dump(dictdata, f, indent=4)
+            f.write( dumps( dictdata, indent=4 ) )
         else:
             assert fmt in ['.txt','.json'], f'ERROR: export format {fmt} not supported!'
 
@@ -435,6 +435,7 @@ class LeleSolid(ABC):
             outpath=self._make_out_path(),
             fname=self.fileNameBase + "_args",
             dictdata=self.cli,
+            fmt='.json'
         )
 
     def exportSTL(
@@ -494,7 +495,7 @@ class LeleSolid(ABC):
 
         if report_en:
             export_dict2text(
-                outpath=out_path, fname=self.fileNameBase + "_rpt", dictdata=rpt, fmt='.json'
+                outpath=out_path, fname=self.fileNameBase + "_rpt", dictdata=rpt,fmt='.json'
             )
 
         return out_fname

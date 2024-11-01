@@ -5,7 +5,80 @@
 """
 
 import unittest
-from api.pylele_api import test_api
+from api.pylele_api import test_api, DEFAULT_TEST_DIR
+
+import os
+import csv
+from json_tricks import load
+
+import os
+import csv
+from json_tricks import load
+
+import os
+import csv
+from json_tricks import load
+
+def json_to_csv(directory, output_csv):
+    """
+    Recursively searches for JSON files in the specified directory and its subdirectories,
+    extracts data from files with '_rpt.json' in their filename using json-tricks,
+    and saves it to a CSV file with separate columns for each subdirectory level.
+
+    Parameters:
+    - directory (str): Path to the root directory to search for JSON files.
+    - output_csv (str): Path to the output CSV file.
+    """
+    rows = []
+    headers = set()
+
+    # Walk through the directory structure
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith('_rpt.json'):
+                file_path = os.path.join(root, file)
+                try:
+                    # Read JSON data from file using json-tricks
+                    with open(file_path, 'r') as f:
+                        data = load(f)  # Load JSON with json-tricks
+                    
+                    # Extract subdirectory path relative to root directory
+                    subdirectory_path = os.path.relpath(root, directory)
+                    subdirectories = subdirectory_path.split(os.sep)
+                    
+                    # Flatten JSON data to a single row dictionary
+                    row = {}
+                    for key, value in data.items():
+                        row[key] = value
+                        headers.add(key)  # Keep track of all column headers
+
+                    # Add columns for each directory level
+                    for i, subdir in enumerate(subdirectories):
+                        col_name = f"subdir_level_{i + 1}"
+                        row[col_name] = subdir
+                        headers.add(col_name)
+                    
+                    # Add filename as a column
+                    # row["filename"] = file
+                    # headers.add("filename")
+                    
+                    rows.append(row)
+                
+                except (ValueError, IOError) as e:
+                    print(f"Error reading {file_path}: {e}")
+
+    # Sort headers so that subdir columns come first, followed by filename, then JSON keys
+    sorted_headers = sorted([h for h in headers if h.startswith("subdir_level_")])
+    sorted_headers.append("filename")
+    sorted_headers.extend(sorted([h for h in headers if not h.startswith("subdir_level_") and h != "filename"]))
+    
+    # Write to CSV file
+    with open(output_csv, 'w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=sorted_headers)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Data saved to {output_csv}")
 
 class PyleleTestMethods(unittest.TestCase):
     """Pylele Test Class"""
@@ -92,6 +165,10 @@ class PyleleTestMethods(unittest.TestCase):
     )
     from pylele2.pylele_all_assembly import test_all_assembly, test_all_assembly_mock
 
+    def test_report(self):
+        """ Generate Test Report """
+        print("# Generate Test Report")
+        json_to_csv(DEFAULT_TEST_DIR, os.path.join(DEFAULT_TEST_DIR,"test_report.csv"))
 
 if __name__ == "__main__":
     unittest.main()
