@@ -1,0 +1,103 @@
+name: TestUbuntu
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # https://github.com/actions/setup-python/issues/853
+        python-version: ["3.10"]
+        os: [ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    # python packages included in install_dependencies
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: install dependencies
+      run: |
+        chmod +x ./install_dependencies.sh
+        sudo ./install_dependencies.sh
+    #- name: pip configuration report
+    #  run: |
+    #    mkdir test
+    #    pip list > ./test/pip_list.txt
+    #- name: test pylele.sh
+    #  run: |
+    #    source pylele.sh
+    - name: test pylele2.sh
+      run: |
+        source pylele2.sh -odoff
+
+    - name: Copy STL file to GitHub Pages
+      run: |
+        mkdir -p docs
+        cp build/LeleAllAssembly/LeleAllAssembly.stl docs/
+
+    #- name: Upload to Sketchfab
+    #  env:
+    #    SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
+    #  run: |
+    #    curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
+    #        -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
+    #        -F "name=pylele2" \
+    #        -F "description=Uploaded via GitHub Actions" \
+    #        -F "tags=model,stl" \
+    #        https://api.sketchfab.com/v3/models
+
+    #          model_id=$(echo $response | jq -r '.id')  # Requires 'jq' to parse JSON
+    #      echo "Model uploaded successfully. Model ID: $model_id"
+    #      echo "Model URL: https://sketchfab.com/models/$model_id"
+          
+    #      echo "::set-output name=model_url::https://sketchfab.com/models/$model_id"
+
+    # - name: Update GitHub Pages HTML
+    #  run: |
+    #    model_url=${{ steps.upload_sketchfab.outputs.model_url }}
+    #    echo "<!DOCTYPE html>
+    #    <html lang='en'>
+    #    <head>
+    #        <meta charset='UTF-8'>
+    #        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    #        <title>STL Model Preview</title>
+    #    </head>
+    #    <body>
+    #        <h1>STL Model Uploaded</h1>
+    #        <p>View your model on Sketchfab: <a href='$model_url'>$model_url</a></p>
+    #    </body>
+    #    </html>" > docs/index.html
+
+    # - name: Commit and Push Changes
+    #  run: |
+    #    git config --local user.email "you@example.com"
+    #    git config --local user.name "Your Name"
+    #    git add docs/index.html
+    #    git commit -m "Update Sketchfab model link"
+    #    git push
+
+    #- name: upload demo stl
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #      # path depends on the tag and the module name
+    #      name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}
+    #      path: build/LeleAllAssembly/LeleAllAssembly.stl
+    #      # compression-level: 0 # no compression
+    #
+    # - name: convert to glb
+    #  run: |
+    #    python3 ./conversion/stl2glb.py build/LeleAllAssembly/LeleAllAssembly.stl
+    #- name: upload glb
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #      # path depends on the tag and the module name
+    #      name: pylele_glb_out_${{ matrix.python-version }}_${{ matrix.os }}
+    #      path: build/LeleAllAssembly/LeleAllAssembly.glb
+    #      # compression-level: 0 # no compression
