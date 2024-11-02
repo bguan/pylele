@@ -62,3 +62,17 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
+
+    - name: Authenticate gdrive with service account
+      env:
+        GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+      run: |
+        echo "$GDRIVE_CREDENTIALS" > /tmp/credentials.json
+        gdrive about --service-account /tmp/credentials.json
+
+    - name: Upload folder to Google Drive
+      env:
+        GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+      run: |
+        # Replace FOLDER_ID with your Google Drive folder ID
+        gdrive upload -r --service-account /tmp/credentials.json --parent 1Ux3JPjgB9OOe-KMSFba3wrQu6IDjOamy test    
