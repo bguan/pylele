@@ -15,11 +15,6 @@ from api.pylele_utils import degrees
 from api.pylele_solid import test_loop, main_maker, FIT_TOL, FILLET_RAD, Implementation
 from pylele2.pylele_base import LeleBase
 
-# include <BOSL2/std.scad>
-# include <BOSL2/rounding.scad>
-from solid2 import polygon
-from solid2.extensions.bosl2.rounding import convex_offset_extrude, os_circle
-
 class LeleFretboard(LeleBase):
     """Pylele Fretboard Generator class"""
 
@@ -57,20 +52,12 @@ class LeleFretboard(LeleBase):
                 fretbd = fretbd.filletByNearestEdges([(fbTck/2,0,fbTck/2)], fbTck / 2)
 
                 ## fillet the start of the fretboard
-                fretbd = fretbd.filletByNearestEdges([(fbLen, 0, fbHt)], FILLET_RAD)
+                fretbd = fretbd.filletByNearestEdges([(fbLen, 0, fbHt)], fbTck/2)
 
                 ## fillet the fretboard sides
                 fretbd = fretbd.filletByNearestEdges([( fbLen/2, fbWth/2, fbHt/2)],fbTck/2)
                 fretbd = fretbd.filletByNearestEdges([( fbLen/2, -fbWth/2, fbHt/2)],fbTck/2)
 
-            elif self.cli.implementation == Implementation.SOLID2:
-
-                fretbd_solid =  convex_offset_extrude(
-                      top=os_circle(r=fbTck/2), height=fbHt, steps=10
-                      )(polygon(path))
-                
-                fretbd = self.api.genShape(solid=fretbd_solid)
-   
             else:
                 extra_len = 10
 
@@ -80,7 +67,7 @@ class LeleFretboard(LeleBase):
                     .mv(fbTck/2,0,fbTck/2)
 
                 ## fillet the start of the fretboard
-                fretbd -= self.api.gen_rounded_edge_mask(direction='y',l=fbWth+extra_len,rad=FILLET_RAD,rot=0)\
+                fretbd -= self.api.gen_rounded_edge_mask(direction='y',l=fbWth+extra_len,rad=fbTck/2,rot=0)\
                     .mv(fbLen-FILLET_RAD,0,fbHt-FILLET_RAD)
                 
                 ## fillet the fretboard sides
@@ -109,7 +96,10 @@ def main(args=None):
 
 def test_fretboard(self, apis=None):
     """Test Fretboard"""
-    tests = {"cut": ["-C", "-refv", "62360"]}
+    tests = {
+        "default":[],
+        "cut": ["-C", "-refv", "62360"]
+        }
     test_loop(module=__name__, tests=tests, apis=apis)
 
 
