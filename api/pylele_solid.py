@@ -150,7 +150,9 @@ def stl_check_volume(
         # mesh.show() does not work
         rpt["volume"] = mesh.volume
         rpt["convex_hull_volume"] = mesh.convex_hull.volume
-        rpt["bounding_box"] = mesh.bounding_box.extents
+        rpt["bounding_box_x"] = mesh.bounding_box.extents[0]
+        rpt["bounding_box_y"] = mesh.bounding_box.extents[1]
+        rpt["bounding_box_z"] = mesh.bounding_box.extents[2]
 
         assert volume_match_reference(
             volume=mesh.volume,

@@ -15,18 +15,21 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from api.pylele_api import test_api, DEFAULT_TEST_DIR
 
-REPORT_COLS=["subdir_level_1", 
+REPORT_COLS=["subdir_level_1",
              "subdir_level_2", 
              "subdir_level_3",
              "subdir_level_4",
+             "filename",
              "render_time", 
              "convex_hull_volume",
-             "bounding_box",
+             "bounding_box_x",
+             "bounding_box_y",
+             "bounding_box_z",
              "datetime",
              ]
 REPORT_EXCLUDE={"subdir_level_3":"mock"}
 
-def json_to_csv(directory, output_csv, include_filename=False,
+def json_to_csv(directory, output_csv, include_filename=True,
                 filter_out=REPORT_EXCLUDE,
                 column_order=REPORT_COLS):
     """
