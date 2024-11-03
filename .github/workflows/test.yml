@@ -40,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}
+          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_$(date +'%Y-%m-%d-%Hh%Mm%Ss')
           path: build/LeleAllAssembly/LeleAllAssembly.stl
           # compression-level: 0 # no compression
     # - name: convert to glb
@@ -60,7 +60,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}
+          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_$(date +'%Y-%m-%d-%Hh%Mm%Ss')
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
 
     # - name: Authenticate gdrive with service account
