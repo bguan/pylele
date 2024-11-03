@@ -56,13 +56,13 @@ jobs:
             -F "description=Uploaded via GitHub Actions on $(date +'%Y-%m-%d at %H:%M:%S')" \
             -F "tags=model,stl,python,ukulele,music" \
             -F "color=red" \  # Set a color for the model
-            -F "settings[autorotate]=true" \  # Enable autorotation
-            -F "settings[defaultView]=0" \  # Set default view angle (0 = front view)
-            -F "settings[showAnnotations]=true" \  # Show annotations if any
-            -F "settings[showEnvironment]=true" \  # Show environment lighting
             https://api.sketchfab.com/v3/models)
             
             # -F "texture=@path/to/your/texture.jpg" \  # Path to your texture file
+            # -F "settings[autorotate]=true" \  # Enable autorotation
+            # -F "settings[defaultView]=0" \  # Set default view angle (0 = front view)
+            # -F "settings[showAnnotations]=true" \  # Show annotations if any
+            # -F "settings[showEnvironment]=true" \  # Show environment lighting
 
         echo "Sketchfab query response: $response"
 
