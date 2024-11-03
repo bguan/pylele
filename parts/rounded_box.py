@@ -25,7 +25,7 @@ class RoundedBox(LeleSolid):
 
     def gen_cadquery(self) -> Shape:
         """ cadquery implementation """
-        assert self.cli.implementation in [Implementation.CAD_QUERY]
+        # assert self.cli.implementation in [Implementation.CAD_QUERY]
 
         # Main cube
         box = self.api.genBox(self.cli.x,
@@ -44,8 +44,6 @@ class RoundedBox(LeleSolid):
 
     def gen_solidpython(self) -> Shape:
         """ solidpython implementation """
-        assert self.cli.implementation in [Implementation.SOLID2]
-        fn = self.api.fidelity.smoothingSegments()*4
 
         xcoords,ycoords,zcoords = self._coords()
 
@@ -54,14 +52,14 @@ class RoundedBox(LeleSolid):
         for x in xcoords:
             for y in ycoords:
                 for z in zcoords:
-                    corner = sphere(self.cli.r, _fn=fn).translate(x,y,z)
+                    corner = self.api.genBall(self.cli.r).mv(x,y,z)
                     if box is None:
                         box = corner
                     else:
                         box += corner
         
         # hull from the corners
-        return self.api.genShape( box.hull() )
+        return box.hull()
 
     def gen_default(self) -> Shape:
         """ default implementation """
@@ -120,9 +118,9 @@ class RoundedBox(LeleSolid):
     def gen(self) -> Shape:
         """ generate rounded box """
         
-        if self.cli.implementation == Implementation.CAD_QUERY:
+        if self.cli.implementation in [Implementation.CAD_QUERY, Implementation.BLENDER]:
             return self.gen_cadquery()
-        elif self.cli.implementation == Implementation.SOLID2:
+        elif self.cli.implementation in [ Implementation.SOLID2, Implementation.TRIMESH ]:
             return self.gen_solidpython()
         else:
             return self.gen_default()

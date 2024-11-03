@@ -192,6 +192,10 @@ class Sp2Shape(Shape):
         self.solid = self.solid.scale([x, y, z])
         return self
 
+    def hull(self) -> Sp2Shape:
+        self.solid = self.solid.hull()
+        return self
+
     def show(self):
         return self.solid
 
