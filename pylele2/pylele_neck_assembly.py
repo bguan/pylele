@@ -13,7 +13,6 @@ from api.pylele_api import Shape
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_config import LeleBodyType
 from pylele2.pylele_base import LeleBase
-from pylele2.pylele_fretboard import LeleFretboard
 from pylele2.pylele_fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
@@ -25,9 +24,7 @@ from pylele2.pylele_head import LeleHead
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_neck import LeleNeck
 from pylele2.pylele_neck_bend import LeleNeckBend
-from pylele2.pylele_nut import LeleNut
 from pylele2.pylele_spines import LeleSpines
-from pylele2.pylele_strings import LeleStrings
 
 
 class LeleNeckAssembly(LeleBase):
@@ -44,15 +41,21 @@ class LeleNeckAssembly(LeleBase):
         ## Head
         neck += LeleHead(cli=self.cli).mv(jcTol,0,0)
 
-        ## Fretboard
-        fretbd = LeleFretboardAssembly(cli=self.cli)
-        if self.cli.separate_fretboard:
-            neck -= LeleFretboard(cli=self.cli, isCut=True)\
-                .mv(0, 0, -jcTol)
-            self.add_part(fretbd)
-        elif not self.cli.separate_top:
-            # if not self.cli.separate_top:
-            neck += fretbd.mv(0, 0, -jcTol)
+        ## Fretboard, only part of neck assembly if separate fretboard or separate neck
+        ## if only separate top, fretboard is joined to top!
+        if (self.cli.separate_fretboard or self.cli.separate_neck or not self.cli.separate_top):
+            fretbd = LeleFretboardAssembly(cli=self.cli)
+            fretbd.gen_full()
+            if self.cli.separate_fretboard:
+                self.add_part(fretbd)
+            else:
+                neck += fretbd.mv(max(0.01, jcTol), 0, -jcTol) # HACK cadquery bug needs this
+                self.add_parts(fretbd.get_parts())
+
+        ## Fretboard Spines, needed as fbspines in Fretboard assembly and not in Fretboad
+        if (self.cli.separate_fretboard or self.cli.separate_top) \
+            and self.cli.num_spines > 0:
+            neck -= LeleFretboardSpines(cli=self.cli, isCut=True)
 
         ## Neck Joint
         if self.cli.separate_neck:
@@ -60,7 +63,7 @@ class LeleNeckAssembly(LeleBase):
 
         ## Spines
         if self.cli.num_spines > 0:
-            neck -= LeleSpines(cli=self.cli, isCut=True) #.mv(0, 0, -jcTol)
+            neck -= LeleSpines(cli=self.cli, isCut=True)
 
         ## Neck Bend
         if self.cli.body_type in [
@@ -69,14 +72,6 @@ class LeleNeckAssembly(LeleBase):
             LeleBodyType.TRAVEL
         ]:
             neck += LeleNeckBend(cli=self.cli)
-
-        ## Fretboard Spines
-        if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) \
-            and self.cli.num_spines > 0:
-            neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -jcTol) # HACK?
-
-        fretbd.gen_full()
-        self.add_parts(fretbd.get_parts())
 
         return neck.gen_full()
 

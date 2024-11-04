@@ -45,24 +45,20 @@ class LeleFretboard(LeleBase):
             )
             fretbd -= topCut
 
+            frad = fbTck / 2
             ## fillet the end of the fretboard
             fretbd -= self.api.gen_rounded_edge_mask(
-                direction="y", l=fbWth, rad=fbTck / 2, rot=270
+                direction="y", l=fbWth, rad=frad, rot=270
             ).mv(fbTck / 2, 0, fbTck / 2)
-
-            ## fillet the start of the fretboard
-            fretbd -= self.api.gen_rounded_edge_mask(
-                direction="y", l=fbWth, rad=FILLET_RAD, rot=0
-            ).mv(fbLen - FILLET_RAD, 0, fbHt - FILLET_RAD)
 
             ## fillet the fretboard sides
             fretbd -= (
                 self.api.gen_rounded_edge_mask(
-                    direction="x", l=fbLen, rad=fbTck / 2, rot=0
+                    direction="x", l=fbLen, rad=frad, rot=0
                 )
                 .rotateY(-riseAng)
                 .rotateZ(wide_angle)
-                .mv(fbLen / 2, fbWth / 2 - fbTck - fbTck / 2, fbHt / 2)
+                .mv(fbLen / 2, fbWth / 2 - fbTck - frad, fbHt / 2)
             )
 
             ## fillet the fretboard sides
@@ -74,6 +70,12 @@ class LeleFretboard(LeleBase):
                 .rotateZ(-wide_angle)
                 .mv(fbLen / 2, -fbWth / 2 + fbTck + fbTck / 2, fbHt / 2)
             )
+
+            ## fillet the start of the fretboard
+            # length of fillet edge needs to be a little longer to go beyond the sides
+            fretbd -= self.api.gen_rounded_edge_mask(
+                direction="y", l=1.1 * fbWth, rad=frad, rot=0  # FILLET_RAD
+            ).mv(fbLen - frad, 0, fbHt - frad)
 
         return fretbd
 

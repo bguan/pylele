@@ -83,7 +83,7 @@ class LeleFretboardAssembly(LeleBase):
             fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
             fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
 
-        if self.cli.separate_fretboard or self.cli.separate_top and self.cli.num_spines > 0:
+        if (self.cli.separate_fretboard or self.cli.separate_top) and self.cli.num_spines > 0:
             fretbd += LeleFretboardSpines(cli=self.cli).mv(0, 0, jcTol)
 
         return fretbd.gen_full()

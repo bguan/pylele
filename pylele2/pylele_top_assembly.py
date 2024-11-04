@@ -10,10 +10,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import Shape
-from api.pylele_api_constants import FILLET_RAD
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_config import LeleBodyType
-from pylele_config_common import LeleScaleEnum, TunerType, WormConfig
+from pylele_config_common import LeleScaleEnum
 from pylele2.pylele_base import LeleBase
 from pylele2.pylele_bridge import LeleBridge, pylele_bridge_parser
 from pylele2.pylele_guide import LeleGuide
@@ -29,8 +28,6 @@ from pylele2.pylele_fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
 )
-
-from pylele2.pylele_strings import LeleStrings
 from pylele2.pylele_worm_key import LeleWormKey
 
 class LeleTopAssembly(LeleBase):
@@ -67,9 +64,12 @@ class LeleTopAssembly(LeleBase):
         if self.cli.separate_top and self.cli.body_type in [LeleBodyType.GOURD]:
             top += LeleRim(cli=self.cli, isCut=False)
 
-        if not self.cli.separate_fretboard and not self.cli.separate_neck:
-            # HACK mv needed for Cadquery sometimes
-            top += LeleFretboardAssembly(cli=self.cli, isCut=False).mv(0.01, 0, 0)
+        if self.cli.separate_top and not self.cli.separate_fretboard and not self.cli.separate_neck:
+            fretbd = LeleFretboardAssembly(cli=self.cli)
+            fretbd.gen_full()
+            top += fretbd.mv(max(0.01, jcTol), 0, 0) # HACK cadquery bug needs this
+            if fretbd.has_parts():
+                self.add_parts(top.parts)
 
         if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
             top -= LeleChamber(cli=self.cli,isCut=True)

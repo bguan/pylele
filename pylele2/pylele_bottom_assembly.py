@@ -58,7 +58,7 @@ class LeleBottomAssembly(LeleBase):
 
         ## Neck
         if not self.cli.separate_neck:
-            body += LeleNeckAssembly(cli=self.cli, isCut=False).mv(0, 0, 2*jcTol) # HACK
+            body += LeleNeckAssembly(cli=self.cli, isCut=False).mv(jcTol, 0, 0)
 
         ## Neck Joint
         if self.cli.separate_neck:
@@ -76,7 +76,7 @@ class LeleBottomAssembly(LeleBase):
             body -= tuners
 
         ## Tail
-        # if TunerType[self.cli.tuner_type].value.is_worm(): Actually its possible to have non worm ends
+        # if TunerType[self.cli.tuner_type].value.is_worm(): not ideal for non worm but possible
         if self.cli.separate_end:
             body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             tail = LeleTail(cli=self.cli)
@@ -125,7 +125,7 @@ def test_bottom_assembly(self, apis=None):
 
     test_body = {}
     for body in list(LeleBodyType):
-        test_body[body] = ["-bt", body]
+        test_body[body] = ["-bt", body, "-t", "worm", "-e", "80"]
 
     test_loop(module=__name__, apis=apis, tests=tests | test_body)
 

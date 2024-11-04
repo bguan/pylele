@@ -55,16 +55,6 @@ class LeleAllAssembly(LeleBase):
             if top.has_parts():
                 self.add_parts(top.parts)
 
-        ## Neck
-        neck = LeleNeckAssembly(cli=self.cli).mv(-jcTol, 0, 0)
-        neck.gen_full()
-        if self.cli.separate_neck:
-            self.add_part(neck)
-        else:
-            body += neck.mv(jcTol, 0, 0)
-            if neck.has_parts():
-                self.add_parts(neck.parts)
-
         return body.gen_full()
 
     def gen_parser(self,parser=None):
