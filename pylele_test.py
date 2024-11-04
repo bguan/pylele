@@ -255,4 +255,13 @@ class PyleleTestMethods(unittest.TestCase):
         csv_to_xls(csvfname, xlsfname)
 
 if __name__ == "__main__":
-    unittest.main()
+    if False:
+        unittest.main()
+    elif False:
+        with open("test_report.txt", "w") as f:
+            runner = unittest.TextTestRunner(stream=f, verbosity=2)
+            unittest.main(testRunner=runner)
+    else:
+        from HtmlTestRunner import HTMLTestRunner
+        unittest.main(testRunner=HTMLTestRunner(output=DEFAULT_TEST_DIR))
+
