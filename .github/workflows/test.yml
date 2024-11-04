@@ -30,18 +30,20 @@ jobs:
       run: |
         mkdir test
         pip list > ./test/pip_list.txt
+    - name: Generate timestamp
+      id: timestamp
+      run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
     - name: test pylele.sh
       run: |
         source pylele.sh
     - name: test pylele2.sh
       run: |
         source pylele2.sh -odoff
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
     - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ steps.build.outputs.timestamp }}
+          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: build/LeleAllAssembly/LeleAllAssembly.stl
           # compression-level: 0 # no compression
     # - name: convert to glb
@@ -57,12 +59,12 @@ jobs:
     - name: test
       run: |
         python ./pylele_test.py
-        TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+      continue-on-error: true
     - name: upload test output
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ steps.build.outputs.timestamp }})
+          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
 
     # - name: Authenticate gdrive with service account
