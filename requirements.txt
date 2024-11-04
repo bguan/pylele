@@ -19,4 +19,4 @@ numpy-stl
 packaging
 json-tricks
 openpyxl
-html-testRunner
+# html-testRunner

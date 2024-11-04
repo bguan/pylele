@@ -14,12 +14,14 @@ from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from api.pylele_api import test_api, DEFAULT_TEST_DIR
+from api.pylele_utils import make_or_exist_path
 
 REPORT_COLS=["subdir_level_1",
              "subdir_level_2", 
              "subdir_level_3",
              "subdir_level_4",
              "filename",
+             "pass",
              "render_time", 
              "convex_hull_volume",
              "bounding_box_x",
@@ -246,7 +248,7 @@ class PyleleTestMethods(unittest.TestCase):
 
     def test_report(self):
         """ Generate Test Report """
-        print("# Generate Test Report")
+        print("# Generate .xlsx Test Report")
 
         basefname = os.path.join(DEFAULT_TEST_DIR,"test_report")
         csvfname = basefname + '.csv'
@@ -254,14 +256,20 @@ class PyleleTestMethods(unittest.TestCase):
         json_to_csv(DEFAULT_TEST_DIR, csvfname)
         csv_to_xls(csvfname, xlsfname)
 
-if __name__ == "__main__":
+def test_main():
     if False:
+        # simplest
         unittest.main()
-    elif False:
-        with open("test_report.txt", "w") as f:
-            runner = unittest.TextTestRunner(stream=f, verbosity=2)
+    elif True:
+        # text test report
+        make_or_exist_path(DEFAULT_TEST_DIR)
+        with open(os.path.join(DEFAULT_TEST_DIR,"test_log.txt"), "w") as f:
+            runner = unittest.TextTestRunner(stream=f, verbosity=3)
             unittest.main(testRunner=runner)
     else:
+        # html test report
         from HtmlTestRunner import HTMLTestRunner
         unittest.main(testRunner=HTMLTestRunner(output=DEFAULT_TEST_DIR))
 
+if __name__ == "__main__":
+    test_main()
