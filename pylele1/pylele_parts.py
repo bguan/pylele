@@ -719,10 +719,12 @@ class Worm(LelePart):
         super().__init__(cfg, isCut, color)
 
         cutAdj = FIT_TOL if isCut else 0
-        wcfg: WormConfig = cfg.tnrCfg
         joinTol = cfg.joinCutTol
+        wcfg: WormConfig = cfg.tnrCfg
+        (front, _, _, _, _, _) = wcfg.dims()
         sltLen = wcfg.slitLen
         sltWth = wcfg.slitWth
+        sltHt = wcfg.slitHt
         drvRad = wcfg.driveRad + cutAdj
         dskRad = wcfg.diskRad + cutAdj
         dskTck = wcfg.diskTck + 2 * cutAdj
@@ -763,9 +765,13 @@ class Worm(LelePart):
         worm = axl.join(dsk).join(drv)
 
         if isCut:
-            slit = cfg.api().genBox(sltLen, sltWth, 100).mv(0, 0, 50 - 2 * axlRad)
-            worm = worm.join(slit)
+            slit = cfg.api().genBox(sltLen, sltWth, sltHt)\
+                .mv(0, 0, sltHt/2 - 2*axlRad)
+            slope = cfg.api().genPolyRodY(sltWth, sltWth * 2, 4)\
+                .mv(-sltLen/2, 0, sltHt - 2*axlRad)
+            worm = worm.join(slit.join(slope))
 
+        worm = worm.mv(wcfg.tailAdj, 0, 0)
         self.shape = worm
 
 
@@ -791,6 +797,7 @@ class WormKey(LelePart):
         kbRad = wcfg.buttonKeybaseRad + cutAdj
         kyRad = wcfg.buttonKeyRad + cutAdj
         kyLen = wcfg.buttonKeyLen + 2 * cutAdj
+        gapAdj = wcfg.gapAdj
 
         key = (
             cfg.api()
@@ -823,7 +830,7 @@ class WormKey(LelePart):
         btn = btn.join(base).join(key)
         maxTnrY = max([y for _, y, _ in txyzs])
 
-        self.shape = btn.mv(tailX - joinTol, maxTnrY + btnTck, -1 - btnWth / 2)
+        self.shape = btn.mv(tailX - joinTol, maxTnrY + btnTck + gapAdj/2, -1 - btnWth / 2)
 
 
 class Tuners(LelePart):

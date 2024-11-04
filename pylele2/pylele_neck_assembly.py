@@ -36,31 +36,31 @@ class LeleNeckAssembly(LeleBase):
     def gen(self) -> Shape:
         """Generate Neck Assembly"""
 
-        jtol = self.api.getJoinCutTol()
+        jcTol = self.api.getJoinCutTol()
 
         ## Neck
         neck = LeleNeck(cli=self.cli)
 
         ## Head
-        neck += LeleHead(cli=self.cli).mv(jtol,0,0)
+        neck += LeleHead(cli=self.cli).mv(jcTol,0,0)
 
         ## Fretboard
         fretbd = LeleFretboardAssembly(cli=self.cli)
         if self.cli.separate_fretboard:
             neck -= LeleFretboard(cli=self.cli, isCut=True)\
-                .mv(0, 0, -jtol)
+                .mv(0, 0, -jcTol)
             self.add_part(fretbd)
-        else:
+        elif not self.cli.separate_top:
             # if not self.cli.separate_top:
-            neck += fretbd
+            neck += fretbd.mv(0, 0, -jcTol)
 
-        ## Neck Join
+        ## Neck Joint
         if self.cli.separate_neck:
-            neck += LeleNeckJoint(cli=self.cli, isCut=False).mv(0, 0, -self.api.getJoinCutTol())
+            neck += LeleNeckJoint(cli=self.cli, isCut=False).mv(0, 0, -jcTol)
 
         ## Spines
         if self.cli.num_spines > 0:
-            neck -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
+            neck -= LeleSpines(cli=self.cli, isCut=True) #.mv(0, 0, -jcTol)
 
         ## Neck Bend
         if self.cli.body_type in [
@@ -71,14 +71,15 @@ class LeleNeckAssembly(LeleBase):
             neck += LeleNeckBend(cli=self.cli)
 
         ## Fretboard Spines
-        if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) and self.cli.num_spines > 0:
-            neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
+        if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) \
+            and self.cli.num_spines > 0:
+            neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -jcTol) # HACK?
 
         fretbd.gen_full()
         self.add_parts(fretbd.get_parts())
 
         return neck.gen_full()
-    
+
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface

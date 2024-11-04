@@ -14,10 +14,8 @@ from api.pylele_api import Shape
 from api.pylele_api_constants import FIT_TOL
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_base import LeleBase
-from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
-from pylele2.pylele_rim import LeleRim
-from pylele2.pylele_spines import LeleSpines
-from pylele2.pylele_tuners import LeleTuners, pylele_worm_parser
+from pylele2.pylele_chamber import pylele_chamber_parser
+from pylele2.pylele_tuners import pylele_worm_parser
 from pylele2.pylele_config import WORM, BIGWORM, LeleBodyType
 
 
@@ -29,8 +27,8 @@ class LeleTail(LeleBase):
         assert self.cli.separate_end or self.cli.body_type == LeleBodyType.HOLLOW
 
         cfg = self.cfg
-        joinTol = self.api.getJoinCutTol()  # cfg.joinCutTol
-        cutAdj = (FIT_TOL + 2 * joinTol) if self.isCut else 0
+        jcTol = self.api.getJoinCutTol()
+        cutAdj = (FIT_TOL + 2 * jcTol) if self.isCut else 0
 
         # this assertion should be verified
         assert (
@@ -46,7 +44,7 @@ class LeleTail(LeleBase):
         endWth = self.cli.end_flat_width + 2 * cutAdj
         botRat = cfg.BOT_RATIO
         rimWth = cfg.rimWth+ 2*cutAdj
-        
+
         ## flat middle section
         if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
             midBotTck = self.cli.flat_body_thickness
@@ -58,9 +56,9 @@ class LeleTail(LeleBase):
                 .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
             inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
-            tail = extTop + inrTop
+            tail = extTop + inrTop.mv(jcTol, 0, 0)
 
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW,LeleBodyType.TRAVEL]:
+        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
             # flat bodies do not have rounded bottom
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
                 tail = tail.mv(5,0,0) # for whatever reason...
@@ -72,16 +70,9 @@ class LeleTail(LeleBase):
             inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth)\
                 .scale(1, 1, botRat)\
                 .mv(tailX - rimWth -tailLen, 0, -midBotTck)
-            tail += extBot + inrBot
+            tail += extBot + inrBot.mv(jcTol, 0, 0)
             # remove upper section of the rounde bodies
             tail -= self.api.genBox(2000, 2000, 2000).mv(0,0,1000)
-
-        # Tuners
-        tuners_cut=LeleTuners(cli=self.cli,isCut=True).gen_full()
-        if self.isCut:
-            tail += tuners_cut
-        else:
-            tail -= tuners_cut
 
         return tail
 

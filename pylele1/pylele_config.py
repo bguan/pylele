@@ -233,12 +233,12 @@ class LeleConfig:
         self.bodyCutPath = genBodyPath(isCut=True)
 
         # Soundhole Config
-        self.sndholeX = scaleLen - 0.5 * self.chmFront
-        self.sndholeY = -(self.chmWth - self.fretbdWth) / 2
         self.sndholeMaxRad = self.chmFront / 3
         self.sndholeMinRad = self.sndholeMaxRad / 4
+        self.sndholeX = scaleLen - 0.5 * self.chmFront
+        self.sndholeY = -(self.chmWth/2 - 2.7*self.sndholeMinRad) # not too close to edge
         self.sndholeAng = degrees(
-            atan(2 * self.bodyFrontLen / (self.chmWth - self.neckWth))
+            atan(2 * self.chmFront / (self.chmWth - self.neckWth))
         )
 
         # Bridge configs

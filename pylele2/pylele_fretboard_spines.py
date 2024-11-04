@@ -38,7 +38,6 @@ class LeleFretboardSpines(LeleBase):
         for y_spine in self.cfg.spineY:
             spine = self.api.genBox(fspLen, spWth, fspTck)
             spine <<= (fspX + fspLen/2 - 2*cutAdj, y_spine, -fspTck/2)
-            
             shape = spine + shape
 
         return shape

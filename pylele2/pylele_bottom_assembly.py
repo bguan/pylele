@@ -25,6 +25,7 @@ from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
 from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
+from pylele2.pylele_neck_assembly import LeleNeckAssembly
 from pylele2.pylele_worm import pylele_worm_parser
 
 
@@ -33,7 +34,9 @@ class LeleBottomAssembly(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Body Bottom Assembly """
-       
+
+        jcTol = self.api.getJoinCutTol()
+
         ## Body
         body = LeleBody(cli=self.cli)
 
@@ -42,38 +45,53 @@ class LeleBottomAssembly(LeleBase):
             body -= LeleTexts(cli=self.cli, isCut=True)
 
         ## Chamber
+        chamber = None
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
-            body -= LeleChamber(cli=self.cli, isCut=True)
+            chamber = LeleChamber(cli=self.cli, isCut=True)
+            body -= chamber
 
         ## Spines
+        spines = None
         if self.cli.num_strings > 1:
-            body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
+            spines = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
+            body -= spines
+
+        ## Neck
+        if not self.cli.separate_neck:
+            body += LeleNeckAssembly(cli=self.cli, isCut=False).mv(0, 0, 2*jcTol) # HACK
 
         ## Neck Joint
         if self.cli.separate_neck:
-            body -= LeleNeckJoint(cli=self.cli, isCut=True)\
-                .mv(-self.api.getJoinCutTol(), 0, self.api.getJoinCutTol())
+            body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
 
         ## Fretboard Spines
         if (self.cli.separate_fretboard or
             self.cli.separate_neck or
             self.cli.separate_top) and self.cli.num_spines > 0:
-            body -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
-            
+            body -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(2*FIT_TOL, 0, 0)
+
         ## Tuners
+        tuners = LeleTuners(cli=self.cli, isCut=True)
         if not self.cli.separate_end:
-            body -= LeleTuners(cli=self.cli, isCut=True)
-           
+            body -= tuners
+
         ## Tail
-        if TunerType[self.cli.tuner_type].value.is_worm():
-            if self.cli.separate_end:
-                body -= LeleTail(cli=self.cli, isCut=True)
-            elif self.cli.body_type in [LeleBodyType.HOLLOW]:
-                # join tail to body if flat hollow and not separate end
-                body += LeleTail(cli=self.cli)
+        # if TunerType[self.cli.tuner_type].value.is_worm(): Actually its possible to have non worm ends
+        if self.cli.separate_end:
+            body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
+            tail = LeleTail(cli=self.cli)
+            tail -= tuners
+            if spines is not None:
+                tail -= spines
+            if chamber is not None:
+                tail -= chamber
+            self.add_part(tail)
+        elif self.cli.body_type in [LeleBodyType.HOLLOW]:
+            # join tail to body if flat hollow and not separate end
+            body += LeleTail(cli=self.cli)
 
         return body.gen_full()
-    
+
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface

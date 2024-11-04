@@ -114,23 +114,23 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         top = top.join(fretbd)
 
     # problematic edge selection?
-    top = top.filletByNearestEdges(
-        [
-            (cfg.sndholeX, cfg.sndholeY, cfg.brdgZ),
-            (cfg.sndholeX, cfg.sndholeY, 0),
-        ],
-        FILLET_RAD,
-    )
+    # top = top.filletByNearestEdges(
+    #     [
+    #         (cfg.sndholeX, cfg.sndholeY, cfg.brdgZ),
+    #         (cfg.sndholeX, cfg.sndholeY, 0),
+    #     ],
+    #     FILLET_RAD,
+    # )
 
-    if cfg.tnrCfg.is_worm():
-        wcfg: WormConfig = cfg.tnrCfg
-        top = top.filletByNearestEdges(
-            [
-                (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.strHt())
-                for xyz in cfg.tnrXYZs
-            ],
-            wcfg.slitWth,
-        )
+    # if cfg.tnrCfg.is_worm():
+    #     wcfg: WormConfig = cfg.tnrCfg
+    #     top = top.filletByNearestEdges(
+    #         [
+    #             (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.strHt())
+    #             for xyz in cfg.tnrXYZs
+    #         ],
+    #         wcfg.slitWth,
+    #     )
 
     # gen body bottom
     body = Body(cfg)

@@ -70,7 +70,7 @@ class LeleChamber(LeleBase):
             print("# WARNING overriding chamber values for dev!!!")
             lift = 1
             rotY = 0.5
-        joinTol = self.api.getJoinCutTol()
+        jcTol = self.api.getJoinCutTol()
         rad = self.cfg.chmWth / 2
         frontRat = self.cfg.chmFront / rad
         backRat = self.cfg.chmBack / rad
@@ -82,21 +82,23 @@ class LeleChamber(LeleBase):
             chm_back = chm_front + self.cfg.chmFront - 2 * rad - self.cfg.brdgLen
 
             chm = self.gen_extruded_oval(chm_front, chm_back, 2 * rad, chm_thickness)
-            chm = chm.mv(joinTol, 0, -self.cli.flat_body_thickness / 2)
+            chm = chm.mv(jcTol, 0, -self.cli.flat_body_thickness / 2)
 
         else:
             topFront = (
                 self.api.genQuarterBall(rad, True, True)
                 .scale(frontRat, 1, topChmRat)
-                .mv(joinTol, 0, 0)
+                .mv(jcTol, 0, -jcTol)
             )
-            topBack = self.api.genQuarterBall(rad, True, False).scale(
-                backRat, 1, topChmRat
+            topBack = (
+                self.api.genQuarterBall(rad, True, False)
+                .scale(backRat, 1, topChmRat)
+                .mv(0, 0, -jcTol)
             )
             botFront = (
                 self.api.genQuarterBall(rad, False, True)
                 .scale(frontRat, 1, botRat)
-                .mv(joinTol, 0, 0)
+                .mv(jcTol, 0, 0)
             )
             botBack = self.api.genQuarterBall(rad, False, False).scale(
                 backRat, 1, botRat

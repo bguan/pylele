@@ -52,7 +52,9 @@ class LeleFretboardAssembly(LeleBase):
 
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
-        
+
+        jcTol = self.api.getJoinCutTol()
+
         fretbd = LeleFretboard( cli=self.cli )
 
         ## dots
@@ -78,13 +80,14 @@ class LeleFretboardAssembly(LeleBase):
             fretbd += nut
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
-            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -self.api.getJoinCutTol())
-            fretbd += LeleFretboardJoint(cli=self.cli)
-            if self.cli.num_spines > 0:
-                fretbd += LeleFretboardSpines(cli=self.cli)
-        
+            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
+            fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
+
+        if self.cli.separate_fretboard or self.cli.separate_top and self.cli.num_spines > 0:
+            fretbd += LeleFretboardSpines(cli=self.cli).mv(0, 0, jcTol)
+
         return fretbd.gen_full()
-    
+
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface

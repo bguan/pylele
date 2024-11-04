@@ -32,7 +32,7 @@ CONFIGURATIONS = {
         'worm'           : WORM, # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25']
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL, '-wt', '25']
     }
 
 class AttrDict(dict):
@@ -90,7 +90,7 @@ def pylele_config_parser(parser = None):
 
     ## Chamber config options ###########################################
 
-    parser.add_argument("-w", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
+    parser.add_argument("-wt", "--wall_thickness", help="Chamber Wall Thickness [mm], default 4",
                         type=float, default=4)
 
     ## Non-Numeric config options #######################################
@@ -172,15 +172,15 @@ class LeleConfig:
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
-        
+
         cfg.sndholeMaxRad = self.chmFront/3
         cfg.sndholeMinRad = cfg.sndholeMaxRad/4
         cfg.sndholeAng = degrees(
-            atan(2 * self.bodyFrontLen/(self.chmWth - self.neckWth))
+            atan(2 * self.chmFront/(self.chmWth - self.neckWth))
         )
 
         cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth/2 - 2*cfg.sndholeMinRad)
+        cfg.sndholeY = -(self.chmWth/2 - 2.7*cfg.sndholeMinRad) # not too close to edge
 
         return cfg
 
@@ -214,6 +214,7 @@ class LeleConfig:
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         (tnrFront, tnrBack, _, _, _, _) = tnrType.dims()
         bodyBackLen = self.chmBack + wallTck + tnrFront + tnrBack
+        self.bodyBackLen = bodyBackLen
         self.tailX = scaleLen + bodyBackLen
         self.nutWth = max(2,numStrs) * nutStrGap
         tnrSetback = tnrType.tailAllow()

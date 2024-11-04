@@ -49,23 +49,24 @@ class LeleTuners(LeleBase):
 
 
         return tnrs
-    
+
     def worm_fillet(self, top):
         """ Apply fillet to worm cut """
         assert self.isCut
         assert self.is_worm()
-        
-        tnr = LeleWorm(isCut=self.isCut, cli=self.cli)
-        # tnr._gen_full_if_no_shape()
-        tuners = tnr.worm_config()
-        
-        for xyz in self.cfg.tnrXYZs:
-            top = top.filletByNearestEdges(
-                nearestPts=[
-                    (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.strHt())
-                ],
-                rad = tuners.sltWth
-                )
+
+        # disabled for now to try slit back slope
+        # tnr = LeleWorm(isCut=self.isCut, cli=self.cli)
+        # # tnr._gen_full_if_no_shape()
+        # tuners = tnr.worm_config()
+
+        # for xyz in self.cfg.tnrXYZs:
+        #     top = top.filletByNearestEdges(
+        #         nearestPts=[
+        #             (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.strHt())
+        #         ],
+        #         rad = tuners.sltWth
+        #         )
         return top
 
     def gen_parser(self,parser=None):

@@ -39,11 +39,11 @@ class LeleTopAssembly(LeleBase):
     def gen(self) -> Shape:
         """Generate Body Top Assembly"""
 
-        cutTol = self.api.getJoinCutTol()
+        jcTol = self.api.getJoinCutTol()
 
         # top
         top = LeleTop(cli=self.cli)
-        
+
         # tuners
         tuners = LeleTuners(cli=self.cli, isCut=True)
         top -= tuners
@@ -64,11 +64,17 @@ class LeleTopAssembly(LeleBase):
             else:
                 top +=guide
 
-        if self.cli.separate_top:
+        if self.cli.separate_top and self.cli.body_type in [LeleBodyType.GOURD]:
             top += LeleRim(cli=self.cli, isCut=False)
-        if not self.cli.body_type in [LeleBodyType.FLAT]:
+
+        if not self.cli.separate_fretboard and not self.cli.separate_neck:
+            # HACK mv needed for Cadquery sometimes
+            top += LeleFretboardAssembly(cli=self.cli, isCut=False).mv(0.01, 0, 0)
+
+        if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
             top -= LeleChamber(cli=self.cli,isCut=True)
-        if not self.cli.body_type in [LeleBodyType.FLAT,LeleBodyType.TRAVEL]:
+
+        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
             # soundhole
             sh  = LeleSoundhole(cli=self.cli, isCut=True)
             top -= sh
@@ -90,7 +96,7 @@ class LeleTopAssembly(LeleBase):
             top += brdg
 
         return top.gen_full()
-    
+
     def gen_parser(self,parser=None):
         """
         pylele Command Line Interface

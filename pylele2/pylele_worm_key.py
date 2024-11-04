@@ -35,6 +35,7 @@ class LeleWormKey(LeleBase):
         kbRad = wcfg.buttonKeybaseRad + cutAdj
         kyRad = wcfg.buttonKeyRad + cutAdj
         kyLen = wcfg.buttonKeyLen + 2 * cutAdj
+        gapAdj = wcfg.gapAdj
 
         key = self.api.genPolyRodX(kyLen, kyRad, 6).mv(joinTol -kyLen/2 -kbHt -btnHt, 0, 0)
         base = self.api.genPolyRodX(kbHt, kbRad, 36) if isBlender else self.api.genRodX(kbHt, kbRad)
@@ -57,7 +58,7 @@ class LeleWormKey(LeleBase):
 
         btn += base + key
         maxTnrY = max([y for _, y, _ in txyzs])
-        btn = btn.mv(tailX - joinTol, maxTnrY + btnTck -1, -1 -btnWth/2)
+        btn = btn.mv(tailX - joinTol, maxTnrY + btnTck + gapAdj/2, -1 -btnWth/2)
         return btn
 
 

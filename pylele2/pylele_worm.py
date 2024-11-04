@@ -195,6 +195,7 @@ class LeleWorm(LeleBase):
 
         c.sltLen = default_or_alternate(tnrCfg.slitLen, self.cli.worm_slit_length)
         c.sltWth = default_or_alternate(tnrCfg.slitWth, self.cli.worm_slit_width)
+        c.sltHt = tnrCfg.slitHt
         c.drvRad = default_or_alternate(
             tnrCfg.driveRad + cutAdj, self.cli.worm_drive_radius
         )
@@ -226,7 +227,7 @@ class LeleWorm(LeleBase):
 
         ## Axle
         axlX = 0
-        axlY = -0.5  # sltWth/2 -axlLen/2
+        axlY = -0.5
         axlZ = 0
 
         axl = self.api.genRodY(c.axlLen, c.axlRad).mv(axlX, axlY, axlZ)
@@ -261,9 +262,10 @@ class LeleWorm(LeleBase):
 
         ## Slit
         if self.isCut:
-            worm += self.api.genBox(c.sltLen, c.sltWth, 100).mv(
-                c.sltLen / 2 - c.front, 0, 50 - 2 * c.axlRad
-            )
+            worm += self.api.genBox(c.sltLen, c.sltWth, c.sltHt)\
+                .mv(c.sltLen/2 - c.front, 0, c.sltHt/2 - 2*c.axlRad)
+            worm += self.api.genPolyRodY(c.sltWth, c.sltWth * 2, 4)\
+                .mv(-c.front, 0, c.sltHt - 2*c.axlRad) # dx was -c.sltLen/2
 
         return worm
 

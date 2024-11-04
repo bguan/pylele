@@ -51,10 +51,9 @@ class TunerConfig(ABC):
         """
         ...
 
+    @abstractmethod
     def tailAllow(self) -> float:
-        (_, back, _, _, _, _) = self.dims()
-        return back
-
+        ...
 
     @abstractmethod
     def strHt(self) -> float:
@@ -125,13 +124,17 @@ class PegConfig(TunerConfig):
     def strHt(self) -> float:
         return self.holeHt
 
+    def tailAllow(self):
+        (_, back, _, _, _, _) = self.dims()
+        return back
+
 
 class WormConfig(TunerConfig):
 
     """ Worm Configuration """
     def __init__(
         self,
-        slitHt: float = 23,
+        slitHt: float = 31,
         slitLen: float = 10,
         slitWth: float = 3,
         diskTck: float = 5,
@@ -195,7 +198,11 @@ class WormConfig(TunerConfig):
         return True
 
     def strHt(self) -> float:
-        return self.slitHt
+        return self.slitHt - 2*self.axleRad
+
+    def tailAllow(self):
+        (front, back, _, _, _, _) = self.dims()
+        return (front + back) / 2
 
 
 FRICTION_PEG_CFG = PegConfig()
@@ -211,16 +218,17 @@ GOTOH_PEG_CFG = PegConfig(
 )
 WORM_TUNER_CFG = WormConfig()
 BIGWORM_TUNER_CFG = WormConfig(
-    slitHt=30,
+    slitHt=43,
     slitLen=10,
     diskTck=5 * 1.5,
     diskRad=7.7 * 1.5,
     axleRad=3 * 1.5,
-    axleLen=7,
+    axleLen=6 * 1.5,
     driveRad=4 * 1.5,
     driveLen=14 * 1.5,
     driveOffset=9.75 * 1.5,
-    gapAdj=1.5,
+    gapAdj=1 * 1.5,
+    tailAdj=0,
     code = 'B',
 )
 
