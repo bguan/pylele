@@ -27,6 +27,7 @@ from pylele2.pylele_tuners import LeleTuners
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele2.pylele_neck_assembly import LeleNeckAssembly
 from pylele2.pylele_worm import pylele_worm_parser
+from pylele2.pylele_neck_bend import LeleNeckBend
 
 
 class LeleBottomAssembly(LeleBase):
@@ -69,6 +70,14 @@ class LeleBottomAssembly(LeleBase):
         ## Neck Joint
         if self.cli.separate_neck:
             body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
+
+        ## Neck Bend
+        if self.cli.body_type in [
+            LeleBodyType.FLAT,
+            LeleBodyType.HOLLOW,
+            LeleBodyType.TRAVEL
+        ]:
+            body += LeleNeckBend(cli=self.cli)
 
         ## Fretboard Spines
         if (self.cli.separate_fretboard or
