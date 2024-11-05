@@ -28,7 +28,7 @@ WORM    = ['-t','worm'   ,'-e','90','-E','-wah','-wsl','35','-whk']
 BIGWORM = ['-t','bigworm','-e','125','-E','-wah','-wsl','35','-whk','-fbt','35']
 
 CONFIGURATIONS = {
-        'default'        : ['-refv','1747826'],
+        'default'        : ['-refv','529039'],
         'worm'           : WORM    + ['-refv','1760619'], # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT,'-refv','1511594'],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW,'-refv','2287141'],

@@ -130,7 +130,7 @@ def volume_match_reference(
     if reference is None:
         return True
 
-    if abs(volume - reference) < reference * tolerance:
+    if abs(volume - reference) <= abs(reference * tolerance):
         return True
 
     return False
