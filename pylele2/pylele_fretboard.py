@@ -97,7 +97,7 @@ def main(args=None):
 def test_fretboard(self, apis=None):
     """Test Fretboard"""
     tests = {
-        "default":[],
+        "default":["-refv","39353"],
         "cut": ["-C", "-refv", "62360"]
         }
     test_loop(module=__name__, tests=tests, apis=apis)

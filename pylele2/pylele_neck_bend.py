@@ -56,7 +56,7 @@ def main(args=None):
 
 def test_neck_bend(self, apis=None):
     """Test Neck Bend"""
-    tests = {"default": ["-bt", LeleBodyType.FLAT]}
+    tests = {"default": ["-bt", LeleBodyType.FLAT, '-refv','19986']}
     test_loop(module=__name__, apis=apis, tests=tests)
 
 

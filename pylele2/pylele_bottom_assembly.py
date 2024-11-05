@@ -136,16 +136,22 @@ def test_bottom_assembly(self, apis=None):
     """Test Bottom Assembly"""
 
     tests = {
-        "default": [],
+        "default": ["-refv","326655"],
         "separate_top": ["-T"],
         "separate_neck": ["-N"],
         "separate_fretboard": ["-F"],
         "text": ["-x", "TEST:30"],
     }
 
+    refv = {
+        'travel': 188170,
+        'hollow': 207407,
+        'gourd' : 326655,
+        'flat'  : 753837,
+        }
     test_body = {}
     for body in list(LeleBodyType):
-        test_body[body] = ["-bt", body, "-t", "worm", "-e", "80"]
+        test_body[body] = ["-bt", body, "-t", "worm", "-e", "80", '-refv', refv[body]]
 
     test_loop(module=__name__, apis=apis, tests=tests | test_body)
 

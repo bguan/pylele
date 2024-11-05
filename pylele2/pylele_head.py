@@ -70,7 +70,8 @@ def main(args=None):
 
 def test_head(self, apis=None):
     """Test Head"""
-    test_loop(module=__name__, apis=apis)
+    tests = {'default':['-refv','6773']}
+    test_loop(module=__name__, apis=apis,tests=tests)
 
 
 def test_head_mock(self):

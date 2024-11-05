@@ -101,6 +101,7 @@ def test_neck_assembly(self, apis=None):
     """Test Neck Assembly"""
 
     tests = {
+        'default'            : [],
         'fret_wire'          : ['-ft', str(FretType.WIRE)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_neck'      : ['-N'],

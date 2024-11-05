@@ -57,8 +57,8 @@ def main(args=None):
 def test_guide(self,apis=None):
     """ Test Guide """
     tests = {
-        'default' : [],
-        'cut'     : ['-C']
+        'default' : ['-refv','651'],
+        'cut'     : ['-C','-refv','2658']
     }
     test_loop(module=__name__,tests=tests,apis=apis)
     
