@@ -29,10 +29,10 @@ BIGWORM = ['-t','bigworm','-e','125','-wah','-wsl','35','-fbt','35']
 
 CONFIGURATIONS = {
         'default'        : ['-refv','529039'],
-        'worm'           : WORM    + ['-refv','1760619'], # gourd
-        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT,'-refv','1511594'],
-        'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW,'-refv','2287141'],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25','-refv','1516693']
+        'worm'           : WORM    + ['-refv','579205'], # gourd
+        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT,'-refv','1078970'],
+        'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW,'-refv','777455'],
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25','-refv','922530']
     }
 
 class AttrDict(dict):
