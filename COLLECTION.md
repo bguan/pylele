@@ -1,6 +1,5 @@
 # 3d python modeling libraries
-* [Build123d](https://github.com/gumyr/build123d): successor to CadQuery
-* [manifold3d](https://github.com/elalish/manifold): fast(ests?) 3d modeling library used by trimesh and openscad
+* [Build123d](https://github.com/gumyr/build123d): successor to CadQuerycad
 * [pythonscad](https://pythonscad.org/): native python interpreter for scad renderer
 * [anchorscad](https://github.com/owebeeone/anchorscad): Openscad python generator with nice syntax
 * [pySdfScad](https://github.com/traverseda/PySdfScad): Openscad python interpreter based on [Forgleman Sdf library](https://github.com/fogleman/sdf), also including an openscad parser in python.
