@@ -52,14 +52,14 @@ class LeleNeckAssembly(LeleBase):
                 neck += fretbd.mv(max(0.01, jcTol), 0, -jcTol) # HACK cadquery bug needs this
                 self.add_parts(fretbd.get_parts())
 
+        ## Neck Joint
+        if self.cli.separate_neck:
+            neck += LeleNeckJoint(cli=self.cli, isCut=False).mv(0, 0, -jcTol)
+
         ## Fretboard Spines, needed as fbspines in Fretboard assembly and not in Fretboad
         if (self.cli.separate_fretboard or self.cli.separate_top) \
             and self.cli.num_spines > 0:
             neck -= LeleFretboardSpines(cli=self.cli, isCut=True)
-
-        ## Neck Joint
-        if self.cli.separate_neck:
-            neck += LeleNeckJoint(cli=self.cli, isCut=False).mv(0, 0, -jcTol)
 
         ## Spines
         if self.cli.num_spines > 0:
