@@ -97,7 +97,7 @@ def test_tail(self, apis=None):
     }
 
     test_body = {}
-    for body in LeleBodyType.list():
+    for body in list(LeleBodyType):
         test_body[body] = WORM + ["-E","-bt", body]
 
     test_loop(module=__name__, tests=tests | test_body, apis=apis)
