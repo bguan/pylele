@@ -91,13 +91,13 @@ def test_tail(self, apis=None):
     """Test Tail"""
 
     tests = {
-        'worm'         : WORM,
-        'worm_cut'     : WORM + ['-C'],
-        'bigworm'      : BIGWORM,
+        # 'worm'         : WORM    + ["-E"], # worm is already tested with body types
+        'worm_cut'     : WORM    + ["-E","-C"],
+        'bigworm'      : BIGWORM + ["-E"],
     }
 
     test_body = {}
-    for body in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
+    for body in LeleBodyType.list():
         test_body[body] = WORM + ["-E","-bt", body]
 
     test_loop(module=__name__, tests=tests | test_body, apis=apis)
