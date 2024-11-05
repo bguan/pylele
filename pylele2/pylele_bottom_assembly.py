@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_config import LeleBodyType
+from pylele2.pylele_config import LeleBodyType, Implementation
 from pylele_config_common import TunerType
 from api.pylele_api_constants import FIT_TOL
 from api.pylele_api import Shape
@@ -77,7 +77,10 @@ class LeleBottomAssembly(LeleBase):
             LeleBodyType.HOLLOW,
             LeleBodyType.TRAVEL
         ]:
-            body += LeleNeckBend(cli=self.cli)
+            if self.cli.implementation == Implementation.CAD_QUERY and self.cli.body_type == LeleBodyType.FLAT:
+                print('# WARNING: not generating neck bend, because does not work with cadquery and flat body')
+            else:
+                body += LeleNeckBend(cli=self.cli)
 
         ## Fretboard Spines
         if (self.cli.separate_fretboard or
