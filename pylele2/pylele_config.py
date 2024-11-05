@@ -32,7 +32,7 @@ CONFIGURATIONS = {
         'worm'           : WORM    + ['-refv','579205'], # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT,'-refv','1078970'],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW,'-refv','777455'],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-w','25','-refv','922530']
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25','-refv','922530']
     }
 
 class AttrDict(dict):
