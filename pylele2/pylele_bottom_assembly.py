@@ -57,8 +57,14 @@ class LeleBottomAssembly(LeleBase):
             body -= spines
 
         ## Neck
-        if not self.cli.separate_neck:
-            body += LeleNeckAssembly(cli=self.cli, isCut=False).mv(jcTol, 0, 0)
+        neck = LeleNeckAssembly(cli=self.cli, isCut=False)
+        neck.gen_full()
+        if self.cli.separate_neck:
+            self.add_part(neck)
+        else:
+            body += neck.mv(jcTol, 0, 0)
+            if neck.has_parts():
+                self.add_parts(neck.parts)
 
         ## Neck Joint
         if self.cli.separate_neck:
