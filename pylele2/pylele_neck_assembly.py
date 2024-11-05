@@ -73,6 +73,7 @@ class LeleNeckAssembly(LeleBase):
             LeleBodyType.TRAVEL
         ]:
             neck += LeleNeckBend(cli=self.cli)
+        """
 
         ## Fretboard Spines
         if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) and self.cli.num_spines > 0:
