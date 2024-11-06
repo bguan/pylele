@@ -259,19 +259,20 @@ class PyleleTestMethods(unittest.TestCase):
         csv_to_xls(csvfname, xlsfname)
 
 def test_main():
-    if False:
-        # simplest
-        unittest.main()
-    elif True:
+    """ Launch all tests """      
+    
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        print("Running in GitHub Actions: simplified output to log file")
+
         # text test report
         make_or_exist_path(DEFAULT_TEST_DIR)
         with open(os.path.join(DEFAULT_TEST_DIR,"test_log.txt"), "w") as f:
             runner = unittest.TextTestRunner(stream=f, verbosity=3)
             unittest.main(testRunner=runner)
+
     else:
-        # html test report
-        from HtmlTestRunner import HTMLTestRunner
-        unittest.main(testRunner=HTMLTestRunner(output=DEFAULT_TEST_DIR))
+        print("Running Locally: all output to shell")
+        unittest.main()
 
 if __name__ == "__main__":
     test_main()
