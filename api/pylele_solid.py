@@ -498,6 +498,7 @@ class LeleSolid(ABC):
         render_time = end_time - start_time
         print(f"Rendering time: {render_time} [s]")
         rpt["render_time"] = render_time
+        rpt['stl_file_size'] = os.path.getsize(out_fname)
         rpt["datetime"] = datetime.datetime.now().strftime("%y-%m-%d/%H:%M:%S")
         rpt |= platform.uname()._asdict()
 
