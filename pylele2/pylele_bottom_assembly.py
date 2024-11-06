@@ -136,7 +136,7 @@ def test_bottom_assembly(self, apis=None):
     """Test Bottom Assembly"""
 
     tests = {
-        "default": ["-refv","326655"],
+        "default": ["-refv","467193"],
         "separate_top": ["-T"],
         "separate_neck": ["-N"],
         "separate_fretboard": ["-F"],
