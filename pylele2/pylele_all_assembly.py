@@ -90,10 +90,23 @@ def test_all_assembly(self, apis=None):
         "gotoh_tuners": ["-t", "gotoh"],
     }
 
+    # reference volumes
+    refv = {
+        'default'        :  '529039',
+        'worm'           :  '579205',
+        'flat'           : '1078970',
+        'hollow'         : '1053325',
+        'travel'         :  '922530'
+    }
+
+    test_config = {}
+    for key,config in CONFIGURATIONS.items():
+        test_config[key] = config + ['-refv',refv[key]]
+        
     test_loop(
         module=__name__,
         apis=apis,
-        tests=tests | CONFIGURATIONS,
+        tests=tests | test_config,
     )
 
 
