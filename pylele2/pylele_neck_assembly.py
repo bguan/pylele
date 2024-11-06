@@ -79,9 +79,6 @@ class LeleNeckAssembly(LeleBase):
         if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) and self.cli.num_spines > 0:
             neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
 
-        fretbd.gen_full()
-        self.add_parts(fretbd.get_parts())
-
         return neck.gen_full()
 
     def gen_parser(self,parser=None):
