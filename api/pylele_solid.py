@@ -407,7 +407,7 @@ class LeleSolid(ABC):
 
     def configure(self):
         """Configure Solid, and save self.cli"""
-        self.api = self.cli.implementation.get_api(self.cli.fidelity)
+        self.api:ShapeAPI = self.cli.implementation.get_api(self.cli.fidelity)
         self.check_has_api()
         if self.cli.implementation == Implementation.SOLID2:
             self.api.setCommand(self.cli.openscad)

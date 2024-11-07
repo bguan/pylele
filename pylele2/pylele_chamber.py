@@ -100,8 +100,10 @@ class LeleChamber(LeleBase):
                 .scale(frontRat, 1, botRat)
                 .mv(jcTol, 0, 0)
             )
-            botBack = self.api.genQuarterBall(rad, False, False).scale(
-                backRat, 1, botRat
+            botBack = (
+                self.api.genQuarterBall(rad, False, False)
+                .scale(backRat, 1, botRat)
+                .mv(0, 0, 0)
             )
             chm = topFront + topBack + botFront + botBack
 

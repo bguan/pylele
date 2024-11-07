@@ -13,11 +13,7 @@ from api.pylele_api import Shape
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_base import LeleBase
 from pylele2.pylele_texts import pylele_texts_parser
-from pylele2.pylele_tail import LeleTail
-from pylele2.pylele_rim import LeleRim
-from pylele2.pylele_spines import LeleSpines
 from pylele2.pylele_top_assembly import LeleTopAssembly
-from pylele2.pylele_neck_assembly import LeleNeckAssembly
 from pylele2.pylele_chamber import pylele_chamber_parser
 from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele2.pylele_worm import pylele_worm_parser
@@ -40,15 +36,10 @@ class LeleAllAssembly(LeleBase):
         if body.has_parts():
             self.add_parts(body.parts)
 
-        ## Spines (maybe redundant)
-        if self.cli.num_spines > 0:
-            body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
-
         ## Top
         top = LeleTopAssembly(cli=self.cli)
         top.gen_full()
         if self.cli.separate_top:
-            body -= LeleRim(cli=self.cli, isCut=True)
             self.add_part(top)
         else:
             body += top.mv(0, 0, -jcTol)

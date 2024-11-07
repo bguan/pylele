@@ -23,7 +23,7 @@ from pylele2.pylele_fretboard_spines import LeleFretboardSpines
 from pylele2.pylele_head import LeleHead
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_neck import LeleNeck
-# from pylele2.pylele_neck_bend import LeleNeckBend
+from pylele2.pylele_nut import LeleNut
 from pylele2.pylele_spines import LeleSpines
 
 
@@ -51,6 +51,8 @@ class LeleNeckAssembly(LeleBase):
             else:
                 neck += fretbd.mv(max(0.01, jcTol), 0, -jcTol) # HACK cadquery bug needs this
                 self.add_parts(fretbd.get_parts())
+            if self.cli.separate_fretboard or not self.cli.separate_neck:
+                neck -= LeleNut(cli=self.cli, isCut=True)
 
         ## Neck Joint
         if self.cli.separate_neck:
@@ -64,7 +66,7 @@ class LeleNeckAssembly(LeleBase):
         ## Spines
         if self.cli.num_spines > 0:
             neck -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
-        
+
         """
         ## Neck Bend
         if self.cli.body_type in [

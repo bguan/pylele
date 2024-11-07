@@ -71,17 +71,11 @@ class LeleTopAssembly(LeleBase):
             if fretbd.has_parts():
                 self.add_parts(top.parts)
 
-        if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
-            top -= LeleChamber(cli=self.cli,isCut=True)
-
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
             # soundhole
             sh  = LeleSoundhole(cli=self.cli, isCut=True)
             top -= sh
             top = sh.fillet(top)
-
-            # brace
-            top += LeleBrace(cli=self.cli)
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
             top -= LeleFretboardJoint(cli=self.cli, isCut=True)\
@@ -94,6 +88,13 @@ class LeleTopAssembly(LeleBase):
             self.add_part(brdg)
         else:
             top += brdg
+
+        if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
+            chm = LeleChamber(cli=self.cli,isCut=True)
+            # cut Brace from chamber
+            if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+                chm -= LeleBrace(cli=self.cli)
+            top -= chm
 
         return top.gen_full()
 

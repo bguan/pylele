@@ -92,11 +92,10 @@ class Brace(LelePart):
         chmFr = cfg.chmFront
         chmBk = cfg.chmBack
         chmWth = cfg.chmWth
-        topRat = cfg.TOP_RATIO
         self.shape = (
             cfg.api()
-            .genRndRodX(0.5 * (chmFr + chmBk), 0.4 * chmWth * topRat, 1)
-            .scale(1, 0.25, 1)
+            .genRndRodX(0.5 * (chmFr + chmBk), 0.05 * chmWth, 1)
+            .scale(1, 0.3, 1)
             .mv(scLen - 0.25 * chmBk, 0, brdgZ)
         )
 
@@ -486,7 +485,7 @@ class Chamber(LelePart):
         botRat = cfg.BOT_RATIO
         lift = cfg.chmLift
         rotY = cfg.chmRot
-        joinTol = cfg.joinCutTol
+        jcTol = cfg.joinCutTol
         rad = cfg.chmWth / 2
         frontRat = cfg.chmFront / rad
         backRat = cfg.chmBack / rad
@@ -496,19 +495,19 @@ class Chamber(LelePart):
             cfg.api()
             .genQuarterBall(rad, True, True)
             .scale(frontRat, 1, topChmRat)
-            .mv(joinTol, 0, -joinTol)
+            .mv(jcTol, 0, -jcTol)
         )
         topBack = (
             cfg.api()
             .genQuarterBall(rad, True, False)
             .scale(backRat, 1, topChmRat)
-            .mv(0, 0, -joinTol)
+            .mv(0, 0, -jcTol)
         )
         botFront = (
             cfg.api()
             .genQuarterBall(rad, False, True)
             .scale(frontRat, 1, botRat)
-            .mv(joinTol, 0, 0)
+            .mv(jcTol, 0, 0)
         )
         botBack = (
             cfg.api()

@@ -15,7 +15,6 @@ from api.pylele_solid import main_maker, test_loop
 from pylele_config_common import TunerType
 from pylele2.pylele_config import LeleBodyType
 from pylele2.pylele_base import LeleBase
-from pylele2.pylele_chamber import LeleChamber
 
 
 def pylele_body_parser(parser=None):
@@ -54,7 +53,7 @@ class LeleBody(LeleBase):
 
             if midTck > 0:
                 # Generates flat middle section of body
-                bot <<= (0, 0, -midTck)
+                bot <<= (0, 0, joinTol - midTck)
                 midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -midTck)
                 bot += midR.mirrorXZ_and_join()
 

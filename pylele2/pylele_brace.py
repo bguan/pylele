@@ -27,21 +27,11 @@ class LeleBrace(LeleBase):
         chmBk = self.cfg.chmBack
         chmWth = self.cfg.chmWth
         topRat = self.cfg.TOP_RATIO
-
         brace = (
-            self.api.genRndRodX(0.5 * (chmFr + chmBk), 0.4 * chmWth * topRat, 1)
-            .scale(1, 0.25, 1)
+            self.api.genRndRodX(0.5 * (chmFr + chmBk), 0.05 * chmWth, 1)
+            .scale(1, 0.3, 1)
             .mv(scLen - 0.25 * chmBk, 0, brdgZ)
         )
-
-        cut_thick = 100
-        cutter = self.api.genBox(2 * scLen, chmWth, cut_thick).mv(
-            scLen, 0, brdgZ + cut_thick / 2
-        )
-
-        # generate top cut
-        brace = brace.cut(cutter).mv(0, 0, self.api.getJoinCutTol())
-
         return brace
 
 

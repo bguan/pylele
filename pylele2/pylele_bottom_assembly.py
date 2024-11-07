@@ -7,17 +7,18 @@
 import os
 import sys
 
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_solid import main_maker, test_loop
 from pylele2.pylele_config import LeleBodyType, Implementation
-from pylele_config_common import TunerType
 from api.pylele_api_constants import FIT_TOL
 from api.pylele_api import Shape
 from pylele2.pylele_base import LeleBase
 from pylele2.pylele_neck_joint import LeleNeckJoint
 from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
 from pylele2.pylele_tail import LeleTail
+from pylele2.pylele_rim import LeleRim
 
 from pylele2.pylele_body import LeleBody
 from pylele2.pylele_spines import LeleSpines
@@ -50,6 +51,10 @@ class LeleBottomAssembly(LeleBase):
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             chamber = LeleChamber(cli=self.cli, isCut=True)
             body -= chamber
+
+        ## Rim
+        if self.cli.separate_top:
+            body -= LeleRim(cli=self.cli, isCut=True)
 
         ## Spines
         spines = None
@@ -95,8 +100,7 @@ class LeleBottomAssembly(LeleBase):
         if not self.cli.separate_end:
             body -= tuners
 
-        ## Tail
-        # if TunerType[self.cli.tuner_type].value.is_worm(): not ideal for non worm but possible
+        ## Tail, not ideal for non worm but possible
         if self.cli.separate_end:
             body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             tail = LeleTail(cli=self.cli)
