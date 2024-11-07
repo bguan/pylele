@@ -265,6 +265,10 @@ class TMShape(Shape):
         self.solid = self.solid.apply_scale((x, y, z))
         return self
 
+    def hull(self):
+        self.solid = self.solid.convex_hull
+        return self
+
     def show(self):
         pass
 

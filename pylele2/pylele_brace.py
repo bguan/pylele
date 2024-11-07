@@ -52,7 +52,8 @@ def main(args=None):
 
 def test_brace(self, apis=None):
     """Test Brace"""
-    test_loop(module=__name__, apis=apis)
+    tests = {'default':['-refv','1496']}
+    test_loop(module=__name__, apis=apis, tests=tests)
 
 
 def test_brace_mock(self):

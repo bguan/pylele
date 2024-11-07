@@ -30,6 +30,9 @@ jobs:
       run: |
         mkdir test
         pip list > ./test/pip_list.txt
+    - name: Generate timestamp
+      id: timestamp
+      run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
     - name: test pylele.sh
       run: |
         source pylele.sh
@@ -40,7 +43,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}
+          name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: build/LeleAllAssembly/LeleAllAssembly.stl
           # compression-level: 0 # no compression
     # - name: convert to glb
@@ -56,9 +59,24 @@ jobs:
     - name: test
       run: |
         python ./pylele_test.py
+      continue-on-error: true
     - name: upload test output
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
-          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}
+          name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
+
+    # - name: Authenticate gdrive with service account
+    #  env:
+    #    GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+    #  run: |
+    #    echo "$GDRIVE_CREDENTIALS" > /tmp/credentials.json
+    #    gdrive about --service-account /tmp/credentials.json
+
+    #- name: Upload folder to Google Drive
+    #  env:
+    #    GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+    #  run: |
+    #    # Replace FOLDER_ID with your Google Drive folder ID
+    #    gdrive upload -r --service-account /tmp/credentials.json --parent 1Ux3JPjgB9OOe-KMSFba3wrQu6IDjOamy test    

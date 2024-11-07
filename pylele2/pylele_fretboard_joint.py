@@ -45,7 +45,8 @@ def main(args=None):
 
 def test_fretboard_joint(self, apis=None):
     """Test Fretoard Joint"""
-    test_loop(module=__name__, apis=apis)
+    tests = {"default":["-refv","2556"]}
+    test_loop(module=__name__, apis=apis, tests=tests)
 
 
 def test_fretboard_joint_mock(self):

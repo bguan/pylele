@@ -12,6 +12,7 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
 * [Blender](https://github.com/blender/blender) (*Still a little buggy...*)
 * [Trimesh](https://github.com/mikedh/trimesh) (Fastest)
 * [SolidPython2](https://github.com/jeff-dh/SolidPython) (Supports .stl, .svg, .scad, and [BOSL2](https://github.com/BelfrySCAD/BOSL2) library import, fastest when using manifold option)
+* [manifold3d](https://github.com/elalish/manifold): fast(ests?) 3d modeling library used by trimesh and openscad
 
 Code and view generated models in your favorite development environment!
 

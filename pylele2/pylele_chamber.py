@@ -126,7 +126,11 @@ def main(args=None):
 def test_chamber(self, apis=None):
     """Test Chamber"""
 
-    tests = {"default": [], "cut": ["-C"], "travel": ["-bt", LeleBodyType.TRAVEL]}
+    tests = {
+        "default": ["-refv","642213"], 
+        "cut"    : ["-C","-refv","642213"], 
+        "travel" : ["-bt", LeleBodyType.TRAVEL,"-refv","553407"]
+        }
     test_loop(module=__name__, tests=tests, apis=apis)
 
 

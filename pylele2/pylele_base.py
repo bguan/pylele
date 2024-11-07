@@ -30,8 +30,8 @@ class LeleBase(LeleSolid):
     def __init__(
         self,
         isCut: bool = False,
-        args=None,
-        cli=None,
+        args = None,
+        cli = None
     ):
         """Initialization Method for Base ukuelele element"""
 
@@ -70,7 +70,7 @@ class LeleBase(LeleSolid):
         self.configure_if_hasnt()
         export_dict2text(
             outpath=self._make_out_path(),
-            fname=self.fileNameBase + "_cfg.txt",
+            fname=self.fileNameBase + "_cfg",
             dictdata=self.cfg,
         )
 
@@ -101,6 +101,6 @@ class LeleBase(LeleSolid):
         return super().exportSTL(out_path=out_path)
 
     def gen_full(self):
-        """Generate full shape including joiners, cutters and fillets"""
+        """Generate full shape """
         self.configure_if_hasnt()
         return super().gen_full()

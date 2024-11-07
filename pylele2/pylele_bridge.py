@@ -182,6 +182,7 @@ def main(args=None):
 def test_bridge(self, apis=None):
     """Test Bridge"""
     tests = {
+        "default" : [],
         "cut": ["-C"],
         "override_width": ["-bow", "100"],
         "override_length": ["-bol", "55"],

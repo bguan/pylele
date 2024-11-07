@@ -24,15 +24,15 @@ class LeleBodyType(LeleStrEnum):
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
-WORM    = ['-t','worm'   ,'-e','90','-E','-wah','-wsl','35','-whk']
-BIGWORM = ['-t','bigworm','-e','125','-E','-wah','-wsl','35','-whk','-fbt','35']
+WORM    = ['-t','worm'   ,'-e','90','-wah','-wsl','35']
+BIGWORM = ['-t','bigworm','-e','125','-wah','-wsl','35','-fbt','35']
 
 CONFIGURATIONS = {
         'default'        : [],
-        'worm'           : WORM, # gourd
+        'worm'           : WORM    , # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL, '-wt', '25']
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25']
     }
 
 class AttrDict(dict):

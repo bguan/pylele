@@ -108,7 +108,7 @@ def test_fretboard_assembly(self, apis=None):
     """Test Fretboard Assembly"""
     tests = {
         'separate_fretboard' : ['-F'],
-        'fret_round'         : ['-ft', str(FretType.ROUND)],
+        'fret_round'         : ['-ft', str(FretType.ROUND), '-refv','40518'],
         'fret_wire'          : ['-ft', str(FretType.WIRE)],
         'zerofret'           : ['-nt', str(NutType.ZEROFRET)],
         'separate_nut'       : ['-NU'],

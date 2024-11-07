@@ -86,8 +86,8 @@ def test_peg(self, apis=None):
     """Test Peg"""
 
     tests = {
-        "cut": ["-C"],
-        "gotoh": ["-t", "gotoh"],
+        "cut": ["-C","-refv","30799"],
+        "gotoh": ["-t", "gotoh","-refv","2658"],
     }
     test_loop(module=__name__, tests=tests, apis=apis)
 

@@ -46,7 +46,8 @@ def main(args=None):
 
 def test_neck(self, apis=None):
     """Test Neck"""
-    test_loop(module=__name__, apis=apis)
+    tests = {'default':['-refv','106424']}
+    test_loop(module=__name__, apis=apis,tests=tests)
 
 
 def test_neck_mock(self):

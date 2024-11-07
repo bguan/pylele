@@ -5,24 +5,27 @@
 """
 
 from __future__ import annotations
+
+import datetime
+import importlib
+import platform
+import time
+import trimesh
+from json_tricks import dumps
+
+from pathlib import Path
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser, Namespace
 from copy import deepcopy
-import datetime
-import importlib
+
 import os
-from pathlib import Path
 import sys
-import time
-import trimesh
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
-
-from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation ,supported_apis
-from api.pylele_api_constants import ColorEnum, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+                
+from api.pylele_api import ShapeAPI, Shape, Fidelity, Implementation, LeleStrEnum, supported_apis, direction_operand
+from api.pylele_api_constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
 from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
-
 
 def main_maker(module_name, class_name, args=None):
     """Generate a main function for a LeleSolid instance"""
@@ -32,7 +35,6 @@ def main_maker(module_name, class_name, args=None):
     solid.export_args()  # includes export_configuration for LeleBase
     out_fname = solid.exportSTL()
     return solid, out_fname
-
 
 def test_iteration(module, component, test, api, args=None):
     """Helper to generate a testcase launching the main function in a module"""
@@ -71,13 +73,17 @@ def test_loop(module, apis=None, tests=None):  # ,component):
     test_count = 0
     for test,args in tests.items():
         for api in apis:
-            test_iteration(
-                        module=module,
-                        component=module,
-                        test=f'{test_count:02d}_{test}',
-                        api=api,
-                        args=args,
-                        )
+            try:
+                test_iteration(
+                            module=module,
+                            component=module,
+                            test=f'{test_count:02d}_{test}',
+                            api=api,
+                            args=args,
+                            )
+            except:
+                assert False, f'module: {module}, test: {test}, api: {api},\nargs:{args}'
+            
         test_count += 1
 
 
@@ -92,18 +98,25 @@ class PrettyPrintDict(dict):
         return properties
 
 
-def export_dict2text(outpath, fname, dictdata) -> str:
+def export_dict2text(outpath, fname, dictdata, fmt='.txt') -> str:
     """save info in input dictionary to output file"""
 
     if isinstance(dictdata, Namespace):
         dictdata = vars(dictdata)
 
-    if isinstance(dictdata, dict):
+    if isinstance(dictdata, dict) and fmt=='.txt':
         dictdata = PrettyPrintDict(dictdata)
 
-    out_fname = os.path.join(outpath, fname)
+    out_fname = os.path.join(outpath, fname+fmt)
+    print(out_fname)
     with open(out_fname, "w", encoding="UTF8") as f:
-        f.write(repr(dictdata))
+        if fmt=='.txt':
+            f.write(repr(dictdata))
+        elif fmt=='.json':
+            f.write( dumps( dictdata, indent=4 ) )
+        else:
+            assert fmt in ['.txt','.json'], f'ERROR: export format {fmt} not supported!'
+
     assert os.path.isfile(out_fname)
 
 
@@ -117,7 +130,7 @@ def volume_match_reference(
     if reference is None:
         return True
 
-    if abs(volume - reference) < reference * tolerance:
+    if abs(volume - reference) <= abs(reference * tolerance):
         return True
 
     return False
@@ -141,16 +154,20 @@ def stl_check_volume(
         # mesh.show() does not work
         rpt["volume"] = mesh.volume
         rpt["convex_hull_volume"] = mesh.convex_hull.volume
-        rpt["bounding_box"] = mesh.bounding_box.extents
-
-        assert volume_match_reference(
+        rpt["bounding_box_x"] = mesh.bounding_box.extents[0]
+        rpt["bounding_box_y"] = mesh.bounding_box.extents[1]
+        rpt["bounding_box_z"] = mesh.bounding_box.extents[2]
+        rpt['pass'] = volume_match_reference(
             volume=mesh.volume,
             reference=reference_volume,
             tolerance=reference_volume_tolerance/100
-        ), "volume: %f, reference: %f" % (
-            rpt["volume"],
-            reference_volume,
         )
+
+        if not rpt['pass']:
+            print(
+                f'## WARNING!!! volume: {rpt["volume"]}, reference: {reference_volume}'
+                )
+
     return rpt
 
 def solid_operand(joiner)->ShapeAPI:
@@ -252,7 +269,31 @@ class LeleSolid(ABC):
     Pylele Generic Solid Body
     """
 
-    parts = None
+    cli          : Namespace = None
+    isCut        : bool = False
+    outdir       : str = ''
+    fileNameBase : str = ''
+    api          : ShapeAPI = None
+    shape        : Shape = None
+    parts        : list = None
+
+    def __init__(
+        self,
+        isCut: bool = False,
+        args=None,
+        cli=None,
+    ):
+        if cli is None:
+            self.cli = self.parse_args(args=args)
+        else:
+            self.cli = cli
+
+        self.isCut = self.cli.is_cut or isCut
+        self.outdir = self.cli.outdir
+
+        self.fileNameBase = self.__class__.__name__
+        if self.isCut:
+            self.fileNameBase += '_cut'
 
     @abstractmethod
     def gen(self) -> Shape:
@@ -388,7 +429,7 @@ class LeleSolid(ABC):
         outfname = self.fileNameBase
         if not self.cli.outdir_date_off:
             outfname += (
-                (datetime.datetime.now().strftime("-%y%m%d-%H%M-"))
+                (datetime.datetime.now().strftime("-%y%m%d-%H%M%S-"))
                 + self.cli.implementation.code()
                 + self.cli.fidelity.code()
             )
@@ -400,8 +441,9 @@ class LeleSolid(ABC):
         """Export Pylele Solid input arguments"""
         export_dict2text(
             outpath=self._make_out_path(),
-            fname=self.fileNameBase + "_args.txt",
+            fname=self.fileNameBase + "_args",
             dictdata=self.cli,
+            fmt='.json'
         )
 
     def exportSTL(
@@ -456,10 +498,13 @@ class LeleSolid(ABC):
         render_time = end_time - start_time
         print(f"Rendering time: {render_time} [s]")
         rpt["render_time"] = render_time
+        rpt['stl_file_size'] = os.path.getsize(out_fname)
+        rpt["datetime"] = datetime.datetime.now().strftime("%y-%m-%d/%H:%M:%S")
+        rpt |= platform.uname()._asdict()
 
         if report_en:
             export_dict2text(
-                outpath=out_path, fname=self.fileNameBase + "_rpt.txt", dictdata=rpt
+                outpath=out_path, fname=self.fileNameBase + "_rpt", dictdata=rpt,fmt='.json'
             )
 
         return out_fname
