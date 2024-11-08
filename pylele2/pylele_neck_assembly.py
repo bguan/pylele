@@ -51,8 +51,9 @@ class LeleNeckAssembly(LeleBase):
             else:
                 neck += fretbd.mv(max(0.01, jcTol), 0, -jcTol) # HACK cadquery bug needs this
                 self.add_parts(fretbd.get_parts())
-            if self.cli.separate_fretboard or not self.cli.separate_neck:
-                neck -= LeleNut(cli=self.cli, isCut=True)
+
+        if self.cli.separate_fretboard or self.cli.separate_top:
+            neck -= LeleNut(cli=self.cli, isCut=True)
 
         ## Neck Joint
         if self.cli.separate_neck:
@@ -65,7 +66,7 @@ class LeleNeckAssembly(LeleBase):
 
         ## Spines
         if self.cli.num_spines > 0:
-            neck -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, self.api.getJoinCutTol())
+            neck -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
 
         """
         ## Neck Bend
