@@ -78,17 +78,8 @@ class Sp2ShapeAPI(ShapeAPI):
     def genRodZ(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
 
-    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
-        stem_len = l - 2*rad*domeRatio
-        rod = None
-        for bz in [stem_len/2, -stem_len/2]:
-            ball = sphere(rad,_fn=self.fidelity.smoothingSegments())\
-                .scale([1, 1, domeRatio]).translate([0, 0, bz])
-            if rod is None:
-                rod = ball
-            else:
-                rod += ball
-        return self.genShape(rod.hull())
+    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Sp2Shape:
+        return Sp2RndRodZ(l, rad, domeRatio, api=self)
 
     def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
         return Sp2PolyExtrusionZ(path, ht, api=self)
@@ -289,6 +280,31 @@ class Sp2LineSplineRevolveX(Sp2Shape):
             .rotateY(90)
             .rotateX(-90)
         )
+
+
+class Sp2RndRodZ(Sp2Shape):
+    def __init__(
+        self,
+        l: float,
+        rad: float,
+        domeRatio: float,
+        api: Sp2ShapeAPI,
+    ):
+        super().__init__(api)
+        self.l = l
+        self.rad = rad
+        self.domeRatio = domeRatio
+
+        stem_len = l - 2*rad*domeRatio
+        rod = None
+        segs = self.segsByDim(2 * pi * rad)
+        for bz in [stem_len/2, -stem_len/2]:
+            ball = sphere(rad, _fn=segs).scale([1, 1, domeRatio]).translate([0, 0, bz])
+            if rod is None:
+                rod = ball
+            else:
+                rod += ball
+        self.solid = rod.hull()
 
 
 class Sp2TextZ(Sp2Shape):
