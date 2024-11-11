@@ -47,11 +47,11 @@ class Fidelity(LeleStrEnum):
     def exportTol(self) -> float:
         match self:
             case Fidelity.LOW:
-                return 0.0005
+                return 0.001
             case Fidelity.MEDIUM:
-                return 0.0002
+                return 0.0005
             case Fidelity.HIGH:
-                return 0.0001
+                return 0.00025
 
     def smoothingSegments(self) -> float:
         match self:
@@ -60,7 +60,7 @@ class Fidelity(LeleStrEnum):
             case Fidelity.MEDIUM:
                 return 12
             case Fidelity.HIGH:
-                return 18
+                return 17 # 18 causes weird chamber for blender, also too slow
 
     def code(self) -> str:
         return str(self)[0].upper()
