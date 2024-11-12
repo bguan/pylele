@@ -28,7 +28,7 @@ class LeleAllAssembly(LeleBase):
     def gen(self) -> Shape:
         """Generate Body Bottom Assembly"""
 
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
 
         ## Body
         body = LeleBottomAssembly(cli=self.cli)

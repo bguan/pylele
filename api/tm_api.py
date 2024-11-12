@@ -43,49 +43,49 @@ class TMShapeAPI(ShapeAPI):
         direction=(1, 0, 0),
     )
 
-    def exportSTL(self, shape: TMShape, path: Union[str, Path]) -> None:
+    def export_stl(self, shape: TMShape, path: Union[str, Path]) -> None:
         shape.solid.export(ensureFileExtn(path, ".stl"))
 
-    def exportBest(self, shape: TMShape, path: Union[str, Path]) -> None:
+    def export_best(self, shape: TMShape, path: Union[str, Path]) -> None:
         shape.solid.export(ensureFileExtn(path, ".glb"))
 
-    def genBall(self, rad: float) -> TMShape:
+    def sphere(self, rad: float) -> TMShape:
         return TMBall(rad, self)
 
-    def genBox(self, l: float, wth: float, ht: float) -> TMShape:
+    def box(self, l: float, wth: float, ht: float) -> TMShape:
         return TMBox(l, wth, ht, self)
 
-    def genConeX(self, l: float, r1: float, r2: float) -> TMShape:
+    def cone_x(self, l: float, r1: float, r2: float) -> TMShape:
         return TMCone(l, r1, r2, None, self.rotZtoX, self)
 
-    def genConeY(self, l: float, r1: float, r2: float) -> TMShape:
+    def cone_y(self, l: float, r1: float, r2: float) -> TMShape:
         return TMCone(l, r1, r2, None, self.rotZtoY, self)
 
-    def genConeZ(self, l: float, r1: float, r2: float) -> TMShape:
+    def cone_z(self, l: float, r1: float, r2: float) -> TMShape:
         return TMCone(l, r1, r2, None, None, self)
 
-    def genPolyRodX(self, l: float, rad: float, sides: int) -> TMShape:
+    def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, self.rotZtoX, self)
 
-    def genPolyRodY(self, l: float, rad: float, sides: int) -> TMShape:
+    def regpoly_extrusion_y(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, self.rotZtoY, self)
 
-    def genPolyRodZ(self, l: float, rad: float, sides: int) -> TMShape:
+    def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, None, self)
 
-    def genRodX(self, l: float, rad: float) -> TMShape:
+    def cylinder_x(self, l: float, rad: float) -> TMShape:
         return TMRod(l, rad, None, self.rotZtoX, self)
 
-    def genRodY(self, l: float, rad: float) -> TMShape:
+    def cylinder_y(self, l: float, rad: float) -> TMShape:
         return TMRod(l, rad, None, self.rotZtoY, self)
 
-    def genRodZ(self, l: float, rad: float) -> TMShape:
+    def cylinder_z(self, l: float, rad: float) -> TMShape:
         return TMRod(l, rad, None, None, self)
 
-    def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> TMShape:
+    def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> TMShape:
         return TMPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[
@@ -97,7 +97,7 @@ class TMShapeAPI(ShapeAPI):
             return TMLineSplineExtrusionZ(start, path, abs(ht), self).mv(0, 0, -abs(ht))
         return TMLineSplineExtrusionZ(start, path, ht, self)
 
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[
@@ -107,12 +107,12 @@ class TMShapeAPI(ShapeAPI):
     ) -> TMShape:
         return TMLineSplineRevolveX(start, path, deg, self)
 
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self, rad: float, path: list[tuple[float, float, float]]
     ) -> TMShape:
         return TMCirclePolySweep(rad, path, self)
 
-    def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
+    def text(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
         return TMTextZ(txt, fontSize, tck, font, self)
 
 
@@ -130,7 +130,7 @@ class TMShape(Shape):
                 "warning: solid is NOT a valid volume, attempt minor repair...",
                 file=sys.stderr,
             )
-            jctol = self.api.implementation.joinCutTol()
+            jctol = self.api.implementation.tolerance()
             self.solid.update_faces(self.solid.nondegenerate_faces(jctol / 2))
             self.solid.update_faces(self.solid.unique_faces())
             self.solid.remove_infinite_values()
@@ -158,7 +158,7 @@ class TMShape(Shape):
             self.solid = self.solid.convex_hull
 
     def segsByDim(self, dim: float) -> int:
-        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
     def cut(self, cutter: TMShape) -> TMShape:
         if cutter is None or cutter.solid is None:
@@ -173,7 +173,7 @@ class TMShape(Shape):
         duplicate.solid = self.solid.copy()
         return duplicate
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
@@ -217,7 +217,7 @@ class TMShape(Shape):
             return distance
 
         print(
-            "Trimesh: filletByNearestEdges(...) not implemented yet.", file=sys.stderr
+            "Trimesh: fillet(...) not implemented yet.", file=sys.stderr
         )
 
         return self
@@ -231,7 +231,7 @@ class TMShape(Shape):
         self.solid = tm.boolean.union([self.solid, joiner.solid])
         return self
 
-    def mirrorXZ(self) -> TMShape:
+    def mirror(self) -> TMShape:
         dup = copy.copy(self)
         reflectXZ = tm.transformations.reflection_matrix([0, 0, 0], [0, 1, 0])
         dup.solid = self.solid.copy().apply_transform(reflectXZ)
@@ -253,13 +253,13 @@ class TMShape(Shape):
         self.solid = self.solid.apply_transform(rotMat)
         return self
 
-    def rotateX(self, ang: float) -> TMShape:
+    def rotate_x(self, ang: float) -> TMShape:
         return self.rotate(ang, self.X_AXIS)
 
-    def rotateY(self, ang: float) -> TMShape:
+    def rotate_y(self, ang: float) -> TMShape:
         return self.rotate(ang, self.Y_AXIS)
 
-    def rotateZ(self, ang: float) -> TMShape:
+    def rotate_z(self, ang: float) -> TMShape:
         return self.rotate(ang, self.Z_AXIS)
 
     def scale(self, x: float, y: float, z: float) -> TMShape:
@@ -419,7 +419,7 @@ class TMLineSplineRevolveX(TMShape):
             self.ensureVolume()
             self.solid = tm.boolean.difference([self.solid, cut])
 
-        self.rotateZ(90).rotateY(90)
+        self.rotate_z(90).rotate_y(90)
 
 
 class TMCirclePolySweep(TMShape):

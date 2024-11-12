@@ -39,7 +39,7 @@ from pylele1.pylele_parts import (
 
 def assemble(cfg: LeleConfig) -> list[LelePart]:
 
-    jctol = cfg.joinCutTol
+    jctol = cfg.tolerance
     parts = []
 
     # reusable cutters
@@ -114,7 +114,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
         top = top.join(fretbd)
 
     # problematic edge selection?
-    # top = top.filletByNearestEdges(
+    # top = top.fillet(
     #     [
     #         (cfg.sndholeX, cfg.sndholeY, cfg.brdgZ),
     #         (cfg.sndholeX, cfg.sndholeY, 0),
@@ -124,7 +124,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
 
     # if cfg.tnrCfg.is_worm():
     #     wcfg: WormConfig = cfg.tnrCfg
-    #     top = top.filletByNearestEdges(
+    #     top = top.fillet(
     #         [
     #             (xyz[0] - wcfg.slitLen, xyz[1], xyz[2] + wcfg.strHt())
     #             for xyz in cfg.tnrXYZs

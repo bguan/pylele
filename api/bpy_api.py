@@ -31,7 +31,7 @@ from api.pylele_utils import (
 
 class BlenderShapeAPI(ShapeAPI):
 
-    def exportSTL(self, shape: BlenderShape, path: Union[str, Path]) -> None:
+    def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
@@ -39,7 +39,7 @@ class BlenderShapeAPI(ShapeAPI):
             filepath=ensureFileExtn(path, ".stl"), use_selection=True
         )
 
-    def exportBest(self, shape: BlenderShape, path: Union[str, Path]) -> None:
+    def export_best(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
@@ -47,45 +47,45 @@ class BlenderShapeAPI(ShapeAPI):
             filepath=ensureFileExtn(path, ".glb"), use_selection=True
         )
 
-    def genBall(self, rad: float) -> BlenderShape:
+    def sphere(self, rad: float) -> BlenderShape:
         return BlenderBall(rad, self)
 
-    def genBox(self, ln: float, wth: float, ht: float) -> BlenderShape:
+    def box(self, ln: float, wth: float, ht: float) -> BlenderShape:
         return BlenderBox(ln, wth, ht, self)
 
-    def genConeX(self, ln: float, r1: float, r2: float) -> BlenderShape:
+    def cone_x(self, ln: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeX(ln, r1, r2, self).mv(ln / 2, 0, 0)
 
-    def genConeY(self, ln: float, r1: float, r2: float) -> BlenderShape:
+    def cone_y(self, ln: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeY(ln, r1, r2, self).mv(0, ln / 2, 0)
 
-    def genConeZ(self, ln: float, r1: float, r2: float) -> BlenderShape:
+    def cone_z(self, ln: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeZ(ln, r1, r2, self).mv(0, 0, ln / 2)
 
-    def genPolyRodX(self, ln: float, rad: float, sides: int) -> BlenderShape:
+    def regpoly_extrusion_x(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodX(ln, rad, sides, self)
 
-    def genPolyRodY(self, ln: float, rad: float, sides: int) -> BlenderShape:
+    def regpoly_extrusion_y(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodY(ln, rad, sides, self)
 
-    def genPolyRodZ(self, ln: float, rad: float, sides: int) -> BlenderShape:
+    def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodZ(ln, rad, sides, self)
 
-    def genRodX(self, ln: float, rad: float) -> BlenderShape:
+    def cylinder_x(self, ln: float, rad: float) -> BlenderShape:
         return BlenderRodX(ln, rad, self)
 
-    def genRodY(self, ln: float, rad: float) -> BlenderShape:
+    def cylinder_y(self, ln: float, rad: float) -> BlenderShape:
         return BlenderRodY(ln, rad, self)
 
-    def genRodZ(self, ln: float, rad: float) -> BlenderShape:
+    def cylinder_z(self, ln: float, rad: float) -> BlenderShape:
         return BlenderRodZ(ln, rad, self)
 
-    def genPolyExtrusionZ(
+    def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float
     ) -> BlenderShape:
         return BlenderPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -97,7 +97,7 @@ class BlenderShapeAPI(ShapeAPI):
             )
         return BlenderLineSplineExtrusionZ(start, path, ht, self)
 
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -105,12 +105,12 @@ class BlenderShapeAPI(ShapeAPI):
     ) -> BlenderShape:
         return BlenderLineSplineRevolveX(start, path, deg, self)
 
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self, rad: float, path: list[tuple[float, float, float]]
     ) -> BlenderShape:
         return BlenderCirclePolySweep(rad, path, self)
 
-    def genTextZ(
+    def text(
         self, txt: str, fontSize: float, tck: float, font: str
     ) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
@@ -209,7 +209,7 @@ class BlenderShape(Shape):
                 nearestIdx = edge.index
         return nearestIdx
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
@@ -296,7 +296,7 @@ class BlenderShape(Shape):
         )
         return cp.repairMesh()
 
-    def mirrorXZ(self) -> BlenderShape:
+    def mirror(self) -> BlenderShape:
         return self.mirror((False, True, False))
 
     def mv(self, x: float, y: float, z: float) -> BlenderShape:
@@ -347,7 +347,7 @@ class BlenderShape(Shape):
         bpy.ops.object.mode_set(mode="OBJECT")
         return self
 
-    def rotateX(self, ang: float) -> BlenderShape:
+    def rotate_x(self, ang: float) -> BlenderShape:
         if ang == 0:
             return self
         bpy.context.view_layer.objects.active = self.solid
@@ -361,7 +361,7 @@ class BlenderShape(Shape):
         )
         return self
 
-    def rotateY(self, ang: float) -> BlenderShape:
+    def rotate_y(self, ang: float) -> BlenderShape:
         if ang == 0:
             return self
         bpy.context.view_layer.objects.active = self.solid
@@ -375,7 +375,7 @@ class BlenderShape(Shape):
         )
         return self
 
-    def rotateZ(self, ang: float) -> BlenderShape:
+    def rotate_z(self, ang: float) -> BlenderShape:
         if ang == 0:
             return self
         bpy.context.view_layer.objects.active = self.solid
@@ -411,7 +411,7 @@ class BlenderShape(Shape):
         self.solid.select_set(True)
 
     def segsByDim(self, dim: float) -> int:
-        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
 
 class BlenderBall(BlenderShape):
@@ -465,7 +465,7 @@ class BlenderConeX(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderConeZ(ln, r1, r2, api).rotateY(90).solid
+        self.solid = BlenderConeZ(ln, r1, r2, api).rotate_y(90).solid
 
 
 class BlenderConeY(BlenderShape):
@@ -477,7 +477,7 @@ class BlenderConeY(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderConeZ(ln, r1, r2, api).rotateX(90).solid
+        self.solid = BlenderConeZ(ln, r1, r2, api).rotate_x(90).solid
 
 
 class BlenderPolyRodZ(BlenderShape):
@@ -502,7 +502,7 @@ class BlenderPolyRodX(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderPolyRodZ(ln, rad, sides, api).rotateY(90).solid
+        self.solid = BlenderPolyRodZ(ln, rad, sides, api).rotate_y(90).solid
 
 
 class BlenderPolyRodY(BlenderShape):
@@ -514,7 +514,7 @@ class BlenderPolyRodY(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderPolyRodZ(ln, rad, sides, api).rotateX(90).solid
+        self.solid = BlenderPolyRodZ(ln, rad, sides, api).rotate_x(90).solid
 
 
 class BlenderRodZ(BlenderShape):
@@ -538,7 +538,7 @@ class BlenderRodX(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderRodZ(ln, rad, api).rotateY(90).solid
+        self.solid = BlenderRodZ(ln, rad, api).rotate_y(90).solid
 
 
 class BlenderRodY(BlenderShape):
@@ -549,7 +549,7 @@ class BlenderRodY(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        self.solid = BlenderRodZ(ln, rad, api).rotateX(90).solid
+        self.solid = BlenderRodZ(ln, rad, api).rotate_x(90).solid
 
 
 class BlenderRod3D(BlenderShape):

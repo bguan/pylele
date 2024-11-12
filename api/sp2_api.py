@@ -31,12 +31,12 @@ class Sp2ShapeAPI(ShapeAPI):
     command = OPENSCAD
     implicit = False
 
-    def exportSTL(self, shape: Sp2Shape, path: str) -> None:
+    def export_stl(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
-        scad_file = self.exportBest(shape=shape, path=basefname)
+        scad_file = self.export_best(shape=shape, path=basefname)
         return scad2stl(scad_file, command=self.command, implicit=self.implicit)
 
-    def exportBest(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
+    def export_best(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
         fname = ensureFileExtn(fname, ".scad")
         shape.solid.save_as_scad(filename=fname, outdir=outdir)
@@ -45,46 +45,46 @@ class Sp2ShapeAPI(ShapeAPI):
         assert os.path.isfile(fout), f"ERROR: file {fout} does not exist!"
         return fout
 
-    def genBall(self, rad: float) -> Sp2Shape:
+    def sphere(self, rad: float) -> Sp2Shape:
         return Sp2Ball(rad, self)
 
-    def genBox(self, l: float, wth: float, ht: float) -> Sp2Shape:
+    def box(self, l: float, wth: float, ht: float) -> Sp2Shape:
         return Sp2Box(l, wth, ht, self).mv(-l / 2, -wth / 2, -ht / 2)
 
-    def genConeX(self, l: float, r1: float, r2: float) -> Sp2Shape:
+    def cone_x(self, l: float, r1: float, r2: float) -> Sp2Shape:
         return Sp2Cone(l, r1, r2, direction="X", sides=None, api=self).mv(l / 2, 0, 0)
 
-    def genConeY(self, l: float, r1: float, r2: float) -> Sp2Shape:
+    def cone_y(self, l: float, r1: float, r2: float) -> Sp2Shape:
         return Sp2Cone(l, r1, r2, direction="Y", sides=None, api=self).mv(0, l / 2, 0)
 
-    def genConeZ(self, l: float, r1: float, r2: float) -> Sp2Shape:
+    def cone_z(self, l: float, r1: float, r2: float) -> Sp2Shape:
         return Sp2Cone(l, r1, r2, direction="Z", sides=None, api=self).mv(0, 0, l / 2)
 
-    def genPolyRodX(self, l: float, rad: float, sides: int) -> Sp2Shape:
+    def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="X", api=self)
 
-    def genPolyRodY(self, l: float, rad: float, sides: int) -> Sp2Shape:
+    def regpoly_extrusion_y(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="Y", api=self)
 
-    def genPolyRodZ(self, l: float, rad: float, sides: int) -> Sp2Shape:
+    def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="Z", api=self)
 
-    def genRodX(self, l: float, rad: float) -> Sp2Shape:
+    def cylinder_x(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="X", sides=None, api=self)
 
-    def genRodY(self, l: float, rad: float) -> Sp2Shape:
+    def cylinder_y(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="Y", sides=None, api=self)
 
-    def genRodZ(self, l: float, rad: float) -> Sp2Shape:
+    def cylinder_z(self, l: float, rad: float) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
 
-    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Sp2Shape:
+    def cylinder_rounded_z(self, l: float, rad: float, domeRatio: float = 1) -> Sp2Shape:
         return Sp2RndRodZ(l, rad, domeRatio, api=self)
 
-    def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
+    def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> Sp2Shape:
         return Sp2PolyExtrusionZ(path, ht, api=self)
 
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -97,7 +97,7 @@ class Sp2ShapeAPI(ShapeAPI):
         else:
             return Sp2LineSplineExtrusionZ(start, path, ht, api=self)
 
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -105,12 +105,12 @@ class Sp2ShapeAPI(ShapeAPI):
     ) -> Sp2Shape:
         return Sp2LineSplineRevolveX(start, path, deg, api=self)
 
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self, rad: float, path: list[tuple[float, float, float]]
     ) -> Sp2Shape:
         return Sp2CirclePolySweep(rad, path, api=self)
 
-    def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
+    def text(self, txt: str, fontSize: float, tck: float, font: str) -> Sp2Shape:
         return Sp2TextZ(txt, fontSize, tck, font, api=self)
 
     def genImport(self, infile: str, extrude: float = None) -> Sp2Shape:
@@ -138,7 +138,7 @@ class Sp2Shape(Shape):
     def dup(self) -> Sp2Shape:
         return copy.copy(self)
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
@@ -152,9 +152,9 @@ class Sp2Shape(Shape):
         return self
 
     def segsByDim(self, dim: float) -> int:
-        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
-    def mirrorXZ(self) -> Sp2Shape:
+    def mirror(self) -> Sp2Shape:
         cmirror = self.solid.mirror([0, 1, 0])
         dup = copy.copy(self)
         dup.solid = cmirror
@@ -167,15 +167,15 @@ class Sp2Shape(Shape):
     def remove(self):
         pass
 
-    def rotateX(self, ang: float) -> Sp2Shape:
+    def rotate_x(self, ang: float) -> Sp2Shape:
         self.solid = self.solid.rotate([ang, 0, 0])
         return self
 
-    def rotateY(self, ang: float) -> Sp2Shape:
+    def rotate_y(self, ang: float) -> Sp2Shape:
         self.solid = self.solid.rotate([0, ang, 0])
         return self
 
-    def rotateZ(self, ang: float) -> Sp2Shape:
+    def rotate_z(self, ang: float) -> Sp2Shape:
         self.solid = self.solid.rotate([0, 0, ang])
         return self
 
@@ -227,9 +227,9 @@ class Sp2Cone(Sp2Shape):
             -ln / 2
         )
         if direction == "X":
-            self.solid = self.solid.rotateY(90)
+            self.solid = self.solid.rotate_y(90)
         elif direction == "Y":
-            self.solid = self.solid.rotateX(90)
+            self.solid = self.solid.rotate_x(90)
 
 
 class Sp2PolyExtrusionZ(Sp2Shape):
@@ -275,10 +275,10 @@ class Sp2LineSplineRevolveX(Sp2Shape):
         segs = ceil(self.segsByDim(2 * pi * dimY) * abs(deg) / 360)
         self.solid = (
             polygon(lineSplineXY(start, path, self.segsByDim))
-            .rotateZ(90)
+            .rotate_z(90)
             .rotate_extrude(deg, _fn=segs)
-            .rotateY(90)
-            .rotateX(-90)
+            .rotate_y(90)
+            .rotate_x(-90)
         )
 
 

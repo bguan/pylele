@@ -33,7 +33,7 @@ class LeleNeckAssembly(LeleBase):
     def gen(self) -> Shape:
         """Generate Neck Assembly"""
 
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
 
         ## Neck
         neck = LeleNeck(cli=self.cli)
@@ -80,7 +80,7 @@ class LeleNeckAssembly(LeleBase):
 
         ## Fretboard Spines
         if (self.cli.separate_fretboard or self.cli.separate_top or self.cli.separate_neck) and self.cli.num_spines > 0:
-            neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.getJoinCutTol())
+            neck -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(0, 0, -self.api.tolerance())
 
         return neck.gen_full()
 

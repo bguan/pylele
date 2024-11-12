@@ -100,7 +100,7 @@ class LeleConfig:
         # Primary Configs: that others depends on
         self.impl = impl
         self.fidelity = fidelity
-        self.joinCutTol = impl.joinCutTol()
+        self.tolerance = impl.tolerance()
         self.tnrCfg = tnrType.value
 
         self.scaleLen = scaleLen

@@ -24,7 +24,7 @@ class LelePeg(LeleBase):
         cutAdj = FIT_TOL if self.isCut else 0
         assert TunerType[self.cli.tuner_type].value.is_peg()
         cfg: PegConfig = TunerType[self.cli.tuner_type].value
-        joinTol = 2 * self.cfg.joinCutTol
+        joinTol = 2 * self.cfg.tolerance
         strRad = self.cfg.STR_RAD + cutAdj
         holeHt = cfg.holeHt
         majRad = cfg.majRad + cutAdj
@@ -35,40 +35,40 @@ class LelePeg(LeleBase):
         topCutTck = 100 if self.isCut else 2  # big value for cutting
         botCutTck = botLen - midTck / 3 if self.isCut else 2
 
-        top = self.api.genRodZ(topCutTck + joinTol, majRad).mv(0, 0, topCutTck / 2)
+        top = self.api.cylinder_z(topCutTck + joinTol, majRad).mv(0, 0, topCutTck / 2)
 
         if not self.isCut:
             stemHt = holeHt + 4 * strRad
-            stem = self.api.genRodZ(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
-            hole = self.api.genRodX(2 * minRad, strRad).mv(0, 0, holeHt)
+            stem = self.api.cylinder_z(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
+            hole = self.api.cylinder_x(2 * minRad, strRad).mv(0, 0, holeHt)
             stem = stem.cut(hole)
             top = top.join(stem)
 
-        mid = self.api.genRodZ(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)
+        mid = self.api.cylinder_z(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)
 
         if self.isCut:
             btnConeTck = botLen - midTck - 2 * cutAdj
-            btn = self.api.genConeZ(btnConeTck + joinTol, btnRad, majRad).mv(
+            btn = self.api.cone_z(btnConeTck + joinTol, btnRad, majRad).mv(
                 0, 0, -midTck - btnConeTck
             )
-            bot = self.api.genRodZ(botCutTck + joinTol, btnRad).mv(
+            bot = self.api.cylinder_z(botCutTck + joinTol, btnRad).mv(
                 0, 0, -botLen - botCutTck / 2 + 2 * cutAdj
             )
             botEnd = (
-                self.api.genBall(btnRad)
+                self.api.sphere(btnRad)
                 .scale(1, 1, 0.5 if self.cli.separate_end else 1)
                 .mv(0, 0, -botLen - botCutTck)
             )
             bot = bot.join(botEnd)
         else:
-            bot = self.api.genRodZ(botCutTck + joinTol, majRad).mv(
+            bot = self.api.cylinder_z(botCutTck + joinTol, majRad).mv(
                 0, 0, -midTck - botCutTck / 2
             )
-            stem = self.api.genRodZ(botLen + joinTol, minRad / 2).mv(
+            stem = self.api.cylinder_z(botLen + joinTol, minRad / 2).mv(
                 0, 0, -midTck - botLen / 2
             )
             bot = bot.join(stem)
-            btn = self.api.genBox(btnRad * 2, btnRad / 2, btnRad).mv(
+            btn = self.api.box(btnRad * 2, btnRad / 2, btnRad).mv(
                 0, 0, -midTck - botLen - botCutTck / 2 + btnRad / 2
             )
 

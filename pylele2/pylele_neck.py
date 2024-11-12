@@ -25,13 +25,13 @@ class LeleNeck(LeleBase):
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         path = self.cfg.neckPath
-        joinTol = self.api.getJoinCutTol()
+        joinTol = self.api.tolerance()
         neck = None
         if midTck > 0:
-            neck = self.api.genPolyExtrusionZ(path, midTck).mv(0, 0, -midTck)
+            neck = self.api.polygon_extrusion(path, midTck).mv(0, 0, -midTck)
 
         neckPath = [(nkLen, 0), (nkLen, nkWth / 2), (0, ntWth / 2)]
-        neckCone = self.api.genLineSplineRevolveX((0, 0), neckPath, -180)
+        neckCone = self.api.spline_revolve((0, 0), neckPath, -180)
         neckCone = neckCone.scale(1, 1, botRat).mv(0, 0, -midTck + joinTol)
 
         neck = neckCone + neck

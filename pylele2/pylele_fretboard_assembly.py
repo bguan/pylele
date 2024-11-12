@@ -53,7 +53,7 @@ class LeleFretboardAssembly(LeleBase):
     def gen(self) -> Shape:
         """ Generate Fretboard Assembly """
 
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
 
         fretbd = LeleFretboard( cli=self.cli )
 

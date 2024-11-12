@@ -22,7 +22,7 @@ class LeleWormKey(LeleBase):
     def gen(self) -> Shape:
         """Generate Worm Key"""
         isBlender = self.cli.implementation == Implementation.BLENDER
-        joinTol = self.api.getJoinCutTol()
+        joinTol = self.api.tolerance()
         tailX = self.cfg.tailX
         txyzs = self.cfg.tnrXYZs
         assert TunerType[self.cli.tuner_type].value.is_worm()
@@ -37,14 +37,14 @@ class LeleWormKey(LeleBase):
         kyLen = wcfg.buttonKeyLen + 2 * cutAdj
         gapAdj = wcfg.gapAdj
 
-        key = self.api.genPolyRodX(kyLen, kyRad, 6).mv(joinTol -kyLen/2 -kbHt -btnHt, 0, 0)
-        base = self.api.genPolyRodX(kbHt, kbRad, 36) if isBlender else self.api.genRodX(kbHt, kbRad)
+        key = self.api.regpoly_extrusion_x(kyLen, kyRad, 6).mv(joinTol -kyLen/2 -kbHt -btnHt, 0, 0)
+        base = self.api.regpoly_extrusion_x(kbHt, kbRad, 36) if isBlender else self.api.cylinder_x(kbHt, kbRad)
         base = base.mv(-kbHt/2 -btnHt, 0, 0)
 
         if self.isCut:
-            btn = self.api.genBox(100, btnTck, btnWth)\
+            btn = self.api.box(100, btnTck, btnWth)\
                 .mv(50 -btnHt, 0, 0)
-            btn += self.api.genRodX(100 if self.isCut else btnHt, btnWth/2)\
+            btn += self.api.cylinder_x(100 if self.isCut else btnHt, btnWth/2)\
                 .scale(1, .5, 1)\
                 .mv(50 -btnHt, btnTck/2, 0)
         else:

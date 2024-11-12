@@ -45,17 +45,17 @@ def gen_fret(api:ShapeAPI, y, h, ftype:FretType = FretType.ROUND):
     """ Generate a fret """
 
     # main fret rod
-    fret = api.genRodY(2 * y, h)
+    fret = api.cylinder_y(2 * y, h)
     # cut rod angles
     d = 4*h
-    fret -= api.genBox( d, d, d).rotateX(45).mv(0, -y, d/2)
-    fret -= api.genBox( d, d, d).rotateX(45).mv(0,  y, d/2)
+    fret -= api.box( d, d, d).rotate_x(45).mv(0, -y, d/2)
+    fret -= api.box( d, d, d).rotate_x(45).mv(0,  y, d/2)
 
     if ftype == FretType.WIRE:
         # cut bottom
-        fret -= api.genBox(2*h, 2*y, h).mv(0,0,-h/2)
+        fret -= api.box(2*h, 2*y, h).mv(0,0,-h/2)
         # generate fret wire hole
-        fret += api.genBox(FRET_WIRE_WIDTH, 2*y, h).mv(0,0,-h/2)
+        fret += api.box(FRET_WIRE_WIDTH, 2*y, h).mv(0,0,-h/2)
 
     return fret
 class LeleFrets(LeleBase):

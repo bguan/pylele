@@ -204,7 +204,7 @@ class LeleConfig:
         nutStrGap=self.cli.nut_string_gap
         endWth=self.cli.end_flat_width
         wallTck=self.cli.wall_thickness
-        self.joinCutTol = self.cli.implementation.joinCutTol()
+        self.tolerance = self.cli.implementation.tolerance()
         tnrType=TunerType[self.cli.tuner_type].value
 
         # Length based configs

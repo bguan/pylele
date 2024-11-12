@@ -22,8 +22,8 @@ class Tube(LeleSolid):
         return parser
 
     def gen(self) -> Shape:
-        outer = self.api.genRodX(self.cli.heigth, self.cli.out_diameter/2)
-        inner = self.api.genRodX(self.cli.heigth+1, self.cli.in_diameter/2)
+        outer = self.api.cylinder_x(self.cli.heigth, self.cli.out_diameter/2)
+        inner = self.api.cylinder_x(self.cli.heigth+1, self.cli.in_diameter/2)
         return outer - inner
 
 def main(args=None):

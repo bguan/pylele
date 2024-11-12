@@ -95,10 +95,10 @@ class LeleBase(LeleSolid):
 
         return cli
 
-    def exportSTL(self, out_path=None) -> None:
+    def export_stl(self, out_path=None) -> None:
         """Generate .stl output file"""
         self.configure_if_hasnt()
-        return super().exportSTL(out_path=out_path)
+        return super().export_stl(out_path=out_path)
 
     def gen_full(self):
         """Generate full shape """

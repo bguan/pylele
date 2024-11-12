@@ -69,7 +69,7 @@ class LeleTexts(LeleBase):
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck
-        cutTol = self.api.getJoinCutTol()
+        cutTol = self.api.tolerance()
 
         txtZ = -botRat * bodyWth / 2 - midBotTck - 2
         allHt = sum([1.2 * size for _, size, _ in tsf])
@@ -77,12 +77,12 @@ class LeleTexts(LeleBase):
         ls: Shape = None
         for txt, sz, fnt in tsf:
             if not txt is None and not fnt is None:
-                # orig impl uses mirrorXZ() instead of rotateX(180)
+                # orig impl uses mirror() instead of rotate_x(180)
                 # but Blender text mirroring can lead to weird output
                 l = (
-                    self.api.genTextZ(txt, sz, txtTck, fnt)
-                    .rotateZ(90)
-                    .rotateX(180)
+                    self.api.text(txt, sz, txtTck, fnt)
+                    .rotate_z(90)
+                    .rotate_x(180)
                     .mv(tx + sz / 2, 0, txtZ + txtTck)
                 )
                 ls = l if ls is None else ls.join(l)

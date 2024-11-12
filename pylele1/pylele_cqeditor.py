@@ -35,7 +35,7 @@ def cqeditor_main():
     )
     strs = Strings(cfg, isCut=False)
     tnrs = Tuners(cfg, isCut=False)
-    tnrs.filletByNearestEdges([], FILLET_RAD)
+    tnrs.fillet([], FILLET_RAD)
     sps = None if cfg.numStrs < 2 else Spines(cfg, isCut=False)
     parts = assemble(cfg)
     parts.extend([strs, tnrs])
@@ -60,7 +60,7 @@ def cqeditor_main():
         else:
             out_path = Path("build")
             make_or_exist_path(out_path)
-            p.exportSTL(str(out_path / f"{p.name}"))
+            p.export_stl(str(out_path / f"{p.name}"))
 
 
 if __name__ in ["__main__", "__cq_main__"]:

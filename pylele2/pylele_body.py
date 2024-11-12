@@ -33,7 +33,7 @@ class LeleBody(LeleBase):
     def flat_body_bottom(self):
         """generate the bottom of a flat body"""
         bot_below = (
-            self.api.genLineSplineRevolveX(self.cfg.bodyOrig, self.cfg.bodyPath, -180)
+            self.api.spline_revolve(self.cfg.bodyOrig, self.cfg.bodyPath, -180)
             .scale(1, 1, self.cfg.TOP_RATIO)
             .mv(0, 0, -self.cli.flat_body_thickness)
         )
@@ -45,27 +45,27 @@ class LeleBody(LeleBase):
         midTck = self.cfg.extMidBotTck
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyPath
-        joinTol = self.api.getJoinCutTol()
+        joinTol = self.api.tolerance()
 
         if self.cli.body_type == LeleBodyType.GOURD:
             # Gourd body
-            bot = self.api.genLineSplineRevolveX(bOrig, bPath, -180).scale(1, 1, botRat)
+            bot = self.api.spline_revolve(bOrig, bPath, -180).scale(1, 1, botRat)
 
             if midTck > 0:
                 # Generates flat middle section of body
                 bot <<= (0, 0, joinTol - midTck)
-                midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, -midTck)
-                bot += midR.mirrorXZ_and_join()
+                midR = self.api.spline_extrusion(bOrig, bPath, -midTck)
+                bot += midR.mirror_and_join()
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
             bot_below = self.flat_body_bottom().mv(0, 0, joinTol)
 
             # Flat body
-            midR = self.api.genLineSplineExtrusionZ(
+            midR = self.api.spline_extrusion(
                 bOrig, bPath, -self.cli.flat_body_thickness
             )
-            bot = midR.mirrorXZ_and_join()
+            bot = midR.mirror_and_join()
             bot += bot_below
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
@@ -74,13 +74,13 @@ class LeleBody(LeleBase):
 
             # Flat body
             # outer wall
-            midR = self.api.genLineSplineExtrusionZ(
+            midR = self.api.spline_extrusion(
                 bOrig, bPath, -self.cli.flat_body_thickness
             )
             # inner wall
             midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
             midR -= midR2
-            bot = midR.mirrorXZ_and_join()
+            bot = midR.mirror_and_join()
             bot += bot_below
 
         else:

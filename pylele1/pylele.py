@@ -71,8 +71,8 @@ def pylele_main():
     for p in parts:
         if cfg.split and not isinstance(p, WormKey):
             p = p.half()
-        p.exportSTL(str(expDir / f"{p.name}"))
-        p.exportBest(str(expDir / f"{p.name}"))
+        p.export_stl(str(expDir / f"{p.name}"))
+        p.export_best(str(expDir / f"{p.name}"))
 
 
 if __name__ == "__main__":

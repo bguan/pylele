@@ -34,7 +34,7 @@ class LeleGuide(LeleBase):
         guide = (
             None
             if self.isCut
-            else self.api.genRndRodY(
+            else self.api.cylinder_rounded_y(
                 (gdWth - 0.5 * gdGap + sR + 2 * gdR) if nStrs > 1 else 6 * gdR,
                 1.1 * gdR,
                 1,
@@ -42,7 +42,7 @@ class LeleGuide(LeleBase):
         )
 
         for y in self.cfg.guideYs:
-            post = self.api.genRodZ(gdHt, gdR)
+            post = self.api.cylinder_z(gdHt, gdR)
             post = post.mv(gdX, y, gdZ + gdHt/2)
             guide = post + guide
 

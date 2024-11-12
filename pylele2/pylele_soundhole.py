@@ -34,9 +34,9 @@ class LeleSoundhole(LeleBase):
         ang = sh_cfg.sndholeAng
         bodyWth = self.cfg.bodyWth
 
-        hole = self.api.genRodZ(bodyWth + midTck, minRad)\
+        hole = self.api.cylinder_z(bodyWth + midTck, minRad)\
             .scale(1, maxRad/minRad, 1)\
-            .rotateZ(ang).mv(x, y, -midTck)
+            .rotate_z(ang).mv(x, y, -midTck)
 
         return hole
 
@@ -46,7 +46,7 @@ class LeleSoundhole(LeleBase):
         # soundhole fillet
         sh_cfg = self.soundhole_config()
 
-        top = top.filletByNearestEdges(
+        top = top.fillet(
             nearestPts=[(sh_cfg.sndholeX, sh_cfg.sndholeY, self.cfg.fretbdHt)],
             rad = FILLET_RAD
         )

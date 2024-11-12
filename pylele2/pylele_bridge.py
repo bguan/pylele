@@ -122,7 +122,7 @@ class LeleBridge(LeleBase):
             # increase overlap when blender backend to force join
             brdgZ -= 1.5
 
-        brdg = self.api.genBox(brdgLen, brdgWth, brdgHt).mv(
+        brdg = self.api.box(brdgLen, brdgWth, brdgHt).mv(
             scLen, 0, brdgZ + brdgHt / 2
         )
 
@@ -132,23 +132,23 @@ class LeleBridge(LeleBase):
             cutScaleZ = cutHt / cutRad
 
             frontCut = (
-                self.api.genRodY(2 * brdgWth, cutRad)
+                self.api.cylinder_y(2 * brdgWth, cutRad)
                 .scale(1, 1, cutScaleZ)
                 .mv(scLen - cutRad - strRad, 0, brdgZ + brdgHt)
             )
 
             backCut = (
-                self.api.genRodY(2 * brdgWth, cutRad)
+                self.api.cylinder_y(2 * brdgWth, cutRad)
                 .scale(1, 1, cutScaleZ)
                 .mv(scLen + cutRad + strRad, 0, brdgZ + brdgHt)
             )
 
-            brdgTop = self.api.genRodY(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt)
+            brdgTop = self.api.cylinder_y(brdgWth, strRad).mv(scLen, 0, brdgZ + brdgHt)
 
             brdg = brdg.cut(frontCut).cut(backCut).join(brdgTop)
 
             if self.cli.bridge_piezo:
-                mic_cut = self.api.genBox(
+                mic_cut = self.api.box(
                     self.cli.bridge_piezo_width, brdgWth, self.cli.bridge_piezo_heigth
                 )
                 mic_cut = mic_cut.mv(scLen, 0, brdgZ + self.cli.bridge_piezo_heigth / 2)
@@ -156,7 +156,7 @@ class LeleBridge(LeleBase):
         else:
             if self.cli.bridge_piezo:
                 wire_rad = 2
-                wire = self.api.genRodZ(15, wire_rad).mv(
+                wire = self.api.cylinder_z(15, wire_rad).mv(
                     scLen, brdgWth / 2 - wire_rad, brdgZ
                 )
                 brdg = brdg.join(wire)

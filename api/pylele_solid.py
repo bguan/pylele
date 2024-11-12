@@ -33,7 +33,7 @@ def main_maker(module_name, class_name, args=None):
     class_ = getattr(module, class_name)
     solid = class_(args=args)
     solid.export_args()  # includes export_configuration for LeleBase
-    out_fname = solid.exportSTL()
+    out_fname = solid.export_stl()
     return solid, out_fname
 
 def test_iteration(module, component, test, api, args=None):
@@ -446,7 +446,7 @@ class LeleSolid(ABC):
             fmt='.json'
         )
 
-    def exportSTL(
+    def export_stl(
         self,
         out_path=None,
         report_en=True,
@@ -460,7 +460,7 @@ class LeleSolid(ABC):
         start_time = time.time()
         self.gen_full()
 
-        self.api.exportSTL(self.shape, out_fname)
+        self.api.export_stl(self.shape, out_fname)
 
         # potential timing issues with generating STL files
         retry = 0
@@ -479,7 +479,7 @@ class LeleSolid(ABC):
             # this is an assembly, generate other parts
             for part in self.parts:
                 if isinstance(part, LeleSolid):
-                    part.exportSTL(out_path=out_path)
+                    part.export_stl(out_path=out_path)
                 else:
                     print(
                         f"# WARNING: Cannot export .stl of class {part} in assembly {self}"
@@ -509,7 +509,7 @@ class LeleSolid(ABC):
 
         return out_fname
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
@@ -517,7 +517,7 @@ class LeleSolid(ABC):
         """ Apply fillet to solid """
         self.gen_full()
         try:
-            self.shape = self.shape.filletByNearestEdges(nearestPts, rad)
+            self.shape = self.shape.fillet(nearestPts, rad)
         except:
             print(f'WARNING: fillet failed at point {nearestPts}, with radius {rad}!')
         return self
@@ -538,11 +538,11 @@ class LeleSolid(ABC):
         )
         return self
 
-    def mirrorXZ(self) -> LeleSolid:
+    def mirror(self) -> LeleSolid:
         """Mirror solid along XZ axis"""
         # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
         self.gen_full()
-        mirror = self.shape.mirrorXZ()
+        mirror = self.shape.mirror()
         return mirror
 
     def mv(self, x: float, y: float, z: float) -> LeleSolid:

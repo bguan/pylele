@@ -29,18 +29,18 @@ class LeleNeckBend(LeleBase):
         nkLen = self.cfg.neckLen
         nkWth = self.cfg.neckWth
 
-        neck_profile = self.api.genRodZ(self.cli.flat_body_thickness, nkWth / 2).mv(
+        neck_profile = self.api.cylinder_z(self.cli.flat_body_thickness, nkWth / 2).mv(
             nkLen, 0, -self.cli.flat_body_thickness / 2
         )
-        neck_cutter = self.api.genBox(
+        neck_cutter = self.api.box(
             nkWth / 2, nkWth, self.cli.flat_body_thickness
         ).mv(nkLen + nkWth / 4, 0, -self.cli.flat_body_thickness / 2)
         neck_profile = neck_profile.cut(neck_cutter)
 
         bot = (
-            self.api.genQuarterBall(nkWth / 2, False, True)
+            self.api.sphere_quadrant(nkWth / 2, False, True)
             .scale(1, 1, self.cfg.TOP_RATIO)
-            .mv(nkLen, 0, -self.cli.flat_body_thickness + self.api.getJoinCutTol())
+            .mv(nkLen, 0, -self.cli.flat_body_thickness + self.api.tolerance())
         )
         return neck_profile.join(bot)
 

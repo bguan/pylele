@@ -30,10 +30,10 @@ class Screw(LeleSolid):
         shape = None
 
         if self.cli.screw_heigth > 0 and self.cli.screw_diameter > 0:
-            shape = self.api.genRodZ(self.cli.screw_heigth, self.cli.screw_diameter/2)
+            shape = self.api.cylinder_z(self.cli.screw_heigth, self.cli.screw_diameter/2)
 
         if self.cli.head_heigth > 0 and self.cli.head_diameter > 0 :
-            head = self.api.genConeZ(self.cli.head_heigth,
+            head = self.api.cone_z(self.cli.head_heigth,
                                      r1=self.cli.screw_diameter/2,
                                      r2=self.cli.head_diameter/2)\
                                         .mv(0,0,self.cli.screw_heigth/2)

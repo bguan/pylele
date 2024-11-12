@@ -230,13 +230,13 @@ class LeleWorm(LeleBase):
         axlY = -0.5
         axlZ = 0
 
-        axl = self.api.genRodY(c.axlLen, c.axlRad).mv(axlX, axlY, axlZ)
+        axl = self.api.cylinder_y(c.axlLen, c.axlRad).mv(axlX, axlY, axlZ)
         if self.isCut:
-            axl += self.api.genBox(100, c.axlLen, 2 * c.axlRad).mv(
+            axl += self.api.box(100, c.axlLen, 2 * c.axlRad).mv(
                 50 + axlX, axlY, axlZ
             )
             if self.cli.worm_axle_hole:
-                axl += self.api.genRodY(100.0, self.cli.worm_axle_hole_radius).mv(
+                axl += self.api.cylinder_y(100.0, self.cli.worm_axle_hole_radius).mv(
                     axlX, axlY, axlZ
                 )
         ## Disk
@@ -244,9 +244,9 @@ class LeleWorm(LeleBase):
         dskY = axlY - c.axlLen / 2 - c.dskTck / 2
         dskZ = axlZ
 
-        dsk = self.api.genRodY(c.dskTck, c.dskRad).mv(dskX, dskY, dskZ)
+        dsk = self.api.cylinder_y(c.dskTck, c.dskRad).mv(dskX, dskY, dskZ)
         if self.isCut:
-            dsk += self.api.genBox(100, c.dskTck, 2 * c.dskRad).mv(
+            dsk += self.api.box(100, c.dskTck, 2 * c.dskRad).mv(
                 50 + dskX, dskY, dskZ
             )
 
@@ -254,17 +254,17 @@ class LeleWorm(LeleBase):
         drvX = dskX
         drvY = dskY
         drvZ = dskZ + c.offset
-        drv = self.api.genRodX(c.drvLen, c.drvRad).mv(drvX, drvY, drvZ)
+        drv = self.api.cylinder_x(c.drvLen, c.drvRad).mv(drvX, drvY, drvZ)
         if self.isCut:
-            drv += self.api.genRodX(100, c.drvRad).mv(50 + drvX, drvY, drvZ)
+            drv += self.api.cylinder_x(100, c.drvRad).mv(50 + drvX, drvY, drvZ)
 
         worm = axl + dsk + drv
 
         ## Slit
         if self.isCut:
-            worm += self.api.genBox(c.sltLen, c.sltWth, c.sltHt)\
+            worm += self.api.box(c.sltLen, c.sltWth, c.sltHt)\
                 .mv(c.sltLen/2 - c.front, 0, c.sltHt/2 - 2*c.axlRad)
-            worm += self.api.genPolyRodY(c.sltWth, c.sltWth * 2, 4)\
+            worm += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
                 .mv(-c.front, 0, c.sltHt - 2*c.axlRad) # dx was -c.sltLen/2
 
         return worm

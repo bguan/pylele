@@ -77,7 +77,7 @@ class LeleFretboardDots(LeleBase):
                     else [-0.5, 0.5] if fret2Dots[n] == 2 else [-1, 0, 1]
                 )
                 for p in pos:
-                    dot = self.api.genRodZ(
+                    dot = self.api.cylinder_z(
                         2 * dep, dotRad).mv(acclen - .5*flen, p*sgap, ht)
                     dots = dot + dots
 

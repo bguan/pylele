@@ -23,7 +23,7 @@ from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY, textToGlyphsPa
 
 class MFShapeAPI(ShapeAPI):
 
-    def exportSTL(self, shape: MFShape, path: Union[str, Path]) -> None:
+    def export_stl(self, shape: MFShape, path: Union[str, Path]) -> None:
 
         def calculate_normals(vertices, faces):
             # Vertices shape: (vn, 3), Faces shape: (fn, 3)
@@ -93,46 +93,46 @@ class MFShapeAPI(ShapeAPI):
         with open(ensureFileExtn(path, ".stl"), "wb") as file:
             file.write(export)
 
-    def exportBest(self, shape: MFShape, path: Union[str, Path]) -> None:
-        self.exportSTL(shape, path)
+    def export_best(self, shape: MFShape, path: Union[str, Path]) -> None:
+        self.export_stl(shape, path)
 
-    def genBall(self, rad: float) -> MFShape:
+    def sphere(self, rad: float) -> MFShape:
         return MFBall(rad, self)
 
-    def genBox(self, l: float, wth: float, ht: float) -> MFShape:
+    def box(self, l: float, wth: float, ht: float) -> MFShape:
         return MFBox(l, wth, ht, self)
 
-    def genConeX(self, l: float, r1: float, r2: float) -> MFShape:
-        return MFConeZ(l, r1, r2, None, self).rotateY(90)
+    def cone_x(self, l: float, r1: float, r2: float) -> MFShape:
+        return MFConeZ(l, r1, r2, None, self).rotate_y(90)
 
-    def genConeY(self, l: float, r1: float, r2: float) -> MFShape:
-        return MFConeZ(l, r1, r2, None, self).rotateX(-90)
+    def cone_y(self, l: float, r1: float, r2: float) -> MFShape:
+        return MFConeZ(l, r1, r2, None, self).rotate_x(-90)
 
-    def genConeZ(self, l: float, r1: float, r2: float) -> MFShape:
+    def cone_z(self, l: float, r1: float, r2: float) -> MFShape:
         return MFConeZ(l, r1, r2, None, self)
 
-    def genPolyRodX(self, l: float, rad: float, sides: int) -> MFShape:
-        return MFRodZ(l, rad, sides, self).rotateY(90)
+    def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> MFShape:
+        return MFRodZ(l, rad, sides, self).rotate_y(90)
 
-    def genPolyRodY(self, l: float, rad: float, sides: int) -> MFShape:
-        return MFRodZ(l, rad, sides, self).rotateX(90)
+    def regpoly_extrusion_y(self, l: float, rad: float, sides: int) -> MFShape:
+        return MFRodZ(l, rad, sides, self).rotate_x(90)
 
-    def genPolyRodZ(self, l: float, rad: float, sides: int) -> MFShape:
+    def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> MFShape:
         return MFRodZ(l, rad, sides, self)
 
-    def genRodX(self, l: float, rad: float) -> MFShape:
-        return MFRodZ(l, rad, None, self).rotateY(90)
+    def cylinder_x(self, l: float, rad: float) -> MFShape:
+        return MFRodZ(l, rad, None, self).rotate_y(90)
 
-    def genRodY(self, l: float, rad: float) -> MFShape:
-        return MFRodZ(l, rad, None, self).rotateX(90)
+    def cylinder_y(self, l: float, rad: float) -> MFShape:
+        return MFRodZ(l, rad, None, self).rotate_x(90)
 
-    def genRodZ(self, l: float, rad: float) -> MFShape:
+    def cylinder_z(self, l: float, rad: float) -> MFShape:
         return MFRodZ(l, rad, None, self)
 
-    def genPolyExtrusionZ(self, path: list[tuple[float, float]], ht: float) -> MFShape:
+    def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> MFShape:
         return MFPolyExtrusionZ(path, ht, self)
 
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[
@@ -144,7 +144,7 @@ class MFShapeAPI(ShapeAPI):
             return MFLineSplineExtrusionZ(start, path, abs(ht), self).mv(0, 0, -abs(ht))
         return MFLineSplineExtrusionZ(start, path, ht, self)
 
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[
@@ -154,16 +154,16 @@ class MFShapeAPI(ShapeAPI):
     ) -> MFShape:
         return MFLineSplineRevolveX(start, path, deg, self)
 
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self, rad: float, path: list[tuple[float, float, float]]
     ) -> MFShape:
         return MFCirclePolySweep(rad, path, self)
 
-    def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MFShape:
+    def text(self, txt: str, fontSize: float, tck: float, font: str) -> MFShape:
         return MFTextZ(txt, fontSize, tck, font, self)
 
-    def getJoinCutTol(self) -> float:
-        return self.implementation.joinCutTol()
+    def tolerance(self) -> float:
+        return self.implementation.tolerance()
 
 
 class MFShape(Shape):
@@ -175,7 +175,7 @@ class MFShape(Shape):
         return self.solid
 
     def segsByDim(self, dim: float) -> int:
-        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothingSegments())
+        return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
     def cut(self, cutter: MFShape) -> MFShape:
         if cutter is None or cutter.solid is None:
@@ -190,13 +190,13 @@ class MFShape(Shape):
         )  # TODO find better impl
         return duplicate
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> MFShape:
         print(
-            "Manifold: filletByNearestEdges(...) not implemented yet.", file=sys.stderr
+            "Manifold: fillet(...) not implemented yet.", file=sys.stderr
         )
         return self
 
@@ -206,7 +206,7 @@ class MFShape(Shape):
         self.solid = self.solid + joiner.solid
         return self
 
-    def mirrorXZ(self) -> MFShape:
+    def mirror(self) -> MFShape:
         dup = copy.copy(self)
         dup.solid = self.solid.mirror((0, 1, 0))
         return dup
@@ -220,15 +220,15 @@ class MFShape(Shape):
     def remove(self):
         pass
 
-    def rotateX(self, ang: float) -> MFShape:
+    def rotate_x(self, ang: float) -> MFShape:
         self.solid = self.solid.rotate((ang, 0, 0))
         return self
 
-    def rotateY(self, ang: float) -> MFShape:
+    def rotate_y(self, ang: float) -> MFShape:
         self.solid = self.solid.rotate((0, ang, 0))
         return self
 
-    def rotateZ(self, ang: float) -> MFShape:
+    def rotate_z(self, ang: float) -> MFShape:
         self.solid = self.solid.rotate((0, 0, ang))
         return self
 

@@ -31,14 +31,14 @@ class LeleFretboard(LeleBase):
         riseAng = self.cfg.fretbdRiseAng
         wide_angle = degrees(math.atan((fbWth - nut_width) / (2 * fbLen)))
         path = self.cfg.genFbPath(isCut=self.isCut)
-        fretbd = self.api.genPolyExtrusionZ(path, fbHt)
+        fretbd = self.api.polygon_extrusion(path, fbHt)
 
         if self.isCut:
-            fretbd = fretbd.mv(0, 0, -self.api.getJoinCutTol())
+            fretbd = fretbd.mv(0, 0, -self.api.tolerance())
         else:
             topCut = (
-                self.api.genBox(fbLen * 2, fbWth, fbHt)
-                .rotateY(-riseAng)
+                self.api.box(fbLen * 2, fbWth, fbHt)
+                .rotate_y(-riseAng)
                 .mv(0, 0, fbTck + fbHt / 2)
             )
             fretbd -= topCut
@@ -49,16 +49,16 @@ class LeleFretboard(LeleBase):
                 Implementation.BLENDER,
             ]:
                 ## fillet the end of the fretboard
-                fretbd = fretbd.filletByNearestEdges([(fbTck / 2, 0, fbTck / 2)], frad)
+                fretbd = fretbd.fillet([(fbTck / 2, 0, fbTck / 2)], frad)
 
                 ## fillet the start of the fretboard
-                fretbd = fretbd.filletByNearestEdges([(fbLen, 0, fbHt)], frad)
+                fretbd = fretbd.fillet([(fbLen, 0, fbHt)], frad)
 
                 ## fillet the fretboard sides
-                fretbd = fretbd.filletByNearestEdges(
+                fretbd = fretbd.fillet(
                     [(fbLen / 2, fbWth / 2, fbHt / 2)], frad
                 )
-                fretbd = fretbd.filletByNearestEdges(
+                fretbd = fretbd.fillet(
                     [(fbLen / 2, -fbWth / 2, fbHt / 2)], frad
                 )
 
@@ -66,32 +66,32 @@ class LeleFretboard(LeleBase):
                 extra_len = 10
 
                 ## fillet the end of the fretboard
-                fretbd -= self.api.gen_rounded_edge_mask(
+                fretbd -= self.api.rounded_edge_mask(
                     direction="y", l=fbWth + extra_len, rad=frad, rot=270
                 ).mv(frad, 0, frad)
 
                 ## fillet the fretboard sides
                 fretbd -= (
-                    self.api.gen_rounded_edge_mask(
+                    self.api.rounded_edge_mask(
                         direction="x", l=fbLen + extra_len, rad=frad, rot=0
                     )
-                    .rotateY(-riseAng)
-                    .rotateZ(wide_angle)
+                    .rotate_y(-riseAng)
+                    .rotate_z(wide_angle)
                     .mv(fbLen / 2, fbWth / 2 - fbTck - frad, fbHt / 2)
                 )
 
                 ## fillet the fretboard sides
                 fretbd -= (
-                    self.api.gen_rounded_edge_mask(
+                    self.api.rounded_edge_mask(
                         direction="x", l=fbLen + extra_len, rad=frad, rot=90
                     )
-                    .rotateY(-riseAng)
-                    .rotateZ(-wide_angle)
+                    .rotate_y(-riseAng)
+                    .rotate_z(-wide_angle)
                     .mv(fbLen / 2, -fbWth / 2 + fbTck + frad, fbHt / 2)
                 )
 
                 ## fillet the start of the fretboard
-                fretbd -= self.api.gen_rounded_edge_mask(
+                fretbd -= self.api.rounded_edge_mask(
                     direction="y", l=fbWth + extra_len, rad=frad, rot=0
                 ).mv(fbLen - frad, 0, fbHt - frad)
 

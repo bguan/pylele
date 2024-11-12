@@ -28,7 +28,7 @@ class LeleBrace(LeleBase):
         chmWth = self.cfg.chmWth
         # topRat = self.cfg.TOP_RATIO
         brace = (
-            self.api.genRndRodX(0.5 * (chmFr + chmBk), 0.05 * chmWth, 1)
+            self.api.cylinder_rounded_x(0.5 * (chmFr + chmBk), 0.05 * chmWth, 1)
             .scale(1, 0.3, 1)
             .mv(scLen - 0.25 * chmBk, 0, brdgZ)
         )

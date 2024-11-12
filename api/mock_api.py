@@ -17,51 +17,51 @@ class MockShapeAPI(ShapeAPI):
     Mock Pylele API implementation for test
     """
 
-    def exportSTL(self, shape: MockShape, path: str) -> None:
+    def export_stl(self, shape: MockShape, path: str) -> None:
         gen_stl_foo(path)
 
-    def exportBest(self, shape: MockShape, path: Union[str, Path]) -> None:
-        return self.exportSTL(shape=shape, path=path)
+    def export_best(self, shape: MockShape, path: Union[str, Path]) -> None:
+        return self.export_stl(shape=shape, path=path)
 
-    def genBall(self, rad: float) -> MockShape:
+    def sphere(self, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genBox(self, l: float, wth: float, ht: float) -> MockShape:
+    def box(self, l: float, wth: float, ht: float) -> MockShape:
         return MockShape(self)
 
-    def genConeX(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_x(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genConeY(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_y(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genConeZ(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_z(self, l: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodX(self, l: float, rad: float, sides: int) -> MockShape:
+    def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodY(self, l: float, rad: float, sides: int) -> MockShape:
+    def regpoly_extrusion_y(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genPolyRodZ(self, l: float, rad: float, sides: int) -> MockShape:
+    def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def genRodX(self, l: float, rad: float) -> MockShape:
+    def cylinder_x(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genRodY(self, l: float, rad: float) -> MockShape:
+    def cylinder_y(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genRodZ(self, l: float, rad: float) -> MockShape:
+    def cylinder_z(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def genPolyExtrusionZ(
+    def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float
     ) -> MockShape:
         return MockShape(self)
 
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -69,7 +69,7 @@ class MockShapeAPI(ShapeAPI):
     ) -> MockShape:
         return MockShape(self)
 
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[tuple[float, float] | list[tuple[float, float, float, float]]],
@@ -77,12 +77,12 @@ class MockShapeAPI(ShapeAPI):
     ) -> MockShape:
         return MockShape(self)
 
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self, rad: float, path: list[tuple[float, float, float]]
     ) -> MockShape:
         return MockShape(self)
 
-    def genTextZ(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
+    def text(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
 
 class MockSolid(object):
@@ -105,7 +105,7 @@ class MockShape(Shape):
     def dup(self) -> MockShape:
         return self
 
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
@@ -115,7 +115,7 @@ class MockShape(Shape):
     def join(self, joiner: MockShape) -> MockShape:
         return self
 
-    def mirrorXZ(self) -> MockShape:
+    def mirror(self) -> MockShape:
         return self
 
     def mv(self, x: float, y: float, z: float) -> MockShape:
@@ -124,13 +124,13 @@ class MockShape(Shape):
     def remove(self):
         pass
 
-    def rotateX(self, ang: float) -> MockShape:
+    def rotate_x(self, ang: float) -> MockShape:
         return self
 
-    def rotateY(self, ang: float) -> MockShape:
+    def rotate_y(self, ang: float) -> MockShape:
         return self
 
-    def rotateZ(self, ang: float) -> MockShape:
+    def rotate_z(self, ang: float) -> MockShape:
         return self
 
     def scale(self, x: float, y: float, z: float) -> MockShape:

@@ -48,18 +48,18 @@ class LeleNut(LeleBase):
     def gen(self) -> Shape:
         """Generate Nut"""
 
-        jcTol = self.cfg.joinCutTol
+        jcTol = self.cfg.tolerance
         fitTol = FIT_TOL
         fbTck = self.cfg.FRETBD_TCK
         ntHt = self.cfg.NUT_HT
         ntWth = self.cfg.nutWth + fbTck/4 + .5  # to be wider than fretbd
         f0X = -fitTol if self.isCut else 0
 
-        f0Top    = self.api.genRndRodY(ntWth, ntHt, 1/4)
-        f0Top   -= self.api.genBox(2*ntHt, 2*ntWth, fbTck).mv(0, 0, -fbTck/2)
+        f0Top    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
+        f0Top   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, -fbTck/2)
 
-        f0Bot    = self.api.genRndRodY(ntWth, ntHt, 1/4)
-        f0Bot   -= self.api.genBox(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
+        f0Bot    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
+        f0Bot   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
         f0Bot   *= Direction(z=fbTck/ntHt)
 
         nut = f0Top.mv(0, 0, -jcTol) + f0Bot # lower top to make sure valid volume

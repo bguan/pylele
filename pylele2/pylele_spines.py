@@ -21,16 +21,16 @@ class LeleSpines(LeleBase):
     def gen(self) -> Shape:
         """Generate Spines"""
 
-        cutAdj = (FIT_TOL + self.api.getJoinCutTol()) if self.isCut else 0
+        cutAdj = (FIT_TOL + self.api.tolerance()) if self.isCut else 0
         spX = self.cfg.spineX
         spLen = self.cfg.spineLen+ 2*cutAdj
         spHt = self.cfg.SPINE_HT + 2*cutAdj
         spWth = self.cfg.SPINE_WTH + 2*cutAdj
-        fspTck = self.cfg.FRETBD_SPINE_TCK  + 2*self.api.getJoinCutTol()
+        fspTck = self.cfg.FRETBD_SPINE_TCK  + 2*self.api.tolerance()
 
         shape = None
         for y_spine in self.cfg.spineY:
-            spine = self.api.genBox(spLen, spWth, spHt)
+            spine = self.api.box(spLen, spWth, spHt)
             spine <<= (spX + spLen/2, y_spine, -fspTck - spHt/2)
             
             shape = spine + shape

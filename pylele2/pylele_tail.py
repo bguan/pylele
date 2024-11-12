@@ -27,7 +27,7 @@ class LeleTail(LeleBase):
         assert self.cli.separate_end or self.cli.body_type == LeleBodyType.HOLLOW
 
         cfg = self.cfg
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
         cutAdj = (FIT_TOL + 2 * jcTol) if self.isCut else 0
 
         # this assertion should be verified
@@ -52,9 +52,9 @@ class LeleTail(LeleBase):
             midBotTck = cfg.extMidBotTck + 2*cutAdj
 
         if midBotTck > 0:
-            extTop = self.api.genBox(10 if self.isCut else rimWth, endWth, midBotTck)\
+            extTop = self.api.box(10 if self.isCut else rimWth, endWth, midBotTck)\
                 .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
-            inrTop = self.api.genBox(2*tailLen, endWth -2*rimWth, midBotTck)\
+            inrTop = self.api.box(2*tailLen, endWth -2*rimWth, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             tail = extTop + inrTop.mv(jcTol, 0, 0)
 
@@ -64,15 +64,15 @@ class LeleTail(LeleBase):
                 tail = tail.mv(5,0,0) # for whatever reason...
         else:
             # rounded bottom
-            extBot = self.api.genRodX(10 if self.isCut else rimWth, endWth/2)\
+            extBot = self.api.cylinder_x(10 if self.isCut else rimWth, endWth/2)\
                 .scale(1, 1, botRat)\
                 .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck)
-            inrBot = self.api.genRodX(2*tailLen, endWth/2 - rimWth)\
+            inrBot = self.api.cylinder_x(2*tailLen, endWth/2 - rimWth)\
                 .scale(1, 1, botRat)\
                 .mv(tailX - rimWth -tailLen, 0, -midBotTck)
             tail += extBot + inrBot.mv(jcTol, 0, 0)
             # remove upper section of the rounde bodies
-            tail -= self.api.genBox(2000, 2000, 2000).mv(0,0,1000)
+            tail -= self.api.box(2000, 2000, 2000).mv(0,0,1000)
 
         return tail
 

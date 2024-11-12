@@ -36,7 +36,7 @@ class LeleTopAssembly(LeleBase):
     def gen(self) -> Shape:
         """Generate Body Top Assembly"""
 
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
 
         # top
         top = LeleTop(cli=self.cli)
@@ -79,7 +79,7 @@ class LeleTopAssembly(LeleBase):
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
             top -= LeleFretboardJoint(cli=self.cli, isCut=True)\
-                .mv(-self.api.getJoinCutTol(), 0, -self.api.getJoinCutTol())
+                .mv(-self.api.tolerance(), 0, -self.api.tolerance())
 
         # gen bridge
         brdg = LeleBridge(cli=self.cli)

@@ -22,17 +22,17 @@ class LeleTop(LeleBase):
         """Generate Top"""
 
         fitTol = FIT_TOL
-        joinTol = self.api.getJoinCutTol()
+        joinTol = self.api.tolerance()
         cutAdj = (fitTol + joinTol) if self.isCut else 0
         topRat = self.cfg.TOP_RATIO
         midTck = self.cfg.extMidTopTck + cutAdj
         bOrig = self.cfg.bodyOrig
         bPath = self.cfg.bodyCutPath if self.isCut else self.cfg.bodyPath
-        top = self.api.genLineSplineRevolveX(bOrig, bPath, 180).scale(1, 1, topRat)
+        top = self.api.spline_revolve(bOrig, bPath, 180).scale(1, 1, topRat)
         if midTck > 0:
             top = top.mv(0, 0, midTck - joinTol)
-            midR = self.api.genLineSplineExtrusionZ(bOrig, bPath, midTck)
-            top = top.join(midR.mirrorXZ_and_join())
+            midR = self.api.spline_extrusion(bOrig, bPath, midTck)
+            top = top.join(midR.mirror_and_join())
 
         return top
 

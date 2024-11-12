@@ -61,7 +61,7 @@ class LeleTuners(LeleBase):
         # tuners = tnr.worm_config()
 
         # for xyz in self.cfg.tnrXYZs:
-        #     top = top.filletByNearestEdges(
+        #     top = top.fillet(
         #         nearestPts=[
         #             (xyz[0] - tuners.sltLen, xyz[1], xyz[2] + tuners.strHt())
         #         ],

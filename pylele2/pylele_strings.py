@@ -27,7 +27,7 @@ class LeleStrings(LeleBase):
 
         strs = None
         for p in paths:
-            strs = self.api.genCirclePolySweep(srad, p) + strs
+            strs = self.api.regpoly_sweep(srad, p) + strs
 
         return strs
 

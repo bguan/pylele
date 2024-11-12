@@ -42,9 +42,9 @@ class Fidelity(LeleStrEnum):
     HIGH = "high"
 
     def __repr__(self):
-        return f"Fidelity({self.value} tol={self.exportTol()}, seg={self.smoothingSegments()})"
+        return f"Fidelity({self.value} tol={self.tolerance()}, seg={self.smoothing_segments()})"
 
-    def exportTol(self) -> float:
+    def tolerance(self) -> float:
         match self:
             case Fidelity.LOW:
                 return 0.001
@@ -53,7 +53,7 @@ class Fidelity(LeleStrEnum):
             case Fidelity.HIGH:
                 return 0.00025
 
-    def smoothingSegments(self) -> float:
+    def smoothing_segments(self) -> float:
         match self:
             case Fidelity.LOW:
                 return 6
@@ -90,7 +90,7 @@ class Implementation(LeleStrEnum):
         """Returns the class name of the API"""
         return APIS_INFO[self]["class"]
 
-    def joinCutTol(self) -> float:
+    def tolerance(self) -> float:
         """ Tolerance for joins to have a little overlap """
         return 0 if self == Implementation.CAD_QUERY else 0.01
 
@@ -190,16 +190,16 @@ class Shape(ABC):
     def dup(self) -> Shape: ...
 
     @abstractmethod
-    def filletByNearestEdges(
+    def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
     ) -> Shape: ...
 
-    def halfByPlane(self, plane: tuple[bool, bool, bool]) -> Shape:
+    def half(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> Shape:
         halfCutter = (
             self.api
-            .genBox(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM)
+            .box(self.MAX_DIM, self.MAX_DIM, self.MAX_DIM)
             .mv(
                 self.MAX_DIM / 2 if plane[0] else 0,
                 self.MAX_DIM / 2 if plane[1] else 0,
@@ -208,19 +208,16 @@ class Shape(ABC):
         )
         return self.cut(halfCutter)
 
-    def half(self) -> Shape:
-        return self.halfByPlane((False, True, False))
-
     @abstractmethod
     def join(self, joiner: Shape) -> Shape: ...
 
     @abstractmethod
-    def mirrorXZ(self) -> Shape: ...
+    def mirror(self) -> Shape: ...
 
-    def mirrorXZ_and_join(self) -> Shape:
+    def mirror_and_join(self) -> Shape:
         """mirror midR and joins the two parts"""
-        joinTol = self.api.getJoinCutTol()
-        midL = self.mirrorXZ()
+        joinTol = self.api.tolerance()
+        midL = self.mirror()
         return midL.mv(0, joinTol / 2, 0).join(self.mv(0, -joinTol / 2, 0))
 
     @abstractmethod
@@ -230,13 +227,13 @@ class Shape(ABC):
     def remove(self): ...
 
     @abstractmethod
-    def rotateX(self, ang: float) -> Shape: ...
+    def rotate_x(self, ang: float) -> Shape: ...
 
     @abstractmethod
-    def rotateY(self, ang: float) -> Shape: ...
+    def rotate_y(self, ang: float) -> Shape: ...
 
     @abstractmethod
-    def rotateZ(self, ang: float) -> Shape: ...
+    def rotate_z(self, ang: float) -> Shape: ...
 
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...
@@ -274,12 +271,80 @@ class Shape(ABC):
         x,y,z = direction.eval('+')
         return self.mv(x,y,z)
 
+def getFontname2FilepathMap() -> dict[str, str]:
+
+    font2path: dict[str, str] = {}
+
+    # Define directories to search for fonts
+    if sys.platform == "win32":
+        font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
+    elif sys.platform == "darwin":
+        font_dirs = [
+            "/Library/Fonts",
+            "/System/Library/Fonts",
+            os.path.expanduser("~/Library/Fonts"),
+        ]
+    else:  # Assume Linux or other UNIX-like system
+        font_dirs = [
+            "/usr/share/fonts",
+            "/usr/local/share/fonts",
+            os.path.expanduser("~/.fonts"),
+        ]
+
+    def list_fonts(directory):
+        fonts = []
+
+        # Helper function to get the string by its name ID
+        def get_name(font: TTFont, nameID: int):
+            name_record = font["name"].getName(
+                nameID=nameID, platformID=3, platEncID=1
+            )
+            if name_record is None:
+                name_record = font["name"].getName(
+                    nameID=nameID, platformID=1, platEncID=0
+                )
+            return name_record.toStr() if name_record else "Unknown"
+
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.lower().endswith((".ttf", ".otf")):
+                    font_path = os.path.join(root, file)
+                    try:
+                        font = TTFont(font_path)
+                        # Get the Font Family Name (name ID 1)
+                        family = get_name(font, 1)
+                        # Get the Font Subfamily Name (Style) (name ID 2)
+                        style = get_name(font, 2)
+
+                        font_name = (
+                            family
+                            if style == "Normal" or style == "Regular"
+                            else family + " " + style
+                        )
+                        fonts.append((font_name, font_path))
+                    except Exception as e:
+                        print(f"Error reading {font_path}: {e}")
+        return fonts
+
+    # Collect fonts from all directories
+    all_fonts = []
+    for directory in font_dirs:
+        if os.path.exists(directory):
+            all_fonts.extend(list_fonts(directory))
+
+    # Print the font names and paths
+    for name, path in all_fonts:
+        # print(f"Font: {name}, Path: {path}")
+        font2path[name] = path
+
+    return font2path
+
 class ShapeAPI(ABC):
     """ Prototype for Implementation API """
 
     implementation = None
     fidelity = None
-    font2path = getFontname2FilepathMap()
+    font2path = get_fonts()
 
     def __init__(
         self,
@@ -304,89 +369,92 @@ class ShapeAPI(ABC):
         return font_path
 
     @abstractmethod
-    def exportSTL(self, shape: Shape, path: Union[str, Path]) -> None: ...
+    def export_stl(self, shape: Shape, path: Union[str, Path]) -> None: ...
 
     @abstractmethod
-    def exportBest(self, shape: Shape, path: Union[str, Path]) -> None: ...
+    def export_best(self, shape: Shape, path: Union[str, Path]) -> None: ...
 
     @abstractmethod
-    def genBall(self, rad: float) -> Shape: ...
+    def sphere(self, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genBox(self, l: float, wth: float, ht: float) -> Shape: ...
+    def box(self, l: float, wth: float, ht: float) -> Shape: ...
+
+    def cube(self, l: float) -> Shape:
+        return self.box(l=l,wth=l,ht=l)
 
     @abstractmethod
-    def genConeX(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_x(self, l: float, r1: float, r2: float) -> Shape: ...
 
     @abstractmethod
-    def genConeY(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_y(self, l: float, r1: float, r2: float) -> Shape: ...
 
     @abstractmethod
-    def genConeZ(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_z(self, l: float, r1: float, r2: float) -> Shape: ...
 
     @abstractmethod
-    def genPolyRodX(self, l: float, rad: float, sides: int) -> Shape: ...
+    def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> Shape: ...
 
     @abstractmethod
-    def genPolyRodY(self, l: float, rad: float, sides: int) -> Shape: ...
+    def regpoly_extrusion_y(self, l: float, rad: float, sides: int) -> Shape: ...
 
     @abstractmethod
-    def genPolyRodZ(self, l: float, rad: float, sides: int) -> Shape: ...
+    def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> Shape: ...
 
     @abstractmethod
-    def genRodX(self, l: float, rad: float) -> Shape: ...
+    def cylinder_x(self, l: float, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genRodY(self, l: float, rad: float) -> Shape: ...
+    def cylinder_y(self, l: float, rad: float) -> Shape: ...
 
     @abstractmethod
-    def genRodZ(self, l: float, rad: float) -> Shape:
+    def cylinder_z(self, l: float, rad: float) -> Shape:
         ...
 
-    def gen_rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
+    def rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
         """ generate a mask to round an edge """
 
         radi = rad + tol
         if direction == 'x':
-            mask  = self.genBox(l,radi,radi).mv(0,radi/2,radi/2)
-            mask -= self.genRodX(l,rad=radi)
-            mask  = mask.rotateX(rot)
+            mask  = self.box(l,radi,radi).mv(0,radi/2,radi/2)
+            mask -= self.cylinder_x(l,rad=radi)
+            mask  = mask.rotate_x(rot)
         elif direction == 'y':
-            mask  = self.genBox(radi,l,radi).mv(radi/2,0,radi/2)
-            mask -= self.genRodY(l,rad=radi)
-            mask  = mask.rotateY(rot)
+            mask  = self.box(radi,l,radi).mv(radi/2,0,radi/2)
+            mask -= self.cylinder_y(l,rad=radi)
+            mask  = mask.rotate_y(rot)
         elif direction == 'z':
-            mask  = self.genBox(radi,radi,l).mv(radi/2,radi/2,0)
-            mask -= self.genRodZ(l,rad=radi)
-            mask  = mask.rotateZ(rot)
+            mask  = self.box(radi,radi,l).mv(radi/2,radi/2,0)
+            mask -= self.cylinder_z(l,rad=radi)
+            mask  = mask.rotate_z(rot)
         else:
             assert False
 
         return mask
 
-    def genRndRodX(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
-        rndRodZ = self.genRndRodZ(l, rad, domeRatio)
-        return rndRodZ.rotateY(90)
+    def cylinder_rounded_x(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        rndRodZ = self.cylinder_rounded_z(l, rad, domeRatio)
+        return rndRodZ.rotate_y(90)
 
-    def genRndRodY(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
-        rndRodX = self.genRndRodX(l, rad, domeRatio)
-        return rndRodX.rotateZ(90)
+    def cylinder_rounded_y(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        rndRodX = self.cylinder_rounded_x(l, rad, domeRatio)
+        return rndRodX.rotate_z(90)
 
-    def genRndRodZ(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+    def cylinder_rounded_z(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         stemLen = l - 2 * rad * domeRatio
-        rod = self.genRodZ(stemLen, rad)
+        rod = self.cylinder_z(stemLen, rad)
         for bz in [stemLen / 2, -stemLen / 2]:
-            ball = self.genBall(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
+            ball = self.sphere(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
             rod = rod.join(ball)
         return rod
 
     @abstractmethod
-    def genPolyExtrusionZ(
+    def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float
     ) -> Shape: ...
 
     @abstractmethod
-    def genLineSplineExtrusionZ(
+    def spline_extrusion(
         self,
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
@@ -394,7 +462,7 @@ class ShapeAPI(ABC):
     ) -> Shape: ...
 
     @abstractmethod
-    def genLineSplineRevolveX(
+    def spline_revolve(
         self,
         start: tuple[float, float],
         path: list[Union[tuple[float, float], list[tuple[float, float, float, float]]]],
@@ -402,14 +470,14 @@ class ShapeAPI(ABC):
     ) -> Shape: ...
 
     @abstractmethod
-    def genCirclePolySweep(
+    def regpoly_sweep(
         self,
         rad: float,
         path: list[tuple[float, float, float]],
     ) -> Shape: ...
 
     @abstractmethod
-    def genTextZ(
+    def text(
         self,
         txt: str,
         fontSize: float,
@@ -417,27 +485,27 @@ class ShapeAPI(ABC):
         font: str,
     ): ...
 
-    def genQuarterBall(self, rad: float, pickTop: bool, pickFront: bool):
+    def sphere_quadrant(self, rad: float, pickTop: bool, pickFront: bool):
         maxDim = Shape.MAX_DIM
-        ball = self.genBall(rad)
-        topCut = self.genBox(maxDim, maxDim, maxDim).mv(
+        ball = self.sphere(rad)
+        topCut = self.box(maxDim, maxDim, maxDim).mv(
             0, 0, -maxDim / 2 if pickTop else maxDim / 2
         )
-        frontCut = self.genBox(maxDim, maxDim, maxDim).mv(
+        frontCut = self.box(maxDim, maxDim, maxDim).mv(
             maxDim / 2 if pickFront else -maxDim / 2, 0, 0
         )
         return ball.cut(topCut).cut(frontCut)
 
-    def genHalfDisc(self, rad: float, pickFront: bool, tck: float):
+    def cylinder_half(self, rad: float, pickFront: bool, tck: float):
         maxDim = Shape.MAX_DIM
-        rod = self.genRodZ(tck, rad)
-        cutter = self.genBox(maxDim, maxDim, maxDim).mv(
+        rod = self.cylinder_z(tck, rad)
+        cutter = self.box(maxDim, maxDim, maxDim).mv(
             maxDim / 2 if pickFront else -maxDim / 2, 0, 0
         )
         return rod.cut(cutter)
 
-    def getJoinCutTol(self):
-        return self.implementation.joinCutTol()
+    def tolerance(self):
+        return self.implementation.tolerance()
 
     def test(self, outpath: str | Path) -> None:
 
@@ -452,64 +520,64 @@ class ShapeAPI(ABC):
 
         # Simple Tests
 
-        ball = self.genBall(10)
-        self.exportSTL(ball, expDir / f"{implCode}-ball")
+        ball = self.sphere(10)
+        self.export_stl(ball, expDir / f"{implCode}-ball")
 
-        box = self.genBox(10, 20, 30)
-        self.exportSTL(box, expDir / f"{implCode}-box")
+        box = self.box(10, 20, 30)
+        self.export_stl(box, expDir / f"{implCode}-box")
 
-        xRod = self.genRodX(30, 5)
-        self.exportSTL(xRod, expDir / f"{implCode}-xrod")
+        xRod = self.cylinder_x(30, 5)
+        self.export_stl(xRod, expDir / f"{implCode}-xrod")
 
-        yRod = self.genRodY(30, 5)
-        self.exportSTL(yRod, expDir / f"{implCode}-yrod")
+        yRod = self.cylinder_y(30, 5)
+        self.export_stl(yRod, expDir / f"{implCode}-yrod")
 
-        zRod = self.genRodZ(30, 5)
-        self.exportSTL(zRod, expDir / f"{implCode}-zrod")
+        zRod = self.cylinder_z(30, 5)
+        self.export_stl(zRod, expDir / f"{implCode}-zrod")
 
-        xCone = self.genConeX(30, 5, 2)
-        self.exportSTL(xCone, expDir / f"{implCode}-xcone")
+        xCone = self.cone_x(30, 5, 2)
+        self.export_stl(xCone, expDir / f"{implCode}-xcone")
 
-        yCone = self.genConeY(30, 5, 2)
-        self.exportSTL(yCone, expDir / f"{implCode}-ycone")
+        yCone = self.cone_y(30, 5, 2)
+        self.export_stl(yCone, expDir / f"{implCode}-ycone")
 
-        zCone = self.genConeZ(30, 5, 2)
-        self.exportSTL(zCone, expDir / f"{implCode}-zcone")
+        zCone = self.cone_z(30, 5, 2)
+        self.export_stl(zCone, expDir / f"{implCode}-zcone")
 
-        xSqRod = self.genPolyRodX(30, 5, 4)
-        self.exportSTL(xSqRod, expDir / f"{implCode}-xsqrod")
+        xSqRod = self.regpoly_extrusion_x(30, 5, 4)
+        self.export_stl(xSqRod, expDir / f"{implCode}-xsqrod")
 
-        ySqRod = self.genPolyRodY(30, 5, 4)
-        self.exportSTL(ySqRod, expDir / f"{implCode}-ysqrod")
+        ySqRod = self.regpoly_extrusion_y(30, 5, 4)
+        self.export_stl(ySqRod, expDir / f"{implCode}-ysqrod")
 
-        zSqRod = self.genPolyRodZ(30, 5, 4)
-        self.exportSTL(zSqRod, expDir / f"{implCode}-zsqrod")
+        zSqRod = self.regpoly_extrusion_z(30, 5, 4)
+        self.export_stl(zSqRod, expDir / f"{implCode}-zsqrod")
 
-        xRndRod = self.genRndRodX(30, 5, 1 / 2)
-        self.exportSTL(xRndRod, expDir / f"{implCode}-xrndrod")
+        xRndRod = self.cylinder_rounded_x(30, 5, 1 / 2)
+        self.export_stl(xRndRod, expDir / f"{implCode}-xrndrod")
 
-        yRndRod = self.genRndRodY(30, 5, 1 / 2)
-        self.exportSTL(yRndRod, expDir / f"{implCode}-yrndrod")
+        yRndRod = self.cylinder_rounded_y(30, 5, 1 / 2)
+        self.export_stl(yRndRod, expDir / f"{implCode}-yrndrod")
 
-        zRndRod = self.genRndRodZ(30, 5, 1 / 2)
-        self.exportSTL(zRndRod, expDir / f"{implCode}-zrndrod")
+        zRndRod = self.cylinder_rounded_z(30, 5, 1 / 2)
+        self.export_stl(zRndRod, expDir / f"{implCode}-zrndrod")
 
-        zPolyExt = self.genPolyExtrusionZ([(0, 0), (10, 0), (0, 10)], 5)
-        self.exportSTL(zPolyExt, expDir / f"{implCode}-zpolyext")
+        zPolyExt = self.polygon_extrusion([(0, 0), (10, 0), (0, 10)], 5)
+        self.export_stl(zPolyExt, expDir / f"{implCode}-zpolyext")
 
-        zTxt = self.genTextZ("ABC", 30, 10, "Courier New")
-        self.exportSTL(zTxt, expDir / f"{implCode}-ztxt")
+        zTxt = self.text("ABC", 30, 10, "Courier New")
+        self.export_stl(zTxt, expDir / f"{implCode}-ztxt")
 
-        zTxt = zTxt.rotateX(180)
-        self.exportSTL(zTxt, expDir / f"{implCode}-ztxt-z180")
+        zTxt = zTxt.rotate_x(180)
+        self.export_stl(zTxt, expDir / f"{implCode}-ztxt-z180")
 
-        qBall = self.genQuarterBall(10, True, True)
-        self.exportSTL(qBall, expDir / f"{implCode}-qball")
+        qBall = self.sphere_quadrant(10, True, True)
+        self.export_stl(qBall, expDir / f"{implCode}-qball")
 
-        hDisc = self.genHalfDisc(10, True, 2)
-        self.exportSTL(hDisc, expDir / f"{implCode}-hdisc")
+        hDisc = self.cylinder_half(10, True, 2)
+        self.export_stl(hDisc, expDir / f"{implCode}-hdisc")
 
-        body = self.genLineSplineExtrusionZ(
+        body = self.spline_extrusion(
             start=(215, 0),
             path=[
                 (215, 23),
@@ -522,9 +590,9 @@ class ShapeAPI(ABC):
             ],
             ht=5,
         )
-        self.exportSTL(body, expDir / f"{implCode}-body")
+        self.export_stl(body, expDir / f"{implCode}-body")
 
-        dome = self.genLineSplineExtrusionZ(
+        dome = self.spline_extrusion(
             start=(0, 0),
             path=[
                 (-5, 0),
@@ -541,9 +609,9 @@ class ShapeAPI(ABC):
             ],
             ht=5,
         )
-        self.exportSTL(dome, expDir / f"{implCode}-splineext")
+        self.export_stl(dome, expDir / f"{implCode}-splineext")
 
-        donut = self.genLineSplineRevolveX(
+        donut = self.spline_revolve(
             start=(0, 1),
             path=[
                 (-5, 1),
@@ -560,65 +628,65 @@ class ShapeAPI(ABC):
             ],
             deg=-225,
         )
-        self.exportSTL(donut, expDir / f"{implCode}-splinerev")
+        self.export_stl(donut, expDir / f"{implCode}-splinerev")
 
-        sweep = self.genCirclePolySweep(
+        sweep = self.regpoly_sweep(
             1, [(-20, 0, 0), (20, 0, 40), (40, 20, 40), (60, 20, 0)]
         )
-        self.exportSTL(sweep, expDir / f"{implCode}-sweep")
+        self.export_stl(sweep, expDir / f"{implCode}-sweep")
 
-        edgex = self.gen_rounded_edge_mask(direction='x',l=30, rad = 10)
-        self.exportSTL(edgex, expDir / f"{implCode}-edgex")
+        edgex = self.rounded_edge_mask(direction='x',l=30, rad = 10)
+        self.export_stl(edgex, expDir / f"{implCode}-edgex")
 
-        edgey = self.gen_rounded_edge_mask(direction='y',l=30, rad = 10)
-        self.exportSTL(edgey, expDir / f"{implCode}-edgey")
+        edgey = self.rounded_edge_mask(direction='y',l=30, rad = 10)
+        self.export_stl(edgey, expDir / f"{implCode}-edgey")
 
-        edgez = self.gen_rounded_edge_mask(direction='z',l=30, rad = 10)
-        self.exportSTL(edgez, expDir / f"{implCode}-edgez")
+        edgez = self.rounded_edge_mask(direction='z',l=30, rad = 10)
+        self.export_stl(edgez, expDir / f"{implCode}-edgez")
 
         # More complex tests
 
-        box = self.genBox(10, 10, 2).mv(0, 0, -10)
-        ball = self.genBall(5).scale(1, 2, 1)
-        coneZ = self.genConeZ(10, 10, 5).mv(0, 0, 10)
-        coneX = self.genConeX(10, 1, 2)
-        rod = self.genRodZ(20, 1)
+        box = self.box(10, 10, 2).mv(0, 0, -10)
+        ball = self.sphere(5).scale(1, 2, 1)
+        coneZ = self.cone_z(10, 10, 5).mv(0, 0, 10)
+        coneX = self.cone_x(10, 1, 2)
+        rod = self.cylinder_z(20, 1)
         obj1 = box + ball + coneZ + rod - coneX
         coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
         joined = obj1
 
-        rx = self.genRodX(10, 3)
-        ry = self.genRodY(10, 3)
-        rz = self.genRodZ(10, 3)
+        rx = self.cylinder_x(10, 3)
+        ry = self.cylinder_y(10, 3)
+        rz = self.cylinder_z(10, 3)
         obj2 = rx.join(ry).join(rz).mv(10, -10, 5)
         joined += obj2
 
-        rr1 = self.genRndRodX(10, 3).scale(0.5, 1, 1).mv(0, -20, 0)
-        rr2 = self.genRndRodX(10, 3).scale(1, 0.5, 1).mv(0, 0, 0)
-        rr3 = self.genRndRodX(10, 3).scale(1, 1, 0.5).mv(0, 20, 0)
-        rr4 = self.genRndRodY(50, 1)
+        rr1 = self.cylinder_rounded_x(10, 3).scale(0.5, 1, 1).mv(0, -20, 0)
+        rr2 = self.cylinder_rounded_x(10, 3).scale(1, 0.5, 1).mv(0, 0, 0)
+        rr3 = self.cylinder_rounded_x(10, 3).scale(1, 1, 0.5).mv(0, 20, 0)
+        rr4 = self.cylinder_rounded_y(50, 1)
         obj3 = rr1.join(rr2).join(rr3).join(rr4).mv(0, 0, -20)
         joined += obj3
 
-        rrx = self.genRndRodX(10, 3, 0.25)
-        rry = self.genRndRodY(10, 3, 0.5)
-        rrz = self.genRndRodZ(10, 3)
+        rrx = self.cylinder_rounded_x(10, 3, 0.25)
+        rry = self.cylinder_rounded_y(10, 3, 0.5)
+        rrz = self.cylinder_rounded_z(10, 3)
         obj4 = rrx.join(rry).join(rrz).half().mv(-10, 10, 5)
         joined += obj4
 
-        pe = self.genPolyExtrusionZ([(-10, 30), (10, 30), (10, -30), (-10, -30)], 10)
-        tz = self.genTextZ("Hello World", 10, 5, "Arial").rotateZ(90).mv(0, 0, 10)
+        pe = self.polygon_extrusion([(-10, 30), (10, 30), (10, -30), (-10, -30)], 10)
+        tz = self.text("Hello World", 10, 5, "Arial").rotate_z(90).mv(0, 0, 10)
         obj5 = pe.join(tz).mv(30, -30, 0)
-        mirror = obj5.mirrorXZ().mv(10, 0, 0)
+        mirror = obj5.mirror().mv(10, 0, 0)
         obj5 = obj5.join(mirror)
         joined += obj5
 
-        rndBox = self.genBox(10, 10, 10).filletByNearestEdges([(5, 0, 5)], 1)
+        rndBox = self.box(10, 10, 10).fillet([(5, 0, 5)], 1)
         obj6 = rndBox.mv(-10, -10, 5)
         joined += obj6
 
-        dome = self.genLineSplineExtrusionZ(
+        dome = self.spline_extrusion(
             start=(0, 0),
             path=[
                 (-5, 0),
@@ -635,7 +703,7 @@ class ShapeAPI(ABC):
             ],
             ht=5,
         )
-        obj7 = dome.rotateY(-45).mv(-10, 15, 0)
+        obj7 = dome.rotate_y(-45).mv(-10, 15, 0)
         joined += obj7
 
         donutStart = (60, 0.1)
@@ -649,46 +717,46 @@ class ShapeAPI(ABC):
             ],
             (60, 0.1),
         ]
-        dome2 = self.genLineSplineRevolveX(donutStart, donutPath, 45).scale(1, 1, 0.5)
-        dome3 = self.genLineSplineRevolveX(donutStart, donutPath, -270).mv(
-            0, 0, self.getJoinCutTol()
+        dome2 = self.spline_revolve(donutStart, donutPath, 45).scale(1, 1, 0.5)
+        dome3 = self.spline_revolve(donutStart, donutPath, -270).mv(
+            0, 0, self.tolerance()
         )
         obj8 = dome2.join(dome3).mv(0, 0, -10)
         joined += obj8
 
-        obj9 = self.genCirclePolySweep(
+        obj9 = self.regpoly_sweep(
             1, [(-20, 0, 0), (20, 0, 40), (40, 20, 40), (60, 20, 0)]
         )
         joined += obj9
 
-        obj10 = self.genQuarterBall(10, True, True).scale(2, 1, 0.5).mv(-30, -20, 0)
+        obj10 = self.sphere_quadrant(10, True, True).scale(2, 1, 0.5).mv(-30, -20, 0)
         joined += obj10
 
-        obj11 = self.genHalfDisc(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
+        obj11 = self.cylinder_half(10, True, 10).scale(1.5, 1, 1).mv(-30, 20, 0)
         joined += obj11
 
         # move operator shortcut
-        obj12 = self.genBall(5) << Direction(x=1)
-        obj13 = self.genBall(5) << Direction(y=1)
-        obj14 = self.genBall(5) << Direction(z=1)
-        obj15 = self.genBall(5) << (0,1,2)
+        obj12 = self.sphere(5) << Direction(x=1)
+        obj13 = self.sphere(5) << Direction(y=1)
+        obj14 = self.sphere(5) << Direction(z=1)
+        obj15 = self.sphere(5) << (0,1,2)
 
         # scale operator shortcut
-        obj16 = self.genBall(5) * Direction(x=1)
-        obj17 = self.genBall(5) * Direction(y=1)
-        obj18 = self.genBall(5) * Direction(z=1)
-        obj19 = self.genBall(5) * (1,2,3)
+        obj16 = self.sphere(5) * Direction(x=1)
+        obj17 = self.sphere(5) * Direction(y=1)
+        obj18 = self.sphere(5) * Direction(z=1)
+        obj19 = self.sphere(5) * (1,2,3)
 
         # move operator shortcut
-        obj20 = self.genBall(5) << Direction(x=1)
-        obj21 = self.genBall(5) << Direction(y=1)
-        obj22 = self.genBall(5) << Direction(z=1)
-        obj23 = self.genBall(5) << (0,1,2)
+        obj20 = self.sphere(5) << Direction(x=1)
+        obj21 = self.sphere(5) << Direction(y=1)
+        obj22 = self.sphere(5) << Direction(z=1)
+        obj23 = self.sphere(5) << (0,1,2)
 
         # scale operator shortcut
-        obj24 = self.genBall(5) * Direction(x=1)
-        obj25 = self.genBall(5) * Direction(y=1)
-        obj26 = self.genBall(5) * Direction(z=1)
-        obj27 = self.genBall(5) * (1,2,3)
+        obj24 = self.sphere(5) * Direction(x=1)
+        obj25 = self.sphere(5) * Direction(y=1)
+        obj26 = self.sphere(5) * Direction(z=1)
+        obj27 = self.sphere(5) * (1,2,3)
 
-        self.exportSTL(joined, expDir / f"{implCode}-all")
+        self.export_stl(joined, expDir / f"{implCode}-all")

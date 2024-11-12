@@ -48,12 +48,12 @@ class LeleChamber(LeleBase):
     """Pylele Chamber Generator class"""
 
     def gen_extruded_oval(self, x1, x2, y_width, z_thick):
-        chm = self.api.genRodZ(z_thick, rad=y_width / 2).mv(x1, 0, 0)
-        chm1 = self.api.genRodZ(z_thick, rad=y_width / 2).mv(x2, 0, 0)
+        chm = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
+        chm1 = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
         chm = chm.join(chm1)
         box_len = abs(x1 - x2)
         box_pos = (x1 + x2) / 2
-        chm_box = self.api.genBox(box_len, y_width, z_thick).mv(box_pos, 0, 0)
+        chm_box = self.api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
         chm = chm.join(chm_box)
         return chm
 
@@ -70,7 +70,7 @@ class LeleChamber(LeleBase):
             print("# WARNING overriding chamber values for dev!!!")
             lift = 1
             rotY = 0.5
-        jcTol = self.api.getJoinCutTol()
+        jcTol = self.api.tolerance()
         rad = self.cfg.chmWth / 2
         frontRat = self.cfg.chmFront / rad
         backRat = self.cfg.chmBack / rad
@@ -86,29 +86,29 @@ class LeleChamber(LeleBase):
 
         else:
             topFront = (
-                self.api.genQuarterBall(rad, True, True)
+                self.api.sphere_quadrant(rad, True, True)
                 .scale(frontRat, 1, topChmRat)
                 .mv(jcTol, 0, -jcTol)
             )
             topBack = (
-                self.api.genQuarterBall(rad, True, False)
+                self.api.sphere_quadrant(rad, True, False)
                 .scale(backRat, 1, topChmRat)
                 .mv(0, 0, -jcTol)
             )
             botFront = (
-                self.api.genQuarterBall(rad, False, True)
+                self.api.sphere_quadrant(rad, False, True)
                 .scale(frontRat, 1, botRat)
                 .mv(jcTol, 0, 0)
             )
             botBack = (
-                self.api.genQuarterBall(rad, False, False)
+                self.api.sphere_quadrant(rad, False, False)
                 .scale(backRat, 1, botRat)
                 .mv(0, 0, 0)
             )
             chm = topFront + topBack + botFront + botBack
 
         if rotY != 0:
-            chm = chm.rotateY(rotY)
+            chm = chm.rotate_y(rotY)
 
         if lift != 0:
             chm = chm.mv(0, 0, lift)

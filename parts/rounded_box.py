@@ -28,11 +28,11 @@ class RoundedBox(LeleSolid):
         # assert self.cli.implementation in [Implementation.CAD_QUERY]
 
         # Main cube
-        box = self.api.genBox(self.cli.x,
+        box = self.api.box(self.cli.x,
                               self.cli.y,
                               self.cli.z)
 
-        return box.filletByNearestEdges([], self.cli.r)
+        return box.fillet([], self.cli.r)
 
     def _coords(self):
         
@@ -52,7 +52,7 @@ class RoundedBox(LeleSolid):
         for x in xcoords:
             for y in ycoords:
                 for z in zcoords:
-                    corner = self.api.genBall(self.cli.r).mv(x,y,z)
+                    corner = self.api.sphere(self.cli.r).mv(x,y,z)
                     if box is None:
                         box = corner
                     else:
@@ -70,21 +70,21 @@ class RoundedBox(LeleSolid):
 
         # lateral faces
         for x in xcoords:
-            lbox = self.api.genBox(             2*self.cli.r,
+            lbox = self.api.box(             2*self.cli.r,
                                    self.cli.y - 2*self.cli.r,
                                    self.cli.z - 2*self.cli.r)
             lbox <<= (x,0,0)
             box = lbox + box
 
         for y in ycoords:
-            lbox = self.api.genBox(self.cli.x - 2*self.cli.r,
+            lbox = self.api.box(self.cli.x - 2*self.cli.r,
                                                 2*self.cli.r,
                                    self.cli.z - 2*self.cli.r)
             lbox <<= (0,y,0)
             box += lbox
 
         for z in zcoords:
-            lbox = self.api.genBox(self.cli.x - 2*self.cli.r,
+            lbox = self.api.box(self.cli.x - 2*self.cli.r,
                                    self.cli.y - 2*self.cli.r,
                                                 2*self.cli.r)
             lbox <<= (0,0,z)
@@ -95,21 +95,21 @@ class RoundedBox(LeleSolid):
         # X-direction edges + corner spheres
         for z in zcoords:
             for y in ycoords:
-                edge = self.api.genRndRodX(self.cli.x, rad=self.cli.r)
+                edge = self.api.cylinder_rounded_x(self.cli.x, rad=self.cli.r)
                 edge <<= (0, y, z)
                 box += edge
 
         # Y-direction edges
         for x in xcoords:
             for z in zcoords:
-                edge = self.api.genRodY(self.cli.y - 2*self.cli.r, rad=self.cli.r)
+                edge = self.api.cylinder_y(self.cli.y - 2*self.cli.r, rad=self.cli.r)
                 edge <<= (x, 0, z)
                 box += edge
 
         # Z-direction edges
         for x in xcoords:
             for y in ycoords:
-                edge = self.api.genRodZ(self.cli.z - 2*self.cli.r, rad=self.cli.r)
+                edge = self.api.cylinder_z(self.cli.z - 2*self.cli.r, rad=self.cli.r)
                 edge <<= (x, y, 0)
                 box += edge
                     
