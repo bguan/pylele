@@ -26,7 +26,7 @@ class LeleBrace(LeleBase):
         chmFr = self.cfg.chmFront
         chmBk = self.cfg.chmBack
         chmWth = self.cfg.chmWth
-        topRat = self.cfg.TOP_RATIO
+        # topRat = self.cfg.TOP_RATIO
         brace = (
             self.api.genRndRodX(0.5 * (chmFr + chmBk), 0.05 * chmWth, 1)
             .scale(1, 0.3, 1)
@@ -42,7 +42,7 @@ def main(args=None):
 
 def test_brace(self, apis=None):
     """Test Brace"""
-    tests = {'default':['-refv','1496']}
+    tests = {'default':['-refv','3570']}
     test_loop(module=__name__, apis=apis, tests=tests)
 
 
