@@ -9,6 +9,7 @@ import os
 import csv
 
 from json_tricks import load
+from prettytable import from_csv
 
 from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -30,6 +31,14 @@ REPORT_COLS=["subdir_level_1",
              "bounding_box_y",
              "bounding_box_z",
              "datetime",
+             ]
+REPORT_COLS_COMPACT=[
+             "subdir_level_1",
+             "subdir_level_2", 
+             "subdir_level_3",
+             "subdir_level_4",
+             "pass",
+             "volume",
              ]
 REPORT_EXCLUDE={"subdir_level_3":"mock"}
 
@@ -108,6 +117,12 @@ def json_to_csv(directory, output_csv, include_filename=True,
         writer.writerows(rows)
 
     print(f"Data saved to {output_csv}")
+
+def print_csv(fname):
+    """ Print Table from .csv file """
+    with open(fname) as fp:
+        table = from_csv(fp,delimiter=',')
+        print(table.get_string(sortby="pass",fields=REPORT_COLS_COMPACT))
 
 def csv_to_xls(csv_file, xls_file):
     """
@@ -256,6 +271,7 @@ class PyleleTestMethods(unittest.TestCase):
         csvfname = basefname + '.csv'
         xlsfname = basefname + '.xlsx'
         json_to_csv(DEFAULT_TEST_DIR, csvfname)
+        print_csv(csvfname)
         csv_to_xls(csvfname, xlsfname)
 
 def test_main():
