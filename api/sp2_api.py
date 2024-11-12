@@ -227,9 +227,9 @@ class Sp2Cone(Sp2Shape):
             -ln / 2
         )
         if direction == "X":
-            self.solid = self.solid.rotate_y(90)
+            self.solid = self.solid.rotateY(90)
         elif direction == "Y":
-            self.solid = self.solid.rotate_x(90)
+            self.solid = self.solid.rotateX(90)
 
 
 class Sp2PolyExtrusionZ(Sp2Shape):
@@ -275,10 +275,10 @@ class Sp2LineSplineRevolveX(Sp2Shape):
         segs = ceil(self.segsByDim(2 * pi * dimY) * abs(deg) / 360)
         self.solid = (
             polygon(lineSplineXY(start, path, self.segsByDim))
-            .rotate_z(90)
+            .rotateZ(90)
             .rotate_extrude(deg, _fn=segs)
-            .rotate_y(90)
-            .rotate_x(-90)
+            .rotateY(90)
+            .rotateX(-90)
         )
 
 
