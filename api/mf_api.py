@@ -217,9 +217,6 @@ class MFShape(Shape):
         self.solid = self.solid.translate((x, y, z))
         return self
 
-    def remove(self):
-        pass
-
     def rotate_x(self, ang: float) -> MFShape:
         self.solid = self.solid.rotate((ang, 0, 0))
         return self

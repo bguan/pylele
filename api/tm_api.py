@@ -243,9 +243,6 @@ class TMShape(Shape):
         self.solid = self.solid.apply_translation((x, y, z))
         return self
 
-    def remove(self):
-        pass
-
     def rotate(self, ang: float, dir: tuple[float, float, float]) -> TMShape:
         if ang == 0:
             return self

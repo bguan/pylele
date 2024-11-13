@@ -121,9 +121,6 @@ class MockShape(Shape):
     def mv(self, x: float, y: float, z: float) -> MockShape:
         return self
 
-    def remove(self):
-        pass
-
     def rotate_x(self, ang: float) -> MockShape:
         return self
 

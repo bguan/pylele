@@ -248,7 +248,7 @@ class BlenderShape(Shape):
         mod.object = joiner.solid
         bpy.ops.object.modifier_apply(modifier=mod.name)
         bpy.context.view_layer.update()
-        joiner.remove()
+        joiner._remove()
         return self.repairMesh()
 
     def mirror(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> BlenderShape:
@@ -309,7 +309,7 @@ class BlenderShape(Shape):
         )
         return self
 
-    def remove(self) -> None:
+    def _remove(self) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         self.solid.select_set(True)
         bpy.ops.object.delete()

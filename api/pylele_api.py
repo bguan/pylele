@@ -224,9 +224,6 @@ class Shape(ABC):
     def mv(self, x: float, y: float, z: float) -> Shape: ...
 
     @abstractmethod
-    def remove(self): ...
-
-    @abstractmethod
     def rotate_x(self, ang: float) -> Shape: ...
 
     @abstractmethod
@@ -652,7 +649,6 @@ class ShapeAPI(ABC):
         coneX = self.cone_x(10, 1, 2)
         rod = self.cylinder_z(20, 1)
         obj1 = box + ball + coneZ + rod - coneX
-        coneX.remove()
         obj1 = obj1.mv(10, 10, 11)
         joined = obj1
 
