@@ -251,7 +251,7 @@ class BlenderShape(Shape):
         joiner.remove()
         return self.repairMesh()
 
-    def mirror(self, plane: tuple[bool, bool, bool]) -> BlenderShape:
+    def mirror(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> BlenderShape:
 
         cp = copy.copy(self)
         cp.solid.select_set(True)
@@ -284,7 +284,7 @@ class BlenderShape(Shape):
         bpy.context.view_layer.update()
         cp.solid = dup
 
-        cp = cp.halfByPlane(plane)  # cut out the original half
+        cp = cp.half(plane)  # cut out the original half
 
         # recover from shift
         # cp.solid.location = cp.solid.location + shift
@@ -295,9 +295,6 @@ class BlenderShape(Shape):
             use_automerge_and_split=True,
         )
         return cp.repairMesh()
-
-    def mirror(self) -> BlenderShape:
-        return self.mirror((False, True, False))
 
     def mv(self, x: float, y: float, z: float) -> BlenderShape:
         if x == 0 and y == 0 and z == 0:
