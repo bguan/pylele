@@ -216,7 +216,7 @@ class BlenderShape(Shape):
     ) -> BlenderShape:
         if rad <= 0:
             return self
-        segs = self.segsByDim(rad / 4)
+        segs = self._smoothing_segments(rad / 4)
         bpy.context.view_layer.objects.active = self.solid
         if nearestPts is None or len(nearestPts) == 0:
             bpy.ops.object.mode_set(mode="EDIT")
@@ -407,7 +407,7 @@ class BlenderShape(Shape):
         bpy.context.view_layer.objects.active = self.solid
         self.solid.select_set(True)
 
-    def segsByDim(self, dim: float) -> int:
+    def _smoothing_segments(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
 
@@ -418,7 +418,7 @@ class BlenderBall(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         bpy.ops.mesh.primitive_uv_sphere_add(radius=rad, segments=segs, ring_count=segs)
         self.solid = bpy.context.object
 
@@ -446,7 +446,7 @@ class BlenderConeZ(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        verts = self.segsByDim(2 * pi * max(r1, r2))
+        verts = self._smoothing_segments(2 * pi * max(r1, r2))
         bpy.ops.mesh.primitive_cone_add(
             radius1=r1, radius2=r2, depth=ln, vertices=verts
         )
@@ -522,7 +522,7 @@ class BlenderRodZ(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        verts = self.segsByDim(2 * pi * rad)
+        verts = self._smoothing_segments(2 * pi * rad)
         bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=ln, vertices=verts)
         self.solid = bpy.context.object
 
@@ -558,7 +558,7 @@ class BlenderRod3D(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         startPt = Vector(start)
         endPt = Vector(stop)
         vec = endPt - startPt
@@ -613,7 +613,7 @@ class BlenderLineSplineExtrusionZ(BlenderShape):
     ):
         super().__init__(api)
         # optimization:instead of detecting winding direction of polypath, detect the winding direction of input line-spline
-        polyPath = lineSplineXY(start, path, self.segsByDim)
+        polyPath = lineSplineXY(start, path, self._smoothing_segments)
         if not isPathCounterClockwise(simplifyLineSpline(start, path)):
             polyPath.reverse()
         polyExt = BlenderPolyExtrusionZ(polyPath, ht, api, checkWinding=False)
@@ -629,7 +629,7 @@ class BlenderLineSplineRevolveX(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        polyPath = lineSplineXY(start, path, self.segsByDim)
+        polyPath = lineSplineXY(start, path, self._smoothing_segments)
 
         mesh = bpy.data.meshes.new(name="Polygon")
         bpy.ops.object.select_all(action="DESELECT")
@@ -641,7 +641,7 @@ class BlenderLineSplineRevolveX(BlenderShape):
         polyObj = bpy.data.objects.new(name="Polygon_Object", object_data=mesh)
 
         _, dimY = dimXY(start, path)
-        segs = self.segsByDim(abs(2 * pi * dimY * min(abs(deg), 360) / 360))
+        segs = self._smoothing_segments(abs(2 * pi * dimY * min(abs(deg), 360) / 360))
         bpy.ops.object.select_all(action="DESELECT")
         self.solid = polyObj
         bpy.context.collection.objects.link(self.solid)
@@ -699,7 +699,7 @@ class BlenderCirclePolySweep(BlenderShape):
             path_obj.data.use_fill_caps = True  # To cap the ends
 
             # Set the resolution of the circle and the path
-            path_obj.data.bevel_resolution = self.segsByDim(2 * pi * rad)
+            path_obj.data.bevel_resolution = self._smoothing_segments(2 * pi * rad)
             path_obj.data.resolution_u = 1
 
             # Important: Set curve bevel mode and size

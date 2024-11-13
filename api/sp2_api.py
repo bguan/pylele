@@ -151,7 +151,7 @@ class Sp2Shape(Shape):
         self.solid = self.solid + joiner.solid
         return self
 
-    def segsByDim(self, dim: float) -> int:
+    def _smoothing_segments(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
     def mirror(self) -> Sp2Shape:
@@ -195,7 +195,7 @@ class Sp2Ball(Sp2Shape):
     def __init__(self, rad: float, api: Sp2ShapeAPI):
         super().__init__(api)
         self.rad = rad
-        self.solid = sphere(rad, _fn=self.segsByDim(2 * pi * rad))
+        self.solid = sphere(rad, _fn=self._smoothing_segments(2 * pi * rad))
 
 
 class Sp2Box(Sp2Shape):
@@ -217,7 +217,7 @@ class Sp2Cone(Sp2Shape):
         if sides is None:
             self.r1 = r1
             self.r2 = r1 if r2 is None else r2
-            sects = self.segsByDim(2 * pi * max(self.r1, self.r2))
+            sects = self._smoothing_segments(2 * pi * max(self.r1, self.r2))
         else:
             self.r1 = r1 * sqrt(2)
             self.r2 = self.r1 if r2 is None else r2 * sqrt(2)
@@ -253,7 +253,7 @@ class Sp2LineSplineExtrusionZ(Sp2Shape):
         super().__init__(api)
         self.path = path
         self.ht = ht
-        self.solid = polygon(lineSplineXY(start, path, self.segsByDim)).linear_extrude(
+        self.solid = polygon(lineSplineXY(start, path, self._smoothing_segments)).linear_extrude(
             ht
         )
 
@@ -272,9 +272,9 @@ class Sp2LineSplineRevolveX(Sp2Shape):
         self.path = path
         self.deg = deg
         _, dimY = dimXY(start, path)
-        segs = ceil(self.segsByDim(2 * pi * dimY) * abs(deg) / 360)
+        segs = ceil(self._smoothing_segments(2 * pi * dimY) * abs(deg) / 360)
         self.solid = (
-            polygon(lineSplineXY(start, path, self.segsByDim))
+            polygon(lineSplineXY(start, path, self._smoothing_segments))
             .rotateZ(90)
             .rotate_extrude(deg, _fn=segs)
             .rotateY(90)
@@ -297,7 +297,7 @@ class Sp2RndRodZ(Sp2Shape):
 
         stem_len = l - 2*rad*domeRatio
         rod = None
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         for bz in [stem_len/2, -stem_len/2]:
             ball = sphere(rad, _fn=segs).scale([1, 1, domeRatio]).translate([0, 0, bz])
             if rod is None:
@@ -337,7 +337,7 @@ class Sp2CirclePolySweep(Sp2Shape):
         super().__init__(api)
         self.path = path
         self.rad = rad
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         self.solid = circle(r=rad, _fn=segs).path_extrude(path)
 
 

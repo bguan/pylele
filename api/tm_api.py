@@ -157,7 +157,7 @@ class TMShape(Shape):
             )
             self.solid = self.solid.convex_hull
 
-    def segsByDim(self, dim: float) -> int:
+    def _smoothing_segments(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
     def cut(self, cutter: TMShape) -> TMShape:
@@ -279,7 +279,7 @@ class TMShape(Shape):
 class TMBall(TMShape):
     def __init__(self, rad: float, api: TMShapeAPI):
         super().__init__(api)
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         self.solid = tm.creation.uv_sphere(
             radius=rad, count=(segs, segs), validate=True
         )
@@ -305,7 +305,7 @@ class TMCone(TMShape):
         api: TMShapeAPI,
     ):
         super().__init__(api)
-        sects = self.segsByDim(2 * pi * max(r1, r2)) if sides is None else sides
+        sects = self._smoothing_segments(2 * pi * max(r1, r2)) if sides is None else sides
         linestring = [[0, 0], [r1, 0], [r2, l], [0, l]]
         self.solid = tm.creation.revolve(
             linestring=linestring, sections=sects, transform=rotMat, validate=True
@@ -328,7 +328,7 @@ class TMRod(TMShape):
         self, l: float, rad: float, sides: float, rotMat: NDArray, api: TMShapeAPI
     ):
         super().__init__(api)
-        segs = self.segsByDim(2 * pi * rad) if sides is None else sides
+        segs = self._smoothing_segments(2 * pi * rad) if sides is None else sides
         self.solid = tm.creation.cylinder(
             radius=rad, height=l, sections=segs, transform=rotMat, validate=True
         )
@@ -348,7 +348,7 @@ class TMLineSplineExtrusionZ(TMShape):
         super().__init__(api)
         self.path = path
         self.ht = ht
-        polygon = Polygon(lineSplineXY(start, path, self.segsByDim))
+        polygon = Polygon(lineSplineXY(start, path, self._smoothing_segments))
         self.solid = tm.creation.extrude_polygon(polygon, ht)  # , validate=True)
 
 
@@ -364,10 +364,10 @@ class TMLineSplineRevolveX(TMShape):
     ):
         super().__init__(api)
         dimX, dimY = dimXY(start, path)
-        segsY = self.segsByDim(2 * pi * dimY)
+        segsY = self._smoothing_segments(2 * pi * dimY)
         self.path = path
         self.deg = deg
-        linestring = lineSplineXY(start, path, self.segsByDim)
+        linestring = lineSplineXY(start, path, self._smoothing_segments)
         stringSwapXY = [(y, x) for x, y in linestring]
 
         # revolve by 360 then cut away wedge to get valid volume as work around for
@@ -442,7 +442,7 @@ class TMCirclePolySweep(TMShape):
 
         self.path = path
         self.rad = rad
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         polygon = Polygon(circle_polygon_points(segs, rad))
         self.solid = tm.creation.sweep_polygon(polygon, path, validate=True)
 

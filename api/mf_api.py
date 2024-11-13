@@ -174,7 +174,7 @@ class MFShape(Shape):
     def getImplSolid(self) -> Manifold:
         return self.solid
 
-    def segsByDim(self, dim: float) -> int:
+    def _smoothing_segments(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 
     def cut(self, cutter: MFShape) -> MFShape:
@@ -245,7 +245,7 @@ class MFShape(Shape):
 class MFBall(MFShape):
     def __init__(self, rad: float, api: MFShapeAPI):
         super().__init__(api)
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         self.solid = Manifold.sphere(rad, circular_segments=segs)
 
 
@@ -268,7 +268,7 @@ class MFConeZ(MFShape):
         api: MFShapeAPI,
     ):
         super().__init__(api)
-        segs = sides if sides is not None else self.segsByDim(2 * pi * max(r1, r2))
+        segs = sides if sides is not None else self._smoothing_segments(2 * pi * max(r1, r2))
         self.solid = Manifold.cylinder(l, r1, r2, circular_segments=segs)
 
 
@@ -282,7 +282,7 @@ class MFPolyExtrusionZ(MFShape):
 class MFRodZ(MFShape):
     def __init__(self, l: float, rad: float, sides: float, api: MFShapeAPI):
         super().__init__(api)
-        segs = sides if sides is not None else self.segsByDim(2 * pi * rad)
+        segs = sides if sides is not None else self._smoothing_segments(2 * pi * rad)
         self.solid = Manifold.cylinder(l, rad, circular_segments=segs).translate(
             (0, 0, -l / 2)
         )
@@ -302,7 +302,7 @@ class MFLineSplineExtrusionZ(MFShape):
         super().__init__(api)
         self.path = path
         self.ht = ht
-        approx_curve_path = lineSplineXY(start, path, self.segsByDim)
+        approx_curve_path = lineSplineXY(start, path, self._smoothing_segments)
         polygon = CrossSection([approx_curve_path], FillRule.EvenOdd)
         self.solid = Manifold.extrude(polygon, ht)
 
@@ -321,10 +321,10 @@ class MFLineSplineRevolveX(MFShape):
         _, dimY = dimXY(start, path)
         neg_deg = deg < 0
         deg = -deg if neg_deg else deg
-        segs = ceil(self.segsByDim(2 * pi * dimY) * deg / 360.0)
+        segs = ceil(self._smoothing_segments(2 * pi * dimY) * deg / 360.0)
         self.path = path
         self.deg = deg
-        approx_curve_path = lineSplineXY(start, path, self.segsByDim)
+        approx_curve_path = lineSplineXY(start, path, self._smoothing_segments)
         approx_curve_path = [(y, x) for x, y in approx_curve_path]  # swap X, Y
         polygon = CrossSection([approx_curve_path], FillRule.EvenOdd)
         solid = Manifold.revolve(polygon, revolve_degrees=deg, circular_segments=segs)
@@ -344,7 +344,7 @@ class MFCirclePolySweep(MFShape):
         super().__init__(api)
         self.path = path
         self.rad = rad
-        segs = self.segsByDim(2 * pi * rad)
+        segs = self._smoothing_segments(2 * pi * rad)
         sweep_shape = None
         for i, (x, y, z) in enumerate(path):
             if i == 0:

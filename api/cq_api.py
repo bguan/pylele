@@ -128,7 +128,7 @@ class CQShape(Shape):
         self.solid = self.solid.union(joiner.solid)
         return self
 
-    def segsByDim(self, dim: float) -> int:
+    def _smoothing_segments(self, dim: float) -> int:
         # Since CadQuery isusing Spline to connect pts for curves so use less segments
         return math.ceil(abs(dim) ** 0.25 * self.api.fidelity.smoothing_segments())
 
@@ -270,7 +270,7 @@ class CQLineSplineExtrusionZ(CQShape):
         self.solid = lineSplineXY(
             start,
             path,
-            self.segsByDim,
+            self._smoothing_segments,
             lambda pt: cq.Workplane("XY").moveTo(pt[0], pt[1]),
             lambda trace, pt: trace.lineTo(pt[0], pt[1]),
             lambda trace, pts: trace.spline(pts),
@@ -294,7 +294,7 @@ class CQLineSplineRevolveX(CQShape):
         self.solid = lineSplineXY(
             start,
             path,
-            self.segsByDim,
+            self._smoothing_segments,
             lambda pt: cq.Workplane("XY").moveTo(pt[0], pt[1]),
             lambda trace, pt: trace.lineTo(pt[0], pt[1]),
             lambda trace, pts: trace.spline(pts),
