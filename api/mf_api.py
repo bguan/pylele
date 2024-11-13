@@ -96,6 +96,9 @@ class MFShapeAPI(ShapeAPI):
     def export_best(self, shape: MFShape, path: Union[str, Path]) -> None:
         self.export_stl(shape, path)
 
+    def export(self, shape: MFShape, path: Union[str, Path],fmt=".stl") -> None:
+        self.export_stl(shape=shape,path=path)
+
     def sphere(self, rad: float) -> MFShape:
         return MFBall(rad, self)
 

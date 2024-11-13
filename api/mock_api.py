@@ -17,6 +17,9 @@ class MockShapeAPI(ShapeAPI):
     Mock Pylele API implementation for test
     """
 
+    def export(self, shape: MockShape, path: Union[str, Path],fmt=".stl") -> None:
+        return self.export_stl(shape=shape, path=path)
+
     def export_stl(self, shape: MockShape, path: str) -> None:
         gen_stl_foo(path)
 

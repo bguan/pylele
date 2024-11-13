@@ -22,6 +22,18 @@ from api.pylele_utils import ensureFileExtn, lineSplineXY
 
 class CQShapeAPI(ShapeAPI):
 
+    def export(self, shape: CQShape, path: Union[str, Path],fmt=".stl") -> None:
+        assert fmt in [".stl",".step"]
+        if fmt == ".stl":
+            self.export_stl(path)
+        elif fmt == ".step":
+            self.export_step(path)
+        else:
+            assert False
+
+    def export_best(self, shape: CQShape, path: Union[str, Path]) -> None:
+        self.export_step(shape=shape,path=path)
+
     def export_stl(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
             shape.solid,
@@ -30,7 +42,7 @@ class CQShapeAPI(ShapeAPI):
             tolerance=self.fidelity.tolerance(),
         )
 
-    def export_best(self, shape: CQShape, path: Union[str, Path]) -> None:
+    def export_step(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
             shape.solid,
             ensureFileExtn(path, ".step"),

@@ -31,12 +31,24 @@ class Sp2ShapeAPI(ShapeAPI):
     command = OPENSCAD
     implicit = False
 
+    def export(self, shape: Sp2Shape, path: Union[str, Path],fmt=".stl") -> None:
+        assert fmt in [".stl",".scad"]
+        if fmt == ".stl":
+            self.export_stl(path)
+        elif fmt == ".scad":
+            self.export_scad(path)
+        else:
+            assert False
+
+    def export_best(self, shape: Sp2Shape, path: Union[str, Path]) -> None:
+        self.export_scad(shape=shape,path=path)
+
     def export_stl(self, shape: Sp2Shape, path: str) -> None:
         basefname, _ = os.path.splitext(path)
-        scad_file = self.export_best(shape=shape, path=basefname)
+        scad_file = self.export_scad(shape=shape, path=basefname)
         return scad2stl(scad_file, command=self.command, implicit=self.implicit)
 
-    def export_best(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
+    def export_scad(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         outdir, fname = os.path.split(path)
         fname = ensureFileExtn(fname, ".scad")
         shape.solid.save_as_scad(filename=fname, outdir=outdir)

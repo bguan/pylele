@@ -367,6 +367,9 @@ class ShapeAPI(ABC):
         return font_path
 
     @abstractmethod
+    def export(self, shape: Shape, path: Union[str, Path], fmt: str) -> None: ...
+
+    @abstractmethod
     def export_stl(self, shape: Shape, path: Union[str, Path]) -> None: ...
 
     @abstractmethod

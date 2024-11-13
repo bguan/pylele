@@ -43,11 +43,15 @@ class TMShapeAPI(ShapeAPI):
         direction=(1, 0, 0),
     )
 
-    def export_stl(self, shape: TMShape, path: Union[str, Path]) -> None:
-        shape.solid.export(ensureFileExtn(path, ".stl"))
+    def export(self, shape: Shape, path: Union[str, Path],fmt=".stl") -> None:
+        assert fmt in [".stl",".glb"]
+        shape.solid.export(ensureFileExtn(path, fmt))
 
     def export_best(self, shape: TMShape, path: Union[str, Path]) -> None:
-        shape.solid.export(ensureFileExtn(path, ".glb"))
+        self.export(shape=shape,path=path,fmt=".glb")
+
+    def export_stl(self, shape: TMShape, path: Union[str, Path]) -> None:
+        self.export(shape=shape, path=path, fmt=".stl")
 
     def sphere(self, rad: float) -> TMShape:
         return TMBall(rad, self)

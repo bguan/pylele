@@ -31,7 +31,19 @@ from api.pylele_utils import (
 
 class BlenderShapeAPI(ShapeAPI):
 
-    def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:
+    def export(self, shape: BlenderShape, path: Union[str, Path],fmt=".stl") -> None:
+        assert fmt in [".stl",".glb"]
+        if fmt == ".stl":
+            self.export_stl(path)
+        elif fmt == ".glb":
+            self.export_glb(path)
+        else:
+            assert False
+
+    def export_best(self, shape: BlenderShape, path: Union[str, Path]) -> None:
+        self.export_glb(shape=shape,path=path)
+        
+    def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:        
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
@@ -39,7 +51,7 @@ class BlenderShapeAPI(ShapeAPI):
             filepath=ensureFileExtn(path, ".stl"), use_selection=True
         )
 
-    def export_best(self, shape: BlenderShape, path: Union[str, Path]) -> None:
+    def export_glb(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
