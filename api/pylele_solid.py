@@ -552,11 +552,6 @@ class LeleSolid(ABC):
         self.shape = self.shape.mv(x, y, z)
         return self
 
-    def show(self):
-        """ Show solid """
-        self.gen_full()
-        return self.shape.show()
-
     def __add__(self, operand):
         """ Join using + """
         return self.join(operand)

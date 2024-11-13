@@ -273,10 +273,6 @@ class TMShape(Shape):
         self.solid = self.solid.convex_hull
         return self
 
-    def show(self):
-        pass
-
-
 class TMBall(TMShape):
     def __init__(self, rad: float, api: TMShapeAPI):
         super().__init__(api)

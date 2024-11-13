@@ -236,8 +236,8 @@ class Shape(ABC):
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...
 
-    @abstractmethod
-    def show(self): ...
+    def show(self): 
+        print(f"Warning! show not implemented yet for {self.api.implementation} api!")
 
     def __add__(self, operand) -> Shape:
         """ Join using + """

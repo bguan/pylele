@@ -129,9 +129,5 @@ class MockShape(Shape):
     def scale(self, x: float, y: float, z: float) -> MockShape:
         return self
 
-    def show(self):
-        return self.solid
-
-
 if __name__ == "__main__":
     test_api("mock")

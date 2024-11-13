@@ -187,10 +187,6 @@ class Sp2Shape(Shape):
         self.solid = self.solid.hull()
         return self
 
-    def show(self):
-        return self.solid
-
-
 class Sp2Ball(Sp2Shape):
     def __init__(self, rad: float, api: Sp2ShapeAPI):
         super().__init__(api)

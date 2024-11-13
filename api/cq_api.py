@@ -194,10 +194,6 @@ class CQShape(Shape):
         )
         return self
 
-    def show(self):
-        return self.solid
-
-
 class CQBall(CQShape):
     def __init__(self, rad: float, api: CQShapeAPI):
         super().__init__(api)
