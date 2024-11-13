@@ -105,13 +105,6 @@ class MockShape(Shape):
     def dup(self) -> MockShape:
         return self
 
-    def fillet(
-        self,
-        nearestPts: list[tuple[float, float, float]],
-        rad: float,
-    ) -> MockShape:
-        return self
-
     def join(self, joiner: MockShape) -> MockShape:
         return self
 

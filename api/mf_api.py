@@ -190,16 +190,6 @@ class MFShape(Shape):
         )  # TODO find better impl
         return duplicate
 
-    def fillet(
-        self,
-        nearestPts: list[tuple[float, float, float]],
-        rad: float,
-    ) -> MFShape:
-        print(
-            "Manifold: fillet(...) not implemented yet.", file=sys.stderr
-        )
-        return self
-
     def join(self, joiner: MFShape) -> MFShape:
         if joiner is None or joiner.solid is None:
             return self

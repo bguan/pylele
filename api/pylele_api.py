@@ -189,12 +189,13 @@ class Shape(ABC):
     @abstractmethod
     def dup(self) -> Shape: ...
 
-    @abstractmethod
     def fillet(
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
-    ) -> Shape: ...
+    ) -> Shape:
+        print(f"Warning! Fillet not implemented yet for {self.api.implementation} api!")
+        return self
 
     def half(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> Shape:
         halfCutter = (

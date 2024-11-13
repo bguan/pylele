@@ -138,15 +138,6 @@ class Sp2Shape(Shape):
     def dup(self) -> Sp2Shape:
         return copy.copy(self)
 
-    def fillet(
-        self,
-        nearestPts: list[tuple[float, float, float]],
-        rad: float,
-    ) -> Sp2Shape:
-        print("Warning! Fillet not implemented yet for solidpython2 api!")
-        # https://github.com/BelfrySCAD/BOSL2/wiki/rounding.scad#function-round_corners
-        return self
-
     def join(self, joiner: Sp2Shape) -> Sp2Shape:
         self.solid = self.solid + joiner.solid
         return self
