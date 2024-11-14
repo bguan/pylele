@@ -8,11 +8,11 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
+from api.pylele_solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
 from api.pylele_api import Shape
 from api.pylele_utils import gen_stl_foo, gen_svg_foo
 
-class Import3d(LeleSolid):
+class Import3d(Solid):
     """ Import solid object from file """
 
     def gen_parser(self, parser=None):

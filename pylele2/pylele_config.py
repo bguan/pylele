@@ -151,7 +151,7 @@ class LeleConfig:
 
     def gen_parser(self,parser=None):
         """
-        LeleSolid Command Line Interface
+        Solid Command Line Interface
         """
         return pylele_config_parser(parser=parser)
 

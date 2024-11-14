@@ -28,7 +28,7 @@ from api.pylele_utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
 
 def main_maker(module_name, class_name, args=None):
-    """Generate a main function for a LeleSolid instance"""
+    """Generate a main function for a Solid instance"""
     module = importlib.import_module(module_name)
     class_ = getattr(module, class_name)
     solid = class_(args=args)
@@ -174,7 +174,7 @@ def solid_operand(joiner)->ShapeAPI:
     """ returns a ShapeAPI compatible operand """
     if joiner is None:
         return joiner
-    if isinstance(joiner,LeleSolid):
+    if isinstance(joiner,Solid):
         joiner.gen_full()
         return joiner.shape
     if isinstance(joiner, ShapeAPI):
@@ -182,10 +182,10 @@ def solid_operand(joiner)->ShapeAPI:
 
 def lele_solid_parser(parser=None):
     """
-    LeleSolid Command Line Interface
+    Solid Command Line Interface
     """
     if parser is None:
-        parser = ArgumentParser(description="LeleSolid Configuration")
+        parser = ArgumentParser(description="Solid Configuration")
 
     ## options ######################################################
     parser.add_argument(
@@ -264,7 +264,7 @@ def lele_solid_parser(parser=None):
     return parser
 
 
-class LeleSolid(ABC):
+class Solid(ABC):
     """
     Pylele Generic Solid Body
     """
@@ -337,7 +337,7 @@ class LeleSolid(ABC):
 
     def add_part(self, part):
         """Add a solid part to the parts list of this assembly"""
-        assert isinstance(part, LeleSolid)
+        assert isinstance(part, Solid)
 
         if self.has_parts():
             self.parts.append(part)
@@ -349,13 +349,13 @@ class LeleSolid(ABC):
 
     def add_parts(self, parts):
         """Add a list of solid parts to the parts list of this assembly"""
-        assert isinstance(parts, list) or isinstance(parts, LeleSolid), print(parts)
+        assert isinstance(parts, list) or isinstance(parts, Solid), print(parts)
 
-        if isinstance(parts, LeleSolid):
+        if isinstance(parts, Solid):
             if parts.has_parts():
                 parts = parts.parts
             else:
-                print("# Warning: LeleSolid has no parts!")
+                print("# Warning: Solid has no parts!")
 
         if self.has_parts():
             self.parts += parts
@@ -380,7 +380,7 @@ class LeleSolid(ABC):
 
     def gen_parser(self, parser=None):
         """
-        LeleSolid Command Line Interface
+        Solid Command Line Interface
         """
         return lele_solid_parser(parser=parser)
 
@@ -413,7 +413,7 @@ class LeleSolid(ABC):
             self.api.setCommand(self.cli.openscad)
             self.api.setImplicit(self.cli.implicit)
 
-    def cut(self, cutter: LeleSolid) -> LeleSolid:
+    def cut(self, cutter: Solid) -> Solid:
         """ Cut solid with other shape """
         self.gen_full()
         self.shape = self.shape.cut(
@@ -478,7 +478,7 @@ class LeleSolid(ABC):
         if self.has_parts():
             # this is an assembly, generate other parts
             for part in self.parts:
-                if isinstance(part, LeleSolid):
+                if isinstance(part, Solid):
                     part.export_stl(out_path=out_path)
                 else:
                     print(
@@ -513,7 +513,7 @@ class LeleSolid(ABC):
         self,
         nearestPts: list[tuple[float, float, float]],
         rad: float,
-    ) -> LeleSolid:
+    ) -> Solid:
         """ Apply fillet to solid """
         self.gen_full()
         try:
@@ -522,14 +522,14 @@ class LeleSolid(ABC):
             print(f'WARNING: fillet failed at point {nearestPts}, with radius {rad}!')
         return self
 
-    def half(self) -> LeleSolid:
+    def half(self) -> Solid:
         """Cut solid in half to create a sectioned view"""
         # assert self.has_shape(), f'# Cannot half {self.fileNameBase} because main shape has not been generated yet!'
         self.gen_full()
         self.shape = self.shape.half()
         return self
 
-    def join(self, joiner: LeleSolid) -> LeleSolid:
+    def join(self, joiner: Solid) -> Solid:
         """ Join solid with other solid """
 
         self.gen_full()
@@ -538,14 +538,14 @@ class LeleSolid(ABC):
         )
         return self
 
-    def mirror(self) -> LeleSolid:
+    def mirror(self) -> Solid:
         """Mirror solid along XZ axis"""
         # assert self.has_shape(), f'# Cannot mirror {self.fileNameBase} because main shape has not been generated yet!'
         self.gen_full()
         mirror = self.shape.mirror()
         return mirror
 
-    def mv(self, x: float, y: float, z: float) -> LeleSolid:
+    def mv(self, x: float, y: float, z: float) -> Solid:
         """Move solid in direction specified"""
         # assert self.has_shape(), f'# Cannot mv {self.fileNameBase} because main shape has not been generated yet!'
         self.gen_full()

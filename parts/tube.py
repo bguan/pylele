@@ -8,10 +8,10 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.pylele_solid import LeleSolid, test_loop, main_maker
+from api.pylele_solid import Solid, test_loop, main_maker
 from api.pylele_api import Shape
 
-class Tube(LeleSolid):
+class Tube(Solid):
     """ Generate a Tube """
 
     def gen_parser(self, parser=None):
