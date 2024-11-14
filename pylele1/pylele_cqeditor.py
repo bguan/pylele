@@ -24,7 +24,7 @@ def cqeditor_main():
         scaleLen=330,
         endWth=90,
         chmLift=1,
-        impl=Implementation.CAD_QUERY,
+        impl=Implementation.CADQUERY,
         tnrType=TunerType.WORM,
         modelLbl=ModelLabel.LONG,
         sepEnd=True,

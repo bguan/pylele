@@ -25,7 +25,7 @@ class RoundedBox(LeleSolid):
 
     def gen_cadquery(self) -> Shape:
         """ cadquery implementation """
-        # assert self.cli.implementation in [Implementation.CAD_QUERY]
+        # assert self.cli.implementation in [Implementation.CADQUERY]
 
         # Main cube
         box = self.api.box(self.cli.x,
@@ -118,7 +118,7 @@ class RoundedBox(LeleSolid):
     def gen(self) -> Shape:
         """ generate rounded box """
         
-        if self.cli.implementation in [Implementation.CAD_QUERY, Implementation.BLENDER]:
+        if self.cli.implementation in [Implementation.CADQUERY, Implementation.BLENDER]:
             # apis that support fillet
             return self.gen_cadquery()
             # apis that support hull

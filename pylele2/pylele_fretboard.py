@@ -45,7 +45,7 @@ class LeleFretboard(LeleBase):
             frad = fbTck / 2
 
             if self.cli.implementation in [
-                Implementation.CAD_QUERY,
+                Implementation.CADQUERY,
                 Implementation.BLENDER,
             ]:
                 ## fillet the end of the fretboard

@@ -82,7 +82,7 @@ class LeleBottomAssembly(LeleBase):
             LeleBodyType.HOLLOW,
             LeleBodyType.TRAVEL
         ]:
-            if self.cli.implementation == Implementation.CAD_QUERY and (
+            if self.cli.implementation == Implementation.CADQUERY and (
                 self.cli.body_type == LeleBodyType.FLAT or
                 self.cli.body_type == LeleBodyType.HOLLOW):
                 print('# WARNING: not generating neck bend, because does not work with cadquery and flat body')

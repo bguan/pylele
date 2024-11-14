@@ -69,7 +69,7 @@ class Implementation(LeleStrEnum):
     """Pylele API implementations"""
 
     MOCK = "mock"
-    CAD_QUERY = "cadquery"
+    CADQUERY = "cadquery"
     BLENDER = "blender"
     TRIMESH = "trimesh"
     SOLID2 = "solid2"
@@ -92,7 +92,7 @@ class Implementation(LeleStrEnum):
 
     def tolerance(self) -> float:
         """ Tolerance for joins to have a little overlap """
-        return 0 if self == Implementation.CAD_QUERY else 0.01
+        return 0 if self == Implementation.CADQUERY else 0.01
 
     def get_api(self, fidelity: Fidelity = Fidelity.LOW) -> ShapeAPI:
         """ Get the handler to the selected implementation API """

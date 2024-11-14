@@ -95,7 +95,7 @@ class LeleConfig:
             22: 1,
         },
         fidelity: Fidelity = Fidelity.LOW,
-        impl: Implementation = Implementation.CAD_QUERY,
+        impl: Implementation = Implementation.CADQUERY,
     ):
         # Primary Configs: that others depends on
         self.impl = impl
