@@ -227,6 +227,10 @@ class MFShape(Shape):
             return self
         self.solid = self.solid.scale((x, y, z))
         return self
+    
+    def hull(self) -> MFShape:
+        self.solid = self.solid.hull()
+        return self
 
 class MFBall(MFShape):
     def __init__(self, rad: float, api: MFShapeAPI):

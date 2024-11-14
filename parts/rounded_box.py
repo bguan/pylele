@@ -119,10 +119,13 @@ class RoundedBox(LeleSolid):
         """ generate rounded box """
         
         if self.cli.implementation in [Implementation.CAD_QUERY, Implementation.BLENDER]:
+            # apis that support fillet
             return self.gen_cadquery()
-        elif self.cli.implementation in [ Implementation.SOLID2, Implementation.TRIMESH ]:
+            # apis that support hull
+        elif self.cli.implementation in [ Implementation.SOLID2, Implementation.TRIMESH, Implementation.MANIFOLD ]:
             return self.gen_solidpython()
         else:
+            # apis not supporting fillet or hull
             return self.gen_default()
         
         assert False
