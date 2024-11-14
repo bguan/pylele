@@ -263,7 +263,7 @@ class PyleleTestMethods(unittest.TestCase):
     )
     from pylele2.pylele_all_assembly import test_all_assembly, test_all_assembly_mock
 
-    def test_report(self):
+    def test_zz_report(self):
         """ Generate Test Report """
         print("# Generate .xlsx Test Report")
 
