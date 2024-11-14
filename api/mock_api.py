@@ -88,14 +88,6 @@ class MockShapeAPI(ShapeAPI):
     def text(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
 
-class MockSolid(object):
-    """
-    Mock Solid for test
-    """
-
-    pass
-
-
 class MockShape(Shape):
     """
     Mock Pylele Shape implementation for test
