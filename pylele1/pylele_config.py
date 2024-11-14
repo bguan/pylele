@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Fidelity, Implementation, LeleStrEnum, ShapeAPI
+from api.pylele_api import Fidelity, Implementation, StringEnum, ShapeAPI
 from api.pylele_api_constants import FIT_TOL
 from api.pylele_utils import radians, degrees
 from pylele_config_common import LeleScaleEnum, WormConfig, TunerType
@@ -22,7 +22,7 @@ DEFAULT_LABEL_SIZE_SMALL = 6
 DEFAULT_LABEL_FONT = "Verdana"
 
 
-class ModelLabel(LeleStrEnum):
+class ModelLabel(StringEnum):
     """Model Label"""
 
     NONE = "none"

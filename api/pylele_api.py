@@ -26,8 +26,8 @@ APIS_INFO = {
 
 # consider update to StrEnum for python 3.11 and above
 # https://tsak.dev/posts/python-enum/
-class LeleStrEnum(str, Enum):
-    """Pylele Enumerator for String Types"""
+class StringEnum(str, Enum):
+    """ Enumerator for String Types"""
 
     def __str__(self):
         return self.value
@@ -36,7 +36,7 @@ class LeleStrEnum(str, Enum):
         return list(self)
 
 
-class Fidelity(LeleStrEnum):
+class Fidelity(StringEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -65,7 +65,7 @@ class Fidelity(LeleStrEnum):
     def code(self) -> str:
         return str(self)[0].upper()
 
-class Implementation(LeleStrEnum):
+class Implementation(StringEnum):
     """Pylele API implementations"""
 
     MOCK = "mock"
