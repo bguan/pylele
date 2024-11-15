@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
-from math import inf, sqrt, pi
+from fontTools.ttLib import TTFont
+from fontTools.pens.basePen import BasePen
+from fontTools.misc.bezierTools import approximateQuadraticArcLength, quadraticPointAtT
+from math import ceil, inf, sqrt, pi
 import os
 from pathlib import Path
+import sys
 from typing import Callable, Union
 
 
@@ -71,6 +75,11 @@ def pathBounds(
         maxY = y if y > maxY else maxY
 
     return ((minX, minY), (maxX, maxY))
+
+
+def pathBoundsArea(path: list[tuple[float, ...]]) -> float:
+    (minX, minY), (maxX, maxY) = pathBounds(path)
+    return (maxX - minX) * (maxY - minY)
 
 
 def encureClosed2DPath(path: list[tuple[float, float]]) -> list[tuple[float, float]]:
@@ -484,3 +493,183 @@ def gen_svg_foo(outpath: str) -> str:
     # check output file exists
     assert os.path.isfile(fout)
     return fout
+
+
+def getFontname2FilepathMap() -> dict[str, str]:
+
+    font2path: dict[str, str] = {}
+
+    # Define directories to search for fonts
+    if sys.platform == "win32":
+        font_dirs = [os.path.join(os.environ["WINDIR"], "Fonts")]
+    elif sys.platform == "darwin":
+        font_dirs = [
+            "/Library/Fonts",
+            "/System/Library/Fonts",
+            os.path.expanduser("~/Library/Fonts"),
+        ]
+    else:  # Assume Linux or other UNIX-like system
+        font_dirs = [
+            "/usr/share/fonts",
+            "/usr/local/share/fonts",
+            os.path.expanduser("~/.fonts"),
+        ]
+
+    def list_fonts(directory):
+        fonts = []
+
+        # Helper function to get the string by its name ID
+        def get_name(font: TTFont, nameID: int):
+            name_record = font["name"].getName(
+                nameID=nameID, platformID=3, platEncID=1
+            )
+            if name_record is None:
+                name_record = font["name"].getName(
+                    nameID=nameID, platformID=1, platEncID=0
+                )
+            return name_record.toStr() if name_record else "Unknown"
+
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.lower().endswith((".ttf", ".otf")):
+                    font_path = os.path.join(root, file)
+                    try:
+                        font = TTFont(font_path)
+                        # Get the Font Family Name (name ID 1)
+                        family = get_name(font, 1)
+                        # Get the Font Subfamily Name (Style) (name ID 2)
+                        style = get_name(font, 2)
+
+                        font_name = (
+                            family
+                            if style == "Normal" or style == "Regular"
+                            else family + " " + style
+                        )
+                        fonts.append((font_name, font_path))
+                    except Exception as e:
+                        print(f"Error reading {font_path}: {e}")
+        return fonts
+
+    # Collect fonts from all directories
+    all_fonts = []
+    for directory in font_dirs:
+        if os.path.exists(directory):
+            all_fonts.extend(list_fonts(directory))
+
+    # Print the font names and paths
+    for name, path in all_fonts:
+        # print(f"Font: {name}, Path: {path}")
+        font2path[name] = path
+
+    return font2path
+
+
+def textToGlyphsPaths(
+    font_path: str,
+    text: str,
+    font_size: float = 24, # in points
+    translate: tuple[float, float]=(0, 0),
+    dimToSegs: Callable[[float], float] = lambda x: 36*x,
+) -> list[list[tuple[float, float]]]:
+
+    class PathExtractor(BasePen):
+        def __init__(self, glyphSet):
+            super().__init__(glyphSet)
+            self.paths = []
+
+        def _moveTo(self, p0):
+            self.current_path = [("moveTo", p0)]
+
+        def _lineTo(self, p1):
+            self.current_path.append(("lineTo", p1))
+
+        def _curveToOne(self, p1, p2, p3):
+            self.current_path.append(("curveTo", p1, p2, p3))
+
+        def _closePath(self):
+            self.current_path.append(("closePath",))
+            self.paths.append(self.current_path)
+            self.current_path = []
+
+    font = TTFont(font_path)
+    glyph_set = font.getGlyphSet()
+    cmap = font["cmap"].getBestCmap()
+    units_per_em = font['head'].unitsPerEm
+
+    # Simplistic approach: assume ASCII and get glyph names
+    glyph_names = []
+    for char in text:
+        code_point = ord(char)
+        glyph_name = cmap.get(code_point)
+        if glyph_name:
+            glyph_names.append(glyph_name)
+        else:
+            print(f"Character '{char}' not found in the font.")
+            glyph_names.append(".notdef")
+
+    def pointsToFontScale(pts: float) -> float:
+        pts_per_inch = 72
+        resolution = 72
+        return pts * resolution / ( pts_per_inch * units_per_em )
+
+    scale = pointsToFontScale(font_size)
+
+    # Initialize variables for positioning
+    current_x = 0
+    glyphs_paths = []
+
+    for glyph_name in glyph_names:
+        glyph = glyph_set[glyph_name]
+        extractor = PathExtractor(glyph_set)
+        glyph.draw(extractor)
+        # Apply transformations (scaling and translation)
+        transformed_paths = []
+        for path in extractor.paths:
+            transformed_path = []
+            assert path[0][0] == "moveTo"
+            start: tuple[float, float] = None
+            for i, cmd in enumerate(path):
+                if cmd[0] == "moveTo":
+                    p = (
+                        cmd[1][0] * scale + current_x + translate[0],
+                        cmd[1][1] * scale + translate[1],
+                    )
+                    if i == 0:
+                        start = p
+                    transformed_path.append(p)
+                elif cmd[0] == "lineTo":
+                    p = (
+                        cmd[1][0] * scale + current_x + translate[0],
+                        cmd[1][1] * scale + translate[1],
+                    )
+                    transformed_path.append(p)
+                elif cmd[0] == "curveTo":
+                    p1 = (
+                        cmd[1][0] * scale + current_x + translate[0],
+                        cmd[1][1] * scale + translate[1],
+                    )
+                    p2 = (
+                        cmd[2][0] * scale + current_x + translate[0],
+                        cmd[2][1] * scale + translate[1],
+                    )
+                    p3 = (
+                        cmd[3][0] * scale + current_x + translate[0],
+                        cmd[3][1] * scale + translate[1],
+                    )
+                    dim = approximateQuadraticArcLength(p1, p2, p3)
+                    numSegs = ceil(dimToSegs(dim))
+                    for t in frange(0., 1., 1./numSegs):
+                        transformed_path.append(quadraticPointAtT(p1, p2, p3, t))
+                    transformed_path.append(p3)
+                elif cmd[0] == "closePath":
+                    assert i == len(path) - 1
+                    if transformed_path[-1] != start:
+                        transformed_path.append(start)
+            transformed_paths.append(transformed_path)
+        glyphs_paths.append(transformed_paths)
+
+        # Advance current_x based on glyph's advance width
+        advance_width = glyph.width * scale
+        current_x += advance_width
+
+    return glyphs_paths

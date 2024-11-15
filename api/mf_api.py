@@ -13,7 +13,7 @@ from typing import Union
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from api.pylele_api import ShapeAPI, Shape, test_api
-from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
+from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY, textToGlyphsPaths
 
 
 """
@@ -367,21 +367,36 @@ class MFTextZ(MFShape):
         txt: str,
         fontSize: float,
         tck: float,
-        font: str,
+        fontName: str,
         api: MFShapeAPI,
     ):
-        print("Manifold: MFTextZ(...) not implemented yet.", file=sys.stderr)
-
         super().__init__(api)
 
         self.txt = txt
         self.fontSize = fontSize
         self.tck = tck
-        self.font = font
-        l = 0.5 * fontSize * len(txt)
-        wth = fontSize
-        ht = tck
-        self.solid = Manifold.cube((l, wth, ht)).translate((-l / 2, -wth / 2, 0))
+        self.font = fontName
+        fontPath = api.getFontPath(fontName)
+
+        glyphs_paths = textToGlyphsPaths(
+            fontPath, txt, fontSize, dimToSegs=self.segsByDim
+        )
+
+        text3d: Manifold = None
+        for glyph_paths in glyphs_paths:
+
+            glyph3d: Manifold = None
+
+            cross_section = CrossSection(glyph_paths, FillRule.EvenOdd)
+            if cross_section.area() > 0:
+                glyph3d = Manifold.extrude(cross_section, tck)
+
+            if glyph3d is not None:
+                text3d = glyph3d if text3d is None else text3d + glyph3d
+
+        if text3d is not None:
+            (_, _, _, xmax, ymax, _) = text3d.bounding_box()
+            self.solid = text3d.translate((-xmax / 2, -ymax / 2, 0))
 
 
 if __name__ == "__main__":

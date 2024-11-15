@@ -19,8 +19,11 @@ from api.pylele_utils import (
     dimXY,
     encureClosed2DPath,
     ensureFileExtn,
+    isPathCounterClockwise,
     lineSplineXY,
+    pathBoundsArea,
     radians,
+    textToGlyphsPaths,
 )
 
 
@@ -451,21 +454,58 @@ class TMTextZ(TMShape):
         txt: str,
         fontSize: float,
         tck: float,
-        font: str,
+        fontName: str,
         api: TMShapeAPI,
     ):
         super().__init__(api)
 
-        print("Trimesh: TMTextZ(...) not implemented yet.", file=sys.stderr)
+        jcTol = api.getJoinCutTol()
 
         self.txt = txt
         self.fontSize = fontSize
         self.tck = tck
-        self.font = font
-        self.solid = tm.creation.box(
-            extents=(0.5 * fontSize * len(txt), fontSize, tck), validate=True
+        self.font = fontName
+
+        fontPath = api.getFontPath(fontName)
+
+        glyphs_paths = textToGlyphsPaths(
+            fontPath, txt, fontSize, dimToSegs=self.segsByDim
         )
-        self.mv(0, 0, tck / 2)
+
+        text3d: tm.Trimesh = None
+        for glyph_paths in glyphs_paths:
+
+            glyph3d: tm.Trimesh = None
+
+            glyph_paths.sort(key=pathBoundsArea, reverse=True)
+            for pi, path in enumerate(glyph_paths):
+                polygon = Polygon(path)
+                isCut = not isPathCounterClockwise(path)
+                cutAdj = jcTol if isCut else 0
+                extruded = tm.creation.extrude_polygon(
+                    polygon,
+                    tck + 2 * cutAdj,
+                    cap_base=True,
+                    cap_top=True,
+                    tolerance=1e-5,
+                    validate=True,
+                ).apply_translation((0, 0, -cutAdj))
+
+                if pi == 0:
+                    glyph3d = extruded
+                else:
+                    if isCut:
+                        glyph3d = tm.boolean.difference([glyph3d, extruded])
+                    else:
+                        glyph3d = tm.boolean.union([glyph3d, extruded])
+
+            if glyph3d is not None:
+                text3d = glyph3d if text3d is None else text3d + glyph3d
+
+        if text3d is not None:
+            bounds: np.ndarray = text3d.bounds
+            xmax, ymax = bounds[1][0], bounds[1][1]
+            self.solid = text3d.apply_translation((-xmax / 2, -ymax / 2, 0))
 
 
 if __name__ == "__main__":

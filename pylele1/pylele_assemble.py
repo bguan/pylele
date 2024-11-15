@@ -136,7 +136,7 @@ def assemble(cfg: LeleConfig) -> list[LelePart]:
     body = Body(cfg)
 
     if not cfg.noTxt:
-        txtCut = Texts(cfg, isCut=True).cut(body)
+        txtCut = Texts(cfg, isCut=True).mv(0, 0, -jctol).cut(body)
         body = body.cut(txtCut.mv(0, 0, cfg.EMBOSS_DEP))
 
     if not cfg.sepNeck:
