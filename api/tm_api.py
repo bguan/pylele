@@ -17,7 +17,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 from api.pylele_api import ShapeAPI, Shape, test_api
 from api.pylele_utils import (
     dimXY,
-    encureClosed2DPath,
+    ensureClosed2DPath,
     ensureFileExtn,
     isPathCounterClockwise,
     lineSplineXY,
@@ -315,7 +315,7 @@ class TMCone(TMShape):
 class TMPolyExtrusionZ(TMShape):
     def __init__(self, path: list[tuple[float, float]], tck: float, api: TMShapeAPI):
         super().__init__(api)
-        path = encureClosed2DPath(path)
+        path = ensureClosed2DPath(path)
         polygon = Polygon(path)
         self.solid = tm.creation.extrude_polygon(
             polygon, tck, cap_base=True, cap_top=True, tolerance=1e-5, validate=True

@@ -82,7 +82,7 @@ def pathBoundsArea(path: list[tuple[float, ...]]) -> float:
     return (maxX - minX) * (maxY - minY)
 
 
-def encureClosed2DPath(path: list[tuple[float, float]]) -> list[tuple[float, float]]:
+def ensureClosed2DPath(path: list[tuple[float, float]]) -> list[tuple[float, float]]:
     if path[0][0] != path[-1][0] or path[0][1] != path[-1][1]:
         path.append(path[0])
     return path
@@ -276,7 +276,7 @@ def lineSplineXY(
                 else:
                     result = lineToFunc(result, (lastX, lastY))
 
-    return encureClosed2DPath(result) if wrapUpFunc is None else wrapUpFunc(result)
+    return ensureClosed2DPath(result) if wrapUpFunc is None else wrapUpFunc(result)
 
 
 def simplifyLineSpline(
