@@ -456,7 +456,7 @@ class TMTextZ(TMShape):
     ):
         super().__init__(api)
 
-        jcTol = api.getJoinCutTol()
+        jcTol = api.tolerance()
 
         self.txt = txt
         self.fontSize = fontSize
@@ -469,7 +469,7 @@ class TMTextZ(TMShape):
             print(f"Can't find font {fontName}, substitude with {fontPath}")
 
         glyphs_paths = textToGlyphsPaths(
-            fontPath, txt, fontSize, dimToSegs=self.segsByDim
+            fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
         )
 
         text3d: tm.Trimesh = None

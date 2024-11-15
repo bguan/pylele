@@ -372,7 +372,7 @@ class MFTextZ(MFShape):
             print(f"Can't find font {fontName}, substitude with {fontPath}")
 
         glyphs_paths = textToGlyphsPaths(
-            fontPath, txt, fontSize, dimToSegs=self.segsByDim
+            fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
         )
 
         text3d: Manifold = None
