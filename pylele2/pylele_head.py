@@ -35,8 +35,8 @@ class LeleHead(LeleBase):
         joinTol = self.api.tolerance()
 
         hd = self.api.spline_revolve(orig, path, -180)
-        hd *= Direction(z=botRat)
-        hd <<= Direction(z=joinTol/2 -midTck)
+        hd *= Direction.Z * botRat
+        hd <<= Direction.Z + (joinTol/2 -midTck)
 
         if midTck > 0:
             midR = self.api.spline_extrusion(orig, path, midTck)

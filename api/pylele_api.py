@@ -140,38 +140,27 @@ def default_or_alternate(def_val, alt_val=None):
     return alt_val
     # return def_val if alt_val is None else al
 
-class Direction(object):
+DIRECTION_TO_TUPLE = {
+    'X' : (1,0,0),
+    'Y' : (0,1,0),
+    'Z' : (0,0,1),
+}
+
+class Direction(StringEnum):
     """ A class to represent direction vectors """
-    x = None
-    y = None
-    z = None
+    X = 'X'
+    Y = 'Y'
+    Z = 'Z'
 
-    def __init__(self, x: float = None, y: float = None, z: float = None):
-        self.x = x
-        self.y = y
-        self.z = z
+    def eval(self):
+        return DIRECTION_TO_TUPLE[self.value]
 
-    def eval(self, op = '+'):
+    def __add__(self, operand):
+        return map(lambda x: operand * x, self.eval() )
 
-        if op == '+':
-            neutral = 0
-        elif op == '*':
-            neutral = 1
-
-        x = default_or_alternate(neutral, self.x)
-        y = default_or_alternate(neutral, self.y)
-        z = default_or_alternate(neutral, self.z)
-
-        return x,y,z
-
-def direction_operand(operand) -> Direction:
-    """ returns a direction operand """
-    if isinstance(operand,tuple):
-        assert len(operand)==3
-        return Direction(operand[0],operand[1],operand[2])
-    if isinstance(operand,Direction):
-        return operand
-    assert False
+    def __mul__(self, operand):
+        retval = map(lambda x: operand * x if x == 1 else 1, self.eval() )
+        return retval
 
 class Shape(ABC):
 
@@ -233,6 +222,17 @@ class Shape(ABC):
     @abstractmethod
     def rotate_z(self, ang: float) -> Shape: ...
 
+    def rotate(self,  ang: tuple[float,float,float] | float, direction: Direction = Direction.Z) -> Shape:
+        """ Generate a cone, with direction as parameter """
+
+        if direction.upper() == Direction.X:
+            return self.rotate_x(ang)
+        if direction.upper() == Direction.Y:
+            return self.rotate_y(ang)
+        if direction.upper() == Direction.Z:
+            return self.rotate_z(ang)
+        assert False
+
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...
 
@@ -253,21 +253,17 @@ class Shape(ABC):
         assert isinstance(operand,Shape)
         return self.cut(operand)
 
-    def __mul__(self, operand) -> Shape:
+    def __mul__(self, operand: tuple[float, float, float] = (1,1,1)) -> Shape:
         """ scale using * """
         if operand is None:
             return self
-        direction = direction_operand(operand)
-        x,y,z = direction.eval('*')
-        return self.scale(x,y,z)
+        return self.scale(*operand)
 
-    def __lshift__(self, operand) -> Shape:
+    def __lshift__(self, operand: tuple[float, float, float] = (0,0,0)) -> Shape:
         """ move using << """
         if operand is None:
             return self
-        direction = direction_operand(operand)
-        x,y,z = direction.eval('+')
-        return self.mv(x,y,z)
+        return self.mv(*operand)
 
 def getFontname2FilepathMap() -> dict[str, str]:
 
@@ -393,6 +389,16 @@ class ShapeAPI(ABC):
     @abstractmethod
     def cone_z(self, l: float, r1: float, r2: float) -> Shape: ...
 
+    def cone(self,  l: float, r1: float, r2: float, direction: Direction = Direction.Z) -> Shape:
+        """ Generate a cone, with direction as parameter """
+        if direction == Direction.X:
+            return self.cone_x(l=l,r1=r1,r2=r2)
+        if direction == Direction.Y:
+            return self.cone_y(l=l,r1=r1,r2=r2)
+        if direction == Direction.Z:
+            return self.cone_z(l=l,r1=r1,r2=r2)
+        assert False
+
     @abstractmethod
     def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> Shape: ...
 
@@ -401,6 +407,44 @@ class ShapeAPI(ABC):
 
     @abstractmethod
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> Shape: ...
+
+    def cylinder(self,  l: float, rad: float, r2: float = None,
+                 sides: int = None, direction: Direction = Direction.Z,
+                 dome_ratio: float = None) -> Shape:
+        """ Generate a cylinder, with direction as parameter """
+    
+        if not r2 is None:
+            assert sides is None, 'Parameters sides and r2 cannot be both None!'
+            return self.cone(l=l,r1=rad,r2=r2,direction=direction)
+    
+        if direction.upper() == Direction.X:
+            if sides is None:
+                if not dome_ratio is None:
+                    return self.cylinder_rounded_x(l=l,rad=rad,domeRatio=dome_ratio)
+                else:
+                    return self.cylinder_x(l=l,rad=rad)
+            else:
+                return self.regpoly_extrusion_x(l=l,rad=rad, sides=sides)
+            
+        if direction.upper() == Direction.Y:
+            if sides is None:
+                if not dome_ratio is None:
+                    return self.cylinder_rounded_y(l=l,rad=rad,domeRatio=dome_ratio)
+                else:
+                    return self.cylinder_y(l=l,rad=rad)
+            else:
+                return self.regpoly_extrusion_y(l=l,rad=rad, sides=sides)
+            
+        if direction.upper() == Direction.Z:
+            if sides is None:
+                if not dome_ratio is None:
+                    return self.cylinder_rounded_z(l=l,rad=rad,domeRatio=dome_ratio)
+                else:
+                    return self.cylinder_z(l=l,rad=rad)
+            else:
+                return self.regpoly_extrusion_z(l=l,rad=rad, sides=sides)
+    
+        assert False
 
     @abstractmethod
     def cylinder_x(self, l: float, rad: float) -> Shape: ...
@@ -411,25 +455,22 @@ class ShapeAPI(ABC):
     @abstractmethod
     def cylinder_z(self, l: float, rad: float) -> Shape:
         ...
-
-    def rounded_edge_mask(self, direction, l, rad, rot=0, tol = 0.1) -> Shape:
+    
+    def rounded_edge_mask(self, l, rad, direction: Direction = Direction.Z, rot=0, tol = 0.1) -> Shape:
         """ generate a mask to round an edge """
 
         radi = rad + tol
-        if direction == 'x':
+        if direction.upper() == Direction.X:
             mask  = self.box(l,radi,radi).mv(0,radi/2,radi/2)
-            mask -= self.cylinder_x(l,rad=radi)
-            mask  = mask.rotate_x(rot)
-        elif direction == 'y':
-            mask  = self.box(radi,l,radi).mv(radi/2,0,radi/2)
-            mask -= self.cylinder_y(l,rad=radi)
-            mask  = mask.rotate_y(rot)
-        elif direction == 'z':
-            mask  = self.box(radi,radi,l).mv(radi/2,radi/2,0)
-            mask -= self.cylinder_z(l,rad=radi)
-            mask  = mask.rotate_z(rot)
+        elif direction.upper() == Direction.Y:
+            mask  = self.box(radi,l,radi).mv(radi/2,0,radi/2)            
+        elif direction.upper() == Direction.Z:
+            mask  = self.box(radi,radi,l).mv(radi/2,radi/2,0)            
         else:
             assert False
+
+        mask -= self.cylinder(l,rad=radi,direction=direction)
+        mask  = mask.rotate(rot,direction=direction)
 
         return mask
 
@@ -538,6 +579,9 @@ class ShapeAPI(ABC):
 
         xCone = self.cone_x(30, 5, 2)
         self.export_stl(xCone, expDir / f"{implCode}-xcone")
+
+        xCone2 = self.cone(30, 5, 2, 'X')
+        self.export_stl(xCone2, expDir / f"{implCode}-xcone2")
 
         yCone = self.cone_y(30, 5, 2)
         self.export_stl(yCone, expDir / f"{implCode}-ycone")
@@ -736,27 +780,15 @@ class ShapeAPI(ABC):
         joined += obj11
 
         # move operator shortcut
-        obj12 = self.sphere(5) << Direction(x=1)
-        obj13 = self.sphere(5) << Direction(y=1)
-        obj14 = self.sphere(5) << Direction(z=1)
+        obj12 = self.sphere(5) << (Direction.X + 2)
+        obj13 = self.sphere(5) << (Direction.Y + 2)
+        obj14 = self.sphere(5) << (Direction.Z + 2)
         obj15 = self.sphere(5) << (0,1,2)
 
         # scale operator shortcut
-        obj16 = self.sphere(5) * Direction(x=1)
-        obj17 = self.sphere(5) * Direction(y=1)
-        obj18 = self.sphere(5) * Direction(z=1)
+        obj16 = self.sphere(5) * (Direction.X * 2)
+        obj17 = self.sphere(5) * (Direction.Y * 2)
+        obj18 = self.sphere(5) * (Direction.Z * 2)
         obj19 = self.sphere(5) * (1,2,3)
-
-        # move operator shortcut
-        obj20 = self.sphere(5) << Direction(x=1)
-        obj21 = self.sphere(5) << Direction(y=1)
-        obj22 = self.sphere(5) << Direction(z=1)
-        obj23 = self.sphere(5) << (0,1,2)
-
-        # scale operator shortcut
-        obj24 = self.sphere(5) * Direction(x=1)
-        obj25 = self.sphere(5) * Direction(y=1)
-        obj26 = self.sphere(5) * Direction(z=1)
-        obj27 = self.sphere(5) * (1,2,3)
 
         self.export_stl(joined, expDir / f"{implCode}-all")

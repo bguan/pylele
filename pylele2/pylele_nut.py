@@ -60,10 +60,11 @@ class LeleNut(LeleBase):
 
         f0Bot    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
         f0Bot   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
-        f0Bot   *= Direction(z=fbTck/ntHt)
+        
+        f0Bot   *= Direction.Z * (fbTck/ntHt)
 
         nut = f0Top.mv(0, 0, -jcTol) + f0Bot # lower top to make sure valid volume
-        nut  <<= (f0X, 0, fbTck)
+        nut <<= (f0X, 0, fbTck)
 
         # Add strings cut
         if not self.cli.nut_type == NutType.ZEROFRET: # and not self.isCut:

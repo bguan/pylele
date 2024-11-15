@@ -65,14 +65,14 @@ class BlenderShapeAPI(ShapeAPI):
     def box(self, ln: float, wth: float, ht: float) -> BlenderShape:
         return BlenderBox(ln, wth, ht, self)
 
-    def cone_x(self, ln: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeX(ln, r1, r2, self).mv(ln / 2, 0, 0)
+    def cone_x(self, l: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeX(l, r1, r2, self).mv(l / 2, 0, 0)
 
-    def cone_y(self, ln: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeY(ln, r1, r2, self).mv(0, ln / 2, 0)
+    def cone_y(self, l: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeY(l, r1, r2, self).mv(0, l / 2, 0)
 
-    def cone_z(self, ln: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeZ(ln, r1, r2, self).mv(0, 0, ln / 2)
+    def cone_z(self, l: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeZ(l, r1, r2, self).mv(0, 0, l / 2)
 
     def regpoly_extrusion_x(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodX(ln, rad, sides, self)
@@ -83,14 +83,14 @@ class BlenderShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodZ(ln, rad, sides, self)
 
-    def cylinder_x(self, ln: float, rad: float) -> BlenderShape:
-        return BlenderRodX(ln, rad, self)
+    def cylinder_x(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodX(l, rad, self)
 
-    def cylinder_y(self, ln: float, rad: float) -> BlenderShape:
-        return BlenderRodY(ln, rad, self)
+    def cylinder_y(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodY(l, rad, self)
 
-    def cylinder_z(self, ln: float, rad: float) -> BlenderShape:
-        return BlenderRodZ(ln, rad, self)
+    def cylinder_z(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodZ(l, rad, self)
 
     def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float

@@ -247,7 +247,7 @@ class TMShape(Shape):
         self.solid = self.solid.apply_translation((x, y, z))
         return self
 
-    def rotate(self, ang: float, dir: tuple[float, float, float]) -> TMShape:
+    def _rotate(self, ang: float, dir: tuple[float, float, float]) -> TMShape:
         if ang == 0:
             return self
         rotMat = tm.transformations.rotation_matrix(angle=radians(ang), direction=dir)
@@ -255,13 +255,13 @@ class TMShape(Shape):
         return self
 
     def rotate_x(self, ang: float) -> TMShape:
-        return self.rotate(ang, self.X_AXIS)
+        return self._rotate(ang, self.X_AXIS)
 
     def rotate_y(self, ang: float) -> TMShape:
-        return self.rotate(ang, self.Y_AXIS)
+        return self._rotate(ang, self.Y_AXIS)
 
     def rotate_z(self, ang: float) -> TMShape:
-        return self.rotate(ang, self.Z_AXIS)
+        return self._rotate(ang, self.Z_AXIS)
 
     def scale(self, x: float, y: float, z: float) -> TMShape:
         if x == 1 and y == 1 and z == 1:
