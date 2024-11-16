@@ -468,45 +468,47 @@ class TMTextZ(TMShape):
             fontPath = api.getFontPath(None) # Just get some font, hopefully good
             print(f"Can't find font {fontName}, substitude with {fontPath}")
 
-        glyphs_paths = textToGlyphsPaths(
-            fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
-        )
+            glyphs_paths = textToGlyphsPaths(
+                fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
+            )
 
-        text3d: tm.Trimesh = None
-        for glyph_paths in glyphs_paths:
+            text3d: tm.Trimesh = None
+            for glyph_paths in glyphs_paths:
 
-            glyph3d: tm.Trimesh = None
+                glyph3d: tm.Trimesh = None
 
-            glyph_paths.sort(key=pathBoundsArea, reverse=True)
-            for pi, path in enumerate(glyph_paths):
-                polygon = Polygon(path)
-                isCut = not isPathCounterClockwise(path)
-                cutAdj = jcTol if isCut else 0
-                extruded = tm.creation.extrude_polygon(
-                    polygon,
-                    tck + 2 * cutAdj,
-                    cap_base=True,
-                    cap_top=True,
-                    tolerance=1e-5,
-                    validate=True,
-                ).apply_translation((0, 0, -cutAdj))
+                glyph_paths.sort(key=pathBoundsArea, reverse=True)
+                for pi, path in enumerate(glyph_paths):
+                    polygon = Polygon(path)
+                    isCut = not isPathCounterClockwise(path)
+                    cutAdj = jcTol if isCut else 0
+                    extruded = tm.creation.extrude_polygon(
+                        polygon,
+                        tck + 2 * cutAdj,
+                        cap_base=True,
+                        cap_top=True,
+                        tolerance=1e-5,
+                        validate=True,
+                    ).apply_translation((0, 0, -cutAdj))
 
-                if pi == 0:
-                    glyph3d = extruded
-                else:
-                    if isCut:
-                        glyph3d = tm.boolean.difference([glyph3d, extruded])
+                    if pi == 0:
+                        glyph3d = extruded
                     else:
-                        glyph3d = tm.boolean.union([glyph3d, extruded])
+                        if isCut:
+                            glyph3d = tm.boolean.difference([glyph3d, extruded])
+                        else:
+                            glyph3d = tm.boolean.union([glyph3d, extruded])
 
-            if glyph3d is not None:
-                text3d = glyph3d if text3d is None else text3d + glyph3d
+                if glyph3d is not None:
+                    text3d = glyph3d if text3d is None else text3d + glyph3d
 
-        if text3d is not None:
-            bounds: np.ndarray = text3d.bounds
-            xmax, ymax = bounds[1][0], bounds[1][1]
-            self.solid = text3d.apply_translation((-xmax / 2, -ymax / 2, 0))
+            if text3d is not None:
+                bounds: np.ndarray = text3d.bounds
+                xmax, ymax = bounds[1][0], bounds[1][1]
+                self.solid = text3d.apply_translation((-xmax / 2, -ymax / 2, 0))
 
+        except:
+            print('# ERROR while generating text... proceeding anyways.')
 
 if __name__ == "__main__":
     test_api("trimesh")
