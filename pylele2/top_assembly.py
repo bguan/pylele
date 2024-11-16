@@ -9,26 +9,26 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_config import LeleBodyType
+from api.core import Shape
+from api.solid import main_maker, test_loop
+from pylele2.config import LeleBodyType
 from pylele_config_common import LeleScaleEnum
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_bridge import LeleBridge, pylele_bridge_parser
-from pylele2.pylele_guide import LeleGuide
-from pylele2.pylele_brace import LeleBrace
-from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
-from pylele2.pylele_fretboard_joint import LeleFretboardJoint
-from pylele2.pylele_tuners import LeleTuners
-from pylele2.pylele_soundhole import LeleSoundhole
-from pylele2.pylele_rim import LeleRim
-from pylele2.pylele_worm import pylele_worm_parser
-from pylele2.pylele_top import LeleTop
-from pylele2.pylele_fretboard_assembly import (
+from pylele2.base import LeleBase
+from pylele2.bridge import LeleBridge, pylele_bridge_parser
+from pylele2.guide import LeleGuide
+from pylele2.brace import LeleBrace
+from pylele2.chamber import LeleChamber, pylele_chamber_parser
+from pylele2.fretboard_joint import LeleFretboardJoint
+from pylele2.tuners import LeleTuners
+from pylele2.soundhole import LeleSoundhole
+from pylele2.rim import LeleRim
+from pylele2.worm import pylele_worm_parser
+from pylele2.top import LeleTop
+from pylele2.fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
 )
-from pylele2.pylele_worm_key import LeleWormKey
+from pylele2.worm_key import LeleWormKey
 
 class LeleTopAssembly(LeleBase):
     """Pylele Body Top Assembly Generator class"""

@@ -9,8 +9,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from solid2 import sphere
-from api.pylele_solid import Solid, test_loop, main_maker, Implementation
-from api.pylele_api import Shape
+from api.solid import Solid, test_loop, main_maker, Implementation
+from api.core import Shape
 
 class RoundedBox(Solid):
     """ Generate a Tube """

@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api_constants import FILLET_RAD
+from api.constants import FILLET_RAD
 from pylele1.pylele_config import LeleConfig, WormConfig
 from pylele1.pylele_parts import (
     LelePart,

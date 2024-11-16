@@ -10,17 +10,17 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, Implementation
-from api.pylele_api_constants import FILLET_RAD
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_frets import LeleFrets, pylele_frets_parser, FretType
-from pylele2.pylele_nut import LeleNut, pylele_nut_parser, NutType
-from pylele2.pylele_fretboard_dots import LeleFretboardDots, pylele_dots_parser
-from pylele2.pylele_fretboard import LeleFretboard
-from pylele2.pylele_top import LeleTop
-from pylele2.pylele_fretboard_spines import LeleFretboardSpines
-from pylele2.pylele_fretboard_joint import LeleFretboardJoint
+from api.core import Shape, Implementation
+from api.constants import FILLET_RAD
+from api.solid import main_maker, test_loop
+from pylele2.base import LeleBase
+from pylele2.frets import LeleFrets, pylele_frets_parser, FretType
+from pylele2.nut import LeleNut, pylele_nut_parser, NutType
+from pylele2.fretboard_dots import LeleFretboardDots, pylele_dots_parser
+from pylele2.fretboard import LeleFretboard
+from pylele2.top import LeleTop
+from pylele2.fretboard_spines import LeleFretboardSpines
+from pylele2.fretboard_joint import LeleFretboardJoint
 
 
 def pylele_fretboard_assembly_parser(parser=None):

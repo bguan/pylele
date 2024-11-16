@@ -13,8 +13,8 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, ShapeAPI, test_api
-from api.pylele_utils import (
+from api.core import Shape, ShapeAPI, test_api
+from api.utils import (
     dimXY,
     ensureFileExtn,
     isPathCounterClockwise,

@@ -9,11 +9,11 @@ import math
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_utils import degrees
-from api.pylele_solid import test_loop, main_maker, Implementation
-from pylele2.pylele_base import LeleBase
+from api.core import Shape
+from api.constants import FIT_TOL
+from api.utils import degrees
+from api.solid import test_loop, main_maker, Implementation
+from pylele2.base import LeleBase
 
 
 class LeleFretboard(LeleBase):

@@ -17,8 +17,8 @@ except:
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import ShapeAPI, Shape, test_api
-from api.pylele_utils import dimXY, ensureFileExtn, lineSplineXY
+from api.core import ShapeAPI, Shape, test_api
+from api.utils import dimXY, ensureFileExtn, lineSplineXY
 from conversion.stlascii2stlbin import stlascii2stlbin
 from conversion.scad2stl import scad2stl, OPENSCAD
 

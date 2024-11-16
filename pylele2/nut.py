@@ -10,11 +10,11 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import StringEnum, Shape, Direction
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_strings import LeleStrings
+from api.core import StringEnum, Shape, Direction
+from api.constants import FIT_TOL
+from api.solid import main_maker, test_loop
+from pylele2.base import LeleBase
+from pylele2.strings import LeleStrings
 
 
 class NutType(StringEnum):

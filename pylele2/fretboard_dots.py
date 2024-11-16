@@ -11,12 +11,12 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_utils import accumDiv, radians
-from api.pylele_solid import main_maker, test_loop
+from api.core import Shape
+from api.constants import FIT_TOL
+from api.utils import accumDiv, radians
+from api.solid import main_maker, test_loop
 from pylele_config_common import SEMI_RATIO
-from pylele2.pylele_base import LeleBase
+from pylele2.base import LeleBase
 
 
 def pylele_dots_parser(parser=None):

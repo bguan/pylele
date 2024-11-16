@@ -10,9 +10,9 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape, Implementation
-from api.pylele_api_constants import FILLET_RAD, FIT_TOL, ColorEnum
-from api.pylele_utils import radians, accumDiv
+from api.core import Shape, Implementation
+from api.constants import FILLET_RAD, FIT_TOL, ColorEnum
+from api.utils import radians, accumDiv
 from pylele1.pylele_config import LeleConfig, WormConfig
 from pylele_config_common import SEMI_RATIO, PegConfig
 

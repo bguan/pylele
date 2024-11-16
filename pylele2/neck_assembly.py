@@ -9,22 +9,22 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_config import LeleBodyType
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_fretboard_assembly import (
+from api.core import Shape
+from api.solid import main_maker, test_loop
+from pylele2.config import LeleBodyType
+from pylele2.base import LeleBase
+from pylele2.fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
     FretType,
     NutType,
 )
-from pylele2.pylele_fretboard_spines import LeleFretboardSpines
-from pylele2.pylele_head import LeleHead
-from pylele2.pylele_neck_joint import LeleNeckJoint
-from pylele2.pylele_neck import LeleNeck
-from pylele2.pylele_nut import LeleNut
-from pylele2.pylele_spines import LeleSpines
+from pylele2.fretboard_spines import LeleFretboardSpines
+from pylele2.head import LeleHead
+from pylele2.neck_joint import LeleNeckJoint
+from pylele2.neck import LeleNeck
+from pylele2.nut import LeleNut
+from pylele2.spines import LeleSpines
 
 
 class LeleNeckAssembly(LeleBase):

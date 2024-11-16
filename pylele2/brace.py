@@ -7,12 +7,12 @@
 import os
 import sys
 
-from api.pylele_solid import main_maker, test_loop
+from api.solid import main_maker, test_loop
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
+from api.core import Shape
+from pylele2.base import LeleBase
 
 
 class LeleBrace(LeleBase):

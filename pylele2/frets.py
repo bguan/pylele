@@ -11,11 +11,11 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import StringEnum, Shape, ShapeAPI
-from api.pylele_solid import test_loop, main_maker
-from api.pylele_utils import radians, accumDiv
+from api.core import StringEnum, Shape, ShapeAPI
+from api.solid import test_loop, main_maker
+from api.utils import radians, accumDiv
 from pylele_config_common import SEMI_RATIO
-from pylele2.pylele_base import LeleBase
+from pylele2.base import LeleBase
 
 
 FRET_WIRE_WIDTH = 0.5

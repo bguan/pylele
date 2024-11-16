@@ -10,25 +10,25 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_config import LeleBodyType, Implementation
-from api.pylele_api_constants import FIT_TOL
-from api.pylele_api import Shape
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_neck_joint import LeleNeckJoint
-from pylele2.pylele_texts import LeleTexts, pylele_texts_parser
-from pylele2.pylele_tail import LeleTail
-from pylele2.pylele_rim import LeleRim
+from api.solid import main_maker, test_loop
+from pylele2.config import LeleBodyType, Implementation
+from api.constants import FIT_TOL
+from api.core import Shape
+from pylele2.base import LeleBase
+from pylele2.neck_joint import LeleNeckJoint
+from pylele2.texts import LeleTexts, pylele_texts_parser
+from pylele2.tail import LeleTail
+from pylele2.rim import LeleRim
 
-from pylele2.pylele_body import LeleBody
-from pylele2.pylele_spines import LeleSpines
-from pylele2.pylele_fretboard_spines import LeleFretboardSpines
-from pylele2.pylele_chamber import LeleChamber, pylele_chamber_parser
-from pylele2.pylele_tuners import LeleTuners
-from pylele2.pylele_fretboard_assembly import pylele_fretboard_assembly_parser
-from pylele2.pylele_neck_assembly import LeleNeckAssembly
-from pylele2.pylele_worm import pylele_worm_parser
-from pylele2.pylele_neck_bend import LeleNeckBend
+from pylele2.body import LeleBody
+from pylele2.spines import LeleSpines
+from pylele2.fretboard_spines import LeleFretboardSpines
+from pylele2.chamber import LeleChamber, pylele_chamber_parser
+from pylele2.tuners import LeleTuners
+from pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
+from pylele2.neck_assembly import LeleNeckAssembly
+from pylele2.worm import pylele_worm_parser
+from pylele2.neck_bend import LeleNeckBend
 
 
 class LeleBottomAssembly(LeleBase):
@@ -130,7 +130,7 @@ class LeleBottomAssembly(LeleBase):
 def main(args=None):
     """Generate Body Bottom Assembly"""
     return main_maker(
-        module_name="pylele2.pylele_bottom_assembly",
+        module_name="pylele2.bottom_assembly",
         class_name="LeleBottomAssembly",
         args=args,
     )

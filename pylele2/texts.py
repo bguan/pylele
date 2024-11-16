@@ -10,10 +10,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api import Shape
-from api.pylele_solid import main_maker, test_loop
-from pylele2.pylele_base import LeleBase
-from pylele2.pylele_body import LeleBody
+from api.core import Shape
+from api.solid import main_maker, test_loop
+from pylele2.base import LeleBase
+from pylele2.body import LeleBody
 
 DEFAULT_LABEL_SIZE = 9
 DEFAULT_LABEL_SIZE_BIG = 24

@@ -7,8 +7,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from api.pylele_api_constants import FILLET_RAD
-from api.pylele_utils import make_or_exist_path
+from api.constants import FILLET_RAD
+from api.utils import make_or_exist_path
 from pylele1.pylele_parts import Strings, Tuners, Spines, WormKey
 from pylele1.pylele_config import Implementation, LeleConfig, TunerType, ModelLabel
 from pylele1.pylele_assemble import assemble
