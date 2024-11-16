@@ -35,16 +35,14 @@ jobs:
     #- name: test pylele.sh
     #  run: |
     #    source pylele.sh
-    - name: move to source directory
-      run: |
-        cd ./src
-        
     - name: test pylele2.sh
       run: |
+        cd src
         source pylele2.sh -odoff
 
     - name: Copy STL file to GitHub Pages
       run: |
+        cd src
         mkdir -p docs
         cp build/LeleAllAssembly/LeleAllAssembly.stl docs/
 
@@ -52,6 +50,7 @@ jobs:
       env:
         SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
       run: |
+        cd src
         # Format the current date and time
         model_name="pylele2_$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
         response=$(curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \

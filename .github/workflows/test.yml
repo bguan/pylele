@@ -26,12 +26,9 @@ jobs:
       run: |
         chmod +x ./install_dependencies.sh
         sudo ./install_dependencies.sh
-    - name: move to source directory
-      run: |
-        cd ./src
-        ls
     - name: pip configuration report
       run: |
+        cd src
         mkdir test
         pip list > ./test/pip_list.txt
     - name: Generate timestamp
@@ -39,15 +36,16 @@ jobs:
       run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
     - name: test pylele.sh
       run: |
-        echo `pwd`
-        ls
+        cd src
         source pylele.sh
     - name: test pylele2.sh
       run: |
+        cd src
         source pylele2.sh -odoff
     - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:
+          cd src
           # path depends on the tag and the module name
           name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: build/LeleAllAssembly/LeleAllAssembly.stl
@@ -64,11 +62,13 @@ jobs:
     #      # compression-level: 0 # no compression
     - name: test
       run: |
+        cd src
         python ./pylele_test.py
       continue-on-error: true
     - name: upload test output
       uses: actions/upload-artifact@v4
       with:
+          cd src
           # path depends on the tag and the module name
           name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
