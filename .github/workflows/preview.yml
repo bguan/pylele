@@ -35,6 +35,10 @@ jobs:
     #- name: test pylele.sh
     #  run: |
     #    source pylele.sh
+    - name: move to source directory
+      run: |
+        cd ./src
+        
     - name: test pylele2.sh
       run: |
         source pylele2.sh -odoff
