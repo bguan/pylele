@@ -39,6 +39,8 @@ jobs:
       run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
     - name: test pylele.sh
       run: |
+        echo `pwd`
+        ls
         source pylele.sh
     - name: test pylele2.sh
       run: |
