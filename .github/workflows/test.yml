@@ -29,6 +29,7 @@ jobs:
     - name: move to source directory
       run: |
         cd ./src
+        ls
     - name: pip configuration report
       run: |
         mkdir test
