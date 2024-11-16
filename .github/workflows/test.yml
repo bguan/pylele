@@ -27,8 +27,8 @@ jobs:
         chmod +x ./install_dependencies.sh
         sudo ./install_dependencies.sh
     - name: move to source directory
-        run: |
-          cd ./src
+      run: |
+        cd ./src
     - name: pip configuration report
       run: |
         mkdir test
