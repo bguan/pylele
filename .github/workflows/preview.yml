@@ -42,7 +42,6 @@ jobs:
 
     - name: Copy STL file to GitHub Pages
       run: |
-        cd src
         mkdir -p docs
         cp src/build/LeleAllAssembly/LeleAllAssembly.stl docs/
 
