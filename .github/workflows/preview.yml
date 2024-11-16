@@ -44,7 +44,7 @@ jobs:
       run: |
         cd src
         mkdir -p docs
-        cp build/LeleAllAssembly/LeleAllAssembly.stl docs/
+        cp src/build/LeleAllAssembly/LeleAllAssembly.stl docs/
 
     - name: Upload to Sketchfab
       env:
