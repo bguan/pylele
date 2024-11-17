@@ -210,11 +210,11 @@ class PyleleTestMethods(unittest.TestCase):
         test_api(api="manifold")
 
     ## Solid Parts
-    from parts.tube import test_tube, test_tube_mock
-    from parts.screw import test_screw, test_screw_mock
-    from parts.import3d import test_import3d
-    from parts.scad_example import test_scad_example
-    from parts.rounded_box import test_rounded_box, test_rounded_box_mock
+    from pylele.parts.tube import test_tube, test_tube_mock
+    from pylele.parts.screw import test_screw, test_screw_mock
+    from pylele.parts.import3d import test_import3d
+    from pylele.parts.scad_example import test_scad_example
+    from pylele.parts.rounded_box import test_rounded_box, test_rounded_box_mock
 
     ## Pylele Individual Parts
     from pylele.pylele2.frets import test_frets, test_frets_mock

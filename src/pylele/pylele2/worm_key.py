@@ -14,7 +14,7 @@ from pylele.api.constants import FIT_TOL
 from pylele.api.solid import main_maker, test_loop
 from pylele.api.core import Shape, Implementation
 from pylele.pylele2.base import LeleBase
-from parts.rounded_box import RoundedBox
+from pylele.parts.rounded_box import RoundedBox
 
 class LeleWormKey(LeleBase):
     """Pylele Worm Key Generator class"""
