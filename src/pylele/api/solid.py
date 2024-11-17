@@ -543,13 +543,17 @@ class Solid(ABC):
         """ cut using - """
         return self.cut(operand)
 
-    def __mul__(self, x,y,z) -> Shape:
+    def __mul__(self, operand: tuple[float, float, float] = (1,1,1)) -> Shape:
         """ scale using * """
-        return self.scale(x,y,z)
+        if operand is None:
+            return self
+        return self.shape.scale(*operand)
 
-    def __lshift__(self, x,y,z) -> Shape:
+    def __lshift__(self, operand: tuple[float, float, float] = (0,0,0)) -> Shape:
         """ move using << """
-        return self.mv(x,y,z)
+        if operand is None:
+            return self
+        return self.mv(*operand)
 
 if __name__ == '__main__':
     prs = lele_solid_parser()
