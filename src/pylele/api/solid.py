@@ -20,7 +20,7 @@ from copy import deepcopy
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
                 
 from pylele.api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
 from pylele.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
@@ -387,23 +387,6 @@ class Solid(ABC):
     def parse_args(self, args=None):
         """Parse Command Line Arguments"""
         return self.gen_parser().parse_args(args=args)
-
-    def __init__(
-        self,
-        isCut: bool = False,
-        args=None,
-        cli=None,
-    ):
-        if cli is None:
-            self.cli = self.parse_args(args=args)
-        else:
-            self.cli = cli
-
-        self.isCut = self.cli.is_cut or isCut
-        # self.color = self.cli.color # ColorEnum[self.cli.color]
-        self.outdir = self.cli.outdir
-
-        self.fileNameBase = self.__class__.__name__ + ('_cut' if self.isCut else '')
 
     def configure(self):
         """Configure Solid, and save self.cli"""
