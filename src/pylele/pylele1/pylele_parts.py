@@ -43,10 +43,10 @@ class LelePart(ABC):
         return self
 
     def export_stl(self, path: Union[str, Path]) -> None:
-        self.shape.pylele.api.export_stl(self.shape, str(path))
+        self.shape.api.export_stl(self.shape, str(path))
 
     def export_best(self, path: Union[str, Path]) -> None:
-        self.shape.pylele.api.export_best(self.shape, str(path))
+        self.shape.api.export_best(self.shape, str(path))
 
     def fillet(
         self,
