@@ -746,7 +746,7 @@ class BlenderTextZ(BlenderShape):
         self.solid = bpy.context.object
         self.solid.data.body = txt
         self.solid.data.size = fontSize
-        fontPath = pylele.api.getFontPath(fontName)
+        fontPath = self.api.getFontPath(fontName)
         if fontPath is not None:
             font = bpy.data.fonts.load(filepath=fontPath)
             self.solid.data.font = font
