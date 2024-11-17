@@ -35,10 +35,10 @@ jobs:
     #- name: test pylele.sh
     #  run: |
     #    source pylele.sh
-    - name: test pylele.pylele2.sh
+    - name: test pylele2.sh
       run: |
         cd src
-        source pylele.pylele2.sh -odoff
+        source pylele2.sh -odoff
 
     - name: Copy STL file to GitHub Pages
       run: |

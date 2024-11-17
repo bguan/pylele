@@ -38,10 +38,10 @@ jobs:
       run: |
         cd src
         source pylele.sh
-    - name: test pylele.pylele2.sh
+    - name: test pylele2.sh
       run: |
         cd src
-        source pylele.pylele2.sh -odoff
+        source pylele2.sh -odoff
     - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:
@@ -62,7 +62,7 @@ jobs:
     - name: test
       run: |
         cd src
-        python ./test.py
+        python ./pylele/test.py
       continue-on-error: true
     - name: upload test output
       uses: actions/upload-artifact@v4
