@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 from pylele.api.core import Shape, Implementation
 from pylele.api.constants import FILLET_RAD, FIT_TOL, ColorEnum
 from pylele.api.utils import radians, accumDiv
-from pylele.pylele1.pylele_config import LeleConfig, WormConfig
+from pylele.pylele1.config import LeleConfig, WormConfig
 from pylele.config_common import SEMI_RATIO, PegConfig
 
 """

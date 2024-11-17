@@ -9,9 +9,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.constants import FILLET_RAD
 from pylele.api.utils import make_or_exist_path
-from pylele.pylele1.pylele_parts import Strings, Tuners, Spines, WormKey
-from pylele.pylele1.pylele_config import Implementation, LeleConfig, TunerType, ModelLabel
-from pylele.pylele1.pylele_assemble import assemble
+from pylele.pylele1.parts import Strings, Tuners, Spines, WormKey
+from pylele.pylele1.config import Implementation, LeleConfig, TunerType, ModelLabel
+from pylele.pylele1.assemble import assemble
 
 """
     Main Logic of Pylele when launched from CQEditor

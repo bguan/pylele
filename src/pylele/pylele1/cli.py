@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.core import Implementation, Fidelity
-from pylele.pylele1.pylele_config import (
+from pylele.pylele1.config import (
     LeleScaleEnum,
     DEFAULT_LABEL_SIZE,
     DEFAULT_LABEL_FONT,
