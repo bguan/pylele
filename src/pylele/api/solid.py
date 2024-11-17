@@ -194,7 +194,7 @@ def lele_solid_parser(parser=None):
         help="Underlying engine implementation, default cadquery",
         type=Implementation,
         choices=list(Implementation),
-        default=Implementation.CADQUERY,
+        default=Implementation.MANIFOLD,
     )
     parser.add_argument(
         "-f",

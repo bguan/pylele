@@ -191,7 +191,7 @@ def parseCLI():
         help="Underlying engine implementation, default cadquery",
         type=Implementation,
         choices=list(Implementation),
-        default="cadquery",
+        default="manifold",
     )
 
     parser.add_argument(
