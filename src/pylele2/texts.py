@@ -85,7 +85,7 @@ class LeleTexts(LeleBase):
                     .rotate_x(180)
                     .mv(tx + sz / 2, 0, txtZ + txtTck)
                 )
-                ls = l if ls is None else ls.join(l)
+                ls = l + ls
             tx += sz
         botCut = LeleBody(cli=self.cli, isCut=True).mv(0, 0, cutTol)
 

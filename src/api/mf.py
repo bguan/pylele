@@ -371,28 +371,29 @@ class MFTextZ(MFShape):
             fontPath = api.getFontPath(None) # Just get some font, hopefully good
             print(f"Can't find font {fontName}, substitude with {fontPath}")
 
-            glyphs_paths = textToGlyphsPaths(
-                fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
-            )
+        glyphs_paths = textToGlyphsPaths(
+            fontPath, txt, fontSize, dimToSegs=self._smoothing_segments
+        )
 
-            text3d: Manifold = None
-            for glyph_paths in glyphs_paths:
+        text3d: Manifold = None
+        for glyph_paths in glyphs_paths:
 
-                glyph3d: Manifold = None
+            glyph3d: Manifold = None
 
-                cross_section = CrossSection(glyph_paths, FillRule.EvenOdd)
-                if cross_section.area() > 0:
-                    glyph3d = Manifold.extrude(cross_section, tck)
+            cross_section = CrossSection(glyph_paths, FillRule.EvenOdd)
+            if cross_section.area() > 0:
+                glyph3d = Manifold.extrude(cross_section, tck)
 
-                if glyph3d is not None:
-                    text3d = glyph3d if text3d is None else text3d + glyph3d
+            if glyph3d is not None:
+                text3d = glyph3d if text3d is None else text3d + glyph3d
 
-            if text3d is not None:
-                (_, _, _, xmax, ymax, _) = text3d.bounding_box()
-                self.solid = text3d.translate((-xmax / 2, -ymax / 2, 0))
+        if text3d is not None:
+            (_, _, _, xmax, ymax, _) = text3d.bounding_box()
+            self.solid = text3d.translate((-xmax / 2, -ymax / 2, 0))
+        else:
+            print('# WARNING! Text Generation failed!!! ')
+            self.solid = Manifold.cube((fontSize, fontSize, tck)).translate((-fontSize / 2, -fontSize / 2, -tck / 2))
 
-        except:
-            print('# ERROR while generating text... proceeding anyways.')
 
 if __name__ == "__main__":
     test_api("manifold")
