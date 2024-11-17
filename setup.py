@@ -45,6 +45,9 @@ setup(
         "console_scripts": [
             "pylele1=pylele.pylele1.main:pylele_main",
             "pylele2=pylele.pylele2.all_assembly:main",
+            "stl2glb=pylele.conversion.stl2glb:stl2glb",
+            "stlascii2stlbin=pylele.conversion.stlascii2stlbin:stlascii2stlbin",
+            "scad2stl=pylele.conversion.scad2stl:scad2stl_main",
         ],
     },
 )
