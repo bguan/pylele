@@ -240,7 +240,7 @@ def lele_solid_parser(parser=None):
     parser.add_argument(
         "-refv",
         "--reference_volume",
-        help="Reference volume [mm2]. If specified, generate assertion "
+        help="Reference volume in mm2. If specified, generate assertion "
         + "if volume of generated .stl file differs from the reference",
         type=float,
         default=None,
@@ -248,7 +248,7 @@ def lele_solid_parser(parser=None):
     parser.add_argument(
         "-refvt",
         "--reference_volume_tolerance",
-        help="Reference volume tolerance [%]",
+        help="Reference volume tolerance in percentage",
         type=float,
         default=10,
     )
