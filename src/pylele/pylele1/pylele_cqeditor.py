@@ -5,13 +5,13 @@ from pathlib import Path
 from random import randint
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.constants import FILLET_RAD
-from api.utils import make_or_exist_path
-from pylele1.pylele_parts import Strings, Tuners, Spines, WormKey
-from pylele1.pylele_config import Implementation, LeleConfig, TunerType, ModelLabel
-from pylele1.pylele_assemble import assemble
+from pylele.api.constants import FILLET_RAD
+from pylele.api.utils import make_or_exist_path
+from pylele.pylele1.pylele_parts import Strings, Tuners, Spines, WormKey
+from pylele.pylele1.pylele_config import Implementation, LeleConfig, TunerType, ModelLabel
+from pylele.pylele1.pylele_assemble import assemble
 
 """
     Main Logic of Pylele when launched from CQEditor

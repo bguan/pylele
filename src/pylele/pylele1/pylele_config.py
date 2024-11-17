@@ -5,12 +5,12 @@ from math import atan, inf, sqrt, tan
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Fidelity, Implementation, StringEnum, ShapeAPI
-from api.constants import FIT_TOL
-from api.utils import radians, degrees
-from pylele_config_common import LeleScaleEnum, WormConfig, TunerType
+from pylele.api.core import Fidelity, Implementation, StringEnum, ShapeAPI
+from pylele.api.constants import FIT_TOL
+from pylele.api.utils import radians, degrees
+from pylele.config_common import LeleScaleEnum, WormConfig, TunerType
 
 """
     Global Constants, Config classes

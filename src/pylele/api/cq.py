@@ -9,10 +9,10 @@ from pathlib import Path
 import sys
 from typing import Union
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import ShapeAPI, Shape, test_api
-from api.utils import ensureFileExtn, lineSplineXY
+from pylele.api.core import ShapeAPI, Shape, test_api
+from pylele.api.utils import ensureFileExtn, lineSplineXY
 
 
 """

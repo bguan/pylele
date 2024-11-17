@@ -8,13 +8,13 @@ from pathlib import Path
 import sys
 from typing import Union
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape, Implementation
-from api.constants import FILLET_RAD, FIT_TOL, ColorEnum
-from api.utils import radians, accumDiv
-from pylele1.pylele_config import LeleConfig, WormConfig
-from pylele_config_common import SEMI_RATIO, PegConfig
+from pylele.api.core import Shape, Implementation
+from pylele.api.constants import FILLET_RAD, FIT_TOL, ColorEnum
+from pylele.api.utils import radians, accumDiv
+from pylele.pylele1.pylele_config import LeleConfig, WormConfig
+from pylele.config_common import SEMI_RATIO, PegConfig
 
 """
     Abstract Base and Concrete Classes for all Pylele parts
@@ -43,10 +43,10 @@ class LelePart(ABC):
         return self
 
     def export_stl(self, path: Union[str, Path]) -> None:
-        self.shape.api.export_stl(self.shape, str(path))
+        self.shape.pylele.api.export_stl(self.shape, str(path))
 
     def export_best(self, path: Union[str, Path]) -> None:
-        self.shape.api.export_best(self.shape, str(path))
+        self.shape.pylele.api.export_best(self.shape, str(path))
 
     def fillet(
         self,

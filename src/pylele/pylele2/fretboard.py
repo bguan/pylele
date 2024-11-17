@@ -7,13 +7,13 @@ import os
 import sys
 import math
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape
-from api.constants import FIT_TOL
-from api.utils import degrees
-from api.solid import test_loop, main_maker, Implementation
-from pylele2.base import LeleBase
+from pylele.api.core import Shape
+from pylele.api.constants import FIT_TOL
+from pylele.api.utils import degrees
+from pylele.api.solid import test_loop, main_maker, Implementation
+from pylele.pylele2.base import LeleBase
 
 
 class LeleFretboard(LeleBase):

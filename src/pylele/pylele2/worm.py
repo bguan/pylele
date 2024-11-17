@@ -8,13 +8,13 @@ import os
 import argparse
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele_config_common import TunerType, WormConfig
-from api.core import Shape
-from api.constants import FIT_TOL
-from api.solid import main_maker, test_loop
-from pylele2.base import LeleBase
+from pylele.config_common import TunerType, WormConfig
+from pylele.api.core import Shape
+from pylele.api.constants import FIT_TOL
+from pylele.api.solid import main_maker, test_loop
+from pylele.pylele2.base import LeleBase
 
 
 def default_or_alternate(def_val, alt_val=None):

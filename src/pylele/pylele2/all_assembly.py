@@ -7,19 +7,19 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape
-from api.solid import main_maker, test_loop
-from pylele2.base import LeleBase
-from pylele2.texts import pylele_texts_parser
-from pylele2.top_assembly import LeleTopAssembly
-from pylele2.chamber import pylele_chamber_parser
-from pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
-from pylele2.worm import pylele_worm_parser
-from pylele2.config import CONFIGURATIONS
-from pylele2.bottom_assembly import LeleBottomAssembly
-from pylele2.bridge import pylele_bridge_parser
+from pylele.api.core import Shape
+from pylele.api.solid import main_maker, test_loop
+from pylele.pylele2.base import LeleBase
+from pylele.pylele2.texts import pylele_texts_parser
+from pylele.pylele2.top_assembly import LeleTopAssembly
+from pylele.pylele2.chamber import pylele_chamber_parser
+from pylele.pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
+from pylele.pylele2.worm import pylele_worm_parser
+from pylele.pylele2.config import CONFIGURATIONS
+from pylele.pylele2.bottom_assembly import LeleBottomAssembly
+from pylele.pylele2.bridge import pylele_bridge_parser
 
 
 class LeleAllAssembly(LeleBase):
@@ -63,7 +63,7 @@ class LeleAllAssembly(LeleBase):
 def main(args=None):
     """Generate Body Bottom Assembly"""
     return main_maker(
-        module_name="pylele2.all_assembly",
+        module_name="pylele.pylele2.all_assembly",
         class_name="LeleAllAssembly",
         args=args,
     )

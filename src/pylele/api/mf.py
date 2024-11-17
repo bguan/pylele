@@ -10,10 +10,10 @@ from pathlib import Path
 import sys
 from typing import Union
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import ShapeAPI, Shape, test_api
-from api.utils import dimXY, ensureFileExtn, lineSplineXY, textToGlyphsPaths
+from pylele.api.core import ShapeAPI, Shape, test_api
+from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY, textToGlyphsPaths
 
 
 """
@@ -366,9 +366,9 @@ class MFTextZ(MFShape):
         self.fontSize = fontSize
         self.tck = tck
         self.font = fontName
-        fontPath = api.getFontPath(fontName)
+        fontPath = self.api.getFontPath(fontName)
         if fontPath is None:
-            fontPath = api.getFontPath(None) # Just get some font, hopefully good
+            fontPath = self.api.getFontPath(None) # Just get some font, hopefully good
             print(f"Can't find font {fontName}, substitude with {fontPath}")
 
         glyphs_paths = textToGlyphsPaths(

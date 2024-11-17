@@ -11,16 +11,16 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.constants import DEFAULT_TEST_DIR
-from api.utils import getFontname2FilepathMap
+from pylele.api.constants import DEFAULT_TEST_DIR
+from pylele.api.utils import getFontname2FilepathMap
 
 APIS_INFO = {
-    "mock": {"module": "api.mock", "class": "MockShapeAPI"},
-    "cadquery": {"module": "api.cq", "class": "CQShapeAPI"},
-    "blender": {"module": "api.bpy", "class": "BlenderShapeAPI"},
-    "trimesh": {"module": "api.tm", "class": "TMShapeAPI"},
-    "solid2": {"module": "api.sp2", "class": "Sp2ShapeAPI"},
-    "manifold": {"module": "api.mf", "class": "MFShapeAPI"},
+    "mock": {"module": "pylele.api.mock", "class": "MockShapeAPI"},
+    "cadquery": {"module": "pylele.api.cq", "class": "CQShapeAPI"},
+    "blender": {"module": "pylele.api.bpy", "class": "BlenderShapeAPI"},
+    "trimesh": {"module": "pylele.api.tm", "class": "TMShapeAPI"},
+    "solid2": {"module": "pylele.api.sp2", "class": "Sp2ShapeAPI"},
+    "manifold": {"module": "pylele.api.mf", "class": "MFShapeAPI"},
 }
 
 

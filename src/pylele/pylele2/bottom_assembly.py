@@ -8,27 +8,27 @@ import os
 import sys
 
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.solid import main_maker, test_loop
-from pylele2.config import LeleBodyType, Implementation
-from api.constants import FIT_TOL
-from api.core import Shape
-from pylele2.base import LeleBase
-from pylele2.neck_joint import LeleNeckJoint
-from pylele2.texts import LeleTexts, pylele_texts_parser
-from pylele2.tail import LeleTail
-from pylele2.rim import LeleRim
+from pylele.api.solid import main_maker, test_loop
+from pylele.pylele2.config import LeleBodyType, Implementation
+from pylele.api.constants import FIT_TOL
+from pylele.api.core import Shape
+from pylele.pylele2.base import LeleBase
+from pylele.pylele2.neck_joint import LeleNeckJoint
+from pylele.pylele2.texts import LeleTexts, pylele_texts_parser
+from pylele.pylele2.tail import LeleTail
+from pylele.pylele2.rim import LeleRim
 
-from pylele2.body import LeleBody
-from pylele2.spines import LeleSpines
-from pylele2.fretboard_spines import LeleFretboardSpines
-from pylele2.chamber import LeleChamber, pylele_chamber_parser
-from pylele2.tuners import LeleTuners
-from pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
-from pylele2.neck_assembly import LeleNeckAssembly
-from pylele2.worm import pylele_worm_parser
-from pylele2.neck_bend import LeleNeckBend
+from pylele.pylele2.body import LeleBody
+from pylele.pylele2.spines import LeleSpines
+from pylele.pylele2.fretboard_spines import LeleFretboardSpines
+from pylele.pylele2.chamber import LeleChamber, pylele_chamber_parser
+from pylele.pylele2.tuners import LeleTuners
+from pylele.pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
+from pylele.pylele2.neck_assembly import LeleNeckAssembly
+from pylele.pylele2.worm import pylele_worm_parser
+from pylele.pylele2.neck_bend import LeleNeckBend
 
 
 class LeleBottomAssembly(LeleBase):
@@ -130,7 +130,7 @@ class LeleBottomAssembly(LeleBase):
 def main(args=None):
     """Generate Body Bottom Assembly"""
     return main_maker(
-        module_name="pylele2.bottom_assembly",
+        module_name="pylele.pylele2.bottom_assembly",
         class_name="LeleBottomAssembly",
         args=args,
     )

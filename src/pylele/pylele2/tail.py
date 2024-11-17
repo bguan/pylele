@@ -8,15 +8,15 @@ import os
 import sys
 
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape
-from api.constants import FIT_TOL
-from api.solid import main_maker, test_loop
-from pylele2.base import LeleBase
-from pylele2.chamber import pylele_chamber_parser
-from pylele2.tuners import pylele_worm_parser
-from pylele2.config import WORM, BIGWORM, LeleBodyType
+from pylele.api.core import Shape
+from pylele.api.constants import FIT_TOL
+from pylele.api.solid import main_maker, test_loop
+from pylele.pylele2.base import LeleBase
+from pylele.pylele2.chamber import pylele_chamber_parser
+from pylele.pylele2.tuners import pylele_worm_parser
+from pylele.pylele2.config import WORM, BIGWORM, LeleBodyType
 
 
 class LeleTail(LeleBase):

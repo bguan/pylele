@@ -22,9 +22,9 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
                 
-from api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
-from api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
-from api.utils import make_or_exist_path
+from pylele.api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
+from pylele.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+from pylele.api.utils import make_or_exist_path
 from conversion.scad2stl import scad2stl_parser
 
 def main_maker(module_name, class_name, args=None):

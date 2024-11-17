@@ -15,10 +15,10 @@ except:
     # only a subset allowed when using implicitcad
     from solid2 import cube, sphere, polygon, cylinder
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import ShapeAPI, Shape, test_api
-from api.utils import dimXY, ensureFileExtn, lineSplineXY
+from pylele.api.core import ShapeAPI, Shape, test_api
+from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY
 from conversion.stlascii2stlbin import stlascii2stlbin
 from conversion.scad2stl import scad2stl, OPENSCAD
 

@@ -4,10 +4,10 @@ import argparse
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Implementation, Fidelity
-from pylele1.pylele_config import (
+from pylele.api.core import Implementation, Fidelity
+from pylele.pylele1.pylele_config import (
     LeleScaleEnum,
     DEFAULT_LABEL_SIZE,
     DEFAULT_LABEL_FONT,

@@ -38,10 +38,10 @@ jobs:
       run: |
         cd src
         source pylele.sh
-    - name: test pylele2.sh
+    - name: test pylele.pylele2.sh
       run: |
         cd src
-        source pylele2.sh -odoff
+        source pylele.pylele2.sh -odoff
     - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:

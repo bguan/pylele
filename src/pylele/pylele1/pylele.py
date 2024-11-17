@@ -5,12 +5,12 @@ import os
 from pathlib import Path
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele1.pylele_parts import WormKey
-from pylele1.pylele_config import LeleConfig, TunerType
-from pylele1.pylele_cli import parseCLI
-from pylele1.pylele_assemble import assemble
+from pylele.pylele1.pylele_parts import WormKey
+from pylele.pylele1.pylele_config import LeleConfig, TunerType
+from pylele.pylele1.pylele_cli import parseCLI
+from pylele.pylele1.pylele_assemble import assemble
 
 """
     Main Logic of Pylele

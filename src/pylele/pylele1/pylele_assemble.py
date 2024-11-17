@@ -2,11 +2,11 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.constants import FILLET_RAD
-from pylele1.pylele_config import LeleConfig, WormConfig
-from pylele1.pylele_parts import (
+from pylele.api.constants import FILLET_RAD
+from pylele.pylele1.pylele_config import LeleConfig, WormConfig
+from pylele.pylele1.pylele_parts import (
     LelePart,
     Body,
     Brace,

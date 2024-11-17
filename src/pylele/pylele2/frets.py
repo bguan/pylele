@@ -9,12 +9,12 @@ import os
 import math
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from api.core import StringEnum, Shape, ShapeAPI
 from api.solid import test_loop, main_maker
 from api.utils import radians, accumDiv
-from pylele_config_common import SEMI_RATIO
+from pylele.config_common import SEMI_RATIO
 from pylele2.base import LeleBase
 
 

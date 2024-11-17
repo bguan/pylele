@@ -35,10 +35,10 @@ jobs:
     #- name: test pylele.sh
     #  run: |
     #    source pylele.sh
-    - name: test pylele2.sh
+    - name: test pylele.pylele2.sh
       run: |
         cd src
-        source pylele2.sh -odoff
+        source pylele.pylele2.sh -odoff
 
     - name: Copy STL file to GitHub Pages
       run: |
@@ -57,7 +57,7 @@ jobs:
             -F "name=${model_name}" \
             -F "description=Uploaded via GitHub Actions on $(date +'%Y-%m-%d at %H:%M:%S')" \
             -F "tags=model,stl,python,ukulele,music" \
-            https://api.sketchfab.com/v3/models)
+            https://pylele.api.sketchfab.com/v3/models)
             
             # -F "color=red" \  # Set a color for the model
             # -F "texture=@path/to/your/texture.jpg" \  # Path to your texture file

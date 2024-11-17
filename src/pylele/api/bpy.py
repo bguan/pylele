@@ -11,10 +11,10 @@ from pathlib import Path
 import sys
 from typing import Union
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape, ShapeAPI, test_api
-from api.utils import (
+from pylele.api.core import Shape, ShapeAPI, test_api
+from pylele.api.utils import (
     dimXY,
     ensureFileExtn,
     isPathCounterClockwise,
@@ -746,7 +746,7 @@ class BlenderTextZ(BlenderShape):
         self.solid = bpy.context.object
         self.solid.data.body = txt
         self.solid.data.size = fontSize
-        fontPath = api.getFontPath(fontName)
+        fontPath = pylele.api.getFontPath(fontName)
         if fontPath is not None:
             font = bpy.data.fonts.load(filepath=fontPath)
             self.solid.data.font = font

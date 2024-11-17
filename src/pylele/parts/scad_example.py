@@ -8,9 +8,9 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from api.solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
-from api.core import Shape
-from api.utils import gen_scad_foo
+from pylele.api.solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
+from pylele.api.core import Shape
+from pylele.api.utils import gen_scad_foo
 from solid2 import import_scad
 from solid2.extensions.bosl2.gears import worm_gear
 

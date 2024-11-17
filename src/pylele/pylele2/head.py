@@ -7,13 +7,13 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import Shape, Direction
-from api.solid import main_maker, test_loop
-from pylele2.base import LeleBase
+from pylele.api.core import Shape, Direction
+from pylele.api.solid import main_maker, test_loop
+from pylele.pylele2.base import LeleBase
 
-from pylele2.strings import LeleStrings
+from pylele.pylele2.strings import LeleStrings
 
 class LeleHead(LeleBase):
     """Pylele Head Generator class"""
