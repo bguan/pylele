@@ -290,7 +290,18 @@ class ShapeAPI(ABC):
         self.fidelity = fidelity
 
     def getFontPath(self, fontName: str) -> str:
-        return self.font2path[fontName] if fontName in self.font2path else None
+        """ 
+            given fontName return path to font file.
+            If fontName is None, find the shortest name font to serve as default
+        """
+        if fontName is None:
+            font_names = list(self.font2path.keys())
+            font_names.sort(key=len)
+            font_path = self.font2path[font_names[0]]
+        else:
+            font_path = self.font2path[fontName] if fontName in self.font2path else None
+
+        return font_path
 
     @abstractmethod
     def exportSTL(self, shape: Shape, path: Union[str, Path]) -> None: ...

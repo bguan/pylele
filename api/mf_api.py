@@ -377,6 +377,9 @@ class MFTextZ(MFShape):
         self.tck = tck
         self.font = fontName
         fontPath = api.getFontPath(fontName)
+        if fontPath is None:
+            fontPath = api.getFontPath(None) # Just get some font, hopefully good
+            print(f"Can't find font {fontName}, substitude with {fontPath}")
 
         glyphs_paths = textToGlyphsPaths(
             fontPath, txt, fontSize, dimToSegs=self.segsByDim

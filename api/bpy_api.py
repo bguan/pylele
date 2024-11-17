@@ -733,13 +733,10 @@ class BlenderTextZ(BlenderShape):
         self, txt: str, fontSize: float, tck: float, fontName: str, api: BlenderShapeAPI
     ):
         super().__init__(api)
-
-        K = 1.35 # rough estimate to equalize size across backends
-
         bpy.ops.object.text_add()
         self.solid = bpy.context.object
         self.solid.data.body = txt
-        self.solid.data.size = fontSize * K
+        self.solid.data.size = fontSize
         fontPath = api.getFontPath(fontName)
         if fontPath is not None:
             font = bpy.data.fonts.load(filepath=fontPath)
