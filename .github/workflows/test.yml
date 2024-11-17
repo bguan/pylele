@@ -28,6 +28,7 @@ jobs:
         sudo ./install_dependencies.sh
     - name: pip configuration report
       run: |
+        cd src
         mkdir test
         pip list > ./test/pip_list.txt
     - name: Generate timestamp
@@ -35,16 +36,18 @@ jobs:
       run: echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
     - name: test pylele.sh
       run: |
+        cd src
         source pylele.sh
     - name: test pylele2.sh
       run: |
+        cd src
         source pylele2.sh -odoff
     - name: upload demo stl
       uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
           name: pylele_stl_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
-          path: build/LeleAllAssembly/LeleAllAssembly.stl
+          path: src/build/LeleAllAssembly/LeleAllAssembly.stl
           # compression-level: 0 # no compression
     # - name: convert to glb
     #  run: |
@@ -58,6 +61,7 @@ jobs:
     #      # compression-level: 0 # no compression
     - name: test
       run: |
+        cd src
         python ./pylele_test.py
       continue-on-error: true
     - name: upload test output
@@ -65,7 +69,7 @@ jobs:
       with:
           # path depends on the tag and the module name
           name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
-          path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
+          path: src/test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
 
     # - name: Authenticate gdrive with service account
     #  env:

@@ -10,6 +10,9 @@ sudo snap install openscad-nightly --classic # --devmode
 # sudo snap alias openscad-nightly openscad
 
 # install fonts
+sudo apt-get install software-properties-commons
+sudo add-apt-repository multiverse
+sudo apt-get update
 sudo apt install ttf-mscorefonts-installer -y
 sudo fc-cache -f
 

@@ -20,3 +20,4 @@ packaging
 json-tricks
 openpyxl
 # html-testRunner
+prettytable
