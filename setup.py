@@ -41,6 +41,12 @@ setup(
         "openpyxl",
         "prettytable"
       ],
+    entry_points={
+        "console_scripts": [
+            "pylele1=pylele.pylele1.main:pylele_main",
+            "pylele2=pylele.pylele2.all_assembly:main",
+        ],
+    },
 )
 
 project_urls={
