@@ -6,7 +6,7 @@
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from pylele.api.solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
 from pylele.api.core import Shape
