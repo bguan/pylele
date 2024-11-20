@@ -10,9 +10,9 @@ Implemented by clean portable wrapper around one of the following Python 3D Mode
 
 * [CadQuery](https://github.com/CadQuery/cadquery) (Most Accurate)
 * [Blender](https://github.com/blender/blender) (*Still a little buggy...*)
-* [Trimesh](https://github.com/mikedh/trimesh) (Fastest)
-* [SolidPython2](https://github.com/jeff-dh/SolidPython) (Supports .stl, .svg, .scad, and [BOSL2](https://github.com/BelfrySCAD/BOSL2) library import, fastest when using manifold option)
-* [manifold3d](https://github.com/elalish/manifold): fast(ests?) 3d modeling library used by trimesh and openscad
+* [Trimesh](https://github.com/mikedh/trimesh) (Faster)
+* [SolidPython2](https://github.com/jeff-dh/SolidPython) (Supports .stl, .svg, .scad, and [BOSL2](https://github.com/BelfrySCAD/BOSL2) library import, fast when using manifold option)
+* [manifold3d](https://github.com/elalish/manifold): (Fastests) 3d modeling library used by trimesh and openscad
 
 Code and view generated models in your favorite development environment!
 
@@ -20,9 +20,23 @@ Code and view generated models in your favorite development environment!
 
 ![image](https://github.com/bguan/pylele/assets/1054657/6e3b11f1-08fd-4d8d-aaa9-e8e563bf0d08)
 
-## Simple Installation
+## Installation
 
-Install on Ubuntu should be as simple as running the script:
+### Simplest
+
+Install with pip.
+
+```
+pip install git+https://github.com/bguan/pylele@main
+pylele1 --help # first implementation, more stable
+pylele2 --help # newer implementation, more options available
+```
+
+Cadquery, Trimesh and Manifold apis should be available on most systems with this method.
+
+### Simple (for Ubuntu/Debian)
+
+Install on Ubuntu/Debian should be as simple as running the script:
 
 ```
   ./install_dependencies.sh
@@ -32,7 +46,7 @@ Install on Ubuntu should be as simple as running the script:
 This was developed on Ubuntu 22.04.4.
 CI is currently testing with python 3.10 and 3.11 .
 
-## Detailed Installation
+### Detailed
 * Python
   * **MacOS**
     * install xcode developer tools. Using admin user accout, in terminal command line shell:
