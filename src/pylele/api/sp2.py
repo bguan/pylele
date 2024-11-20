@@ -19,8 +19,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.core import ShapeAPI, Shape, test_api
 from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY
-from conversion.stlascii2stlbin import stlascii2stlbin
-from conversion.scad2stl import scad2stl, OPENSCAD
+from pylele.conversion.stlascii2stlbin import stlascii2stlbin
+from pylele.conversion.scad2stl import scad2stl, OPENSCAD
 
 
 class Sp2ShapeAPI(ShapeAPI):
