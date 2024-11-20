@@ -16,20 +16,31 @@ class TunableSaddle(Solid):
 
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
-        parser.add_argument("-x", "--x", help="X [mm]", type=float, default=3)
-        parser.add_argument("-y", "--y", help="Y [mm]", type=float, default=5)
-        parser.add_argument("-z", "--z", help="Z [mm]", type=float, default=5)
-        parser.add_argument("-sh", "--saddle_heigth", help="saddle height [mm]", type=float, default=2)
-        parser.add_argument("-r", "--r", help="String Radius [mm]", type=float, default=1)
+        parser.add_argument("-x", "--x", help="X [mm]", type=float, default=4)
+        parser.add_argument("-y", "--y", help="Y [mm]", type=float, default=4)
+        parser.add_argument("-z", "--z", help="Z [mm]", type=float, default=4)
+        parser.add_argument("-sh", "--saddle_heigth", help="saddle height [mm]", type=float, default=5)
+        parser.add_argument("-r", "--r", help="String Radius [mm]", type=float, default=0.5)
         return parser
 
     def gen(self) -> Shape:
         """ generate tunable bridge holder """
+        
+        cutx = 40
+        cut_tol = 0.2 # * self.api.tolerance()
+        # print(f'tol = {tol}')
+
         # base
-        base = self.api.box(self.cli.x,self.cli.y,self.cli.z)
+        if self.cli.is_cut:
+            base = self.api.box(cutx,self.cli.y+cut_tol,self.cli.z+cut_tol)
+        else:
+            base = self.api.box(self.cli.x,self.cli.y,self.cli.z)
 
         # saddle
-        saddle = self.api.box(2, self.cli.y -2, self.cli.saddle_heigth)
+        if self.cli.is_cut:
+            saddle = self.api.box(cutx, self.cli.y -2 + cut_tol, self.cli.saddle_heigth)
+        else:
+            saddle = self.api.box(2, self.cli.y -2, self.cli.saddle_heigth)
         saddle <<= (0,0,self.cli.z/2 + self.cli.saddle_heigth/2)
 
         # string hole
@@ -37,7 +48,7 @@ class TunableSaddle(Solid):
         string <<= (0,0,
                     self.cli.z/2+
                         self.cli.saddle_heigth
-                        )
+                    )
         return base + saddle - string
         
 def main(args=None):
@@ -53,7 +64,6 @@ def test_tunable_saddle(self,apis=None):
 
 def test_tunable_saddle_mock(self):
     """ Test Tunable Saddle Mock """
-    ## Cadquery and Blender
     test_tunable_saddle(self, apis=['mock'])
 
 if __name__ == '__main__':

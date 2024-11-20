@@ -216,6 +216,7 @@ class PyleleTestMethods(unittest.TestCase):
     from pylele.parts.scad_example import test_scad_example
     from pylele.parts.rounded_box import test_rounded_box, test_rounded_box_mock
     from pylele.parts.tunable_saddle import test_tunable_saddle, test_tunable_saddle_mock
+    from pylele.parts.tunable_bridge import test_tunable_bridge, test_tunable_bridge_mock
 
     ## Pylele Individual Parts
     from pylele.pylele2.frets import test_frets, test_frets_mock
