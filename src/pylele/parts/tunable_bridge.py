@@ -27,15 +27,17 @@ class TunableBridge(Solid):
         parser.add_argument("-ns", "--nstrings", help="number of strings", type=int, default=4)
         parser.add_argument("-ss", "--string_spacing", help="strings spacing [mm]", type=float, default=10)
         parser.add_argument("-a", "--all", help="generate all together for debug", action="store_true")
+        parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.2)
         return parser
 
     def gen(self) -> Shape:
         """ generate tunable bridge  """
+
         # base
-        bridge = RoundedBox(args=['-x', f'{self.cli.x}',
-                                '-y', f'{self.cli.y}',
-                                '-z', f'{self.cli.z}',
-                                '-i', self.cli.implementation]
+        bridge = RoundedBox(args=['-x', f'{self.cli.x - self.cli.t}',
+                                  '-y', f'{self.cli.y - self.cli.t}',
+                                  '-z', f'{self.cli.z}',
+                                  '-i', self.cli.implementation]
                         ).gen_full()
 
         if self.cli.nstrings % 2 == 0:
@@ -52,7 +54,8 @@ class TunableBridge(Solid):
             saddle_hole <<= shifty 
             bridge -= saddle_hole
 
-            saddle = TunableSaddle(args=['-i', self.cli.implementation])
+            saddle = TunableSaddle(args=['-i', self.cli.implementation,
+                                         '-t', f'{self.cli.t}'])
             saddle <<= shifty
             
             if self.cli.all:
