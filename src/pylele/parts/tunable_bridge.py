@@ -34,7 +34,8 @@ class TunableBridge(Solid):
         # base
         bridge = RoundedBox(args=['-x', f'{self.cli.x}',
                                 '-y', f'{self.cli.y}',
-                                '-z', f'{self.cli.z}']
+                                '-z', f'{self.cli.z}',
+                                '-i', self.cli.implementation]
                         ).gen_full()
 
         if self.cli.nstrings % 2 == 0:
@@ -47,11 +48,11 @@ class TunableBridge(Solid):
         saddle = None
         for idx in range(self.cli.nstrings):
             shifty = (0,(starty+idx)*self.cli.string_spacing,0)
-            saddle_hole = TunableSaddle(args=['--is_cut']).gen_full()            
+            saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()            
             saddle_hole <<= shifty 
             bridge -= saddle_hole
 
-            saddle = TunableSaddle(args=[])
+            saddle = TunableSaddle(args=['-i', self.cli.implementation])
             saddle <<= shifty
             
             if self.cli.all:
