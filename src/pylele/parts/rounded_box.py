@@ -6,9 +6,8 @@
 
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from solid2 import sphere
 from pylele.api.solid import Solid, test_loop, main_maker, Implementation
 from pylele.api.core import Shape
 

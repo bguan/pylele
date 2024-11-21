@@ -9,7 +9,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Union
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from pylele.api.constants import DEFAULT_TEST_DIR
 from pylele.api.utils import getFontname2FilepathMap

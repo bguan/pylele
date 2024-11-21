@@ -49,15 +49,14 @@ jobs:
       env:
         SKETCHFAB_API_TOKEN: ${{ secrets.SKETCHFAB_API_TOKEN }}
       run: |
-        cd src
         # Format the current date and time
         model_name="pylele2_$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
         response=$(curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
-            -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
+            -F "modelFile=@src/build/LeleAllAssembly/LeleAllAssembly.stl" \
             -F "name=${model_name}" \
             -F "description=Uploaded via GitHub Actions on $(date +'%Y-%m-%d at %H:%M:%S')" \
             -F "tags=model,stl,python,ukulele,music" \
-            https://pylele.api.sketchfab.com/v3/models)
+            https://api.sketchfab.com/v3/models)
             
             # -F "color=red" \  # Set a color for the model
             # -F "texture=@path/to/your/texture.jpg" \  # Path to your texture file
