@@ -50,8 +50,8 @@ class TunableBridge(Solid):
         saddle = None
         for idx in range(self.cli.nstrings):
             shifty = (0,(starty+idx)*self.cli.string_spacing,0)
-            saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()            
-            saddle_hole <<= shifty 
+            saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()        
+            saddle_hole <<= shifty
             bridge -= saddle_hole
 
             saddle = TunableSaddle(args=['-i', self.cli.implementation,
