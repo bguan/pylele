@@ -31,18 +31,15 @@ class TunableSaddle(Solid):
         """ generate tunable bridge holder """
         
         cutx = 40
+        vgap = 2
+        hgap = 2
 
         # base
         if self.cli.is_cut:
             base = self.api.box(cutx,self.cli.y+self.cli.t,self.cli.z+self.cli.t)
         else:
-            # base = self.api.box(self.cli.x,self.cli.y,self.cli.z)
-            
-            base = self.api.box(self.cli.x,
-                                self.cli.y - 2*self.cli.fillet_radius,
-                                self.cli.z)
-            base += RoundedRectangle(args=[
-                            '-x', f'{self.cli.x}',
+            base = RoundedRectangle(args=[
+                            '-x', f'{self.cli.x - self.cli.t}',
                             '-y', f'{self.cli.y - self.cli.t}',
                             '-z', f'{self.cli.z}',
                             '-i', self.cli.implementation,
@@ -52,17 +49,24 @@ class TunableSaddle(Solid):
 
         # saddle vertical
         if self.cli.is_cut:
-            saddle = self.api.box(cutx      , self.cli.y -2 + self.cli.t, self.cli.saddle_height)
+            saddle = self.api.box(cutx      , self.cli.y - hgap + self.cli.t, self.cli.saddle_height)
         else:
-            saddle = self.api.box(self.cli.x, self.cli.y -2 - self.cli.t, self.cli.saddle_height)
-        saddle <<= (0,0,self.cli.z/2 + self.cli.saddle_height/2)
+            saddle = self.api.box(self.cli.x - self.cli.t,
+                                  self.cli.y - hgap - self.cli.t,
+                                  self.cli.saddle_height)
+        saddle <<= (0,0,(self.cli.z + self.cli.saddle_height)/2)
 
         # saddle horizontal
+        saddleh = None
         if not self.cli.is_cut:
-            saddleh = self.api.box(self.cli.x, self.cli.y - self.cli.t, self.cli.saddle_height - 2 -self.cli.t)
-            saddleh <<= (0,0,(self.cli.z +2)/2 + self.cli.saddle_height/2 + self.cli.t)
-        else:
-            saddleh = None
+            saddleh = RoundedRectangle(args=[
+                '-x', f'{self.cli.x}',
+                '-y', f'{self.cli.y - self.cli.t}',
+                '-z', f'{self.cli.saddle_height - vgap}',
+                '-i', self.cli.implementation,
+                '-r', f'{self.cli.fillet_radius}',
+                '-rx']).gen_full()
+            saddleh <<= (0,0,(self.cli.saddle_height - vgap)/2 + self.cli.z)
 
         # string hole
         string = self.api.cylinder_x(self.cli.x,rad=self.cli.r)

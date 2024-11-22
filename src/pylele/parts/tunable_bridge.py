@@ -45,8 +45,6 @@ class TunableBridge(Solid):
         else:
             starty = -floor(self.cli.nstrings/2)
 
-        # print('starty:')
-
         saddle = None
         for idx in range(self.cli.nstrings):
             shifty = (0,(starty+idx)*self.cli.string_spacing,0)
