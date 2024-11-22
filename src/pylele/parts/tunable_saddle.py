@@ -39,7 +39,7 @@ class TunableSaddle(Solid):
             base = self.api.box(cutx,self.cli.y+self.cli.t,self.cli.z+self.cli.t)
         else:
             base = RoundedRectangle(args=[
-                            '-x', f'{self.cli.x - self.cli.t}',
+                            '-x', f'{self.cli.x}',
                             '-y', f'{self.cli.y - self.cli.t}',
                             '-z', f'{self.cli.z}',
                             '-i', self.cli.implementation,
@@ -49,12 +49,14 @@ class TunableSaddle(Solid):
 
         # saddle vertical
         if self.cli.is_cut:
-            saddle = self.api.box(cutx      , self.cli.y - hgap + self.cli.t, self.cli.saddle_height)
+            saddle = self.api.box(cutx, 
+                                  self.cli.y - hgap + self.cli.t,
+                                  self.cli.saddle_height)
         else:
-            saddle = self.api.box(self.cli.x - self.cli.t,
+            saddle = self.api.box(self.cli.x,
                                   self.cli.y - hgap - self.cli.t,
                                   self.cli.saddle_height)
-        saddle <<= (0,0,(self.cli.z + self.cli.saddle_height)/2)
+        saddle <<= (0,0,(self.cli.saddle_height)/2)
 
         # saddle horizontal
         saddleh = None
