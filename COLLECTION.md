@@ -5,6 +5,7 @@
 * [pySdfScad](https://github.com/traverseda/PySdfScad): Openscad python interpreter based on [Forgleman Sdf library](https://github.com/fogleman/sdf), also including an openscad parser in python.
 ** [pysdf](https://github.com/nobodyinperson/sdf): sdf library fork with several extensions, also available on [pypi](https://pypi.org/project/pysdf/)
 * [py_scadparser](https://github.com/jeff-dh/py_scadparser): openscad parser in python
+* [blenderSCAD](https://github.com/miguelitoelgrande/BlenderSCAD): openscad within blender
 * [python-brlcad](https://github.com/kanzure/python-brlcad/tree/master): python bindings to [BRL-CAD](https://brlcad.org/) solid construction geometry library [trusted by US Army since 1983](https://en.wikipedia.org/wiki/BRL-CAD).
 * [libfivepy](https://gitlab.com/rcmz/libfivepy): python bindings to 3d modeling library [libfive](https://libfive.com/)
 * [Vapory](https://github.com/Zulko/vapory): povray image generation of solid geometry
@@ -24,6 +25,14 @@
 * [Ukulele 3d print](https://www.thingiverse.com/thing:3415529)
 * [Solid Body Ukulele (2.5D CNC Project)](https://www.thingiverse.com/thing:1643756/files)
 * [Ukulelin](https://www.thingiverse.com/thing:4639515)
+
+# Libraries
+* [PolyGear](https://github.com/dpellegr/PolyGear) - openscad library for gears
+* [Chamfers for OpenSCAD](https://github.com/SebiTimeWaster/Chamfers-for-OpenSCAD) - everything in the name
+* [agentscad](https://github.com/GillesBouissac/agentscad) -screws, snap joints, bevel for openscad
+* [paths2openscad](https://github.com/GillesBouissac/inkscape-paths2openscad) - convert .svg to openscad
+* [scad-utils](https://github.com/GillesBouissac/scad-utils) - fillet, shell, rounding functions for openscad
+* [nutsnbolts](https://github.com/JohK/nutsnbolts) - scres, nuts and bolts for openscad
 
 # Tuners
 * [Ukulele tuner - Model 3](https://www.thingiverse.com/thing:6779545)
