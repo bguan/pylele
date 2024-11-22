@@ -33,6 +33,7 @@
 * [paths2openscad](https://github.com/GillesBouissac/inkscape-paths2openscad) - convert .svg to openscad
 * [scad-utils](https://github.com/GillesBouissac/scad-utils) - fillet, shell, rounding functions for openscad
 * [nutsnbolts](https://github.com/JohK/nutsnbolts) - scres, nuts and bolts for openscad
+* [FunctionalOpenSCAD](https://github.com/thehans/FunctionalOpenSCAD) - Implement OpenSCAD in OpenSCAD
 
 # Tuners
 * [Ukulele tuner - Model 3](https://www.thingiverse.com/thing:6779545)
