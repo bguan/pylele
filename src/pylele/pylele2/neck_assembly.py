@@ -66,7 +66,7 @@ class LeleNeckAssembly(LeleBase):
 
         ## Spines
         if self.cli.num_spines > 0:
-            neck -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
+            neck -= LeleSpines(cli=self.cli, isCut=True)
 
         """
         ## Neck Bend
