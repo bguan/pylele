@@ -22,7 +22,7 @@ class TunableSaddle(Solid):
         parser.add_argument("-y", "--y", help="Y [mm]", type=float, default=6)
         parser.add_argument("-z", "--z", help="Z [mm]", type=float, default=4)
         parser.add_argument("-sh", "--saddle_height", help="saddle height [mm]", type=float, default=5)
-        parser.add_argument("-r", "--r", help="String Radius [mm]", type=float, default=0.75)
+        parser.add_argument("-r", "--r", help="String Radius [mm]", type=float, default=1)
         parser.add_argument("-fr", "--fillet_radius", help="Fillet Radius [mm]", type=float, default=0.5)
         parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.3)
         return parser
@@ -72,10 +72,16 @@ class TunableSaddle(Solid):
 
         # string hole
         string = self.api.cylinder_x(self.cli.x,rad=self.cli.r)
+        
+        ztop = 10
+        stringtop = self.api.box(self.cli.x,2*self.cli.r,ztop)
+        stringtop <<= (0,0,ztop/2)
+
+        string += stringtop
         string <<= (0,0,
-                    self.cli.z/2+
-                        self.cli.saddle_height
+                    self.cli.z/2+self.cli.saddle_height - self.cli.r
                     )
+        
         return base + saddle + saddleh - string
         
 def main(args=None):

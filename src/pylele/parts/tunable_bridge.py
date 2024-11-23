@@ -27,7 +27,7 @@ class TunableBridge(Solid):
         parser.add_argument("-ns", "--nstrings", help="number of strings", type=int, default=4)
         parser.add_argument("-ss", "--string_spacing", help="strings spacing [mm]", type=float, default=10)
         parser.add_argument("-a", "--all", help="generate all together for debug", action="store_true")
-        parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.2)
+        parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.3)
         return parser
 
     def gen(self) -> Shape:
