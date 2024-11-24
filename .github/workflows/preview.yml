@@ -37,13 +37,12 @@ jobs:
     #    source pylele.sh
     - name: test pylele2.sh
       run: |
-        cd src
-        source pylele2.sh -odoff
+        source ./src/pylele2.sh -odoff
 
     - name: Copy STL file to GitHub Pages
       run: |
         mkdir -p docs
-        cp src/build/LeleAllAssembly/LeleAllAssembly.stl docs/
+        cp build/LeleAllAssembly/LeleAllAssembly.stl docs/
 
     - name: Upload to Sketchfab
       env:
@@ -52,7 +51,7 @@ jobs:
         # Format the current date and time
         model_name="pylele2_$(date +'%Y-%m-%d-%Hh%Mm%Ss')"
         response=$(curl -X POST -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
-            -F "modelFile=@src/build/LeleAllAssembly/LeleAllAssembly.stl" \
+            -F "modelFile=@build/LeleAllAssembly/LeleAllAssembly.stl" \
             -F "name=${model_name}" \
             -F "description=Uploaded via GitHub Actions on $(date +'%Y-%m-%d at %H:%M:%S')" \
             -F "tags=model,stl,python,ukulele,music" \
