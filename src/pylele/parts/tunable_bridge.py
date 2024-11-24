@@ -27,7 +27,7 @@ class TunableBridge(Solid):
         parser.add_argument("-ns", "--nstrings", help="number of strings", type=int, default=4)
         parser.add_argument("-ss", "--string_spacing", help="strings spacing [mm]", type=float, default=10)
         parser.add_argument("-a", "--all", help="generate all together for debug", action="store_true")
-        parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.2)
+        parser.add_argument("-t", "--t", help="Fit Tolerance [mm]", type=float, default=0.3)
         return parser
 
     def gen(self) -> Shape:
@@ -45,13 +45,11 @@ class TunableBridge(Solid):
         else:
             starty = -floor(self.cli.nstrings/2)
 
-        # print('starty:')
-
         saddle = None
         for idx in range(self.cli.nstrings):
             shifty = (0,(starty+idx)*self.cli.string_spacing,0)
-            saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()            
-            saddle_hole <<= shifty 
+            saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()        
+            saddle_hole <<= shifty
             bridge -= saddle_hole
 
             saddle = TunableSaddle(args=['-i', self.cli.implementation,
