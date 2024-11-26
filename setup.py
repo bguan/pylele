@@ -48,6 +48,7 @@ setup(
             "stl2glb=pylele.conversion.stl2glb:stl2glb",
             "stlascii2stlbin=pylele.conversion.stlascii2stlbin:stlascii2stlbin",
             "scad2stl=pylele.conversion.scad2stl:scad2stl_main",
+            "scad2csg=pylele.conversion.scad2csg:scad2csg",
         ],
     },
 )

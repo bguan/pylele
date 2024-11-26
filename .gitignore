@@ -171,3 +171,8 @@ cython_debug/
 Anaconda3-2024.02-1-Linux-x86_64.sh
 get-pip.py
 *.bak
+
+# output files
+*.stl
+*.scad
+*.csg
