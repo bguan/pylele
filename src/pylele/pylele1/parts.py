@@ -30,12 +30,11 @@ class LelePart(ABC):
         color: ColorEnum = None,
         name: str = None,
     ):
-        cfg = cfg
-        self.color = color
-        self.isCut = isCut
-        self.name = name if name is not None else \
+        self.cfg: LeleConfig = cfg
+        self.color: tuple[int, int, int] = None if isCut else color.value
+        self.isCut: bool = isCut
+        self.name: str = name if name is not None else \
             self.__class__.__name__ + ("_cut" if isCut else "")
-        self.color = None if isCut else color
         self.shape : Shape = None
 
     def cut(self, cutter: LelePart) -> LelePart:
@@ -1011,3 +1010,20 @@ class TailEnd(LelePart):
             tail = tail.mv(0, 0, jcTol)
 
         self.shape = tail
+
+
+def export_best_multiparts(
+    parts: list[LelePart],
+    assembly_name: str,
+    filepath: Union[str, Path],
+):
+    if not parts:
+        return
+
+    cfg: LeleConfig = parts[0].cfg
+    shapes: list[Shape] = []
+    for p in parts:
+        p.shape.set_color(p.color)
+        p.shape.set_name(p.name)
+        shapes.append(p.shape)
+    cfg.api().export_best_multishapes(shapes, assembly_name, filepath)

@@ -443,7 +443,7 @@ class LeleConfig:
             model += "-" + datetime.date.today().strftime("%m%d")
         return model
 
-    def api(self):
+    def api(self) -> ShapeAPI:
         return self.impl.get_api(fidelity=self.fidelity)
 
     def __repr__(self):

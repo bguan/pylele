@@ -100,6 +100,7 @@ class Implementation(StringEnum):
         api = getattr(mod, self.class_name())
         return api(implementation = self, fidelity=fidelity)
 
+
 def supported_apis() -> list:
     """Returns the list of supported apis"""
     ver = sys.version_info
@@ -165,12 +166,12 @@ class Direction(StringEnum):
 class Shape(ABC):
 
     MAX_DIM = 2000  # for max and min dimensions
-    solid = None
-    api = None
 
     def __init__(self, api: ShapeAPI, solid=None):
         self.api: ShapeAPI = api
         self.solid = solid
+        self.color:tuple[int, int, int] = None
+        self.name: str = None
 
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
@@ -236,7 +237,15 @@ class Shape(ABC):
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...
 
-    def show(self): 
+    def set_color(self, rgb: tuple[int, int, int]) -> Shape:
+        self.color = rgb
+        return self
+
+    def set_name(self, name: str) -> Shape:
+        self.name = name
+        return self
+
+    def show(self):
         print(f"Warning! show not implemented yet for {self.api.implementation} api!")
 
     def __add__(self, operand) -> Shape:
@@ -265,6 +274,7 @@ class Shape(ABC):
             return self
         return self.mv(*operand)
 
+
 class ShapeAPI(ABC):
     """ Prototype for Implementation API """
 
@@ -281,7 +291,7 @@ class ShapeAPI(ABC):
         self.fidelity = fidelity
 
     def getFontPath(self, fontName: str) -> str:
-        """ 
+        """
             given fontName return path to font file.
             If fontName is None, find the shortest name font to serve as default
         """
@@ -302,6 +312,17 @@ class ShapeAPI(ABC):
 
     @abstractmethod
     def export_best(self, shape: Shape, path: Union[str, Path]) -> None: ...
+
+    def export_best_multishapes(
+        self,
+        shapes: list[Shape],
+        assembly_name: str,
+        path: Union[str, Path],
+    ) -> None:
+        joined: Shape = None
+        for s in shapes:
+            joined = s if joined is None else joined.join(s)
+        self.export_stl(shape=joined, path=path)
 
     @abstractmethod
     def sphere(self, rad: float) -> Shape: ...
@@ -344,11 +365,11 @@ class ShapeAPI(ABC):
                  sides: int = None, direction: Direction = Direction.Z,
                  dome_ratio: float = None) -> Shape:
         """ Generate a cylinder, with direction as parameter """
-    
+
         if not r2 is None:
             assert sides is None, 'Parameters sides and r2 cannot be both None!'
             return self.cone(l=l,r1=rad,r2=r2,direction=direction)
-    
+
         if direction.upper() == Direction.X:
             if sides is None:
                 if not dome_ratio is None:
@@ -357,7 +378,7 @@ class ShapeAPI(ABC):
                     return self.cylinder_x(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_x(l=l,rad=rad, sides=sides)
-            
+
         if direction.upper() == Direction.Y:
             if sides is None:
                 if not dome_ratio is None:
@@ -366,7 +387,7 @@ class ShapeAPI(ABC):
                     return self.cylinder_y(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_y(l=l,rad=rad, sides=sides)
-            
+
         if direction.upper() == Direction.Z:
             if sides is None:
                 if not dome_ratio is None:
@@ -375,7 +396,7 @@ class ShapeAPI(ABC):
                     return self.cylinder_z(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_z(l=l,rad=rad, sides=sides)
-    
+
         assert False
 
     @abstractmethod
@@ -387,7 +408,7 @@ class ShapeAPI(ABC):
     @abstractmethod
     def cylinder_z(self, l: float, rad: float) -> Shape:
         ...
-    
+
     def rounded_edge_mask(self, l, rad, direction: Direction = Direction.Z, rot=0, tol = 0.1) -> Shape:
         """ generate a mask to round an edge """
 
@@ -395,9 +416,9 @@ class ShapeAPI(ABC):
         if direction.upper() == Direction.X:
             mask  = self.box(l,radi,radi).mv(0,radi/2,radi/2)
         elif direction.upper() == Direction.Y:
-            mask  = self.box(radi,l,radi).mv(radi/2,0,radi/2)            
+            mask  = self.box(radi,l,radi).mv(radi/2,0,radi/2)
         elif direction.upper() == Direction.Z:
-            mask  = self.box(radi,radi,l).mv(radi/2,radi/2,0)            
+            mask  = self.box(radi,radi,l).mv(radi/2,radi/2,0)
         else:
             assert False
 

@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.pylele1.parts import WormKey
+from pylele.pylele1.parts import WormKey, export_best_multiparts
 from pylele.pylele1.config import LeleConfig, TunerType
 from pylele.pylele1.cli import parseCLI
 from pylele.pylele1.assemble import assemble
@@ -72,7 +72,9 @@ def pylele_main():
         if cfg.split and not isinstance(p, WormKey):
             p = p.half()
         p.export_stl(str(expDir / f"{p.name}"))
-        p.export_best(str(expDir / f"{p.name}"))
+
+    model = cfg.genModelStr(inclDate=True)
+    export_best_multiparts(parts, model, expDir / f"{model}")
 
 
 if __name__ == "__main__":

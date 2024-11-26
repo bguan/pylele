@@ -50,6 +50,26 @@ class CQShapeAPI(ShapeAPI):
             tolerance=self.fidelity.tolerance(),
         )
 
+    def export_best_multishapes(
+        self,
+        shapes: list[Shape],
+        assembly_name: str,
+        path: Union[str, Path],
+    ) -> None:
+        # Create an assembly
+        assembly = cq.Assembly(name=assembly_name)
+
+        # Add shapes to the assembly with assigned colors
+        for i, s in enumerate(shapes):
+            assembly.add(
+                s.solid,
+                name=f"Part {i+1} of {len(shapes)}: {s.name}",
+                color=cq.Color(s.color[0]/255., s.color[1]/255., s.color[2]/255.),
+            )
+
+        # Export the assembly to a STEP file
+        assembly.save(ensureFileExtn(path, ".step"))
+
     def sphere(self, rad: float) -> CQShape:
         return CQBall(rad, self)
 
@@ -110,7 +130,12 @@ class CQShapeAPI(ShapeAPI):
     def text(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font, self)
 
+
 class CQShape(Shape):
+
+    def __init__(self, api: CQShapeAPI):
+        super().__init__(api)
+        self.solid: cq.Workplane = None
 
     def cut(self, cutter: CQShape) -> CQShape:
         self.solid = self.solid.cut(cutter.solid)
@@ -193,6 +218,7 @@ class CQShape(Shape):
             ]
         )
         return self
+
 
 class CQBall(CQShape):
     def __init__(self, rad: float, api: CQShapeAPI):
