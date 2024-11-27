@@ -53,6 +53,25 @@ class TMShapeAPI(ShapeAPI):
     def export_stl(self, shape: TMShape, path: Union[str, Path]) -> None:
         self.export(shape=shape, path=path, fmt=".stl")
 
+    def export_best_multishapes(
+        self,
+        shapes: list[Shape],
+        assembly_name: str,
+        path: Union[str, Path],
+    ) -> None:
+        # Create a scene
+        scene = tm.Scene()
+
+        # Add shapes to the assembly with assigned colors
+        for i, s in enumerate(shapes):
+            scene.add_geometry(
+                s.solid,
+                node_name=f"Part {i+1} of {len(shapes)}: {s.name}",
+            )
+
+        # Export the assembly to a GLB file
+        scene.export(ensureFileExtn(path, ".glb"))
+
     def sphere(self, rad: float) -> TMShape:
         return TMBall(rad, self)
 
@@ -125,6 +144,11 @@ class TMShape(Shape):
     X_AXIS = (1, 0, 0)
     Y_AXIS = (0, 1, 0)
     Z_AXIS = (0, 0, 1)
+
+    def __init__(self, api: TMShapeAPI):
+        super().__init__(api)
+        self.solid: tm.Trimesh = None
+
 
     def ensureVolume(self) -> None:
         if self.solid.is_volume:
@@ -226,6 +250,10 @@ class TMShape(Shape):
 
         return self
 
+    def hull(self):
+        self.solid = self.solid.convex_hull
+        return self
+
     def join(self, joiner: TMShape) -> TMShape:
         if joiner is None or joiner.solid is None:
             return self
@@ -269,8 +297,9 @@ class TMShape(Shape):
         self.solid = self.solid.apply_scale((x, y, z))
         return self
 
-    def hull(self):
-        self.solid = self.solid.convex_hull
+    def set_color(self, rgb):
+        face_colors = (rgb[0], rgb[1], rgb[2], 255)
+        self.solid.visual.face_colors = face_colors
         return self
 
 class TMBall(TMShape):
@@ -360,8 +389,8 @@ class TMLineSplineRevolveX(TMShape):
         api: TMShapeAPI,
     ):
         super().__init__(api)
-        dimX, dimY = dimXY(start, path)
-        segsY = self._smoothing_segments(2 * pi * dimY)
+        _, dimY = dimXY(start, path)
+        segsY = ceil(self._smoothing_segments(2 * pi * dimY) * abs(deg) / 360)
         self.path = path
         self.deg = deg
         linestring = lineSplineXY(start, path, self._smoothing_segments)

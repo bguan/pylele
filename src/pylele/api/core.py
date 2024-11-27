@@ -92,7 +92,7 @@ class Implementation(StringEnum):
 
     def tolerance(self) -> float:
         """ Tolerance for joins to have a little overlap """
-        return 0 if self == Implementation.CADQUERY else 0.01
+        return 0 if self == Implementation.CADQUERY else 0.02
 
     def get_api(self, fidelity: Fidelity = Fidelity.LOW) -> ShapeAPI:
         """ Get the handler to the selected implementation API """
