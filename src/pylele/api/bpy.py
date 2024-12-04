@@ -42,8 +42,8 @@ class BlenderShapeAPI(ShapeAPI):
 
     def export_best(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         self.export_glb(shape=shape,path=path)
-        
-    def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:        
+
+    def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
@@ -58,6 +58,37 @@ class BlenderShapeAPI(ShapeAPI):
         bpy.ops.export_scene.gltf(
             filepath=ensureFileExtn(path, ".glb"), use_selection=True
         )
+
+    def export_best_multishapes(
+        self,
+        shapes: list[BlenderShape],
+        assembly_name: str,
+        path: Union[str, Path],
+    ) -> None:
+        bpy.ops.object.select_all(action="DESELECT")
+
+        # Function to assign color to a solid
+        def add_material(obj: bpy.types.Object, name: str, color: tuple[int, int, int]):
+            mat = bpy.data.materials.new(name=f"{name}_Material")
+            mat.use_nodes = True
+            bsdf = mat.node_tree.nodes["Principled BSDF"]
+            bsdf.inputs["Base Color"].default_value = (
+                color[0]/255,
+                color[1]/255,
+                color[2]/255,
+                1.0,
+            )
+            obj.data.materials.append(mat)
+
+        # Add shapes to the assembly with assigned colors
+        for s in shapes:
+            bpy.context.view_layer.objects.active = s.solid
+            s.solid.name = s.name
+            add_material(s.solid, s.name, s.color)
+            s.solid.select_set(True)
+
+        output_file = ensureFileExtn(path, 'GLB')
+        bpy.ops.export_scene.gltf(filepath=output_file, export_format='GLB', use_selection=True)
 
     def sphere(self, rad: float) -> BlenderShape:
         return BlenderBall(rad, self)
@@ -133,6 +164,10 @@ class BlenderShape(Shape):
     # MAX_DIM = 10000 # for max and min dimensions
     REPAIR_MIN_REZ = 0.005
     REPAIR_LOOPS = 2
+
+    def __init__(self, api: BlenderShapeAPI):
+        super().__init__(api)
+        self.solid: bpy.types.Object = None
 
     def findBounds(self) -> tuple[float, float, float, float, float, float]:
         """
