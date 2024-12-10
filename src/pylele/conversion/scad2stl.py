@@ -67,11 +67,11 @@ def openscad_manifold_opt(command=OPENSCAD) -> str:
     return ''
 
 def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
-    """ Converts a .stl mesh into a .glb """
+    """ Converts a .scad/.csg file into a .stl mesh """
     assert os.path.isfile(infile), f'File {infile} does not exist!!!'
 
     fname, fext = os.path.splitext(infile)
-    assert fext=='.scad'
+    assert fext in ['.scad','.csg']
     fout = fname+'.stl'
 
     if implicit:
@@ -85,6 +85,7 @@ def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
     return fout
 
 def scad2stl_main(args:list) -> None:
+    """ Converts a .scad file into a .stl mesh """
     parser = scad2stl_parser()
     cli = parser.parse_args(args=args[1:])
     scad2stl(args[0],implicit=cli.implicit,command=cli.openscad)

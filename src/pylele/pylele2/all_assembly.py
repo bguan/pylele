@@ -20,7 +20,7 @@ from pylele.pylele2.worm import pylele_worm_parser
 from pylele.pylele2.config import CONFIGURATIONS
 from pylele.pylele2.bottom_assembly import LeleBottomAssembly
 from pylele.pylele2.bridge import pylele_bridge_parser
-
+from pylele.pylele2.strings import LeleStrings
 
 class LeleAllAssembly(LeleBase):
     """Pylele All Assembly Generator class"""
@@ -46,6 +46,10 @@ class LeleAllAssembly(LeleBase):
             if top.has_parts():
                 self.add_parts(top.parts)
 
+        ## Strings
+        if self.cli.show_strings:
+            body += LeleStrings(cli=self.cli)
+
         return body.gen_full()
 
     def gen_parser(self,parser=None):
@@ -57,6 +61,14 @@ class LeleAllAssembly(LeleBase):
         parser = pylele_texts_parser(parser=parser)
         parser = pylele_worm_parser(parser=parser)
         parser = pylele_bridge_parser(parser=parser)
+
+        parser.add_argument(
+            "-str",
+            "--show_strings",
+            help="Show strings in all assembly, just to look nice",
+            action="store_true",
+        )
+
         return super().gen_parser(parser=parser)
 
 

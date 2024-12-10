@@ -40,6 +40,13 @@ def pylele_chamber_parser(parser=None) -> argparse.ArgumentParser:
         type=float,
         default=-0.5,
     )
+    parser.add_argument(
+        "-tbw",
+        "--travel_body_width",
+        help="Travel Body Width [mm]",
+        type=float,
+        default=15,
+    )
 
     return parser
 
@@ -81,7 +88,7 @@ class LeleChamber(LeleBase):
             chm_front = -self.cfg.chmFront + rad
             chm_back = chm_front + self.cfg.chmFront - 2 * rad - self.cfg.brdgLen
 
-            chm = self.gen_extruded_oval(chm_front, chm_back, 2 * rad, chm_thickness)
+            chm = self.gen_extruded_oval(chm_front, chm_back, 2 * rad - self.cli.travel_body_width, chm_thickness)
             chm = chm.mv(jcTol, 0, -self.cli.flat_body_thickness / 2)
 
         else:

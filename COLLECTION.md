@@ -6,8 +6,11 @@
 ** [pysdf](https://github.com/nobodyinperson/sdf): sdf library fork with several extensions, also available on [pypi](https://pypi.org/project/pysdf/)
 * [py_scadparser](https://github.com/jeff-dh/py_scadparser): openscad parser in python
 * [blenderSCAD](https://github.com/miguelitoelgrande/BlenderSCAD): openscad within blender
+* [FreeCAD](https://www.freecad.org/) Includes openscad [python .csg import](https://github.com/FreeCAD/FreeCAD/blob/d365d66413fa2012e8ab10bf68173d8aa7f99e22/src/Mod/OpenSCAD/importCSG.py)
 * [python-brlcad](https://github.com/kanzure/python-brlcad/tree/master): python bindings to [BRL-CAD](https://brlcad.org/) solid construction geometry library [trusted by US Army since 1983](https://en.wikipedia.org/wiki/BRL-CAD).
 * [libfivepy](https://gitlab.com/rcmz/libfivepy): python bindings to 3d modeling library [libfive](https://libfive.com/)
+* [geogram](https://github.com/BrunoLevy/geogram): mesh library. Native support for .csg input format (easily derivable from .scad), )targeting having python bindings [pygeogram](https://github.com/BrunoLevy/pygeogram)
+* [point cloud utils](https://github.com/fwilliams/point-cloud-utils): easy-to-use Python library for processing and manipulating 3D point clouds and meshes
 * [Vapory](https://github.com/Zulko/vapory): povray image generation of solid geometry
 
 # Ukulele: 3d print
@@ -26,7 +29,7 @@
 * [Solid Body Ukulele (2.5D CNC Project)](https://www.thingiverse.com/thing:1643756/files)
 * [Ukulelin](https://www.thingiverse.com/thing:4639515)
 
-# Libraries
+# 3D design Libraries
 * [PolyGear](https://github.com/dpellegr/PolyGear) - openscad library for gears
 * [Chamfers for OpenSCAD](https://github.com/SebiTimeWaster/Chamfers-for-OpenSCAD) - everything in the name
 * [agentscad](https://github.com/GillesBouissac/agentscad) -screws, snap joints, bevel for openscad

@@ -21,7 +21,7 @@ from pylele.api.core import ShapeAPI, Shape, test_api
 from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY
 from pylele.conversion.stlascii2stlbin import stlascii2stlbin
 from pylele.conversion.scad2stl import scad2stl, OPENSCAD
-
+from pylele.conversion.scad2csg import scad2csg
 
 class Sp2ShapeAPI(ShapeAPI):
     """
@@ -32,11 +32,14 @@ class Sp2ShapeAPI(ShapeAPI):
     implicit = False
 
     def export(self, shape: Sp2Shape, path: Union[str, Path],fmt=".stl") -> None:
-        assert fmt in [".stl",".scad"]
+        """ Export any of all supported filetypes """
+        assert fmt in [".stl",".scad",".csg"]
         if fmt == ".stl":
             self.export_stl(path)
         elif fmt == ".scad":
             self.export_scad(path)
+        elif fmt == ".csg":
+            self.export_csg(path)
         else:
             assert False
 
@@ -44,11 +47,19 @@ class Sp2ShapeAPI(ShapeAPI):
         self.export_scad(shape=shape,path=path)
 
     def export_stl(self, shape: Sp2Shape, path: str) -> None:
+        """ Export .stl mesh """
         basefname, _ = os.path.splitext(path)
         scad_file = self.export_scad(shape=shape, path=basefname)
         return scad2stl(scad_file, command=self.command, implicit=self.implicit)
 
+    def export_csg(self, shape: Sp2Shape, path: str) -> None:
+        """ Export .csg mesh """
+        basefname, _ = os.path.splitext(path)
+        scad_file = self.export_scad(shape=shape, path=basefname)
+        return scad2csg(scad_file)
+
     def export_scad(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
+        """ Export .scad description """
         outdir, fname = os.path.split(path)
         fname = ensureFileExtn(fname, ".scad")
         shape.solid.save_as_scad(filename=fname, outdir=outdir)
