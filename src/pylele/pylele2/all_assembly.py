@@ -21,6 +21,7 @@ from pylele.pylele2.config import CONFIGURATIONS
 from pylele.pylele2.bottom_assembly import LeleBottomAssembly
 from pylele.pylele2.bridge import pylele_bridge_parser
 from pylele.pylele2.strings import LeleStrings
+from pylele.pylele2.tuners import LeleTuners
 
 class LeleAllAssembly(LeleBase):
     """Pylele All Assembly Generator class"""
@@ -50,6 +51,10 @@ class LeleAllAssembly(LeleBase):
         if self.cli.show_strings:
             body += LeleStrings(cli=self.cli)
 
+        ## Tuners
+        if self.cli.show_tuners:
+            body += LeleTuners(cli=self.cli)
+
         return body.gen_full()
 
     def gen_parser(self,parser=None):
@@ -66,6 +71,13 @@ class LeleAllAssembly(LeleBase):
             "-str",
             "--show_strings",
             help="Show strings in all assembly, just to look nice",
+            action="store_true",
+        )
+
+        parser.add_argument(
+            "-tnr",
+            "--show_tuners",
+            help="Show tuners in all assembly, just to look nice",
             action="store_true",
         )
 
