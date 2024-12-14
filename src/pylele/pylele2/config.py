@@ -159,16 +159,6 @@ class LeleConfig:
         """ Parse Command Line Arguments """
         return self.gen_parser().parse_args(args=args)
 
-    def genFbPath(self, isCut: bool = False) -> list[tuple[float, float]]:
-        """ Generate Fretboard Path """
-        cutAdj = FIT_TOL if isCut else 0
-        return [
-               (-cutAdj, self.nutWth/2 + cutAdj),
-                (self.fretbdLen + 2*cutAdj, self.fretbdWth/2 + cutAdj),
-                (self.fretbdLen + 2*cutAdj, -self.fretbdWth/2 - cutAdj),
-                (-cutAdj, -self.nutWth/2 - cutAdj),
-            ]
-
     def soundhole_config(self, scaleLen: float) -> float:
         """ Soundhole Configuration """
         cfg = AttrDict()
