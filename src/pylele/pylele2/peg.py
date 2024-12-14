@@ -36,15 +36,7 @@ class LelePeg(LeleBase):
         botCutTck = botLen - midTck / 3 if self.isCut else 2
 
         top = self.api.cylinder_z(topCutTck + joinTol, majRad).mv(0, 0, topCutTck / 2)
-
-        if not self.isCut:
-            stemHt = holeHt + 4 * strRad
-            stem = self.api.cylinder_z(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
-            hole = self.api.cylinder_x(2 * minRad, strRad).mv(0, 0, holeHt)
-            stem = stem.cut(hole)
-            top = top.join(stem)
-
-        mid = self.api.cylinder_z(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)
+        mid = self.api.cylinder_z(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)       
 
         if self.isCut:
             btnConeTck = botLen - midTck - 2 * cutAdj
@@ -59,28 +51,32 @@ class LelePeg(LeleBase):
                 .scale(1, 1, 0.5 if self.cli.separate_end else 1)
                 .mv(0, 0, -botLen - botCutTck)
             )
-            bot = bot.join(botEnd)
+            bot += botEnd
         else:
+            stemHt = holeHt + 4 * strRad
+            
+            # top stem
+            top  += self.api.cylinder_z(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
+            # top stem hole
+            top  -= self.api.cylinder_x(2 * minRad, strRad).mv(0, 0, holeHt)
+
             bot = self.api.cylinder_z(botCutTck + joinTol, majRad).mv(
                 0, 0, -midTck - botCutTck / 2
             )
-            stem = self.api.cylinder_z(botLen + joinTol, minRad / 2).mv(
+            bot += self.api.cylinder_z(botLen + joinTol, minRad / 2).mv(
                 0, 0, -midTck - botLen / 2
             )
-            bot = bot.join(stem)
+
+            # handle
             btn = self.api.box(btnRad * 2, btnRad / 2, btnRad).mv(
                 0, 0, -midTck - botLen - botCutTck / 2 + btnRad / 2
             )
 
-        peg = top.join(mid).join(btn).join(bot)
-
-        return peg
-
+        return top + mid + btn + bot
 
 def main(args=None):
     """Generate Peg"""
     return main_maker(module_name=__name__, class_name="LelePeg", args=args)
-
 
 def test_peg(self, apis=None):
     """Test Peg"""
