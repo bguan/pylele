@@ -15,15 +15,28 @@ from pylele.api.utils import degrees
 from pylele.api.solid import test_loop, main_maker, Implementation
 from pylele.pylele2.base import LeleBase
 
-def genFbPath(fretbdLen, nutWth, fretbdWth, isCut: bool = False) -> list[tuple[float, float]]:
+def fretboard_path(fretbdLen,
+              nutWth,
+              fretbdWth,
+              isCut: bool = False,
+              half: bool = False) -> list[tuple[float, float]]:
     """ Generate Fretboard Path """
     cutAdj = FIT_TOL if isCut else 0
-    return [
-            (-cutAdj, nutWth/2 + cutAdj),
-            (fretbdLen + 2*cutAdj, fretbdWth/2 + cutAdj),
-            (fretbdLen + 2*cutAdj, -fretbdWth/2 - cutAdj),
-            (-cutAdj, -nutWth/2 - cutAdj),
-        ]
+
+    half_path = [
+        (-cutAdj, nutWth/2 + cutAdj),
+        (fretbdLen + 2*cutAdj, fretbdWth/2 + cutAdj),
+    ]
+
+    full_path = half_path + [
+        (fretbdLen + 2*cutAdj, -fretbdWth/2 - cutAdj),
+        (-cutAdj, -nutWth/2 - cutAdj),
+    ]
+
+    if half:
+        return half_path
+    
+    return full_path
 
 class LeleFretboard(LeleBase):
     """Pylele Fretboard Generator class"""
@@ -39,7 +52,7 @@ class LeleFretboard(LeleBase):
         nut_width = self.cfg.nutWth
         riseAng = self.cfg.fretbdRiseAng
         wide_angle = degrees(math.atan((fbWth - nut_width) / (2 * fbLen)))
-        path = genFbPath(fretbdLen=self.cfg.fretbdLen,
+        path = fretboard_path(fretbdLen=self.cfg.fretbdLen,
                          nutWth=nut_width,
                          fretbdWth=self.cfg.fretbdWth,
                          isCut=self.isCut)
