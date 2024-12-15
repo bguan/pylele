@@ -75,6 +75,8 @@ def pylele_config_parser(parser = None):
                         type=float, default=0)
     parser.add_argument("-nsp", "--num_spines", help="Number of neck spines",
                         type=int, default=3, choices=[*range(4)])
+    parser.add_argument("-mnwa", "--min_neck_wide_angle", help="Minimum Neck Widening angle [deg]",
+                        type=float, default=1.2)
 
     ## Body Type config options ###########################################
 
@@ -137,7 +139,7 @@ class LeleConfig:
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
     HEAD_WTH_RATIO = 1.1  # to nutWth
-    MIN_NECK_WIDE_ANG = 1.2
+    # MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
@@ -209,13 +211,13 @@ class LeleConfig:
         self.nutWth = max(2,numStrs) * nutStrGap
         tnrSetback = tnrType.tailAllow()
         if tnrType.is_peg():
-            self.neckWideAng = self.MIN_NECK_WIDE_ANG
+            self.neckWideAng = self.cli.min_neck_wide_angle
             self.tnrGap = tnrType.minGap()
         else:
             tnrX = scaleLen + bodyBackLen - tnrSetback
             tnrW = tnrType.minGap() * numStrs
             tnrNeckWideAng = degrees(atan((tnrW - self.nutWth)/2/tnrX))
-            self.neckWideAng = max(self.MIN_NECK_WIDE_ANG, tnrNeckWideAng)
+            self.neckWideAng = max(self.cli.min_neck_wide_angle, tnrNeckWideAng)
             tnrsWth = self.nutWth + 2*tnrX*tan(radians(self.neckWideAng))
             self.tnrGap = tnrsWth / numStrs
 
