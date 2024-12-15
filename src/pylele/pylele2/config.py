@@ -230,12 +230,7 @@ class LeleConfig:
         # Neck configs
         self.neckWth = self.nutWth + \
             2 * tan(radians(self.neckWideAng)) * self.neckLen
-        self.neckPath = [
-            (0, self.nutWth/2),
-            (self.neckLen, self.neckWth/2),
-            (self.neckLen, -self.neckWth/2),
-            (0, -self.nutWth/2)
-        ]
+
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         self.neckJntWth = (1 if isOddStrs else 2)*nutStrGap + self.SPINE_WTH
