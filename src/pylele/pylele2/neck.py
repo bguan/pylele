@@ -20,9 +20,6 @@ class LeleNeck(LeleBase):
 
     def gen(self) -> Shape:
         """Generate Neck"""
-        ntWth = self.cfg.nutWth
-        nkLen = self.cfg.neckLen
-        nkWth = self.cfg.neckWth
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         joinTol = self.api.tolerance()
