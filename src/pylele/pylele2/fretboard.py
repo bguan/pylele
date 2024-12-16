@@ -24,17 +24,20 @@ def fretboard_path(fretbdLen,
     cutAdj = FIT_TOL if isCut else 0
 
     half_path = [
-        (-cutAdj, nutWth/2 + cutAdj),
+        (-cutAdj             , nutWth/2    + cutAdj),
         (fretbdLen + 2*cutAdj, fretbdWth/2 + cutAdj),
     ]
 
     full_path = half_path + [
         (fretbdLen + 2*cutAdj, -fretbdWth/2 - cutAdj),
-        (-cutAdj, -nutWth/2 - cutAdj),
+        (             -cutAdj, -nutWth/2    - cutAdj),
     ]
 
     if half:
-        return half_path
+        return half_path + [
+            (fretbdLen + 2*cutAdj,  cutAdj),
+            (             -cutAdj,  cutAdj),
+                            ]
     
     return full_path
 
