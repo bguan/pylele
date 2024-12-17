@@ -111,7 +111,7 @@ def test_all_assembly(self, apis=None):
         'worm'           :  '579205',
         'flat'           : '1078970',
         'hollow'         : '1053325',
-        'travel'         :  '922530'
+        'travel'         : '1064942'
     }
 
     test_config = {}
