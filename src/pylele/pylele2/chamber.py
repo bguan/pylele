@@ -138,7 +138,7 @@ def test_chamber(self, apis=None):
     tests = {
         "default": ["-refv","642213"], 
         "cut"    : ["-C","-refv","642213"], 
-        "travel" : ["-bt", LeleBodyType.TRAVEL,"-refv","553407"]
+        "travel" : ["-bt", LeleBodyType.TRAVEL,"-refv","325604"]
         }
     test_loop(module=__name__, tests=tests, apis=apis)
 
