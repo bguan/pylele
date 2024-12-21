@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 from pylele.api.core import Shape, ShapeAPI, test_api
 from pylele.api.utils import (
     dimXY,
-    ensureFileExtn,
+    file_ensure_extension,
     isPathCounterClockwise,
     lineSplineXY,
     radians,
@@ -48,7 +48,7 @@ class BlenderShapeAPI(ShapeAPI):
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
         bpy.ops.export_mesh.stl(
-            filepath=ensureFileExtn(path, ".stl"), use_selection=True
+            filepath=file_ensure_extension(path, ".stl"), use_selection=True
         )
 
     def export_glb(self, shape: BlenderShape, path: Union[str, Path]) -> None:
@@ -56,7 +56,7 @@ class BlenderShapeAPI(ShapeAPI):
         shape.solid.select_set(True)
         bpy.context.view_layer.objects.active = shape.solid
         bpy.ops.export_scene.gltf(
-            filepath=ensureFileExtn(path, ".glb"), use_selection=True
+            filepath=file_ensure_extension(path, ".glb"), use_selection=True
         )
 
     def export_best_multishapes(
@@ -87,7 +87,7 @@ class BlenderShapeAPI(ShapeAPI):
             add_material(s.solid, s.name, s.color)
             s.solid.select_set(True)
 
-        output_file = ensureFileExtn(path, 'GLB')
+        output_file = file_ensure_extension(path, 'GLB')
         bpy.ops.export_scene.gltf(filepath=output_file, export_format='GLB', use_selection=True)
 
     def sphere(self, rad: float) -> BlenderShape:

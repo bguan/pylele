@@ -12,7 +12,7 @@ from typing import Union
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.core import ShapeAPI, Shape, test_api
-from pylele.api.utils import ensureFileExtn, lineSplineXY
+from pylele.api.utils import file_ensure_extension, lineSplineXY
 
 
 """
@@ -37,7 +37,7 @@ class CQShapeAPI(ShapeAPI):
     def export_stl(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
             shape.solid,
-            ensureFileExtn(path, ".stl"),
+            file_ensure_extension(path, ".stl"),
             cq.exporters.ExportTypes.STL,
             tolerance=self.fidelity.tolerance(),
         )
@@ -45,7 +45,7 @@ class CQShapeAPI(ShapeAPI):
     def export_step(self, shape: CQShape, path: Union[str, Path]) -> None:
         cq.exporters.export(
             shape.solid,
-            ensureFileExtn(path, ".step"),
+            file_ensure_extension(path, ".step"),
             cq.exporters.ExportTypes.STEP,
             tolerance=self.fidelity.tolerance(),
         )
@@ -68,7 +68,7 @@ class CQShapeAPI(ShapeAPI):
             )
 
         # Export the assembly to a STEP file
-        assembly.save(ensureFileExtn(path, ".step"))
+        assembly.save(file_ensure_extension(path, ".step"))
 
     def sphere(self, rad: float) -> CQShape:
         return CQBall(rad, self)

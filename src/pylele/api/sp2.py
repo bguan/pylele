@@ -18,7 +18,7 @@ except:
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.core import ShapeAPI, Shape, test_api
-from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY
+from pylele.api.utils import dimXY, file_ensure_extension, lineSplineXY
 from pylele.conversion.stlascii2stlbin import stlascii2stlbin
 from pylele.conversion.scad2stl import scad2stl, OPENSCAD
 from pylele.conversion.scad2csg import scad2csg
@@ -61,7 +61,7 @@ class Sp2ShapeAPI(ShapeAPI):
     def export_scad(self, shape: Sp2Shape, path: Union[str, Path]) -> str:
         """ Export .scad description """
         outdir, fname = os.path.split(path)
-        fname = ensureFileExtn(fname, ".scad")
+        fname = file_ensure_extension(fname, ".scad")
         shape.solid.save_as_scad(filename=fname, outdir=outdir)
 
         fout = os.path.join(outdir, fname)

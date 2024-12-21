@@ -13,7 +13,7 @@ from typing import Union
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from pylele.api.core import ShapeAPI, Shape, test_api
-from pylele.api.utils import dimXY, ensureFileExtn, lineSplineXY, textToGlyphsPaths
+from pylele.api.utils import dimXY, file_ensure_extension, lineSplineXY, textToGlyphsPaths
 
 
 """
@@ -90,7 +90,7 @@ class MFShapeAPI(ShapeAPI):
         export += packed.tobytes()
 
         # Open a file in binary write mode and write the data to it
-        with open(ensureFileExtn(path, ".stl"), "wb") as file:
+        with open(file_ensure_extension(path, ".stl"), "wb") as file:
             file.write(export)
 
     def export_best(self, shape: MFShape, path: Union[str, Path]) -> None:

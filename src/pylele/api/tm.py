@@ -18,7 +18,7 @@ from pylele.api.core import ShapeAPI, Shape, test_api
 from pylele.api.utils import (
     dimXY,
     ensureClosed2DPath,
-    ensureFileExtn,
+    file_ensure_extension,
     isPathCounterClockwise,
     lineSplineXY,
     pathBoundsArea,
@@ -45,7 +45,7 @@ class TMShapeAPI(ShapeAPI):
 
     def export(self, shape: Shape, path: Union[str, Path],fmt=".stl") -> None:
         assert fmt in [".stl",".glb"]
-        shape.solid.export(ensureFileExtn(path, fmt))
+        shape.solid.export(file_ensure_extension(path, fmt))
 
     def export_best(self, shape: TMShape, path: Union[str, Path]) -> None:
         self.export(shape=shape,path=path,fmt=".glb")
@@ -70,7 +70,7 @@ class TMShapeAPI(ShapeAPI):
             )
 
         # Export the assembly to a GLB file
-        scene.export(ensureFileExtn(path, ".glb"))
+        scene.export(file_ensure_extension(path, ".glb"))
 
     def sphere(self, rad: float) -> TMShape:
         return TMBall(rad, self)

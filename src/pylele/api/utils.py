@@ -310,8 +310,12 @@ def isPathCounterClockwise(path2D: list[tuple[float, float]]) -> bool:
         accSum += (nextX - x) * (nextY + y)
     return accSum > 0
 
+def file_replace_extension(path: str, ext: str):
+    """ Replace the extension of a file path with a new extension """
+    basefname, _ = os.path.splitext(path)
+    return basefname + ext
 
-def ensureFileExtn(path: Union[str, Path], extn: str) -> str:
+def file_ensure_extension(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath + extn
 
@@ -424,7 +428,7 @@ def gen_stl_foo(outpath: str, bin_en=True) -> str:
     print(dirname)
     make_or_exist_path(dirname)
 
-    fout = ensureFileExtn(outpath, ".stl")
+    fout = file_ensure_extension(outpath, ".stl")
 
     # write output file
     with open(fout, "w", encoding="UTF8") as f:
@@ -455,7 +459,7 @@ def gen_scad_foo(outpath: str, module_en=True) -> str:
     print(dirname)
     make_or_exist_path(dirname)
 
-    fout = ensureFileExtn(outpath, ".scad")
+    fout = file_ensure_extension(outpath, ".scad")
 
     # write output file
     with open(fout, "w", encoding="UTF8") as f:
@@ -484,7 +488,7 @@ def gen_svg_foo(outpath: str) -> str:
     print(dirname)
     make_or_exist_path(dirname)
 
-    fout = ensureFileExtn(outpath, ".svg")
+    fout = file_ensure_extension(outpath, ".svg")
 
     # write output file
     with open(fout, "w", encoding="UTF8") as f:
