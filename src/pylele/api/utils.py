@@ -319,7 +319,6 @@ def file_ensure_extension(path: Union[str, Path], extn: str) -> str:
     strpath = str(path)
     return strpath if strpath.endswith(extn) else strpath + extn
 
-
 def make_or_exist_path(out_path) -> None:
     """Check a directory exist, and generate if not"""
 
@@ -450,14 +449,19 @@ def gen_scad_foo(outpath: str, module_en=True) -> str:
         """
     else:
         stlstr = """
-            cube([8,8,8]);
-            """
+        difference {
+            cube(20)
+            translate(5, 5, 5) sphere(8)
+        }
+        """
 
     # generate directory if it does not exist
     fparts = os.path.split(outpath)
     dirname = fparts[0]
-    print(dirname)
-    make_or_exist_path(dirname)
+    
+    if not dirname=="":
+        print(dirname)
+        make_or_exist_path(dirname)
 
     fout = file_ensure_extension(outpath, ".scad")
 
@@ -677,3 +681,14 @@ def textToGlyphsPaths(
         current_x += advance_width
 
     return glyphs_paths
+
+def snake2camel(word):
+    """Convert snake_case to CamelCase"""
+    # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case/28774760#28774760
+    return ''.join(x.capitalize() or '_' for x in word.split('_'))
+
+def camel2snake(word):
+    """Convert CamelCase to snake_case"""
+    # https://stackoverflow.com/a/28774760/7094647
+    snake = "".join(["_"+c.lower() if c.isupper() else c for c in s])
+    return snake[1:] if snake.startswith("_") else snake
