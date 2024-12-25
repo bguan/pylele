@@ -450,8 +450,8 @@ def gen_scad_foo(outpath: str, module_en=True) -> str:
     else:
         stlstr = """
         difference {
-            cube(20)
-            translate(5, 5, 5) sphere(8)
+            cube(20);
+            translate(5, 5, 5) sphere(8);
         }
         """
 
