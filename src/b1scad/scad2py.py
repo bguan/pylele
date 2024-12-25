@@ -48,6 +48,10 @@ class OpenSCADParser(Parser):
     @_("shape SEMICOLON ")
     def shape_set(self, t):
         return t.shape
+            
+    @_('CUBE LPAREN vector RPAREN')
+    def shape(self, p):
+        return f"self.api.box({p.vector})"
 
     @_('CUBE LPAREN NUMBER RPAREN')
     def shape(self, p):

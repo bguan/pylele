@@ -27,7 +27,7 @@ class B1scadTestMethods(unittest.TestCase):
     """Pylele Test Class"""
     def test_all_scad(self):
         scaddir = os.path.join(os.path.abspath(os.path.dirname(__file__)),"scad")
-        for idx in range(3):
+        for idx in range(4):
             fname = f"model{idx:02}"
             scadfname = f"{fname}.scad"
             fullscadfile = os.path.join(scaddir,scadfname)
