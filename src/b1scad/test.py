@@ -13,7 +13,7 @@ from b1scad.scad2py import scad2py
 class B1scadTestMethods(unittest.TestCase):
     """Pylele Test Class"""
     def test_all_scad(self):
-        scaddir = "./b1scad/scad"
+        scaddir = os.path.join(os.path.abspath(os.path.dirname(__file__)),"scad")
         for idx in range(3):
             fname = f"model{idx:02}.scad"
             fullfile = os.path.join(scaddir,fname)

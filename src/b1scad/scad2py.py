@@ -162,8 +162,8 @@ def scad2py(infname: str, execute_en: bool = True):
    
     # generate output file
     output_path = file_replace_extension(infname, ".py")
-    fname,_ = os.path.splitext(infname)
-    basefname = os.path.basename(fname)
+    fname = os.path.basename(output_path)
+    basefname,_ = os.path.splitext(fname)
     modelname = snake2camel(basefname)
 
     # make sure output file is erased if exists
@@ -181,7 +181,7 @@ def scad2py(infname: str, execute_en: bool = True):
         print(f"Generated Python code saved to {output_path}")
     
     if execute_en:
-        os.system(f'python3 {output_path} -odoff')
+        os.system(f'python3 -m {output_path} -odoff')
 
 # Example usage:
 if __name__ == "__main__":
