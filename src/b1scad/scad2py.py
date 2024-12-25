@@ -162,6 +162,8 @@ def scad2py(infname: str, execute_en: bool = True):
    
     # generate output file
     output_path = file_replace_extension(infname, ".py")
+    
+    # generate module name
     fname = os.path.basename(output_path)
     basefname,_ = os.path.splitext(fname)
     modelname = snake2camel(basefname)
@@ -176,12 +178,16 @@ def scad2py(infname: str, execute_en: bool = True):
         # Generate main python code
         pyshape = generator.generate(infname)
 
-        # generate python file code
+        # generate python file code 
         generator.write_template(retshape=pyshape, model=modelname)
         print(f"Generated Python code saved to {output_path}")
     
     if execute_en:
-        os.system(f'python3 -m {output_path} -odoff')
+        cmdstr = f'python3 {output_path} -odoff'
+        print(cmdstr)
+        os.system(cmdstr)
+
+    return output_path, modelname
 
 # Example usage:
 if __name__ == "__main__":

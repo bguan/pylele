@@ -119,7 +119,6 @@ def export_dict2text(outpath, fname, dictdata, fmt='.txt') -> str:
 
     assert os.path.isfile(out_fname)
 
-
 def volume_match_reference(
     volume: float,
     reference: float,
@@ -135,6 +134,21 @@ def volume_match_reference(
 
     return False
 
+def stl_report_metrics(out_fname: str) -> dict:
+    assert os.path.isfile(out_fname), f"File {out_fname} does not exist!!!"
+    mesh = trimesh.load_mesh(out_fname)
+    # assert mesh.is_watertight
+    print(f"mesh_volume: {mesh.volume}")
+    print(f"mesh.convex_hull.volume: {mesh.convex_hull.volume}")
+    print(f"mesh.bounding_box: {mesh.bounding_box.extents}")
+    # mesh.show() does not work
+    rpt = {}
+    rpt["volume"] = mesh.volume
+    rpt["convex_hull_volume"] = mesh.convex_hull.volume
+    rpt["bounding_box_x"] = mesh.bounding_box.extents[0]
+    rpt["bounding_box_y"] = mesh.bounding_box.extents[1]
+    rpt["bounding_box_z"] = mesh.bounding_box.extents[2]
+    return rpt
 
 def stl_check_volume(
     out_fname: str,
@@ -145,20 +159,9 @@ def stl_check_volume(
     """Check the volume of an .stl mesh against a reference value"""
     rpt = {}
     if check_en:
-        assert os.path.isfile(out_fname), f"File {out_fname} does not exist!!!"
-        mesh = trimesh.load_mesh(out_fname)
-        # assert mesh.is_watertight
-        print(f"mesh_volume: {mesh.volume}")
-        print(f"mesh.convex_hull.volume: {mesh.convex_hull.volume}")
-        print(f"mesh.bounding_box: {mesh.bounding_box.extents}")
-        # mesh.show() does not work
-        rpt["volume"] = mesh.volume
-        rpt["convex_hull_volume"] = mesh.convex_hull.volume
-        rpt["bounding_box_x"] = mesh.bounding_box.extents[0]
-        rpt["bounding_box_y"] = mesh.bounding_box.extents[1]
-        rpt["bounding_box_z"] = mesh.bounding_box.extents[2]
+        rpt = stl_report_metrics(out_fname)
         rpt['pass'] = volume_match_reference(
-            volume=mesh.volume,
+            volume=rpt['volume'],
             reference=reference_volume,
             tolerance=reference_volume_tolerance/100
         )

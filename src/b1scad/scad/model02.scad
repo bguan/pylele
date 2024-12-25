@@ -1,3 +1,3 @@
 translate([5, 6, 7]) {
-    sphere(2);
+    sphere(20);
     }
