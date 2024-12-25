@@ -32,6 +32,10 @@ class OpenSCADParser(Parser):
     def op(self, p):
         return f"{p.shape_set}.mv({p.vector})"
 
+    @_('UNION LPAREN RPAREN LBRACE shape_set RBRACE')
+    def op(self, p):
+        return f"{p.shape_set}"
+
     @_('ROTATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
         return f"{p.shape_set}.rotate({p.vector})"
