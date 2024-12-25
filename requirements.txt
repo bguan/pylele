@@ -21,3 +21,6 @@ json-tricks
 openpyxl
 # html-testRunner
 prettytable
+
+# b1scad
+sly
