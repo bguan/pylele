@@ -13,7 +13,7 @@ from pylele.api.utils import gen_scad_foo
 class OpenSCADLexer(Lexer):
     tokens = (
         CUBE, SPHERE, CYLINDER, 
-        TRANSLATE, ROTATE, SCALE, UNION, DIFFERENCE,
+        TRANSLATE, ROTATE, SCALE, UNION, DIFFERENCE, HULL,
         LBRACE, RBRACE, LPAREN, RPAREN, LSQUARE, RSQUARE, COMMA, SEMICOLON,
         NUMBER,
         IDENTIFIER, EQU,
@@ -29,6 +29,7 @@ class OpenSCADLexer(Lexer):
     TRANSLATE = r'translate'
     ROTATE = r'rotate'
     SCALE = r'scale'
+    HULL = r'hull'
 
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
     NUMBER = r'\d+(\.\d+)?'

@@ -52,9 +52,13 @@ class OpenSCADParser(Parser):
     def op(self, p):
         return f"{p.shape} - ({p.shape_set})"
 
-    @_('DIFFERENCE LPAREN RPAREN LBRACE op SEMICOLON shape_set RBRACE')
+    @_('DIFFERENCE LPAREN RPAREN LBRACE op shape_set RBRACE')
     def op(self, p):
         return f"{p.op} - ({p.shape_set})"
+
+    @_('HULL LPAREN RPAREN LBRACE shape_set RBRACE')
+    def op(self, p):
+        return f"({p.shape_set}).hull()"
 
     @_('ROTATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
