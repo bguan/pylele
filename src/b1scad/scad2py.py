@@ -87,7 +87,7 @@ class OpenSCADParser(Parser):
 
     @_('CYLINDER LPAREN args RPAREN')
     def shape(self, p):
-        return f"sp.cylinder(h={p.NUMBER0}, r={p.NUMBER1})"
+        return f"self.api.cylinder_z({p.args})"
 
     @_('NUMBER COMMA args')
     def args(self, p):
