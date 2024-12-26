@@ -62,7 +62,7 @@ class OpenSCADParser(Parser):
 
     @_('SCALE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
-        return f"{p.shape_set}.rotate({p.named_vector})"
+        return f"{p.shape_set}.scale({p.named_vector})"
 
     # shapes
     @_("shape_set shape SEMICOLON ")
