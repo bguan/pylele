@@ -27,7 +27,13 @@ class OpenSCADParser(Parser):
     def expr(self, t):
         return t.shape_set
     
-    # operators
+    @_("op")
+    def shape_set(self, t):
+        return t.op
+    
+    @_("op op")
+    def shape_set(self, t):
+        return f'{t.op0} + {t.op1}'
 
     # operators
     @_('TRANSLATE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
@@ -41,6 +47,14 @@ class OpenSCADParser(Parser):
     @_('UNION LPAREN RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
         return f"{p.shape_set}"
+
+    @_('DIFFERENCE LPAREN RPAREN LBRACE shape SEMICOLON shape_set RBRACE')
+    def op(self, p):
+        return f"{p.shape} - ({p.shape_set})"
+
+    @_('DIFFERENCE LPAREN RPAREN LBRACE op SEMICOLON shape_set RBRACE')
+    def op(self, p):
+        return f"{p.op} - ({p.shape_set})"
 
     @_('ROTATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
