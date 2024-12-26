@@ -72,7 +72,7 @@ class Sp2ShapeAPI(ShapeAPI):
         return Sp2Ball(rad, self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> Sp2Shape:
-        retval = Sp2Box(l, wth, ht, self).
+        retval = Sp2Box(l, wth, ht, self)
         if center:
             return retval.mv(-l / 2, -wth / 2, -ht / 2)
         return retval
