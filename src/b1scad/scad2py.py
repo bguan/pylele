@@ -28,6 +28,12 @@ class OpenSCADParser(Parser):
         return t.shape_set
     
     # operators
+
+    # operators
+    @_('TRANSLATE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
+    def op(self, p):
+        return f"{p.shape_set}.mv({p.named_vector})"
+
     @_('TRANSLATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
         return f"{p.shape_set}.mv({p.vector})"
@@ -80,6 +86,10 @@ class OpenSCADParser(Parser):
     @_('LSQUARE args RSQUARE')
     def vector(self, p):
         return f"{p.args}"
+
+    @_('IDENTIFIER EQU vector')
+    def named_vector(self, p):
+        return f"{p.vector}"
 
 # Modify parser to output Python file
 def scad2py(infname: str, view_ast: bool = True):

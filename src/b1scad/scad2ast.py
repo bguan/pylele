@@ -15,7 +15,8 @@ class OpenSCADLexer(Lexer):
         CUBE, SPHERE, CYLINDER, 
         TRANSLATE, ROTATE, SCALE, UNION,
         LBRACE, RBRACE, LPAREN, RPAREN, LSQUARE, RSQUARE, COMMA, SEMICOLON,
-        NUMBER
+        NUMBER,
+        IDENTIFIER, EQU,
     )
     ignore = ' \t\n'
 
@@ -28,7 +29,7 @@ class OpenSCADLexer(Lexer):
     ROTATE = r'rotate'
     SCALE = r'scale'
 
-    # IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
+    IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
     NUMBER = r'\d+(\.\d+)?'
 
     LBRACE = r'\{'
@@ -39,6 +40,7 @@ class OpenSCADLexer(Lexer):
     RSQUARE = r'\]'
     COMMA = r','
     SEMICOLON = r';'
+    EQU = r'='
 
     ignore_comment = r'//.*'
     ignore_newline = r'\n+'
