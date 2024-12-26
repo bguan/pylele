@@ -40,10 +40,6 @@ class OpenSCADParser(Parser):
     def op(self, p):
         return f"{p.shape_set}.mv({p.named_vector})"
 
-    @_('TRANSLATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
-    def op(self, p):
-        return f"{p.shape_set}.mv({p.vector})"
-
     @_('UNION LPAREN RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
         return f"{p.shape_set}"
@@ -60,13 +56,13 @@ class OpenSCADParser(Parser):
     def op(self, p):
         return f"({p.shape_set}).hull()"
 
-    @_('ROTATE LPAREN vector RPAREN LBRACE shape_set RBRACE')
+    @_('ROTATE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
-        return f"{p.shape_set}.rotate({p.vector})"
+        return f"{p.shape_set}.rotate({p.named_vector})"
 
-    @_('SCALE LPAREN vector RPAREN LBRACE shape_set RBRACE')
+    @_('SCALE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
-        return f"{p.shape_set}.rotate({p.vector})"
+        return f"{p.shape_set}.rotate({p.named_vector})"
 
     # shapes
     @_("shape_set shape SEMICOLON ")
@@ -106,6 +102,10 @@ class OpenSCADParser(Parser):
         return f"{p.args}"
 
     @_('IDENTIFIER EQU vector')
+    def named_vector(self, p):
+        return f"{p.vector}"
+
+    @_('vector')
     def named_vector(self, p):
         return f"{p.vector}"
 
