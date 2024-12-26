@@ -16,7 +16,7 @@ class OpenSCADLexer(Lexer):
         TRANSLATE, ROTATE, SCALE, UNION, DIFFERENCE, HULL,
         LBRACE, RBRACE, LPAREN, RPAREN, LSQUARE, RSQUARE, COMMA, SEMICOLON,
         NUMBER,
-        IDENTIFIER, EQU,
+        IDENTIFIER, SFN, EQU,
     )
     ignore = ' \t\n'
 
@@ -31,8 +31,9 @@ class OpenSCADLexer(Lexer):
     SCALE = r'scale'
     HULL = r'hull'
 
-    IDENTIFIER = r'[\$a-zA-Z_][a-zA-Z0-9_]*'
-    NUMBER = r'\d+(\.\d+)?'
+    IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
+    SFN = r'\$fn'
+    NUMBER = r'[+-]?\d+(\.\d+)?'
 
     LBRACE = r'\{'
     RBRACE = r'\}'

@@ -94,13 +94,20 @@ class OpenSCADParser(Parser):
             # probably still needs fixing
             return f"self.api.cylinder_z({p.args})"
 
+    @_('SFN EQU NUMBER')
+    def args(self, p):
+        return ""
+
     @_('IDENTIFIER EQU NUMBER')
     def args(self, p):
-        id = p.IDENTIFIER.replace('$','_')
-        return f"{id} = {str(p.NUMBER)}"
+        return f"{p.IDENTIFIER} = {str(p.NUMBER)}"
     
     @_('args COMMA args')
     def args(self, p):
+        if p.args0 == "":
+            return f"{p.args1}"
+        if p.args1 == "":
+            return f"{p.args0}"
         return f"{p.args0}, {p.args1}"
 
     @_('NUMBER')
