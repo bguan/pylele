@@ -87,7 +87,12 @@ class OpenSCADParser(Parser):
 
     @_('CYLINDER LPAREN args RPAREN')
     def shape(self, p):
-        return f"self.api.cylinder_z({p.args})"
+        splitargs = str(p.args).split(',')
+        if len(splitargs)==3:
+            return f"self.api.cone_z({p.args})"
+        if len(splitargs)==2:
+            # probably still needs fixing
+            return f"self.api.cylinder_z({p.args})"
 
     @_('NUMBER COMMA args')
     def args(self, p):
