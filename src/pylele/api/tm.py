@@ -81,14 +81,14 @@ class TMShapeAPI(ShapeAPI):
             return retval    
         return retval.mv(-l / 2, -wth / 2, -ht / 2)        
 
-    def cone_x(self, l: float, r1: float, r2: float) -> TMShape:
-        return TMCone(l, r1, r2, None, self.rotZtoX, self)
+    def cone_x(self, h: float, r1: float, r2: float) -> TMShape:
+        return TMCone(h, r1, r2, None, self.rotZtoX, self)
 
-    def cone_y(self, l: float, r1: float, r2: float) -> TMShape:
-        return TMCone(l, r1, r2, None, self.rotZtoY, self)
+    def cone_y(self, h: float, r1: float, r2: float) -> TMShape:
+        return TMCone(h, r1, r2, None, self.rotZtoY, self)
 
-    def cone_z(self, l: float, r1: float, r2: float) -> TMShape:
-        return TMCone(l, r1, r2, None, None, self)
+    def cone_z(self, h: float, r1: float, r2: float) -> TMShape:
+        return TMCone(h, r1, r2, None, None, self)
 
     def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, self.rotZtoX, self)
@@ -99,14 +99,14 @@ class TMShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, None, self)
 
-    def cylinder_x(self, l: float, rad: float) -> TMShape:
-        return TMRod(l, rad, None, self.rotZtoX, self)
+    def cylinder_x(self, h: float, rad: float) -> TMShape:
+        return TMRod(h, rad, None, self.rotZtoX, self)
 
-    def cylinder_y(self, l: float, rad: float) -> TMShape:
-        return TMRod(l, rad, None, self.rotZtoY, self)
+    def cylinder_y(self, h: float, rad: float) -> TMShape:
+        return TMRod(h, rad, None, self.rotZtoY, self)
 
-    def cylinder_z(self, l: float, rad: float) -> TMShape:
-        return TMRod(l, rad, None, None, self)
+    def cylinder_z(self, h: float, rad: float) -> TMShape:
+        return TMRod(h, rad, None, None, self)
 
     def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> TMShape:
         return TMPolyExtrusionZ(path, ht, self)

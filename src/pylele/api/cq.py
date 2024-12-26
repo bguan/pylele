@@ -79,14 +79,14 @@ class CQShapeAPI(ShapeAPI):
             return retval
         return retval.mv(ln/2,wth/2,ht/2)
 
-    def cone_x(self, l: float, r1: float, r2: float) -> CQShape:
-        return CQCone(l, r1, r2, (1, 0, 0), self)
+    def cone_x(self, h: float, r1: float, r2: float) -> CQShape:
+        return CQCone(h, r1, r2, (1, 0, 0), self)
 
-    def cone_y(self, l: float, r1: float, r2: float) -> CQShape:
-        return CQCone(l, r1, r2, (0, 1, 0), self)
+    def cone_y(self, h: float, r1: float, r2: float) -> CQShape:
+        return CQCone(h, r1, r2, (0, 1, 0), self)
 
-    def cone_z(self, l: float, r1: float, r2: float) -> CQShape:
-        return CQCone(l, r1, r2, (0, 0, 1), self)
+    def cone_z(self, h: float, r1: float, r2: float) -> CQShape:
+        return CQCone(h, r1, r2, (0, 0, 1), self)
 
     def regpoly_extrusion_x(self, ln: float, rad: float, sides: int) -> CQShape:
         return CQPolyRod(ln, rad, sides, "YZ", self)
@@ -97,14 +97,14 @@ class CQShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> CQShape:
         return CQPolyRod(ln, rad, sides, "XY", self)
 
-    def cylinder_x(self, l: float, rad: float) -> CQShape:
-        return CQRod(l, rad, "YZ", self)
+    def cylinder_x(self, h: float, rad: float) -> CQShape:
+        return CQRod(h, rad, "YZ", self)
 
-    def cylinder_y(self, l: float, rad: float) -> CQShape:
-        return CQRod(l, rad, "XZ", self)
+    def cylinder_y(self, h: float, rad: float) -> CQShape:
+        return CQRod(h, rad, "XZ", self)
 
-    def cylinder_z(self, l: float, rad: float) -> CQShape:
-        return CQRod(l, rad, "XY", self)
+    def cylinder_z(self, h: float, rad: float) -> CQShape:
+        return CQRod(h, rad, "XY", self)
 
     def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> CQShape:
         return CQPolyExtrusionZ(path, ht, self)

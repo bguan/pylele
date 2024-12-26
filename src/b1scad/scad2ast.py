@@ -31,7 +31,7 @@ class OpenSCADLexer(Lexer):
     SCALE = r'scale'
     HULL = r'hull'
 
-    IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*'
+    IDENTIFIER = r'[\$a-zA-Z_][a-zA-Z0-9_]*'
     NUMBER = r'\d+(\.\d+)?'
 
     LBRACE = r'\{'

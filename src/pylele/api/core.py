@@ -334,22 +334,22 @@ class ShapeAPI(ABC):
         return self.box(l=l,wth=l,ht=l)
 
     @abstractmethod
-    def cone_x(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_x(self, h: float, r1: float, r2: float) -> Shape: ...
 
     @abstractmethod
-    def cone_y(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_y(self, h: float, r1: float, r2: float) -> Shape: ...
 
     @abstractmethod
-    def cone_z(self, l: float, r1: float, r2: float) -> Shape: ...
+    def cone_z(self, h: float, r1: float, r2: float) -> Shape: ...
 
-    def cone(self,  l: float, r1: float, r2: float, direction: Direction = Direction.Z) -> Shape:
+    def cone(self,  h: float, r1: float, r2: float, direction: Direction = Direction.Z) -> Shape:
         """ Generate a cone, with direction as parameter """
         if direction == Direction.X:
-            return self.cone_x(l=l,r1=r1,r2=r2)
+            return self.cone_x(h=h,r1=r1,r2=r2)
         if direction == Direction.Y:
-            return self.cone_y(l=l,r1=r1,r2=r2)
+            return self.cone_y(h=h,r1=r1,r2=r2)
         if direction == Direction.Z:
-            return self.cone_z(l=l,r1=r1,r2=r2)
+            return self.cone_z(h=h,r1=r1,r2=r2)
         assert False
 
     @abstractmethod
@@ -368,14 +368,14 @@ class ShapeAPI(ABC):
 
         if not r2 is None:
             assert sides is None, 'Parameters sides and r2 cannot be both None!'
-            return self.cone(l=l,r1=rad,r2=r2,direction=direction)
+            return self.cone(h=l,r1=rad,r2=r2,direction=direction)
 
         if direction.upper() == Direction.X:
             if sides is None:
                 if not dome_ratio is None:
                     return self.cylinder_rounded_x(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_x(l=l,rad=rad)
+                    return self.cylinder_x(h=l,rad=rad)
             else:
                 return self.regpoly_extrusion_x(l=l,rad=rad, sides=sides)
 
@@ -384,7 +384,7 @@ class ShapeAPI(ABC):
                 if not dome_ratio is None:
                     return self.cylinder_rounded_y(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_y(l=l,rad=rad)
+                    return self.cylinder_y(h=l,rad=rad)
             else:
                 return self.regpoly_extrusion_y(l=l,rad=rad, sides=sides)
 
@@ -393,7 +393,7 @@ class ShapeAPI(ABC):
                 if not dome_ratio is None:
                     return self.cylinder_rounded_z(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_z(l=l,rad=rad)
+                    return self.cylinder_z(h=l,rad=rad)
             else:
                 return self.regpoly_extrusion_z(l=l,rad=rad, sides=sides)
 

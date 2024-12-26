@@ -77,14 +77,14 @@ class Sp2ShapeAPI(ShapeAPI):
             return retval.mv(-l / 2, -wth / 2, -ht / 2)
         return retval
 
-    def cone_x(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l, r1, r2, direction="X", sides=None, api=self).mv(l / 2, 0, 0)
+    def cone_x(self, h: float, r1: float, r2: float) -> Sp2Shape:
+        return Sp2Cone(h, r1, r2, direction="X", sides=None, api=self).mv(h / 2, 0, 0)
 
-    def cone_y(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l, r1, r2, direction="Y", sides=None, api=self).mv(0, l / 2, 0)
+    def cone_y(self, h: float, r1: float, r2: float) -> Sp2Shape:
+        return Sp2Cone(h, r1, r2, direction="Y", sides=None, api=self).mv(0, h / 2, 0)
 
-    def cone_z(self, l: float, r1: float, r2: float) -> Sp2Shape:
-        return Sp2Cone(l, r1, r2, direction="Z", sides=None, api=self).mv(0, 0, l / 2)
+    def cone_z(self, h: float, r1: float, r2: float) -> Sp2Shape:
+        return Sp2Cone(h, r1, r2, direction="Z", sides=None, api=self).mv(0, 0, h / 2)
 
     def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="X", api=self)
@@ -95,14 +95,14 @@ class Sp2ShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="Z", api=self)
 
-    def cylinder_x(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, r1=rad, r2=rad, direction="X", sides=None, api=self)
+    def cylinder_x(self, h: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(h, r1=rad, r2=rad, direction="X", sides=None, api=self)
 
-    def cylinder_y(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, r1=rad, r2=rad, direction="Y", sides=None, api=self)
+    def cylinder_y(self, h: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(h, r1=rad, r2=rad, direction="Y", sides=None, api=self)
 
-    def cylinder_z(self, l: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
+    def cylinder_z(self, h: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(h, r1=rad, r2=rad, direction="Z", sides=None, api=self)
 
     def cylinder_rounded_z(self, l: float, rad: float, domeRatio: float = 1) -> Sp2Shape:
         return Sp2RndRodZ(l, rad, domeRatio, api=self)

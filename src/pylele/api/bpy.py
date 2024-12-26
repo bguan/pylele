@@ -97,16 +97,16 @@ class BlenderShapeAPI(ShapeAPI):
         retval = BlenderBox(ln, wth, ht, self)
         if center:
             return retval
-        return retval.mv(-l / 2, -wth / 2, -ht / 2)
+        return retval.mv(-ln / 2, -wth / 2, -ht / 2)
 
-    def cone_x(self, l: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeX(l, r1, r2, self).mv(l / 2, 0, 0)
+    def cone_x(self, h: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeX(h, r1, r2, self).mv(h / 2, 0, 0)
 
-    def cone_y(self, l: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeY(l, r1, r2, self).mv(0, l / 2, 0)
+    def cone_y(self, h: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeY(h, r1, r2, self).mv(0, h / 2, 0)
 
-    def cone_z(self, l: float, r1: float, r2: float) -> BlenderShape:
-        return BlenderConeZ(l, r1, r2, self).mv(0, 0, l / 2)
+    def cone_z(self, h: float, r1: float, r2: float) -> BlenderShape:
+        return BlenderConeZ(h, r1, r2, self).mv(0, 0, h / 2)
 
     def regpoly_extrusion_x(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodX(ln, rad, sides, self)
@@ -117,14 +117,14 @@ class BlenderShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodZ(ln, rad, sides, self)
 
-    def cylinder_x(self, l: float, rad: float) -> BlenderShape:
-        return BlenderRodX(l, rad, self)
+    def cylinder_x(self, h: float, rad: float) -> BlenderShape:
+        return BlenderRodX(h, rad, self)
 
-    def cylinder_y(self, l: float, rad: float) -> BlenderShape:
-        return BlenderRodY(l, rad, self)
+    def cylinder_y(self, h: float, rad: float) -> BlenderShape:
+        return BlenderRodY(h, rad, self)
 
-    def cylinder_z(self, l: float, rad: float) -> BlenderShape:
-        return BlenderRodZ(l, rad, self)
+    def cylinder_z(self, h: float, rad: float) -> BlenderShape:
+        return BlenderRodZ(h, rad, self)
 
     def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float

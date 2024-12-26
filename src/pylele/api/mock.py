@@ -32,13 +32,13 @@ class MockShapeAPI(ShapeAPI):
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> MockShape:
         return MockShape(self)
 
-    def cone_x(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_x(self, h: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def cone_y(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_y(self, h: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
-    def cone_z(self, l: float, r1: float, r2: float) -> MockShape:
+    def cone_z(self, h: float, r1: float, r2: float) -> MockShape:
         return MockShape(self)
 
     def regpoly_extrusion_x(self, l: float, rad: float, sides: int) -> MockShape:
@@ -50,13 +50,13 @@ class MockShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def cylinder_x(self, l: float, rad: float) -> MockShape:
+    def cylinder_x(self, h: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def cylinder_y(self, l: float, rad: float) -> MockShape:
+    def cylinder_y(self, h: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def cylinder_z(self, l: float, rad: float) -> MockShape:
+    def cylinder_z(self, h: float, rad: float) -> MockShape:
         return MockShape(self)
 
     def polygon_extrusion(
