@@ -73,8 +73,11 @@ class CQShapeAPI(ShapeAPI):
     def sphere(self, rad: float) -> CQShape:
         return CQBall(rad, self)
 
-    def box(self, ln: float, wth: float, ht: float) -> CQShape:
-        return CQBox(ln, wth, ht, self)
+    def box(self, ln: float, wth: float, ht: float, center: bool = True) -> CQShape:
+        retval = CQBox(ln, wth, ht, self)
+        if center:
+            return retval
+        return retval.mv(ln/2,wth/2,ht/2)
 
     def cone_x(self, l: float, r1: float, r2: float) -> CQShape:
         return CQCone(l, r1, r2, (1, 0, 0), self)

@@ -55,11 +55,11 @@ class OpenSCADParser(Parser):
             
     @_('CUBE LPAREN vector RPAREN')
     def shape(self, p):
-        return f"self.api.box({p.vector})"
+        return f"self.api.box({p.vector}, center=False)"
 
     @_('CUBE LPAREN NUMBER RPAREN')
     def shape(self, p):
-        return f"self.api.box({p.NUMBER},{p.NUMBER},{p.NUMBER})"
+        return f"self.api.box({p.NUMBER},{p.NUMBER},{p.NUMBER}, center=False)"
 
     @_('SPHERE LPAREN NUMBER RPAREN')
     def shape(self, p):

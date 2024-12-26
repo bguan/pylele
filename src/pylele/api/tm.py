@@ -75,8 +75,11 @@ class TMShapeAPI(ShapeAPI):
     def sphere(self, rad: float) -> TMShape:
         return TMBall(rad, self)
 
-    def box(self, l: float, wth: float, ht: float) -> TMShape:
-        return TMBox(l, wth, ht, self)
+    def box(self, l: float, wth: float, ht: float, center: bool = True) -> TMShape:
+        retval = TMBox(l, wth, ht, self)
+        if center:
+            return retval    
+        return retval.mv(-l / 2, -wth / 2, -ht / 2)        
 
     def cone_x(self, l: float, r1: float, r2: float) -> TMShape:
         return TMCone(l, r1, r2, None, self.rotZtoX, self)

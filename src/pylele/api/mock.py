@@ -29,7 +29,7 @@ class MockShapeAPI(ShapeAPI):
     def sphere(self, rad: float) -> MockShape:
         return MockShape(self)
 
-    def box(self, l: float, wth: float, ht: float) -> MockShape:
+    def box(self, l: float, wth: float, ht: float, center: bool = True) -> MockShape:
         return MockShape(self)
 
     def cone_x(self, l: float, r1: float, r2: float) -> MockShape:

@@ -93,8 +93,11 @@ class BlenderShapeAPI(ShapeAPI):
     def sphere(self, rad: float) -> BlenderShape:
         return BlenderBall(rad, self)
 
-    def box(self, ln: float, wth: float, ht: float) -> BlenderShape:
-        return BlenderBox(ln, wth, ht, self)
+    def box(self, ln: float, wth: float, ht: float, center: bool = True) -> BlenderShape:
+        retval = BlenderBox(ln, wth, ht, self)
+        if center:
+            return retval
+        return retval.mv(-l / 2, -wth / 2, -ht / 2)
 
     def cone_x(self, l: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeX(l, r1, r2, self).mv(l / 2, 0, 0)

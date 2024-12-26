@@ -102,8 +102,8 @@ class MFShapeAPI(ShapeAPI):
     def sphere(self, rad: float) -> MFShape:
         return MFBall(rad, self)
 
-    def box(self, l: float, wth: float, ht: float) -> MFShape:
-        return MFBox(l, wth, ht, self)
+    def box(self, l: float, wth: float, ht: float, center: bool = True) -> MFShape:
+        return MFBox(l, wth, ht, center, self)
 
     def cone_x(self, l: float, r1: float, r2: float) -> MFShape:
         return MFConeZ(l, r1, r2, None, self).rotate_y(90)
@@ -240,12 +240,14 @@ class MFBall(MFShape):
 
 
 class MFBox(MFShape):
-    def __init__(self, l: float, wth: float, ht: float, api: MFShapeAPI):
+    def __init__(self, l: float, wth: float, ht: float, center: bool, api: MFShapeAPI ):
         super().__init__(api)
         self.ln = l
         self.wth = wth
         self.ht = ht
-        self.solid = Manifold.cube((l, wth, ht)).translate((-l / 2, -wth / 2, -ht / 2))
+        self.solid = Manifold.cube((l, wth, ht))
+        if center:
+            self.solid = self.solid.translate((-l / 2, -wth / 2, -ht / 2))
 
 
 class MFConeZ(MFShape):
