@@ -81,9 +81,9 @@ class OpenSCADParser(Parser):
     def shape(self, p):
         return f"self.api.box({p.NUMBER},{p.NUMBER},{p.NUMBER}, center=False)"
 
-    @_('SPHERE LPAREN NUMBER RPAREN')
+    @_('SPHERE LPAREN args RPAREN')
     def shape(self, p):
-        return f"self.api.sphere({p.NUMBER})"
+        return f"self.api.sphere({p.args})"
 
     @_('CYLINDER LPAREN args RPAREN')
     def shape(self, p):

@@ -90,8 +90,8 @@ class BlenderShapeAPI(ShapeAPI):
         output_file = file_ensure_extension(path, 'GLB')
         bpy.ops.export_scene.gltf(filepath=output_file, export_format='GLB', use_selection=True)
 
-    def sphere(self, rad: float) -> BlenderShape:
-        return BlenderBall(rad, self)
+    def sphere(self, r: float) -> BlenderShape:
+        return BlenderBall(r, self)
 
     def box(self, ln: float, wth: float, ht: float, center: bool = True) -> BlenderShape:
         retval = BlenderBox(ln, wth, ht, self)

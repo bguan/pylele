@@ -68,8 +68,8 @@ class Sp2ShapeAPI(ShapeAPI):
         assert os.path.isfile(fout), f"ERROR: file {fout} does not exist!"
         return fout
 
-    def sphere(self, rad: float) -> Sp2Shape:
-        return Sp2Ball(rad, self)
+    def sphere(self, r: float) -> Sp2Shape:
+        return Sp2Ball(r, self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> Sp2Shape:
         retval = Sp2Box(l, wth, ht, self)

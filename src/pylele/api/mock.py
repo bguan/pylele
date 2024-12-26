@@ -26,7 +26,7 @@ class MockShapeAPI(ShapeAPI):
     def export_best(self, shape: MockShape, path: Union[str, Path]) -> None:
         return self.export_stl(shape=shape, path=path)
 
-    def sphere(self, rad: float) -> MockShape:
+    def sphere(self, r: float) -> MockShape:
         return MockShape(self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> MockShape:

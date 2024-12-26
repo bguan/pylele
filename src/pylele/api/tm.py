@@ -72,8 +72,8 @@ class TMShapeAPI(ShapeAPI):
         # Export the assembly to a GLB file
         scene.export(file_ensure_extension(path, ".glb"))
 
-    def sphere(self, rad: float) -> TMShape:
-        return TMBall(rad, self)
+    def sphere(self, r: float) -> TMShape:
+        return TMBall(r, self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> TMShape:
         retval = TMBox(l, wth, ht, self)

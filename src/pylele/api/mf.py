@@ -99,8 +99,8 @@ class MFShapeAPI(ShapeAPI):
     def export(self, shape: MFShape, path: Union[str, Path],fmt=".stl") -> None:
         self.export_stl(shape=shape,path=path)
 
-    def sphere(self, rad: float) -> MFShape:
-        return MFBall(rad, self)
+    def sphere(self, r: float) -> MFShape:
+        return MFBall(r, self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> MFShape:
         return MFBox(l, wth, ht, center, self)
