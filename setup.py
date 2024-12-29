@@ -39,7 +39,9 @@ setup(
         "packaging",
         "json-tricks",
         "openpyxl",
-        "prettytable"
+        "prettytable",
+        # b1scad dependencies
+        "sly"
       ],
     entry_points={
         "console_scripts": [
