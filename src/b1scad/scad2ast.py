@@ -8,7 +8,7 @@ from sly import Lexer
 
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-from pylele.api.utils import gen_scad_foo
+from b13d.api.utils import gen_scad_foo
 
 class OpenSCADLexer(Lexer):
     tokens = (

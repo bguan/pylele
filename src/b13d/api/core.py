@@ -11,16 +11,16 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from pylele.api.constants import DEFAULT_TEST_DIR
-from pylele.api.utils import getFontname2FilepathMap
+from b13d.api.constants import DEFAULT_TEST_DIR
+from b13d.api.utils import getFontname2FilepathMap
 
 APIS_INFO = {
-    "mock": {"module": "pylele.api.mock", "class": "MockShapeAPI"},
-    "cadquery": {"module": "pylele.api.cq", "class": "CQShapeAPI"},
-    "blender": {"module": "pylele.api.bpy", "class": "BlenderShapeAPI"},
-    "trimesh": {"module": "pylele.api.tm", "class": "TMShapeAPI"},
-    "solid2": {"module": "pylele.api.sp2", "class": "Sp2ShapeAPI"},
-    "manifold": {"module": "pylele.api.mf", "class": "MFShapeAPI"},
+    "mock": {"module": "b13d.api.mock", "class": "MockShapeAPI"},
+    "cadquery": {"module": "b13d.api.cq", "class": "CQShapeAPI"},
+    "blender": {"module": "b13d.api.bpy", "class": "BlenderShapeAPI"},
+    "trimesh": {"module": "b13d.api.tm", "class": "TMShapeAPI"},
+    "solid2": {"module": "b13d.api.sp2", "class": "Sp2ShapeAPI"},
+    "manifold": {"module": "b13d.api.mf", "class": "MFShapeAPI"},
 }
 
 

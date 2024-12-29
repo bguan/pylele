@@ -22,10 +22,10 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
                 
-from pylele.api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
-from pylele.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
-from pylele.api.utils import make_or_exist_path
-from pylele.conversion.scad2stl import scad2stl_parser
+from b13d.api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
+from b13d.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR
+from b13d.api.utils import make_or_exist_path
+from b13d.conversion.scad2stl import scad2stl_parser
 
 def main_maker(module_name, class_name, args=None):
     """Generate a main function for a Solid instance"""

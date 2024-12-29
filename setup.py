@@ -6,7 +6,7 @@ with open("README.md", "r", encoding='utf8') as fh:
 
 setup(
     name='pylele',
-    version='0.1.0',
+    version='0.2.0',
     license='Apache 2.0',
     author="Brian Guan, Marco Merlin",
     author_email='brian@guan.us, marcomerli@gmail.com',
@@ -47,10 +47,10 @@ setup(
         "console_scripts": [
             "pylele1=pylele.pylele1.main:pylele_main",
             "pylele2=pylele.pylele2.all_assembly:main",
-            "stl2glb=pylele.conversion.stl2glb:stl2glb",
-            "stlascii2stlbin=pylele.conversion.stlascii2stlbin:stlascii2stlbin",
-            "scad2stl=pylele.conversion.scad2stl:scad2stl_main",
-            "scad2csg=pylele.conversion.scad2csg:scad2csg",
+            "stl2glb=b13d.conversion.stl2glb:stl2glb",
+            "stlascii2stlbin=b13d.conversion.stlascii2stlbin:stlascii2stlbin",
+            "scad2stl=b13d.conversion.scad2stl:scad2stl_main",
+            "scad2csg=b13d.conversion.scad2csg:scad2csg",
         ],
     },
 )

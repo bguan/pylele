@@ -9,8 +9,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 from b1scad.scad2py import scad2py
-from pylele.conversion.scad2stl import scad2stl
-from pylele.api.solid import stl_report_metrics, volume_match_reference
+from b13d.conversion.scad2stl import scad2stl
+from b13d.api.solid import stl_report_metrics, volume_match_reference
 
 def stl_compare_volume(refstl, outstl):
     refrpt = stl_report_metrics(refstl)

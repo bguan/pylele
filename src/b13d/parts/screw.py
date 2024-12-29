@@ -8,8 +8,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from pylele.api.solid import Solid, test_loop, main_maker
-from pylele.api.core import Shape
+from b13d.api.solid import Solid, test_loop, main_maker
+from b13d.api.core import Shape
 
 class Screw(Solid):
     """ Generate a Screw """

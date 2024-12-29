@@ -8,8 +8,8 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import ShapeAPI, Shape, test_api
-from pylele.api.utils import gen_stl_foo
+from b13d.api.core import ShapeAPI, Shape, test_api
+from b13d.api.utils import gen_stl_foo
 
 
 class MockShapeAPI(ShapeAPI):

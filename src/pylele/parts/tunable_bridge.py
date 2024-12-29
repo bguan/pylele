@@ -10,10 +10,10 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from pylele.api.solid import Solid, test_loop, main_maker, Implementation
-from pylele.api.core import Shape
+from b13d.api.solid import Solid, test_loop, main_maker, Implementation
+from b13d.api.core import Shape
 
-from pylele.parts.rounded_box import RoundedBox
+from b13d.parts.rounded_box import RoundedBox
 from pylele.parts.tunable_saddle import TunableSaddle
 
 class TunableBridge(Solid):

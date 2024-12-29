@@ -8,8 +8,8 @@ import textwrap
 from sly import Parser
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-from pylele.api.utils import gen_scad_foo, snake2camel, file_replace_extension
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
+from b13d.api.utils import gen_scad_foo, snake2camel, file_replace_extension
 from b1scad.scad2ast import scad2ast, OpenSCADLexer
 
 class OpenSCADParser(Parser):
@@ -166,10 +166,10 @@ class CodeGenerator:
 
         import os
         import sys
-        sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 
-        from pylele.api.solid import Solid, test_loop, main_maker
-        from pylele.api.core import Shape
+        from b13d.api.solid import Solid, test_loop, main_maker
+        from b13d.api.core import Shape
 
         class {snake2camel(model)}(Solid):
             \""" Generate a {model} \"""

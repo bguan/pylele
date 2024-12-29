@@ -11,8 +11,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 import argparse
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.config import LeleBodyType
 from pylele.pylele2.base import LeleBase
 

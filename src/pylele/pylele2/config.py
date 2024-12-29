@@ -10,9 +10,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
-from pylele.api.core import Fidelity, Implementation, StringEnum
-from pylele.api.utils import radians, degrees, accumDiv
-from pylele.api.constants import FIT_TOL, FILLET_RAD, ColorEnum
+from b13d.api.core import Fidelity, Implementation, StringEnum
+from b13d.api.utils import radians, degrees, accumDiv
+from b13d.api.constants import FIT_TOL, FILLET_RAD, ColorEnum
 from pylele.config_common import SEMI_RATIO, LeleScaleEnum, TunerConfig, PegConfig, WormConfig, TunerType
 
 DEFAULT_FLAT_BODY_THICKNESS=25

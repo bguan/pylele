@@ -10,9 +10,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape, Implementation
-from pylele.api.constants import FILLET_RAD
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape, Implementation
+from b13d.api.constants import FILLET_RAD
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.frets import LeleFrets, pylele_frets_parser, FretType
 from pylele.pylele2.nut import LeleNut, pylele_nut_parser, NutType

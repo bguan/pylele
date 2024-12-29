@@ -14,8 +14,8 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import ShapeAPI, Shape, test_api
-from pylele.api.utils import (
+from b13d.api.core import ShapeAPI, Shape, test_api
+from b13d.api.utils import (
     dimXY,
     ensureClosed2DPath,
     file_ensure_extension,
