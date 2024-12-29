@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 from b1scad.scad2py import scad2py
 from b13d.conversion.scad2stl import scad2stl
-from b13d.api.solid import stl_report_metrics, volume_match_reference
+from b13d.api.solid import stl_report_metrics, volume_match_reference, DEFAULT_BUILD_DIR
 
 def stl_compare_volume(refstl, outstl):
     refrpt = stl_report_metrics(refstl)
@@ -38,7 +38,7 @@ class B1scadTestMethods(unittest.TestCase):
 
             # generate output .py and .stl file
             outpy, modelname = scad2py(fullscadfile, execute_en=True)
-            outstl = os.path.join("./build",modelname,f'{modelname}.stl')
+            outstl = os.path.abspath(os.path.join(DEFAULT_BUILD_DIR,modelname,f'{modelname}.stl'))
             stl_compare_volume(refstl, outstl)
 
 def test_main():
