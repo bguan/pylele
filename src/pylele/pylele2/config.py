@@ -268,30 +268,6 @@ class LeleConfig:
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
         self.bodyFrontLen = scaleLen - self.neckLen
-        self.bodyOrig = (self.neckLen, 0)
-        def genBodyPath(isCut: bool = False) -> list[tuple[float, float, float, float]]:
-            cutAdj = FIT_TOL if isCut else 0
-            nkLen = self.neckLen
-            nkWth = self.neckWth + 2*cutAdj
-            bWth = self.bodyWth + 2*cutAdj
-            bBkLen = bodyBackLen + cutAdj
-            eWth = min(bWth, endWth) + (2*cutAdj if endWth > 0 else 0)
-            bodySpline = [
-                (nkLen + neckDX, nkWth/2 + neckDY, neckDY/neckDX, .5, .3),
-                (scaleLen, bWth/2, 0, .6),
-                (scaleLen + bBkLen, eWth/2 +.1, -inf, (1-eWth/bWth)/2),
-            ]
-            bodyPath = [
-                (nkLen, nkWth/2),
-                bodySpline,
-                (scaleLen + bBkLen, eWth/2),
-            ]
-            if eWth > 0:
-                bodyPath.insert(3,(scaleLen + bBkLen, 0))
-            return bodyPath
-        self.bodyPath = genBodyPath()
-        # self.bodyCutOrig = (self.neckLen - FIT_TOL, 0)
-        self.bodyCutPath = genBodyPath(isCut=True)
 
         # Bridge configs
         f12Len = scaleLen/2
@@ -449,27 +425,6 @@ class LeleConfig:
                 strPathL.append((strX, -strY, strZ))
             self.stringPaths.append(strPathR)
             self.stringPaths.append(strPathL)
-
-    """
-    def genModelStr(self, inclDate: bool = False) -> str:
-        model = f"{self.scaleLen}{tnrType.code}{self.numStrs}"
-        if self.sepTop:
-            model += 'T'
-        if self.sepNeck:
-            model += 'N'
-        if self.sepFretbd:
-            model += 'F'
-        if self.sepBrdg:
-            model += 'B'
-        if self.sepEnd:
-            model += 'E'
-
-        model += f"-{self.endWth:.0f}" + self.impl.code() + self.fidelity.code()
-
-        if inclDate:
-            model += "-" + datetime.date.today().strftime("%m%d")
-        return model
-    """
 
     def __repr__(self):
         class_vars_str = '\n'.join(f"{key}={value!r}" for key, value in self.__class__.__dict__.items() \
