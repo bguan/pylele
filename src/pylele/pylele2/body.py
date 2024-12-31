@@ -71,22 +71,43 @@ def pylele_body_parser(parser=None):
 class LeleBody(LeleBase):
     """Pylele Body Generator class"""
 
-    def flat_body_bottom(self, body_origin, body_path):
-        """generate the bottom of a flat body"""
+    body_origin = ()
+    body_path = []
+
+    def gourd_shape(self, top: bool = True, custom_ratio = None):
+        """generate the top or bottom of a gourd body"""
+
+        if top:
+            angle = 180
+        else:
+            angle = -180
+
+        if custom_ratio is None:
+            if top:
+                ratio = self.cfg.TOP_RATIO
+            else:
+                ratio = self.cfg.BOT_RATIO
+        else:
+            ratio = custom_ratio
+
         bot_below = (
-            self.api.spline_revolve(body_origin, body_path, -180)
-            .scale(1, 1, self.cfg.TOP_RATIO)
-            .mv(0, 0, -self.cli.flat_body_thickness)
+            self.api.spline_revolve(self.body_origin, self.body_path, angle)
+            .scale(1, 1, ratio)
         )
+
         return bot_below
+    
+    def gourd_flat_extrusion(self, thickness: float, half: bool = False):
+        bot = self.api.spline_extrusion(self.body_origin, self.body_path, thickness)
+        if not half:
+            return bot.mirror_and_join()
+        return bot
 
-    def gen(self) -> Shape:
-        """Generate Body"""
-        botRat = self.cfg.BOT_RATIO
-        midTck = self.cfg.extMidBotTck
-        bOrig = gen_body_origin(self.cfg.neckLen)
+    def configure(self):
+        LeleBase.configure(self)
 
-        bPath = genBodyPath(
+        self.body_origin = gen_body_origin(self.cfg.neckLen)
+        self.body_path = genBodyPath(
                  scaleLen = float(self.cli.scale_length),
                  neckLen = self.cfg.neckLen,
                  neckWth = self.cfg.neckWth,
@@ -95,43 +116,40 @@ class LeleBody(LeleBase):
                  endWth = self.cli.end_flat_width,
                  neckWideAng = self.cfg.neckWideAng,
                  isCut = self.isCut)
-        
+
+    def gen(self) -> Shape:
+        """Generate Body"""
+        midTck = self.cfg.extMidBotTck
+        bOrig = self.body_origin
+        bPath = self.body_path
         joinTol = self.api.tolerance()
 
         if self.cli.body_type == LeleBodyType.GOURD:
             # Gourd body
-            bot = self.api.spline_revolve(bOrig, bPath, -180).scale(1, 1, botRat)
+            bot = self.gourd_shape(top = False)
 
             if midTck > 0:
                 # Generates flat middle section of body
                 bot <<= (0, 0, joinTol - midTck)
-                midR = self.api.spline_extrusion(bOrig, bPath, -midTck)
-                bot += midR.mirror_and_join()
+                bot += self.gourd_flat_extrusion(thickness=-midTck)
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
-            bot_below = self.flat_body_bottom(body_origin=bOrig,
-                                              body_path=bPath
-                                              ).mv(0, 0, joinTol)
+            bot_below = self.gourd_shape(top = False, custom_ratio=self.cfg.TOP_RATIO)
+            bot_below <<= (0, 0, -self.cli.flat_body_thickness + self.api.tolerance())
 
             # Flat body
-            midR = self.api.spline_extrusion(
-                bOrig, bPath, -self.cli.flat_body_thickness
-            )
-            bot = midR.mirror_and_join()
+            bot = self.gourd_flat_extrusion(thickness=-self.cli.flat_body_thickness)
             bot += bot_below
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
 
-            bot_below = self.flat_body_bottom(body_origin=bOrig,
-                                              body_path=bPath
-                                              ).mv(0, 0, joinTol)
+            bot_below = self.gourd_shape(top = False, custom_ratio=self.cfg.TOP_RATIO)
+            bot_below <<= (0, 0, -self.cli.flat_body_thickness + self.api.tolerance())
 
             # Flat body
             # outer wall
-            midR = self.api.spline_extrusion(
-                bOrig, bPath, -self.cli.flat_body_thickness
-            )
+            midR = self.gourd_flat_extrusion(thickness=-self.cli.flat_body_thickness, half=True)
             # inner wall
             midR2 = midR.dup().mv(0,-self.cli.wall_thickness,0)
             midR -= midR2
