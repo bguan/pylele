@@ -161,21 +161,6 @@ class LeleConfig:
         """ Parse Command Line Arguments """
         return self.gen_parser().parse_args(args=args)
 
-    def soundhole_config(self, scaleLen: float) -> float:
-        """ Soundhole Configuration """
-        cfg = AttrDict()
-
-        cfg.sndholeMaxRad = self.chmFront/3
-        cfg.sndholeMinRad = cfg.sndholeMaxRad/4
-        cfg.sndholeAng = degrees(
-            atan(2 * self.chmFront/(self.chmWth - self.neckWth))
-        )
-
-        cfg.sndholeX = scaleLen - .5*self.chmFront
-        cfg.sndholeY = -(self.chmWth/2 - 2.7*cfg.sndholeMinRad) # not too close to edge
-
-        return cfg
-
     def fbSpineLen(self) -> float:
         """ Spine Length """
         return self.neckLen - self.NUT_HT + self.neckJntLen
