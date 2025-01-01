@@ -1,3 +1,6 @@
+# guitar making
+* [Design of a classical guitar](https://designofaclassicalguitar.com/home)
+
 # 3d python modeling libraries
 * [Build123d](https://github.com/gumyr/build123d): successor to CadQuerycad
 * [pythonscad](https://pythonscad.org/): native python interpreter for scad renderer
