@@ -221,8 +221,6 @@ class LeleConfig:
         self.neckJntLen = self.NECK_JNT_RATIO*(self.fretbdLen - self.neckLen)
         self.neckJntTck = self.FRETBD_SPINE_TCK + self.SPINE_HT
         self.neckJntWth = (1 if isOddStrs else 2)*nutStrGap + self.SPINE_WTH
-        neckDX = 1
-        neckDY = neckDX * tan(radians(self.neckWideAng))
 
         # Fretboard configs
         self.fretbdWth = self.nutWth + \
