@@ -221,6 +221,10 @@ class MFShape(Shape):
     def rotate_z(self, ang: float) -> MFShape:
         self.solid = self.solid.rotate((0, 0, ang))
         return self
+    
+    def rotate(self, ang: tuple[float,float,float]) -> MFShape:
+        self.solid = self.solid.rotate((ang[0], ang[1], ang[2]))
+        return self
 
     def scale(self, x: float, y: float, z: float) -> MFShape:
         if x == 1 and y == 1 and z == 1:

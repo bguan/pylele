@@ -223,7 +223,7 @@ class Shape(ABC):
     @abstractmethod
     def rotate_z(self, ang: float) -> Shape: ...
 
-    def rotate(self,  ang: tuple[float,float,float] | float, direction: Direction = Direction.Z) -> Shape:
+    def rotate(self,  ang: float | tuple[float,float,float], direction: Direction = Direction.Z) -> Shape:
         """ Generate a cone, with direction as parameter """
 
         if direction.upper() == Direction.X:
@@ -232,7 +232,9 @@ class Shape(ABC):
             return self.rotate_y(ang)
         if direction.upper() == Direction.Z:
             return self.rotate_z(ang)
-        assert False
+
+        # default implemntation, if not available
+        return self.rotate_x(ang[0]).rotate_y(ang[1]).rotate_z(ang[2])
 
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...

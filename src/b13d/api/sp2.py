@@ -192,6 +192,10 @@ class Sp2Shape(Shape):
     def rotate_z(self, ang: float) -> Sp2Shape:
         self.solid = self.solid.rotate([0, 0, ang])
         return self
+    
+    def rotate(self, ang: tuple[float,float,float]) -> Sp2Shape:
+        self.solid = self.solid.rotate(ang)
+        return self
 
     def scale(self, x: float, y: float, z: float) -> Sp2Shape:
         self.solid = self.solid.scale([x, y, z])

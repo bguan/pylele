@@ -8,7 +8,8 @@ import textwrap
 from sly import Parser
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+
 from b13d.api.utils import gen_scad_foo, snake2camel, file_replace_extension
 from b1scad.scad2ast import scad2ast, OpenSCADLexer
 
@@ -58,7 +59,7 @@ class OpenSCADParser(Parser):
 
     @_('ROTATE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
-        return f"{p.shape_set}.rotate({p.named_vector})"
+        return f"{p.shape_set}.rotate([{p.named_vector}])"
 
     @_('SCALE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
     def op(self, p):
@@ -242,8 +243,7 @@ def scad2py(infname: str, execute_en: bool = True):
 
     return output_path, modelname
 
-# Example usage:
-if __name__ == "__main__":
+def b1scad():
     if len(sys.argv)<2:
         infname = "model.scad"
         print(f'Unspecified input file, generate default {infname}')
@@ -252,3 +252,6 @@ if __name__ == "__main__":
         infname = sys.argv[1]
     
     scad2py(infname)
+
+if __name__ == "__main__":
+    b1scad()
