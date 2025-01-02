@@ -51,6 +51,7 @@ setup(
             "stlascii2stlbin=b13d.conversion.stlascii2stlbin:stlascii2stlbin",
             "scad2stl=b13d.conversion.scad2stl:scad2stl_main",
             "scad2csg=b13d.conversion.scad2csg:scad2csg",
+            "b1scad=b1scad.scad2py:b1scad",
         ],
     },
 )
