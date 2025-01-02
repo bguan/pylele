@@ -32,9 +32,9 @@ class OpenSCADParser(Parser):
     def shape_set(self, t):
         return t.op
     
-    @_("op op")
+    @_("op shape_set")
     def shape_set(self, t):
-        return f'{t.op0} + {t.op1}'
+        return f'{t.op} + {t.shape_set}'
 
     # operators
     @_('TRANSLATE LPAREN named_vector RPAREN LBRACE shape_set RBRACE')
