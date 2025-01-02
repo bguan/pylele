@@ -120,6 +120,9 @@ class MockShape(Shape):
 
     def scale(self, x: float, y: float, z: float) -> MockShape:
         return self
+        
+    def hull(self) -> MockShape:
+        return self
 
 if __name__ == "__main__":
     test_api("mock")
