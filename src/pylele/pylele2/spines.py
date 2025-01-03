@@ -18,6 +18,19 @@ from pylele.pylele2.base import LeleBase
 class LeleSpines(LeleBase):
     """Pylele Spines Generator class"""
 
+    def configure(self):
+        LeleBase.configure(self)
+
+        # Spine configs
+        self.cfg.spineX = -self.cfg.headLen
+        self.cfg.spineLen = self.cfg.headLen + float(self.cli.scale_length) + self.cfg.chmBack + self.cfg.rimWth
+        self.cfg.spineGap = (1 if self.cfg.is_odd_strs() else 2)*self.cli.nut_string_gap
+        self.cfg.spineY = []
+        if self.cli.num_spines in [1,3]:
+            self.cfg.spineY.append(0)
+        if self.cli.num_spines in [2,3]:
+            self.cfg.spineY += [-self.cfg.spineGap/2, self.cfg.spineGap/2]
+
     def gen(self) -> Shape:
         """Generate Spines"""
 
