@@ -126,7 +126,7 @@ def test_rounded_rectangle(self,apis=None):
 def test_rounded_rectangle_mock(self):
     """ Test Tube Mock """
     ## Cadquery and Blender
-    test_rounded_box(self, apis=['mock'])
+    test_rounded_rectangle(self, apis=['mock'])
 
 if __name__ == '__main__':
     main()
