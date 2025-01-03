@@ -20,7 +20,10 @@ class LeleSpines(LeleBase):
 
     def configure(self):
         LeleBase.configure(self)
+        self.configure_spines()
 
+    def configure_spines(self):
+        """ Spine Configuration """
         # Spine configs
         self.cfg.spineX = -self.cfg.headLen
         self.cfg.spineLen = self.cfg.headLen + float(self.cli.scale_length) + self.cfg.chmBack + self.cfg.rimWth

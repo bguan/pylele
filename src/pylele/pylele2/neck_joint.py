@@ -18,6 +18,16 @@ from pylele.pylele2.base import LeleBase
 class LeleNeckJoint(LeleBase):
     """Pylele Neck Joint Generator class"""
 
+    def configure_neck_joint(self):
+        """ Neck Joint Configuration """
+        self.cfg.neckJntLen = self.cfg.NECK_JNT_RATIO*(self.cfg.fretbdLen - self.cfg.neckLen)
+        self.cfg.neckJntTck = self.cfg.FRETBD_SPINE_TCK + self.cfg.SPINE_HT
+        self.cfg.neckJntWth = (1 if self.cfg.is_odd_strs() else 2)*self.cli.nut_string_gap + self.cfg.SPINE_WTH
+    
+    def configure(self):
+        LeleBase.configure(self)
+        self.configure_neck_joint()
+        
     def gen(self) -> Shape:
         """Generate Neck Joint"""
         cutAdj = (FIT_TOL + self.api.tolerance()) if self.isCut else 0

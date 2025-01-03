@@ -12,10 +12,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 from b13d.api.core import Shape
 from b13d.api.constants import FIT_TOL
 from b13d.api.solid import main_maker, test_loop
-from pylele.pylele2.base import LeleBase
+from pylele.pylele2.neck_joint import LeleNeckJoint
 
 
-class LeleFretboardJoint(LeleBase):
+class LeleFretboardJoint(LeleNeckJoint):
     """Pylele Fretboard Joint Generator class"""
 
     def gen(self) -> Shape:
