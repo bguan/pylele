@@ -14,7 +14,7 @@ from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.config import LeleBodyType
 from pylele.config_common import LeleScaleEnum
 from pylele.pylele2.base import LeleBase
-from pylele.pylele2.bridge import LeleBridge, pylele_bridge_parser
+from pylele.pylele2.bridge_assembly import LeleBridgeAssembly, pylele_bridge_assembly_parser
 from pylele.pylele2.guide import LeleGuide
 from pylele.pylele2.brace import LeleBrace
 from pylele.pylele2.chamber import LeleChamber, pylele_chamber_parser
@@ -82,9 +82,9 @@ class LeleTopAssembly(LeleBase):
                 .mv(-self.api.tolerance(), 0, -self.api.tolerance())
 
         # gen bridge
-        brdg = LeleBridge(cli=self.cli)
+        brdg = LeleBridgeAssembly(cli=self.cli)
         if self.cli.separate_bridge:
-            top -= LeleBridge(cli=self.cli, isCut=True)
+            top -= LeleBridgeAssembly(cli=self.cli, isCut=True)
             self.add_part(brdg)
         else:
             top += brdg
@@ -105,7 +105,7 @@ class LeleTopAssembly(LeleBase):
         parser = pylele_fretboard_assembly_parser(parser=parser)
         parser = pylele_chamber_parser(parser=parser)
         parser = pylele_worm_parser(parser=parser)
-        parser = pylele_bridge_parser(parser=parser)
+        parser = pylele_bridge_assembly_parser(parser=parser)
         return super().gen_parser(parser=parser)
 
 

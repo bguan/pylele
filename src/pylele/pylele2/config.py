@@ -208,6 +208,7 @@ class LeleConfig:
         self.brdgWth = nutStrGap*(max(2,numStrs)-.5) + \
             2 * tan(radians(self.neckWideAng)) * scaleLen
         brdgStrGap = self.brdgWth / (numStrs-.5)
+        self.brdgStrGap = brdgStrGap
 
         self.neckLen = scaleLen * self.NECK_RATIO
         self.extMidBotTck = max(0, 10 - numStrs**1.25)

@@ -71,6 +71,7 @@ class PyleleTestMethods(B13DTestMethods):
         test_fretboard_assembly_mock,
     )
     from pylele.pylele2.neck_assembly import test_neck_assembly, test_neck_assembly_mock
+    from pylele.pylele2.bridge_assembly import test_bridge_assembly, test_bridge_assembly_mock
     from pylele.pylele2.top_assembly import test_top_assembly, test_top_assembly_mock
     from pylele.pylele2.bottom_assembly import (
         test_bottom_assembly,
