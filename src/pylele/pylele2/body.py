@@ -56,9 +56,6 @@ def genBodyPath(
 
     return bodyPath
 
-def gen_body_origin(neckLen: float):
-    return (neckLen, 0)
-
 def pylele_body_parser(parser=None):
     """
     Pylele Body Element Parser
@@ -91,14 +88,14 @@ class LeleBody(LeleBase):
             ratio = custom_ratio
 
         bot_below = (
-            self.api.spline_revolve(self.body_origin, self.body_path, angle)
+            self.api.spline_revolve(self.cfg.body_origin, self.cfg.body_path, angle)
             .scale(1, 1, ratio)
         )
 
         return bot_below
     
     def gourd_flat_extrusion(self, thickness: float, half: bool = False):
-        bot = self.api.spline_extrusion(self.body_origin, self.body_path, thickness)
+        bot = self.api.spline_extrusion(self.cfg.body_origin, self.cfg.body_path, thickness)
         if not half:
             return bot.mirror_and_join()
         return bot
@@ -106,8 +103,8 @@ class LeleBody(LeleBase):
     def configure(self):
         LeleBase.configure(self)
 
-        self.body_origin = gen_body_origin(self.cfg.neckLen)
-        self.body_path = genBodyPath(
+        self.cfg.body_origin = (self.cfg.neckLen,0)
+        self.cfg.body_path = genBodyPath(
                  scaleLen = float(self.cli.scale_length),
                  neckLen = self.cfg.neckLen,
                  neckWth = self.cfg.neckWth,
@@ -120,8 +117,6 @@ class LeleBody(LeleBase):
     def gen(self) -> Shape:
         """Generate Body"""
         midTck = self.cfg.extMidBotTck
-        bOrig = self.body_origin
-        bPath = self.body_path
         joinTol = self.api.tolerance()
 
         if self.cli.body_type == LeleBodyType.GOURD:

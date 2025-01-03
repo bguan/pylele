@@ -13,7 +13,6 @@ from b13d.api.core import Shape
 from b13d.api.constants import FIT_TOL
 from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.body import LeleBody
-from pylele.pylele2.body import genBodyPath, gen_body_origin
 
 class LeleTop(LeleBody):
     """Pylele Top Generator class"""
