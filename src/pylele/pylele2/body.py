@@ -114,6 +114,12 @@ class LeleBody(LeleBase):
                  neckWideAng = self.cfg.neckWideAng,
                  isCut = self.isCut)
 
+    def gen_flat_body_bottom(self):
+        """Generate the thin rounded bottom of a flat body"""
+        bot_below = self.gourd_shape(top = False, custom_ratio=self.cfg.TOP_RATIO)
+        bot_below <<= (0, 0, -self.cli.flat_body_thickness + self.api.tolerance())
+        return bot_below
+
     def gen(self) -> Shape:
         """Generate Body"""
         midTck = self.cfg.extMidBotTck
@@ -130,8 +136,7 @@ class LeleBody(LeleBase):
 
         elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
 
-            bot_below = self.gourd_shape(top = False, custom_ratio=self.cfg.TOP_RATIO)
-            bot_below <<= (0, 0, -self.cli.flat_body_thickness + self.api.tolerance())
+            bot_below = self.gen_flat_body_bottom()
 
             # Flat body
             bot = self.gourd_flat_extrusion(thickness=-self.cli.flat_body_thickness)
@@ -139,8 +144,7 @@ class LeleBody(LeleBase):
 
         elif self.cli.body_type == LeleBodyType.HOLLOW:
 
-            bot_below = self.gourd_shape(top = False, custom_ratio=self.cfg.TOP_RATIO)
-            bot_below <<= (0, 0, -self.cli.flat_body_thickness + self.api.tolerance())
+            bot_below = self.gen_flat_body_bottom()
 
             # Flat body
             # outer wall
