@@ -18,7 +18,7 @@ from pylele.pylele2.spines import LeleSpines
 class LeleFretboardSpines(LeleSpines):
     """Pylele Fretboard Spines Generator class"""
 
-    def fbSpineLen(self) -> float:
+    def fretboard_spine_len(self) -> float:
         """ Spine Length """
         return self.cfg.neckLen - self.cfg.NUT_HT + self.cfg.neckJntLen
 
@@ -32,7 +32,7 @@ class LeleFretboardSpines(LeleSpines):
 
         spWth = self.cfg.SPINE_WTH + 2 * cutAdj  # to align with spine cuts
         fspLen = (
-            self.fbSpineLen()
+            self.fretboard_spine_len()
             + 2 * cutAdj
             + 2 * (self.api.tolerance() if self.isCut else 0)
         )
