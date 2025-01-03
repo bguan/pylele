@@ -222,8 +222,8 @@ class MFShape(Shape):
         self.solid = self.solid.rotate((0, 0, ang))
         return self
     
-    def rotate(self, ang: float | tuple[float,float,float], direction: Direction = Direction.Z) -> MFShape:
-        if isinstance(ang,float):
+    def rotate(self, ang: float | int | tuple[float,float,float], direction: Direction = Direction.Z) -> MFShape:
+        if isinstance(ang,float) or isinstance(ang,int):
             return Shape.rotate(self, ang, direction)
         self.solid = self.solid.rotate((ang[0], ang[1], ang[2]))
         return self
