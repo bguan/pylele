@@ -12,7 +12,7 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from b13d.api.core import ShapeAPI, Shape, test_api
+from b13d.api.core import ShapeAPI, Shape, test_api, Direction
 from b13d.api.utils import dimXY, file_ensure_extension, lineSplineXY, textToGlyphsPaths
 
 
@@ -222,7 +222,9 @@ class MFShape(Shape):
         self.solid = self.solid.rotate((0, 0, ang))
         return self
     
-    def rotate(self, ang: tuple[float,float,float]) -> MFShape:
+    def rotate(self, ang: float | tuple[float,float,float], direction: Direction = Direction.Z) -> MFShape:
+        if direction.upper() in list(Direction):
+            return Shape.rotate(self, ang, direction)
         self.solid = self.solid.rotate((ang[0], ang[1], ang[2]))
         return self
 
