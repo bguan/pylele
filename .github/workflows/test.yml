@@ -56,7 +56,11 @@ jobs:
     #      name: pylele_glb_out_${{ matrix.python-version }}_${{ matrix.os }}
     #      path: build/LeleAllAssembly/LeleAllAssembly.glb
     #      # compression-level: 0 # no compression
-    - name: test
+    - name: test_b1scad
+      run: |
+        python3 ./src/b1scad/test.py
+      continue-on-error: true
+    - name: test_pylele
       run: |
         source ./src/test.sh
       continue-on-error: true
