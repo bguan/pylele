@@ -41,7 +41,8 @@ setup(
         "openpyxl",
         "prettytable",
         # b1scad dependencies
-        "sly"
+        "sly",
+        "svg2dxf @ git+https://github.com/multigcs/svg2dxf@main"
       ],
     entry_points={
         "console_scripts": [
