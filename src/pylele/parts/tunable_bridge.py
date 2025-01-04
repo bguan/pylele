@@ -33,6 +33,9 @@ class TunableBridge(Solid):
     def gen(self) -> Shape:
         """ generate tunable bridge  """
 
+        if self.isCut:
+            return self.api.box(self.cli.x,self.cli.y,self.cli.z)
+
         # base
         bridge = RoundedBox(args=['-x', f'{self.cli.x - self.cli.t}',
                                   '-y', f'{self.cli.y - self.cli.t}',
