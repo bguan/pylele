@@ -26,13 +26,14 @@ class LeleBodyType(StringEnum):
 
 WORM    = ['-t','worm'   ,'-e','90','-wah','-wsl','35']
 BIGWORM = ['-t','bigworm','-e','125','-wah','-wsl','35','-fbt','35']
+TUNEBRIDGE = ['-brt','tunable',"-tba"]
 
 CONFIGURATIONS = {
         'default'        : [],
         'worm'           : WORM    , # gourd
-        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT],
+        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25']
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25'] + TUNEBRIDGE
     }
 
 class AttrDict(dict):
