@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.core import ShapeAPI, Shape, test_api
 from b13d.api.utils import file_ensure_extension, lineSplineXY
+from b13d.conversion.svg2dxf import svg2dxf_wrapper
 
 
 """
@@ -133,6 +134,8 @@ class CQShapeAPI(ShapeAPI):
     def text(self, txt: str, fontSize: float, tck: float, font: str) -> CQShape:
         return CQTextZ(txt, fontSize, tck, font, self)
 
+    def genImport(self, infile: str, extrude: float = None) -> CQShape:
+        return CQImport(infile, extrude=extrude)
 
 class CQShape(Shape):
 
@@ -375,6 +378,34 @@ class CQTextZ(CQShape):
         self.tck = tck
         self.font = font
         self.solid = cq.Workplane("XY").text(txt, fontSize, tck, font=font)
+
+class CQImport(CQShape):
+    def __init__(
+        self,
+        infile: str,
+        extrude: float = None,
+        api: CQShapeAPI = CQShapeAPI,
+    ):
+        super().__init__(api)
+        assert os.path.isfile(infile) or os.path.isdir(
+            infile
+        ), f"ERROR: file/directory {infile} does not exist!"
+        self.infile = infile
+
+        _, fext = os.path.splitext(infile)
+
+        cadquery_import_filetypes = [".step", ".svg", ".dxf"]
+        assert (
+            fext in cadquery_import_filetypes
+        ), f"ERROR: file extension {fext} not supported!"
+
+        if fext == ".svg":
+            outfile = svg2dxf_wrapper(infile)
+            self.solid = cq.importers.importDXF(outfile).wires().toPending().extrude(extrude)
+        elif fext == ".dxf" or fext == ".svg":
+            self.solid = cq.importers.importDXF(infile).wires().toPending().extrude(extrude)
+        elif fext == ".step":
+            self.solid = cq.importers.importStep(infile).toPending()
 
 
 if __name__ == "__main__":

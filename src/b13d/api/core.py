@@ -519,6 +519,7 @@ class ShapeAPI(ABC):
 
         ball = self.sphere(10)
         self.export_stl(ball, expDir / f"{implCode}-ball")
+        self.export_best(ball, expDir / f"{implCode}-ball")
 
         box = self.box(10, 20, 30)
         self.export_stl(box, expDir / f"{implCode}-box")
