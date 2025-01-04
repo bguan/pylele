@@ -80,7 +80,8 @@ def test_tunable_bridge(self,apis=None):
     tests={ 
         'default':[],
         'even'   :['-ns','5'],
-           }
+        'cut'    :['-C']
+        }
     test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_tunable_bridge_mock(self):
