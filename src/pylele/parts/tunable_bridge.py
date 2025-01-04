@@ -16,6 +16,7 @@ from b13d.api.core import Shape
 from b13d.parts.rounded_box import RoundedBox
 from pylele.parts.tunable_saddle import TunableSaddle
 
+DEFAULT_Z = 8
 class TunableBridge(Solid):
     """ Generate a Tunable Bridge """
 
@@ -23,7 +24,7 @@ class TunableBridge(Solid):
         parser = super().gen_parser(parser=parser)
         parser.add_argument("-x", "--x", help="X [mm]", type=float, default=10)
         parser.add_argument("-y", "--y", help="Y [mm]", type=float, default=55)
-        parser.add_argument("-z", "--z", help="Z [mm]", type=float, default=8)
+        parser.add_argument("-z", "--z", help="Z [mm]", type=float, default=DEFAULT_Z)
         parser.add_argument("-ns", "--nstrings", help="number of strings", type=int, default=4)
         parser.add_argument("-ss", "--string_spacing", help="strings spacing [mm]", type=float, default=10)
         parser.add_argument("-a", "--all", help="generate all together for debug", action="store_true")
@@ -48,9 +49,10 @@ class TunableBridge(Solid):
         else:
             starty = -floor(self.cli.nstrings/2)
 
+        zcomp = (self.cli.z - DEFAULT_Z)/2
         saddle = None
         for idx in range(self.cli.nstrings):
-            shifty = (0,(starty+idx)*self.cli.string_spacing,0)
+            shifty = (0,(starty+idx)*self.cli.string_spacing,zcomp)
             saddle_hole = TunableSaddle(args=['--is_cut','-i', self.cli.implementation]).gen_full()
             saddle_hole <<= shifty
             bridge -= saddle_hole

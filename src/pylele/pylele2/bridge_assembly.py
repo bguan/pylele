@@ -54,7 +54,7 @@ class LeleBridgeAssembly(LeleBase):
                                        '--string_spacing', f'{self.cfg.brdgStrGap}',
                                        ] + all_arg,
                                        isCut=self.isCut
-                                 ).mv(self.cli.scale_length,0,self.cfg.brdgZ + self.cfg.brdgHt/2)
+                                 ).mv(self.cli.scale_length,0,self.cfg.brdgZ + self.cfg.brdgHt/2 - 0.5)
             bridge.gen_full()
             if bridge.has_parts():
                 self.add_parts(bridge.parts)
