@@ -60,7 +60,9 @@ class TunableBridge(Solid):
                 # join everything together for debug
                 bridge += saddle.gen_full()
             else:
-                self.add_part(saddle)
+                if not self.has_parts():
+                    # add only one saddle as they are all the same
+                    self.add_part(saddle)
 
         return bridge
         

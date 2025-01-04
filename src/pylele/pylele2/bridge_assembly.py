@@ -46,14 +46,18 @@ class LeleBridgeAssembly(LeleBase):
         if self.cli.bridge_type == BridgeType.TUNABLE:
             all_arg=['--all'] if self.cli.tunable_bridge_all else []
 
-            return TunableBridge(args=['-i', self.cli.implementation,
+            bridge = TunableBridge(args=['-i', self.cli.implementation,
                                        '-x', f'{self.cfg.brdgLen}',
                                        '-y', f'{self.cfg.brdgWth+self.cfg.brdgStrGap}',
                                        '-z', f'{self.cfg.brdgHt}',
                                        '--nstrings', f'{self.cli.num_strings}',
                                        '--string_spacing', f'{self.cfg.brdgStrGap}',
                                        ] + all_arg
-                                 ).gen_full().mv(self.cli.scale_length,0,self.cfg.brdgZ + 2)
+                                 ).mv(self.cli.scale_length,0,self.cfg.brdgZ + 2)
+            bridge.gen_full()
+            if bridge.has_parts():
+                self.add_parts(bridge.parts)
+            return bridge.shape
 
         assert False, f"Unsupported Bridge Type: {self.cli.bridge_type}"
 
