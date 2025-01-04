@@ -32,7 +32,7 @@ def pylele_bridge_assembly_parser(parser=None):
     parser = pylele_bridge_parser(parser=parser)
     parser.add_argument("-brt", "--bridge_type", help="Type of bridge",
                     type=str.lower, choices=list(BridgeType), default=BridgeType.DEFAULT)
-    parser.add_argument("-tba", "--tunable_bridge_all", 
+    parser.add_argument("-bta", "--bridge_tunable_all", 
                     help="generate all tunable bridge for debug", action="store_true")
     return parser
 
@@ -44,7 +44,7 @@ class LeleBridgeAssembly(LeleBase):
         if self.cli.bridge_type == BridgeType.DEFAULT:
             return LeleBridge(cli=self.cli).gen_full()
         if self.cli.bridge_type == BridgeType.TUNABLE:
-            all_arg=['--all'] if self.cli.tunable_bridge_all else []
+            all_arg=['--all'] if self.cli.bridge_tunable_all else []
 
             bridge = TunableBridge(args=['-i', self.cli.implementation,
                                        '-x', f'{self.cfg.brdgLen}',
@@ -54,7 +54,7 @@ class LeleBridgeAssembly(LeleBase):
                                        '--string_spacing', f'{self.cfg.brdgStrGap}',
                                        ] + all_arg,
                                        isCut=self.isCut
-                                 ).mv(self.cli.scale_length,0,self.cfg.brdgZ + 2)
+                                 ).mv(self.cli.scale_length,0,self.cfg.brdgZ + self.cfg.brdgHt/2)
             bridge.gen_full()
             if bridge.has_parts():
                 self.add_parts(bridge.parts)

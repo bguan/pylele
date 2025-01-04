@@ -26,7 +26,7 @@ class LeleBodyType(StringEnum):
 
 WORM    = ['-t','worm'   ,'-e','90','-wah','-wsl','35']
 BIGWORM = ['-t','bigworm','-e','125','-wah','-wsl','35','-fbt','35']
-TUNEBRIDGE = ['-brt','tunable',"-tba"]
+TUNEBRIDGE = ['-brt','tunable',"-bta"]
 
 CONFIGURATIONS = {
         'default'        : [],
