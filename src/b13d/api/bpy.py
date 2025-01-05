@@ -814,7 +814,7 @@ class BlenderImport(BlenderShape):
         _, fext = os.path.splitext(infile)
 
         assert (
-            fext.replace('.','') in ['.stl','.ply','.svg']
+            fext in ['.stl','.ply','.svg']
         ), f"ERROR: file extension {fext} not supported!"
 
         if fext in [".stl",".ply"]:

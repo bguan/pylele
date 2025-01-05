@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from b13d.api.solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
-from b13d.api.core import Shape
+from b13d.api.core import Shape, supported_apis
 from b13d.api.utils import gen_stl_foo, gen_svg_foo, gen_step_foo
 from b13d.conversion.svg2dxf import svg2dxf_wrapper
 
@@ -68,7 +68,8 @@ def test_import3d(self,apis=['blender','trimesh','cadquery','solid2']):
         }
 
     for api in apis:
-        test_loop(module=__name__,tests=tests[api],apis=[api])
+        if api in supported_apis():
+            test_loop(module=__name__,tests=tests[api],apis=[api])
 
 if __name__ == '__main__':
     main()
