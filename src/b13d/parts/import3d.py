@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 from b13d.api.solid import Solid, test_loop, main_maker, Implementation, DEFAULT_TEST_DIR
 from b13d.api.core import Shape
 from b13d.api.utils import gen_stl_foo, gen_svg_foo, gen_step_foo
+from b13d.conversion.svg2dxf import svg2dxf_wrapper
 
 class Import3d(Solid):
     """ Import solid object from file """
@@ -22,7 +23,7 @@ class Import3d(Solid):
         return parser
 
     def gen(self) -> Shape:
-        assert self.cli.implementation in [Implementation.SOLID2, Implementation.CADQUERY]
+        assert self.cli.implementation in [Implementation.SOLID2, Implementation.CADQUERY, Implementation.TRIMESH]
         return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
 
 def main(args=None):
@@ -31,12 +32,13 @@ def main(args=None):
                 class_name='Import3d',
                 args=args)
 
-def test_import3d(self,apis=['cadquery','solid2']):
+def test_import3d(self,apis=['trimesh','cadquery','solid2']):
     """ Test Import 3d geometry """
     test_fname=os.path.join(DEFAULT_TEST_DIR,'test')
     test_stl  = gen_stl_foo(test_fname)
     test_svg  = gen_svg_foo(test_fname)
     test_step = gen_step_foo(test_fname)
+    test_dxf  = svg2dxf_wrapper(test_svg)
 
     tests = {}
        
@@ -48,8 +50,14 @@ def test_import3d(self,apis=['cadquery','solid2']):
     tests['cadquery']={
         'cq_step': ['-imp',test_step],
         'cq_svg' : ['-imp',test_svg, '-eh', '10'],
+        'cq_dxf' : ['-imp',test_dxf, '-eh', '10'],
         }
     
+    tests['trimesh']={
+        'tm_stl' : ['-imp',test_stl],
+        'tm_dxf' : ['-imp',test_dxf, '-eh', '10'],
+        }
+
     for api in apis:
         test_loop(module=__name__,tests=tests[api],apis=[api])
 

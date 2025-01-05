@@ -141,6 +141,8 @@ class TMShapeAPI(ShapeAPI):
     def text(self, txt: str, fontSize: float, tck: float, font: str) -> TMShape:
         return TMTextZ(txt, fontSize, tck, font, self)
 
+    def genImport(self, infile: str, extrude: float = None) -> TMShape:
+        return TMImport(infile, extrude=extrude)
 
 class TMShape(Shape):
 
@@ -542,5 +544,44 @@ class TMTextZ(TMShape):
             print('# WARNING! Text Generation failed!!! ')
             self.solid = tm.creation.box(extents=(fontSize, fontSize, tck), validate=True)
 
+class TMImport(TMShape):
+    def __init__(
+        self,
+        infile: str,
+        extrude: float = None,
+        api: TMShapeAPI = TMShapeAPI,
+    ):
+        super().__init__(api)
+        assert os.path.isfile(infile) or os.path.isdir(
+            infile
+        ), f"ERROR: file/directory {infile} does not exist!"
+        self.infile = infile
+
+        _, fext = os.path.splitext(infile)
+
+        # 'off', 'tar.bz2', 'xyz', 'bz2', 'dxf', 'svg', 'stl', 'tar.gz', 'json',
+        # 'dict', 'dict64', 'obj', 'glb', 'zip', 'ply', 'stl_ascii', 'gltf'
+        assert (
+            fext.replace('.','') in tm.available_formats()
+        ), f"ERROR: file extension {fext} not supported!"
+
+        if fext in [".stl",".glb",".gltf",".obj"]:
+            self.solid = tm.load_mesh(infile)
+        if fext in [".dxf"]:
+            path = tm.load_path(infile)
+
+            # Ensure the loaded file contains paths
+            if not isinstance(path, tm.path.Path2D):
+                raise ValueError("DXF file does not contain valid 2D paths")
+
+            # Convert paths to polygons (assumes closed paths)
+            polygons = path.polygons_full
+
+            # Extrude each polygon (adjust height as needed)
+            extruded_solids = [tm.creation.extrude_polygon(poly, extrude) for poly in polygons]
+
+            # Combine extruded solids into one mesh
+            self.solid = tm.util.concatenate(extruded_solids)
+        
 if __name__ == "__main__":
     test_api("trimesh")
