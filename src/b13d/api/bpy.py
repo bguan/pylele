@@ -161,6 +161,8 @@ class BlenderShapeAPI(ShapeAPI):
     ) -> BlenderShape:
         return BlenderTextZ(txt, fontSize, tck, font, self)
 
+    def genImport(self, infile: str, extrude: float = None) -> BlenderShape:
+        return BlenderImport(infile, extrude=extrude)
 
 class BlenderShape(Shape):
 
@@ -796,6 +798,33 @@ class BlenderTextZ(BlenderShape):
         bpy.context.scene.cursor.location = (0, 0, 0)
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
 
+class BlenderImport(BlenderShape):
+    def __init__(
+        self,
+        infile: str,
+        extrude: float = None,
+        api: BlenderShapeAPI = BlenderShapeAPI,
+    ):
+        super().__init__(api)
+        assert os.path.isfile(infile) or os.path.isdir(
+            infile
+        ), f"ERROR: file/directory {infile} does not exist!"
+        self.infile = infile
+
+        _, fext = os.path.splitext(infile)
+
+        assert (
+            fext.replace('.','') in ['.stl','.ply','.svg']
+        ), f"ERROR: file extension {fext} not supported!"
+
+        if fext in [".stl",".ply"]:
+            bpy.ops.import_mesh.stl(filepath=infile)
+            self.solid = bpy.context.object
+
+        elif fext in [".svg"]:
+            bpy.ops.import_curve.svg(filepath=infile)
+            self.solid = bpy.context.object
+            self.extrudeZ(extrude)
 
 if __name__ == "__main__":
     test_api("blender")
