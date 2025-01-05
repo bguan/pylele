@@ -55,6 +55,7 @@ def test_import3d(self,apis=['trimesh','cadquery','solid2']):
     
     tests['trimesh']={
         'tm_stl' : ['-imp',test_stl],
+        'tm_svg' : ['-imp',test_svg, '-eh', '10'],
         'tm_dxf' : ['-imp',test_dxf, '-eh', '10'],
         }
 

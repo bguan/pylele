@@ -25,6 +25,7 @@ from b13d.api.utils import (
     radians,
     textToGlyphsPaths,
 )
+from b13d.conversion.svg2dxf import svg2dxf_wrapper
 
 
 """
@@ -544,6 +545,22 @@ class TMTextZ(TMShape):
             print('# WARNING! Text Generation failed!!! ')
             self.solid = tm.creation.box(extents=(fontSize, fontSize, tck), validate=True)
 
+def dxf2mesh(infile: str, extrude: float):
+    path = tm.load_path(infile)
+
+    # Ensure the loaded file contains paths
+    if not isinstance(path, tm.path.Path2D):
+        raise ValueError("DXF file does not contain valid 2D paths")
+
+    # Convert paths to polygons (assumes closed paths)
+    polygons = path.polygons_full
+
+    # Extrude each polygon (adjust height as needed)
+    extruded_solids = [tm.creation.extrude_polygon(poly, extrude) for poly in polygons]
+
+    # Combine extruded solids into one mesh
+    return tm.util.concatenate(extruded_solids)
+
 class TMImport(TMShape):
     def __init__(
         self,
@@ -567,21 +584,11 @@ class TMImport(TMShape):
 
         if fext in [".stl",".glb",".gltf",".obj"]:
             self.solid = tm.load_mesh(infile)
-        if fext in [".dxf"]:
-            path = tm.load_path(infile)
-
-            # Ensure the loaded file contains paths
-            if not isinstance(path, tm.path.Path2D):
-                raise ValueError("DXF file does not contain valid 2D paths")
-
-            # Convert paths to polygons (assumes closed paths)
-            polygons = path.polygons_full
-
-            # Extrude each polygon (adjust height as needed)
-            extruded_solids = [tm.creation.extrude_polygon(poly, extrude) for poly in polygons]
-
-            # Combine extruded solids into one mesh
-            self.solid = tm.util.concatenate(extruded_solids)
+        elif fext in [".svg"]:
+            outfile = svg2dxf_wrapper(infile)
+            self.solid = dxf2mesh(outfile, extrude)
+        elif fext in [".dxf"]:
+            self.solid = dxf2mesh(infile, extrude)
         
 if __name__ == "__main__":
     test_api("trimesh")
