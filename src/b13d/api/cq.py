@@ -171,6 +171,10 @@ class CQShape(Shape):
         self.solid = self.solid.union(joiner.solid)
         return self
 
+    def intersection(self, intersector: CQShape) -> CQShape:
+        self.solid = self.solid.intersect(intersector.solid)
+        return self
+
     def _smoothing_segments(self, dim: float) -> int:
         # Since CadQuery isusing Spline to connect pts for curves so use less segments
         return math.ceil(abs(dim) ** 0.25 * self.api.fidelity.smoothing_segments())

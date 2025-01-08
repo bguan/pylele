@@ -168,6 +168,10 @@ class Sp2Shape(Shape):
         self.solid = self.solid + joiner.solid
         return self
 
+    def intersection(self, intersector: Sp2Shape) -> Sp2Shape:
+        self.solid = self.solid & intersector.solid
+        return self
+
     def _smoothing_segments(self, dim: float) -> int:
         return ceil(abs(dim) ** 0.5 * self.api.fidelity.smoothing_segments())
 

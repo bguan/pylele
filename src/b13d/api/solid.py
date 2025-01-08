@@ -407,6 +407,14 @@ class Solid(ABC):
         )
         return self
 
+    def intersection(self, intersector: Solid) -> Solid:
+        """ Intersect solid with other shape """
+        self.gen_full()
+        self.shape = self.shape.intersection(
+            solid_operand(intersector)
+        )
+        return self
+
     def _make_out_path(self):
         """Generate an output directory"""
         main_out_path = os.path.join(Path.cwd(), self.outdir)

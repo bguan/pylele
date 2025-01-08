@@ -303,6 +303,19 @@ class BlenderShape(Shape):
         joiner._remove()
         return self.repairMesh()
 
+    def intersection(self, intersector: BlenderShape) -> BlenderShape:
+        if intersector is None:
+            return self
+        bpy.context.view_layer.objects.active = self.solid
+        bpy.ops.object.mode_set(mode="OBJECT")
+        mod = self.solid.modifiers.new(name="Intersect", type="BOOLEAN")
+        mod.operation = "INTERSECT"
+        mod.object = intersector.solid
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        bpy.context.view_layer.update()
+        intersector._remove()
+        return self.repairMesh()
+
     def mirror(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> BlenderShape:
 
         cp = copy.copy(self)

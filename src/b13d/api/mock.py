@@ -103,6 +103,9 @@ class MockShape(Shape):
     def join(self, joiner: MockShape) -> MockShape:
         return self
 
+    def intersection(self, intersector: MockShape) -> MockShape:
+        return self
+
     def mirror(self) -> MockShape:
         return self
 

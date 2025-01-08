@@ -199,6 +199,12 @@ class MFShape(Shape):
         self.solid = self.solid + joiner.solid
         return self
 
+    def intersection(self, intersector: MFShape) -> MFShape:
+        if intersector is None or intersector.solid is None:
+            return self
+        self.solid ^= intersector.solid
+        return self
+
     def mirror(self) -> MFShape:
         dup = copy.copy(self)
         dup.solid = self.solid.mirror((0, 1, 0))

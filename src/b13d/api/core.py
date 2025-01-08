@@ -203,6 +203,9 @@ class Shape(ABC):
     def join(self, joiner: Shape) -> Shape: ...
 
     @abstractmethod
+    def intersection(self, intersector: Shape) -> Shape: ...
+
+    @abstractmethod
     def mirror(self) -> Shape: ...
 
     def mirror_and_join(self) -> Shape:
@@ -748,3 +751,15 @@ class ShapeAPI(ABC):
         obj19 = self.sphere(5) * (1,2,3)
 
         self.export_stl(joined, expDir / f"{implCode}-all")
+
+        # test join
+        box = self.box(10, 20, 30).mv(0,7,0)
+        xRod = self.cylinder_x(30, 5)
+        jout = xRod.join(box)
+        self.export_stl( jout, expDir / f"{implCode}-join")
+
+        # test intersection
+        box = self.box(10, 20, 30).mv(0,7,0)
+        xRod = self.cylinder_x(30, 5)
+        iout = xRod.intersection(box)
+        self.export_stl( iout, expDir / f"{implCode}-intersect")

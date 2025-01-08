@@ -202,6 +202,14 @@ class TMShape(Shape):
         self.solid = tm.boolean.difference([self.solid, cutter.solid])
         return self
 
+    def intersection(self, intersector: TMShape) -> TMShape:
+        if intersector is None or intersector.solid is None:
+            return self
+        self.ensureVolume()
+        intersector.ensureVolume()
+        self.solid = tm.boolean.intersection([self.solid, intersector.solid])
+        return self
+
     def dup(self) -> TMShape:
         duplicate = copy.copy(self)
         duplicate.solid = self.solid.copy()
