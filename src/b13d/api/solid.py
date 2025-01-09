@@ -554,6 +554,10 @@ class Solid(ABC):
         """ cut using - """
         return self.cut(operand)
 
+    def __and__(self, operand):
+        """ cut using - """
+        return self.intersection(operand)
+
     def __mul__(self, operand: tuple[float, float, float] = (1,1,1)) -> Shape:
         """ scale using * """
         if operand is None:

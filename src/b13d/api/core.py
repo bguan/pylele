@@ -267,6 +267,13 @@ class Shape(ABC):
         assert isinstance(operand,Shape)
         return self.cut(operand)
 
+    def __and__(self, operand) -> Shape:
+        """ cut using - """
+        if operand is None:
+            return self
+        assert isinstance(operand,Shape)
+        return self.intersection(operand)
+
     def __mul__(self, operand: tuple[float, float, float] = (1,1,1)) -> Shape:
         """ scale using * """
         if operand is None:
@@ -756,10 +763,17 @@ class ShapeAPI(ABC):
         box = self.box(10, 20, 30).mv(0,7,0)
         xRod = self.cylinder_x(30, 5)
         jout = xRod.join(box)
-        self.export_stl( jout, expDir / f"{implCode}-join")
+        self.export_stl( jout, expDir / f"{implCode}-bop-join")
+
+        # test cut
+        box = self.box(10, 20, 30).mv(0,7,0)
+        xRod = self.cylinder_x(30, 5)
+        jout = xRod.cut(box)
+        self.export_stl( jout, expDir / f"{implCode}-bop-cut")
 
         # test intersection
         box = self.box(10, 20, 30).mv(0,7,0)
         xRod = self.cylinder_x(30, 5)
         iout = xRod.intersection(box)
-        self.export_stl( iout, expDir / f"{implCode}-intersect")
+        self.export_stl( iout, expDir / f"{implCode}-bop-intersect")
+        iout = xRod & box
