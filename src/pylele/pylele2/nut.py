@@ -21,6 +21,7 @@ class NutType(StringEnum):
     """Nut Type"""
 
     NUT = "nut"
+    ROUND = "round"
     ZEROFRET = "zerofret"
 
 
@@ -55,13 +56,18 @@ class LeleNut(LeleBase):
         ntWth = self.cfg.nutWth + fbTck/4 + .5  # to be wider than fretbd
         f0X = -fitTol if self.isCut else 0
 
-        f0Top    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
-        f0Top   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, -fbTck/2)
+        DOME_RATIO = 1/4
+        f0Top    = self.api.cylinder_rounded_y(ntWth, ntHt, DOME_RATIO)
 
-        f0Bot    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
-        f0Bot   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
-        
-        f0Bot   *= Direction.Z * (fbTck/ntHt)
+        if self.cli.nut_type in [NutType.ROUND, NutType.ZEROFRET]:
+            f0Top   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, -fbTck/2)
+
+            f0Bot    = self.api.cylinder_rounded_y(ntWth, ntHt, 1/4)
+            f0Bot   -= self.api.box(2*ntHt, 2*ntWth, fbTck).mv(0, 0, fbTck/2)
+            f0Bot   *= Direction.Z * (fbTck/ntHt)
+        elif self.cli.nut_type in [NutType.NUT]:
+            f0Bot   = self.api.box(2*ntHt, ntWth - ntHt*(1 - 2*DOME_RATIO), fbTck).mv(0, 0, -fbTck/2)
+            f0Bot  += self.api.box(  ntHt, ntWth - ntHt*(1 - 2*DOME_RATIO), ntHt).mv(ntHt/2, 0, ntHt/2)
 
         nut = f0Top.mv(0, 0, -jcTol) + f0Bot # lower top to make sure valid volume
         nut <<= (f0X, 0, fbTck)
