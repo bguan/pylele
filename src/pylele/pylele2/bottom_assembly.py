@@ -58,7 +58,7 @@ class LeleBottomAssembly(LeleBase):
 
         ## Spines
         spines = None
-        if self.cli.num_strings > 1:
+        if self.cli.num_spines > 0:
             spines = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             body -= spines
 
