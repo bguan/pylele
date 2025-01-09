@@ -95,8 +95,9 @@ def test_nut(self, apis=None):
 
     tests = {
         "separate_fretboard": ["-F"],
-        "zerofret": ["-nt", str(NutType.ZEROFRET)],
     }
+    for nut_type in list(NutType):
+        tests |= { nut_type : ["-nt", nut_type] }
     test_loop(module=__name__, tests=tests, apis=apis)
 
 
