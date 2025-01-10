@@ -38,7 +38,7 @@ def main(args=None):
 
 def test_strings(self, apis=None):
     """Test String"""
-    tests = {"cut": ["-C"]}
+    tests = {"cut": ["-C", "-refv", "2448"]}
     test_loop(module=__name__, tests=tests, apis=apis)
 
 
