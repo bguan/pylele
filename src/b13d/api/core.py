@@ -15,12 +15,12 @@ from b13d.api.constants import DEFAULT_TEST_DIR
 from b13d.api.utils import getFontname2FilepathMap
 
 APIS_INFO = {
-    "mock": {"module": "b13d.api.mock", "class": "MockShapeAPI"},
-    "cadquery": {"module": "b13d.api.cq", "class": "CQShapeAPI"},
-    "blender": {"module": "b13d.api.bpy", "class": "BlenderShapeAPI"},
-    "trimesh": {"module": "b13d.api.tm", "class": "TMShapeAPI"},
-    "solid2": {"module": "b13d.api.sp2", "class": "Sp2ShapeAPI"},
-    "manifold": {"module": "b13d.api.mf", "class": "MFShapeAPI"},
+    "mock": {"module": "b13d.api.mock", "class": "MockShapeAPI", "fillet": False, "hull" : True},
+    "cadquery": {"module": "b13d.api.cq", "class": "CQShapeAPI", "fillet": True, "hull" : False},
+    "blender": {"module": "b13d.api.bpy", "class": "BlenderShapeAPI", "fillet": True, "hull" : False},
+    "trimesh": {"module": "b13d.api.tm", "class": "TMShapeAPI", "fillet": False, "hull" : True},
+    "solid2": {"module": "b13d.api.sp2", "class": "Sp2ShapeAPI", "fillet": False, "hull" : True},
+    "manifold": {"module": "b13d.api.mf", "class": "MFShapeAPI", "fillet": False, "hull" : True},
 }
 
 
@@ -99,7 +99,14 @@ class Implementation(StringEnum):
         mod = importlib.import_module(self.module_name())
         api = getattr(mod, self.class_name())
         return api(implementation = self, fidelity=fidelity)
+    
+    def has_fillet(self):
+        """Returns True if API supports fillet"""
+        return APIS_INFO[self]["fillet"]
 
+    def has_hull(self):
+        """Returns True if API supports hull"""
+        return APIS_INFO[self]["hull"]
 
 def supported_apis() -> list:
     """Returns the list of supported apis"""
@@ -692,9 +699,10 @@ class ShapeAPI(ABC):
         obj5 = obj5.join(mirror)
         joined += obj5
 
-        rndBox = self.box(10, 10, 10).fillet([(5, 0, 5)], 1)
-        obj6 = rndBox.mv(-10, -10, 5)
-        joined += obj6
+        if self.implementation.has_fillet():
+            rndBox = self.box(10, 10, 10).fillet([(5, 0, 5)], 1)
+            obj6 = rndBox.mv(-10, -10, 5)
+            joined += obj6
 
         dome = self.spline_extrusion(
             start=(0, 0),
@@ -777,3 +785,11 @@ class ShapeAPI(ABC):
         iout = xRod.intersection(box)
         self.export_stl( iout, expDir / f"{implCode}-bop-intersect")
         iout = xRod & box
+
+        # test hull
+        if self.implementation.has_hull():
+            box = self.box(10, 20, 30).mv(0,7,0)
+            xrod = self.cylinder_x(30, 5)
+            jout = box + xrod
+            jout.hull()
+            self.export_stl( jout, expDir / f"{implCode}-hull")
