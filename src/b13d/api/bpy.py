@@ -300,7 +300,7 @@ class BlenderShape(Shape):
         mod.object = joiner.solid
         bpy.ops.object.modifier_apply(modifier=mod.name)
         bpy.context.view_layer.update()
-        joiner._remove()
+        # joiner._remove()
         return self.repairMesh()
 
     def intersection(self, intersector: BlenderShape) -> BlenderShape:
@@ -313,7 +313,7 @@ class BlenderShape(Shape):
         mod.object = intersector.solid
         bpy.ops.object.modifier_apply(modifier=mod.name)
         bpy.context.view_layer.update()
-        intersector._remove()
+        # intersector._remove()
         return self.repairMesh()
 
     def mirror(self, plane: tuple[bool, bool, bool] = (False, True, False)) -> BlenderShape:
