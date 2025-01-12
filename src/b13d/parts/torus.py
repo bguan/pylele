@@ -20,7 +20,7 @@ class Torus(Solid):
 
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
-        parser.add_argument("-ar", "--angles_range", help="Angles range [deg]", type=float, default=270)
+        parser.add_argument("-ar", "--angles_range", help="Angles range [deg]", type=float, default=360)
         parser.add_argument("-as", "--angles_step", help="Angles step [deg]", type=float, default=10)
         parser.add_argument("-r1", "--r1", help="R1 [mm]", type=float, default=2.0)
         parser.add_argument("-r2", "--r2", help="R2 [mm]", type=float, default=20)
@@ -30,7 +30,11 @@ class Torus(Solid):
         """ generate rounded box """
         
         tpath = []
-        for angle in [*arange(0, self.cli.angles_range,self.cli.angles_step)]:
+        for angle in [*arange(0,                                           # start
+                              self.cli.angles_range + self.cli.angles_step # stop
+                              ,self.cli.angles_step                        # step
+                              )
+                              ]:
             tpath.append(
                 (self.cli.r2*cos(radians(angle)),self.cli.r2*sin(radians(angle)),0)
                 )
