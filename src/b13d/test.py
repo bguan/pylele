@@ -216,6 +216,7 @@ class B13DTestMethods(unittest.TestCase):
     from b13d.parts.scad_example import test_scad_example
     from b13d.parts.rounded_box import test_rounded_box, test_rounded_box_mock
     from b13d.parts.rounded_rectangle_extrusion import test_rounded_rectangle, test_rounded_rectangle_mock
+    from b13d.parts.torus import test_torus, test_torus_mock
 
     def test_zz_report(self):
         """ Generate Test Report """
