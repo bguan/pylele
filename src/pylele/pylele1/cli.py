@@ -188,10 +188,10 @@ def parseCLI():
     parser.add_argument(
         "-i",
         "--implementation",
-        help="Underlying engine implementation, default cadquery",
+        help="Underlying engine implementation",
         type=Implementation,
         choices=list(Implementation),
-        default="manifold",
+        default=Implementation.MANIFOLD,
     )
 
     parser.add_argument(

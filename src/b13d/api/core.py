@@ -14,16 +14,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 from b13d.api.constants import DEFAULT_TEST_DIR
 from b13d.api.utils import getFontname2FilepathMap
 
-APIS_INFO = {
-    "mock": {"module": "b13d.api.mock", "class": "MockShapeAPI", "fillet": False, "hull" : True},
-    "cadquery": {"module": "b13d.api.cq", "class": "CQShapeAPI", "fillet": True, "hull" : False},
-    "blender": {"module": "b13d.api.bpy", "class": "BlenderShapeAPI", "fillet": True, "hull" : False},
-    "trimesh": {"module": "b13d.api.tm", "class": "TMShapeAPI", "fillet": False, "hull" : True},
-    "solid2": {"module": "b13d.api.sp2", "class": "Sp2ShapeAPI", "fillet": False, "hull" : True},
-    "manifold": {"module": "b13d.api.mf", "class": "MFShapeAPI", "fillet": False, "hull" : True},
-}
-
-
 # consider update to StrEnum for python 3.11 and above
 # https://tsak.dev/posts/python-enum/
 class StringEnum(str, Enum):
@@ -69,11 +59,11 @@ class Implementation(StringEnum):
     """Pylele API implementations"""
 
     MOCK = "mock"
-    CADQUERY = "cadquery"
-    BLENDER = "blender"
-    TRIMESH = "trimesh"
-    SOLID2 = "solid2"
-    MANIFOLD = "manifold"
+    CADQUERY = "cq"
+    BLENDER = "bpy"
+    TRIMESH = "tm"
+    SOLID2 = "sp2"
+    MANIFOLD = "mf"
 
     def __repr__(self):
         return f"Implementation({self.value})"
@@ -107,6 +97,15 @@ class Implementation(StringEnum):
     def has_hull(self):
         """Returns True if API supports hull"""
         return APIS_INFO[self]["hull"]
+
+APIS_INFO = {
+    Implementation.MOCK      : {"module": "b13d.api.mock", "class": "MockShapeAPI", "fillet": False, "hull" : True},
+    Implementation.CADQUERY  : {"module": "b13d.api.cq", "class": "CQShapeAPI", "fillet": True, "hull" : False},
+    Implementation.BLENDER   : {"module": "b13d.api.bpy", "class": "BlenderShapeAPI", "fillet": True, "hull" : False},
+    Implementation.TRIMESH   : {"module": "b13d.api.tm", "class": "TMShapeAPI", "fillet": False, "hull" : True},
+    Implementation.SOLID2    : {"module": "b13d.api.sp2", "class": "Sp2ShapeAPI", "fillet": False, "hull" : True},
+    Implementation.MANIFOLD  : {"module": "b13d.api.mf", "class": "MFShapeAPI", "fillet": False, "hull" : True},
+}
 
 def supported_apis() -> list:
     """Returns the list of supported apis"""
