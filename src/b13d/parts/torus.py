@@ -16,7 +16,7 @@ from b13d.api.core import Shape
 from b13d.api.utils import radians
 
 class Torus(Solid):
-    """ Generate a Tube """
+    """ Generate a Torus """
 
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
@@ -27,7 +27,7 @@ class Torus(Solid):
         return parser
 
     def gen(self) -> Shape:
-        """ generate rounded box """
+        """ generate torue """
         
         tpath = []
         for angle in [*arange(0,                                           # start
@@ -48,7 +48,7 @@ def main(args=None):
 
 def test_torus(self,apis=None):
     """ Test Torus """
-    tests={}
+    tests={"default":[]}
     test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_torus_mock(self):
