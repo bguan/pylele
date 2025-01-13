@@ -20,11 +20,13 @@ from pylele.pylele2.strings import LeleStrings
 
 class LeleHead(LeleBase):
     """Pylele Head Generator class"""
+    TOP_HEAD_RATIO = 1/6
+    HEAD_WTH_RATIO = 1.1  # to nutWth
 
     def configure_head(self):
         """ Configure head """
         
-        self.cfg.headWth = self.cfg.nutWth * self.cfg.HEAD_WTH_RATIO
+        self.cfg.headWth = self.cfg.nutWth * self.HEAD_WTH_RATIO
         headDX = 1
         headDY = headDX * tan(radians(self.cfg.neckWideAng))
         self.cfg.headOrig = (0, 0)
@@ -51,7 +53,7 @@ class LeleHead(LeleBase):
         fbTck = self.cfg.FRETBD_TCK
         spHt = self.cfg.SPINE_HT
         fspTck = self.cfg.FRETBD_SPINE_TCK
-        topRat = self.cfg.TOP_HEAD_RATIO
+        topRat = self.TOP_HEAD_RATIO
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig

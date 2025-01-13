@@ -127,7 +127,6 @@ def pylele_config_parser(parser = None):
 
 class LeleConfig:
     """ Pylele Configuration Class """
-    TOP_HEAD_RATIO = 1/6
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
     CHM_BACK_RATIO = 1/2 # to chmFront
@@ -139,7 +138,6 @@ class LeleConfig:
     FRETBD_TCK = 2
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
-    HEAD_WTH_RATIO = 1.1  # to nutWth
     # MIN_NECK_WIDE_ANG = 1.2
     NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
