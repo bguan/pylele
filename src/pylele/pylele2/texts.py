@@ -55,6 +55,7 @@ def pylele_texts_parser(parser=None):
 
 class LeleTexts(LeleBase):
     """Pylele Texts Generator class"""
+    TEXT_TCK = 30
 
     def gen(self) -> Shape:
         """Generate Texts"""
@@ -65,7 +66,7 @@ class LeleTexts(LeleBase):
 
         tsf = self.cli.texts_size_font
 
-        txtTck = self.cfg.TEXT_TCK
+        txtTck = self.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck

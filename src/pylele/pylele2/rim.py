@@ -17,6 +17,7 @@ from pylele.pylele2.base import LeleBase
 
 class LeleRim(LeleBase):
     """Pylele Rim Generator class"""
+    RIM_TCK = 1
 
     def gen(self) -> Shape:
         """Generate Rim"""
@@ -24,7 +25,7 @@ class LeleRim(LeleBase):
         cutAdj = (FIT_TOL + joinTol) if self.isCut else 0
         scLen = float(self.cli.scale_length)
         rad = self.cfg.chmWth / 2 + self.cfg.rimWth
-        tck = self.cfg.RIM_TCK + 2 * cutAdj
+        tck = self.RIM_TCK + 2 * cutAdj
         frontWthRatio = (self.cfg.chmFront + self.cfg.rimWth) / rad
         backWthRatio = (self.cfg.chmBack + self.cfg.rimWth) / rad
         rimFront = self.api.cylinder_half(rad, True, tck).scale(frontWthRatio, 1, 1)

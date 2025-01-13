@@ -139,15 +139,12 @@ class LeleConfig:
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
     # MIN_NECK_WIDE_ANG = 1.2
-    NECK_JNT_RATIO = .8  # to fretbdlen - necklen
     NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
     NUT_HT = 1.5
-    RIM_TCK = 1
     SPINE_HT = 10
     SPINE_WTH = 2
     STR_RAD = .6
-    TEXT_TCK = 30
     extMidTopTck = .5
 
     def gen_parser(self,parser=None):
