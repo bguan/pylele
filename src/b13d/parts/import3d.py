@@ -23,8 +23,8 @@ class Import3d(Solid):
         return parser
 
     def gen(self) -> Shape:
-        assert self.cli.implementation in [Implementation.SOLID2, 
-                                           Implementation.CADQUERY, 
+        assert self.cli.implementation in [Implementation.SOLID2,
+                                           Implementation.CADQUERY,
                                            Implementation.TRIMESH,
                                            Implementation.BLENDER]
         return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
@@ -39,6 +39,7 @@ def test_import3d(self,apis=[Implementation.BLENDER,
                              Implementation.TRIMESH,
                              Implementation.CADQUERY,
                              Implementation.SOLID2]):
+    
     """ Test Import 3d geometry """
     test_fname=os.path.join(DEFAULT_TEST_DIR,'test')
     test_stl  = gen_stl_foo(test_fname)

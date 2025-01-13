@@ -37,7 +37,7 @@ def main(args=None):
                 class_name='ScadExample',
                 args=args)
 
-def test_scad_example(self,apis=['solid2']):
+def test_scad_example(self,apis=[Implementation.SOLID2]):
     """ Test Import 3d geometry """
     test_loop(module=__name__,apis=apis)
 
