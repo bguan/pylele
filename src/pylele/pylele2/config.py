@@ -230,19 +230,6 @@ class LeleConfig:
 
         # Head configs
         self.headLen = 2 * numStrs + scaleLen / 60 #12
-        self.headWth = self.nutWth * self.HEAD_WTH_RATIO
-        headDX = 1
-        headDY = headDX * tan(radians(self.neckWideAng))
-        self.headOrig = (0, 0)
-        self.headPath = [
-            (0, self.nutWth/2),
-            [
-                (-headDX, self.nutWth/2 + headDY, headDY/headDX),
-                (-self.headLen/2, self.headWth/2, 0),
-                (-self.headLen, self.headWth/6, -inf),
-            ],
-            (-self.headLen, 0),
-        ]
 
         # Body Configs
         self.bodyWth = self.chmWth + 2*wallTck
