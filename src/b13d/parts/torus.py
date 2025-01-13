@@ -12,7 +12,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from b13d.api.solid import Solid, test_loop, main_maker, FIT_TOL
-from b13d.api.core import Shape
+from b13d.api.core import Shape, Implementation
 from b13d.api.utils import radians
 
 class Torus(Solid):
@@ -79,7 +79,10 @@ def main(args=None):
                 class_name='Torus',
                 args=args)
 
-def test_torus(self,apis=None):
+def test_torus(self,apis=[Implementation.MANIFOLD,
+                          Implementation.TRIMESH,
+                          Implementation.SOLID2,
+                          ]):
     """ Test Torus """
     tests={
          "default":[],
