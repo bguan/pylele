@@ -4,14 +4,14 @@
     Torus Solid
 """
 
-from math import sin, cos
+from math import sin, cos, inf
 from numpy import arange
 
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
-from b13d.api.solid import Solid, test_loop, main_maker
+from b13d.api.solid import Solid, test_loop, main_maker, FIT_TOL
 from b13d.api.core import Shape
 from b13d.api.utils import radians
 
@@ -26,8 +26,8 @@ class Torus(Solid):
         parser.add_argument("-r2", "--r2", help="R2 [mm]", type=float, default=20)
         return parser
 
-    def gen(self) -> Shape:
-        """ generate torue """
+    def gen_sweep(self) -> Shape:
+        """ generate torus using regpoly_sweep """
         
         tpath = []
         for angle in [*arange(0,                                           # start
@@ -38,8 +38,41 @@ class Torus(Solid):
             tpath.append(
                 (self.cli.r2*cos(radians(angle)),self.cli.r2*sin(radians(angle)),0)
                 )
-        return self.api.regpoly_sweep(rad=self.cli.r1,path=tpath)
+        return self.api.regpoly_sweep(rad=self.cli.r1,path=tpath).rotate_x(90)
 
+
+    def gen_revolve(self) -> Shape:
+        """ generate torus using spline_revolve """
+        
+        center = (-FIT_TOL, self.cli.r2)
+
+        path = [
+                center,
+                (center[0],center[1]+self.cli.r1),
+                [
+                    (center[0]            ,center[1]+self.cli.r1,0),
+                    (center[0]+self.cli.r1,center[1]            ,inf),
+                    (center[0]            ,center[1]-self.cli.r1,0),
+                ],
+                (center[0],center[1]-self.cli.r1),
+                center,
+            ]
+
+        donut = self.api.spline_revolve(
+            start=center,
+            path=path,
+            deg=self.cli.angles_range,
+        )
+
+        return donut.rotate_z(90).mirror_and_join()
+
+    def gen(self) -> Shape:
+        """ generate torus """
+        if True:
+            return self.gen_revolve()
+        else:
+            return self.gen_sweep()
+        
 def main(args=None):
     """ Generate a Torus """
     return main_maker(module_name=__name__,
@@ -48,7 +81,10 @@ def main(args=None):
 
 def test_torus(self,apis=None):
     """ Test Torus """
-    tests={"default":[]}
+    tests={
+         "default":[],
+         # "rev270" :["-ar", "270"]
+         }
     test_loop(module=__name__,tests=tests,apis=apis)
 
 def test_torus_mock(self):
