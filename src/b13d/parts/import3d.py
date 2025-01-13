@@ -35,7 +35,10 @@ def main(args=None):
                 class_name='Import3d',
                 args=args)
 
-def test_import3d(self,apis=['blender','trimesh','cadquery','solid2']):
+def test_import3d(self,apis=[Implementation.BLENDER,
+                             Implementation.TRIMESH,
+                             Implementation.CADQUERY,
+                             Implementation.SOLID2]):
     """ Test Import 3d geometry """
     test_fname=os.path.join(DEFAULT_TEST_DIR,'test')
     test_stl  = gen_stl_foo(test_fname)
@@ -45,24 +48,24 @@ def test_import3d(self,apis=['blender','trimesh','cadquery','solid2']):
 
     tests = {}
        
-    tests['solid2']={
+    tests[Implementation.SOLID2]={
         'sp2_stl': ['-imp',test_stl],
         'sp2_svg': ['-imp',test_svg, '-eh', '10'],
         }
 
-    tests['cadquery']={
+    tests[Implementation.CADQUERY]={
         'cq_step': ['-imp',test_step],
         'cq_svg' : ['-imp',test_svg, '-eh', '10'],
         'cq_dxf' : ['-imp',test_dxf, '-eh', '10'],
         }
     
-    tests['trimesh']={
+    tests[Implementation.TRIMESH]={
         'tm_stl' : ['-imp',test_stl],
         'tm_svg' : ['-imp',test_svg, '-eh', '10'],
         'tm_dxf' : ['-imp',test_dxf, '-eh', '10'],
         }
     
-    tests['blender']={
+    tests[Implementation.BLENDER]={
         'bpy_stl' : ['-imp',test_stl],
         'bpy_svg' : ['-imp',test_svg, '-eh', '10'],
         }

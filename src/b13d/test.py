@@ -17,7 +17,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
-from b13d.api.core import test_api, DEFAULT_TEST_DIR
+from b13d.api.core import test_api, DEFAULT_TEST_DIR, Implementation
 from b13d.api.utils import make_or_exist_path
 
 REPORT_COLS=["subdir_level_1",
@@ -187,27 +187,27 @@ class B13DTestMethods(unittest.TestCase):
     ## API
     def test_mock_api(self):
         """Test Mock API"""
-        test_api(api="mock")
+        test_api(api=Implementation.MOCK)
 
     def test_cadquery_api(self):
         """Test Cadquery API"""
-        test_api(api="cadquery")
+        test_api(api=Implementation.CADQUERY)
 
     def test_blender_api(self):
         """Test Blender API"""
-        test_api(api="blender")
+        test_api(api=Implementation.BLENDER)
 
     def test_trimesh_api(self):
         """Test Trimesh API"""
-        test_api(api="trimesh")
+        test_api(api=Implementation.TRIMESH)
 
     def test_solid2_api(self):
         """Test SolidPython2 API"""
-        test_api(api="solid2")
+        test_api(api=Implementation.SOLID2)
 
     def test_manifold_api(self):
         """Test Manifold API"""
-        test_api(api="manifold")
+        test_api(api=Implementation.MANIFOLD)
 
     ## Solid Parts
     from b13d.parts.tube import test_tube, test_tube_mock

@@ -12,7 +12,7 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from b13d.api.core import ShapeAPI, Shape, test_api, Direction
+from b13d.api.core import ShapeAPI, Shape, test_api, Direction, Implementation
 from b13d.api.utils import dimXY, file_ensure_extension, lineSplineXY, textToGlyphsPaths
 
 
@@ -410,4 +410,4 @@ class MFTextZ(MFShape):
 
 
 if __name__ == "__main__":
-    test_api("manifold")
+    test_api(Implementation.MANIFOLD)
