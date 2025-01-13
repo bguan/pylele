@@ -180,7 +180,7 @@ def parseCLI():
         help="Model labeling choices, default short",
         type=ModelLabel,
         choices=list(ModelLabel),
-        default="none",
+        default=ModelLabel.NONE,
     )
 
     ## other options ######################################################
@@ -200,7 +200,7 @@ def parseCLI():
         help="Mesh fidelity for smoothness, default low",
         type=Fidelity,
         choices=list(Fidelity),
-        default="low",
+        default=Fidelity.LOW,
     )
 
     parser.add_argument(
