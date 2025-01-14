@@ -22,7 +22,7 @@ class Torus(Solid):
         parser = super().gen_parser(parser=parser)
         parser.add_argument("-ar", "--angles_range", help="Angles range [deg]", type=float, default=360)
         parser.add_argument("-as", "--angles_step", help="Angles step [deg]", type=float, default=10)
-        parser.add_argument("-r1", "--r1", help="R1 [mm]", type=float, default=2.0)
+        parser.add_argument("-r1", "--r1", help="R1 [mm]", type=float, default=2)
         parser.add_argument("-r2", "--r2", help="R2 [mm]", type=float, default=20)
         return parser
 
@@ -47,14 +47,14 @@ class Torus(Solid):
         center = (-FIT_TOL, self.cli.r2)
 
         path = [
-                center,
+                # center,
                 (center[0],center[1]+self.cli.r1),
                 [
                     (center[0]            ,center[1]+self.cli.r1,0),
                     (center[0]+self.cli.r1,center[1]            ,inf),
                     (center[0]            ,center[1]-self.cli.r1,0),
                 ],
-                (center[0],center[1]-self.cli.r1),
+                #(center[0],center[1]-self.cli.r1),
                 center,
             ]
 
@@ -68,10 +68,12 @@ class Torus(Solid):
 
     def gen(self) -> Shape:
         """ generate torus """
-        if True:
-            return self.gen_revolve()
-        else:
+        if self.cli.implementation == Implementation.BLENDER:
+            # blender revole
             return self.gen_sweep()
+        else:
+            return self.gen_revolve()
+
         
 def main(args=None):
     """ Generate a Torus """
@@ -79,10 +81,7 @@ def main(args=None):
                 class_name='Torus',
                 args=args)
 
-def test_torus(self,apis=[Implementation.MANIFOLD,
-                          Implementation.TRIMESH,
-                          Implementation.SOLID2,
-                          ]):
+def test_torus(self,apis=None):
     """ Test Torus """
     tests={
          "default":[],
