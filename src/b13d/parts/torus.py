@@ -88,8 +88,8 @@ def main(args=None):
 def test_torus(self,apis=None):
     """ Test Torus """
     tests={
-         "default":[],
-         "rev270" :["-ar", "270"]
+         "default":["-refv","1239"],
+         "rev270" :["-ar", "270","-refv","1660"]
          }
     test_loop(module=__name__,tests=tests,apis=apis)
 
