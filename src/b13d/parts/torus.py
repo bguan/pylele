@@ -44,7 +44,7 @@ class Torus(Solid):
     def gen_revolve(self) -> Shape:
         """ generate torus using spline_revolve """
         
-        center = (-FIT_TOL, self.cli.r2)
+        center = (-self.cli.implementation.tolerance(), self.cli.r2)
 
         path = [
                 # center,
@@ -58,18 +58,22 @@ class Torus(Solid):
                 center,
             ]
 
+        if self.cli.implementation == Implementation.BLENDER and self.cli.angles_range >= 360:
+            deg = 359.9999
+        else:
+            deg = self.cli.angles_range
+
         donut = self.api.spline_revolve(
             start=center,
             path=path,
-            deg=self.cli.angles_range,
+            deg=deg,
         )
 
         return donut.rotate_z(90).mirror_and_join()
 
     def gen(self) -> Shape:
         """ generate torus """
-        if self.cli.implementation == Implementation.BLENDER:
-            # blender revole
+        if False:
             return self.gen_sweep()
         else:
             return self.gen_revolve()
@@ -85,7 +89,7 @@ def test_torus(self,apis=None):
     """ Test Torus """
     tests={
          "default":[],
-         # "rev270" :["-ar", "270"]
+         "rev270" :["-ar", "270"]
          }
     test_loop(module=__name__,tests=tests,apis=apis)
 
