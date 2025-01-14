@@ -762,3 +762,15 @@ def camel2snake(word):
     # https://stackoverflow.com/a/28774760/7094647
     snake = "".join(["_"+c.lower() if c.isupper() else c for c in s])
     return snake[1:] if snake.startswith("_") else snake
+
+def distance(p0, p1):
+    """ Calculates distance in multidimensional space """
+
+    assert len(p0) == len(p1)
+    # assert len(p1) == 3
+
+    square_sum = 0
+    for i in range(len(p0)):
+        square_sum  += (p0[i] - p1[i])**2
+
+    return sqrt( square_sum )
