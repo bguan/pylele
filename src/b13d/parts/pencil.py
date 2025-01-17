@@ -20,7 +20,7 @@ class Pencil(Solid):
         parser = super().gen_parser(parser=parser)
         parser.add_argument("-s", "--faces", help="Distance between parallel faces [mm]", type=float, default=6.85)
         parser.add_argument("-d", "--core_diameter", help="Core diameter [mm]", type=float, default=3)
-        parser.add_argument("-H", "--heigth", help="Heigth [mm]", type=float, default=150)
+        parser.add_argument("-H", "--heigth", help="Heigth [mm]", type=float, default=180)
         parser.add_argument("-fh", "--ferrule_heigth", help="Ferrule Heigth [mm]", type=float, default=5)
         parser.add_argument("-n", "--nsides", help="Number of polygon sides", type=float, default=6)
         return parser
