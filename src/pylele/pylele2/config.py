@@ -33,7 +33,8 @@ CONFIGURATIONS = {
         'worm'           : WORM    , # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25'] + TUNEBRIDGE
+        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25'] + TUNEBRIDGE,
+        'travelele'      : ['-bt', LeleBodyType.TRAVEL,'-wt','25','-t','turnaround','-e','50'] + TUNEBRIDGE
     }
 
 class AttrDict(dict):
@@ -42,11 +43,6 @@ class AttrDict(dict):
 
     def __setattr__(self, key, value):
         self[key] = value
-
-def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> float:
-    """ Adjust Tuner Z """
-    return 0 if tnrType.is_worm() or tY > endWth/2 \
-        else (((endWth/2)**2 - tY**2)**.5 * top_ratio/2 + .5)
 
 def pylele_config_parser(parser = None):
     """
@@ -124,6 +120,10 @@ def pylele_config_parser(parser = None):
 
     return parser
 
+def tzAdj(tY: float, tnrType: TunerType, endWth: float, top_ratio: float) -> float:
+    """ Adjust Tuner Z """
+    return 0 if tnrType.is_worm() or tY > endWth/2 \
+        else (((endWth/2)**2 - tY**2)**.5 * top_ratio/2 + .5)
 
 class LeleConfig:
     """ Pylele Configuration Class """
@@ -159,6 +159,84 @@ class LeleConfig:
 
     def is_odd_strs(self) -> bool:
         return self.cli.num_strings % 2 == 1
+    
+    def configure_tuners(self):
+        """ Configure Tuners
+            cli inputs: 
+                scale_length
+                end_flat_width
+                tuner_type
+                num_string
+            parameter inputs:
+                self.bodyBackLen
+                self.bodyWth
+                self.extMidTopTck
+                self.TOP_RATIO
+            parameter outputs:
+                self.tnrXYZs
+                self.tZBase
+        """
+
+        # Tuner config
+        # approx spline bout curve with ellipse but 'fatter'
+        scaleLen=float(self.cli.scale_length)
+        endWth = self.cli.end_flat_width
+        tnrType=TunerType[self.cli.tuner_type].value
+        tnrSetback = tnrType.tailAllow()
+        numStrs=self.cli.num_strings
+
+        tXMax = self.bodyBackLen - tnrSetback
+        fatRat = .7 + (endWth/self.bodyWth)/2
+        tYMax = fatRat*self.bodyWth - tnrSetback
+        tX = tXMax
+        tY = 0
+
+        if tnrType.is_peg():
+            tZBase = (self.extMidTopTck + 2)
+        elif tnrType.is_worm():
+            tZBase = (-tnrType.driveRad - tnrType.diskRad - tnrType.axleRad)
+        else:
+            assert False, f'Unsupported Tuner Type {tnrType}'
+        self.tZBase = tZBase
+
+        tMidZ = self.tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
+        tZ = tMidZ
+        tDist = self.tnrGap
+        # start calc from middle out
+        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.is_odd_strs() else []
+        for p in range(numStrs//2):
+            if tY + tDist < endWth/2:
+                tY += tDist if self.is_odd_strs() or p > 0 else tDist/2
+                # tX remain same
+                tZ = self.tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
+            else:
+                """
+                Note: Ellipse points seperated by arc distance calc taken from
+                https://gamedev.stackexchange.com/questions/1692/what-is-a-simple-algorithm-for-calculating-evenly-distributed-points-on-an-ellip
+
+                view as the back of ukulele, which flips XY, diff from convention & post
+                  X
+                  ^
+                  |
+                b +-------._  (y,x)
+                  |         `@-._
+                  |              `-.
+                  |                 `.
+                  |                   \
+                 -+--------------------+---> Y
+                 O|                    a
+
+                y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
+                x' = b sqrt(1 - y'²/a²)
+                """
+                tY = tY + (tDist if self.is_odd_strs() or p > 0 else tDist/2) \
+                    / sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
+                tX = tXMax * sqrt(1 - tY**2/tYMax**2)
+                tZ = self.tZBase
+
+            self.tnrXYZs.extend(
+                [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)],
+            )
 
     def __init__(
         self,
@@ -240,6 +318,9 @@ class LeleConfig:
             - self.brdgZ
         self.brdgLen = nutStrGap
 
+        # Tuners Configuration
+        self.configure_tuners()
+
         # Guide config (Only for Pegs)
         self.guideHt = 6 + numStrs/2
         self.guideX = scaleLen + .95*self.chmBack
@@ -259,60 +340,6 @@ class LeleConfig:
             gY += gGap
             self.guideYs.extend([gY + gGapAdj, -gY -gGapAdj])
 
-        # Tuner config
-        # approx spline bout curve with ellipse but 'fatter'
-        tXMax = bodyBackLen - tnrSetback
-        fatRat = .7 + (endWth/self.bodyWth)/2
-        tYMax = fatRat*self.bodyWth - tnrSetback
-        tX = tXMax
-        tY = 0
-
-        if tnrType.is_peg():
-            tZBase = (self.extMidTopTck + 2)
-        elif tnrType.is_worm():
-            tZBase = (-tnrType.driveRad - tnrType.diskRad - tnrType.axleRad)
-        else:
-            assert False, f'Unsupported Tuner Type {tnrType}'
-
-        tMidZ = tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
-        tZ = tMidZ
-        tDist = self.tnrGap
-        # start calc from middle out
-        self.tnrXYZs = [(scaleLen + tX, 0, tZ)] if self.is_odd_strs() else []
-        for p in range(numStrs//2):
-            if tY + tDist < endWth/2:
-                tY += tDist if self.is_odd_strs() or p > 0 else tDist/2
-                # tX remain same
-                tZ = tZBase + tzAdj(tY, tnrType=tnrType, endWth=endWth, top_ratio=self.TOP_RATIO)
-            else:
-                """
-                Note: Ellipse points seperated by arc distance calc taken from
-                https://gamedev.stackexchange.com/questions/1692/what-is-a-simple-algorithm-for-calculating-evenly-distributed-points-on-an-ellip
-
-                view as the back of ukulele, which flips XY, diff from convention & post
-                  X
-                  ^
-                  |
-                b +-------._  (y,x)
-                  |         `@-._
-                  |              `-.
-                  |                 `.
-                  |                   \
-                 -+--------------------+---> Y
-                 O|                    a
-
-                y' = y + d / sqrt(1 + b²y² / (a²(a²-y²)))
-                x' = b sqrt(1 - y'²/a²)
-                """
-                tY = tY + (tDist if self.is_odd_strs() or p > 0 else tDist/2) \
-                    / sqrt(1 + tXMax**2 * tY**2 / (tYMax**2 * (tYMax**2 - tY**2)))
-                tX = tXMax * sqrt(1 - tY**2/tYMax**2)
-                tZ = tZBase
-
-            self.tnrXYZs.extend(
-                [(scaleLen + tX, tY, tZ), (scaleLen + tX, -tY, tZ)],
-            )
-
         # Strings config
         strOddMidPath = [
             (-self.headLen, 0, -self.FRETBD_SPINE_TCK - .2*self.SPINE_HT),
@@ -326,6 +353,7 @@ class LeleConfig:
                  self.guideZ + self.guideHt - self.GUIDE_RAD - 1.5*self.STR_RAD)
             )
 
+        tMidZ = 0 # temporary workaround
         strOddMidPath.append(
             (scaleLen + bodyBackLen - tnrSetback, 0,
              tMidZ + tnrType.strHt())
@@ -342,7 +370,7 @@ class LeleConfig:
             strY = (self.tnrGap/2) if pt == strOddMidPath[-1] \
                 else nutStrGap/2 + pt[0]*tan(strEvenMidAng)
             strZ = (
-                tZBase + tnrType.strHt()) if pt == strOddMidPath[-1] else pt[2]
+                self.tZBase + tnrType.strHt()) if pt == strOddMidPath[-1] else pt[2]
             strEvenMidPathR.append((pt[0], strY, strZ))
             strEvenMidPathL.append((pt[0], -strY, strZ))
 

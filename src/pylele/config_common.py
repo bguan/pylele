@@ -90,6 +90,7 @@ class PegConfig(TunerConfig):
         midTck: float = 10,
         holeHt: float = 8,
         tailAdj: float = -5,
+        topCutTck: float = 100,
         code: str = 'P',
     ):
         super().__init__(code = code)
@@ -100,6 +101,7 @@ class PegConfig(TunerConfig):
         self.btnRad = btnRad
         self.midTck = midTck
         self.tailAdj = tailAdj
+        self.topCutTck = topCutTck
 
     def minGap(self) -> float:
         return 2*max(self.majRad, self.btnRad) + .5
@@ -127,7 +129,6 @@ class PegConfig(TunerConfig):
     def tailAllow(self):
         (_, back, _, _, _, _) = self.dims()
         return back
-
 
 class WormConfig(TunerConfig):
 
@@ -204,6 +205,52 @@ class WormConfig(TunerConfig):
         (front, back, _, _, _, _) = self.dims()
         return (front + back) / 2
 
+class TurnaroundConfig(WormConfig):
+    def __init__(
+        self,
+        slitHt: float = 31,
+        slitLen: float = 10,
+        slitWth: float = 3,
+        diskTck: float = 5,
+        diskRad: float = 7.7,
+        axleRad: float = 3,
+        axleLen: float = 6,  # original worm tuner has 8mm axle
+        driveRad: float = 4,
+        driveLen: float = 14,
+        driveOffset: float = 9.75,
+        gapAdj: float = 1,
+        tailAdj: float = 0,
+        buttonTck: float = 9.5,
+        buttonWth: float = 16,
+        buttonHt: float = 8,
+        buttonKeyLen: float = 6,
+        buttonKeyRad: float = 2.25,
+        buttonKeybaseRad: float = 3.8,
+        buttonKeybaseHt: float = 3,
+        code: str = 'T',
+        peg_config = PegConfig(topCutTck=25)
+    ):
+        super().__init__(code = code)
+        self.slitHt = slitHt
+        self.slitLen = slitLen
+        self.slitWth = slitWth
+        self.diskTck = diskTck
+        self.diskRad = diskRad
+        self.axleRad = axleRad
+        self.axleLen = axleLen
+        self.driveRad = driveRad
+        self.driveLen = driveLen
+        self.driveOffset = driveOffset
+        self.gapAdj = gapAdj
+        self.tailAdj = tailAdj
+        self.buttonTck = buttonTck
+        self.buttonWth = buttonWth
+        self.buttonHt = buttonHt
+        self.buttonKeyRad = buttonKeyRad
+        self.buttonKeyLen = buttonKeyLen
+        self.buttonKeybaseRad = buttonKeybaseRad
+        self.buttonKeybaseHt = buttonKeybaseHt
+        self.peg_config = peg_config
 
 FRICTION_PEG_CFG = PegConfig()
 GOTOH_PEG_CFG = PegConfig(
@@ -232,12 +279,15 @@ BIGWORM_TUNER_CFG = WormConfig(
     code = 'B',
 )
 
+TURNAROUND_CFG = TurnaroundConfig()
+
 class TunerType(Enum):
     """ Tuner Type Enumerator """
     FRICTION = FRICTION_PEG_CFG
     GOTOH = GOTOH_PEG_CFG
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
+    TURNAROUND = TURNAROUND_CFG
 
     def list()->list:
         """ Return List of enumerated names """

@@ -55,6 +55,7 @@ class PyleleTestMethods(B13DTestMethods):
     from pylele.pylele2.chamber import test_chamber, test_chamber_mock
     from pylele.pylele2.peg import test_peg, test_peg_mock
     from pylele.pylele2.worm import test_worm, test_worm_mock
+    from pylele.pylele2.turnaround import test_turnaround,test_turnaround_mock
     from pylele.pylele2.tuners import test_tuners, test_tuners_mock
     from pylele.pylele2.body import test_body, test_body_mock
     from pylele.pylele2.texts import test_texts, test_texts_mock

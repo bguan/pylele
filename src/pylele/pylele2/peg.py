@@ -22,8 +22,12 @@ class LelePeg(LeleBase):
     def gen(self) -> Shape:
         """Generate Peg"""
         cutAdj = FIT_TOL if self.isCut else 0
-        assert TunerType[self.cli.tuner_type].value.is_peg()
-        cfg: PegConfig = TunerType[self.cli.tuner_type].value
+        if TunerType[self.cli.tuner_type].value.is_peg():
+            cfg: PegConfig = TunerType[self.cli.tuner_type].value
+        elif TunerType[self.cli.tuner_type] == TunerType.TURNAROUND:
+            cfg: PegConfig = TunerType[self.cli.tuner_type].value.peg_config
+        else:
+            assert f"Unsupported Peg for tuner type {self.cli.tuner_type}"
         joinTol = 2 * self.cfg.tolerance
         strRad = self.cfg.STR_RAD + cutAdj
         holeHt = cfg.holeHt
@@ -32,7 +36,7 @@ class LelePeg(LeleBase):
         midTck = cfg.midTck
         botLen = cfg.botLen
         btnRad = cfg.btnRad + cutAdj
-        topCutTck = 100 if self.isCut else 2  # big value for cutting
+        topCutTck = cfg.topCutTck if self.isCut else 2  # big value for cutting
         botCutTck = botLen - midTck / 3 if self.isCut else 2
 
         top = self.api.cylinder_z(topCutTck + joinTol, majRad).mv(0, 0, topCutTck / 2)

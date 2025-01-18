@@ -104,16 +104,16 @@ def main(args=None):
 def test_turnaround(self, apis=None):
     """Test turnaround"""
 
+    DEFAULT = ["-t","turnaround"]
     tests = {
-        "default":[],
-        "cut" : "-C"
+        "default": DEFAULT,
+        "cut"    : DEFAULT + ["-C"]
         }
     test_loop(module=__name__, tests=tests, apis=apis)
 
 def test_turnaround_mock(self):
     """Test turnaround"""
     test_turnaround(self, apis=["mock"])
-
 
 if __name__ == "__main__":
     main()
