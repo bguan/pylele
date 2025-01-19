@@ -24,8 +24,9 @@ class LeleBodyType(StringEnum):
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
-WORM    = ['-t','worm'   ,'-e','90','-wah','-wsl','35']
-BIGWORM = ['-t','bigworm','-e','125','-wah','-wsl','35','-fbt','35']
+WORM_SLIT = ['-wah','-wsl','35']
+WORM    = ['-t','worm'   ,'-e','90'] + WORM_SLIT
+BIGWORM = ['-t','bigworm','-e','90','-fbt','35'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
 
 CONFIGURATIONS = {
@@ -34,7 +35,7 @@ CONFIGURATIONS = {
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
         'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25'] + TUNEBRIDGE,
-        'travelele'      : ['-bt', LeleBodyType.TRAVEL,'-wt','25','-t','turnaround','-e','50'] + TUNEBRIDGE
+        'travelele'      : ['-bt', LeleBodyType.TRAVEL,'-wt','25','-t','turnaround','-e','50'] + WORM_SLIT + TUNEBRIDGE
     }
 
 class AttrDict(dict):
@@ -263,16 +264,19 @@ class LeleConfig:
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         (tnrFront, tnrBack, _, _, _, _) = tnrType.dims()
-        bodyBackLen = self.chmBack + wallTck + tnrFront + tnrBack
-        self.bodyBackLen = bodyBackLen
-        self.tailX = scaleLen + bodyBackLen
+        if self.cli.body_type in [LeleBodyType.TRAVEL, LeleBodyType.FLAT]:
+            # shorter back for solid bodies
+            self.bodyBackLen = self.chmBack
+        else:
+            self.bodyBackLen = self.chmBack + wallTck + tnrFront + tnrBack
+        self.tailX = scaleLen + self.bodyBackLen
         self.nutWth = max(2,numStrs) * nutStrGap
         tnrSetback = tnrType.tailAllow()
         if tnrType.is_peg():
             self.neckWideAng = self.cli.min_neck_wide_angle
             self.tnrGap = tnrType.minGap()
         else:
-            tnrX = scaleLen + bodyBackLen - tnrSetback
+            tnrX = scaleLen + self.bodyBackLen - tnrSetback
             tnrW = tnrType.minGap() * numStrs
             tnrNeckWideAng = degrees(atan((tnrW - self.nutWth)/2/tnrX))
             self.neckWideAng = max(self.cli.min_neck_wide_angle, tnrNeckWideAng)
@@ -325,7 +329,7 @@ class LeleConfig:
         self.guideHt = 6 + numStrs/2
         self.guideX = scaleLen + .95*self.chmBack
         self.guideZ = -self.GUIDE_SET \
-            + self.TOP_RATIO * sqrt(bodyBackLen**2 - self.chmBack**2)
+            + self.TOP_RATIO * sqrt(self.bodyBackLen**2 - self.chmBack**2)
         self.guideWth = self.nutWth \
             + 2*tan(radians(self.neckWideAng))*self.guideX+ 2*self.GUIDE_RAD
         gGap = self.guideWth/numStrs
@@ -355,7 +359,7 @@ class LeleConfig:
 
         tMidZ = 0 # temporary workaround
         strOddMidPath.append(
-            (scaleLen + bodyBackLen - tnrSetback, 0,
+            (scaleLen + self.bodyBackLen - tnrSetback, 0,
              tMidZ + tnrType.strHt())
         )
 

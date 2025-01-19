@@ -27,6 +27,7 @@ def genBodyPath(
                  endWth: float,
                  neckWideAng: float,
                  isCut: bool = False,
+                 is_travel: bool  = False,
                 ) -> list[tuple[float, float, float, float]]:
     
     cutAdj = FIT_TOL if isCut else 0
@@ -39,14 +40,25 @@ def genBodyPath(
     neckDX = 1
     neckDY = neckDX * tan(radians(neckWideAng))
 
-    bodySpline = [
-        (nkLen + neckDX, nkWth/2 + neckDY, neckDY/neckDX, .5, .3),
-        (scaleLen, bWth/2, 0, .6),
-        (scaleLen + bBkLen, eWth/2 +.1, -inf, (1-eWth/bWth)/2),
-    ]
+
+    if is_travel:
+        bodySpline = [
+            #                x,                y,         dx/dy, dx              , dy
+            (nkLen + neckDX   , nkWth/2         , neckDY/neckDX),
+            (nkLen+50         , bWth/2          , neckDY/neckDX),
+            (scaleLen         , bWth/2          , 0            , .6              ),
+            (scaleLen + bBkLen, eWth/2 +.1      , -inf         , (1-eWth/bWth)/2),
+        ]
+    else:
+        bodySpline = [
+            #                x,                y,         dx/dy, dx              , dy
+            (nkLen + neckDX   , nkWth/2 + neckDY, neckDY/neckDX, .5              , .3),
+            (scaleLen         , bWth/2          , 0            , .6              ),
+            (scaleLen + bBkLen, eWth/2 +.1      , -inf         , (1-eWth/bWth)/2),
+        ]
 
     bodyPath = [
-        (nkLen, nkWth/2),
+        (nkLen            , nkWth/2),
         bodySpline,
         (scaleLen + bBkLen, eWth/2),
     ]
@@ -112,7 +124,9 @@ class LeleBody(LeleBase):
                  bodyBackLen = self.cfg.bodyBackLen,
                  endWth = self.cli.end_flat_width,
                  neckWideAng = self.cfg.neckWideAng,
-                 isCut = self.isCut)
+                 isCut = self.isCut,
+                 is_travel=self.cli.body_type == LeleBodyType.TRAVEL
+                 )
 
     def gen_flat_body_bottom(self):
         """Generate the thin rounded bottom of a flat body"""

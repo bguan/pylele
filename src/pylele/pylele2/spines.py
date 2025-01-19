@@ -13,6 +13,7 @@ from b13d.api.core import Shape
 from b13d.api.constants import FIT_TOL
 from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
+from pylele.pylele2.config import LeleBodyType
 
 
 class LeleSpines(LeleBase):
@@ -26,7 +27,9 @@ class LeleSpines(LeleBase):
         """ Spine Configuration """
         # Spine configs
         self.cfg.spineX = -self.cfg.headLen
-        self.cfg.spineLen = self.cfg.headLen + float(self.cli.scale_length) + self.cfg.chmBack + self.cfg.rimWth
+        self.cfg.spineLen = self.cfg.headLen + float(self.cli.scale_length)
+        if not self.cli.body_type in [LeleBodyType.TRAVEL]:
+            self.cfg.spineLen += self.cfg.chmBack + self.cfg.rimWth
         self.cfg.spineGap = (1 if self.cfg.is_odd_strs() else 2)*self.cli.nut_string_gap
         self.cfg.spineY = []
         if self.cli.num_spines in [1,3]:
