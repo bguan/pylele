@@ -12,7 +12,7 @@ from math import tan, inf
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.core import Shape
-from b13d.api.solid import main_maker, test_loop, FIT_TOL
+from b13d.api.solid import main_maker, test_loop, FIT_TOL, ColorEnum
 from b13d.api.utils import radians
 from pylele.config_common import TunerType
 from pylele.pylele2.config import LeleBodyType
@@ -160,7 +160,7 @@ class LeleBody(LeleBase):
                 self.cli.body_type in LeleBodyType.list()
             ), f"Unsupported Body Type {self.cli.body_type}"
 
-        return bot
+        return bot.set_color(ColorEnum.ORANGE)
 
     def gen_parser(self, parser=None):
         """

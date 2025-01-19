@@ -311,9 +311,13 @@ class TMShape(Shape):
         self.solid = self.solid.apply_scale((x, y, z))
         return self
 
-    def set_color(self, rgb):
-        face_colors = (rgb[0], rgb[1], rgb[2], 255)
-        self.solid.visual.face_colors = face_colors
+    def set_color(self, rgb: tuple[int, int, int] = None) -> Shape:
+        if not rgb is None:
+            self.color = rgb
+        if not self.color is None:
+            c = self.color.value
+            face_colors = (c[0], c[1], c[2], 255)
+            self.solid.visual.face_colors = face_colors
         return self
 
 class TMBall(TMShape):

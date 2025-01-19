@@ -210,6 +210,14 @@ class Sp2Shape(Shape):
     def hull(self) -> Sp2Shape:
         self.solid = self.solid.hull()
         return self
+    
+    def set_color(self, rgb: tuple[int, int, int] = None) -> Shape:
+        if not rgb is None:
+            self.color = rgb
+        if not self.color is None:
+            c = [v/255.0 for v in self.color.value]
+            self.solid = self.solid.color(c)
+        return self
 
 class Sp2Ball(Sp2Shape):
     def __init__(self, rad: float, api: Sp2ShapeAPI):

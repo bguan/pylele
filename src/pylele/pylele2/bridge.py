@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.core import Shape, Implementation
-from b13d.api.constants import FIT_TOL
+from b13d.api.constants import FIT_TOL, ColorEnum
 from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.strings import LeleStrings
@@ -166,7 +166,7 @@ class LeleBridge(LeleBase):
         if not self.isCut and not self.cli.bridge_piezo:
             brdg = brdg.cut(strings.gen_full())
 
-        return brdg
+        return brdg.set_color(ColorEnum.WHITE)
 
     def gen_parser(self, parser=None):
         """generate bridge parser"""

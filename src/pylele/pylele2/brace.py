@@ -10,7 +10,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from b13d.api.solid import main_maker, test_loop
+from b13d.api.solid import main_maker, test_loop, ColorEnum
 from b13d.api.core import Shape
 from pylele.pylele2.base import LeleBase
 
@@ -32,7 +32,7 @@ class LeleBrace(LeleBase):
             .scale(1, 0.3, 1)
             .mv(scLen - 0.25 * chmBk, 0, brdgZ)
         )
-        return brace
+        return brace.set_color(ColorEnum.WHITE)
 
 
 def main(args=None):

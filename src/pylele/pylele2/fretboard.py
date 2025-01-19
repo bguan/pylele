@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 from b13d.api.core import Shape
 from b13d.api.constants import FIT_TOL
 from b13d.api.utils import degrees, radians
-from b13d.api.solid import test_loop, main_maker, Implementation
+from b13d.api.solid import test_loop, main_maker, Implementation, ColorEnum
 from pylele.pylele2.base import LeleBase
 
 def fretboard_path(fretbdLen,
@@ -157,7 +157,7 @@ class LeleFretboard(LeleBase):
             Implementation.BLENDER,
         ]):
             # backends with fillet support
-            return self.gen_with_fillet(frad=frad,
+            fb = self.gen_with_fillet(frad=frad,
                         fretbdLen=fretbdLen,
                         fretbdWth=fretbdWth,
                         fbTck=fbTck,
@@ -165,13 +165,12 @@ class LeleFretboard(LeleBase):
 
         else: 
             # backends that do not support fillet (but support hull)
-            return self.gen_with_hull(frad=frad,
+            fb = self.gen_with_hull(frad=frad,
                         fretbdLen=fretbdLen,
                         fretbdWth=fretbdWth,
                         fbHt=fbHt)
 
-        assert False
-
+        return fb.set_color(ColorEnum.BLACK)
 
 def main(args=None):
     """Generate Fretboard"""

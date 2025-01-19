@@ -170,14 +170,20 @@ class Direction(StringEnum):
         return retval
 
 class Shape(ABC):
-
+ 
     MAX_DIM = 2000  # for max and min dimensions
+    api = None
+    color : tuple[int, int, int] = None
+    name : str = None
+    solid = None
 
-    def __init__(self, api: ShapeAPI, solid=None):
+    def __init__(self,
+                 api: ShapeAPI,
+                 solid=None,
+                 color : tuple[int, int, int] = None):
         self.api: ShapeAPI = api
         self.solid = solid
-        self.color:tuple[int, int, int] = None
-        self.name: str = None
+        self.color = color
 
     @abstractmethod
     def cut(self, cutter: Shape) -> Shape: ...
@@ -248,8 +254,11 @@ class Shape(ABC):
     @abstractmethod
     def scale(self, x: float, y: float, z: float) -> Shape: ...
 
-    def set_color(self, rgb: tuple[int, int, int]) -> Shape:
-        self.color = rgb
+    def set_color(self, rgb: tuple[int, int, int] = None) -> Shape:
+        if not rgb is None:
+            self.color = rgb
+        # return self
+        print(f"Warning! set_color not implemented yet for {self.api.implementation} api!")
         return self
 
     def set_name(self, name: str) -> Shape:

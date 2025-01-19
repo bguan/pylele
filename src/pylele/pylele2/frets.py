@@ -12,7 +12,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.core import StringEnum, Shape, ShapeAPI
-from b13d.api.solid import test_loop, main_maker
+from b13d.api.solid import test_loop, main_maker, ColorEnum
 from b13d.api.utils import radians, accumDiv
 
 from pylele.config_common import SEMI_RATIO
@@ -95,7 +95,7 @@ class LeleFrets(LeleBase):
             if count > maxFrets:  # prevent runaway loop
                 break
 
-        return frets
+        return frets.set_color(ColorEnum.LITE_GRAY)
 
     def gen_parser(self, parser=None):
         """Generate Fret Parser"""

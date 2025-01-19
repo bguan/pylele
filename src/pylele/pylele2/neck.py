@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.core import Shape
-from b13d.api.solid import main_maker, test_loop
+from b13d.api.solid import main_maker, test_loop, ColorEnum
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.fretboard import fretboard_path
 
@@ -35,7 +35,7 @@ class LeleNeck(LeleBase):
             path = fretboard_path(self.cfg.neckLen, self.cfg.nutWth, self.cfg.neckWth)
             neck += self.api.polygon_extrusion(path, midTck).mv(0, 0, -midTck)
 
-        return neck
+        return neck.set_color(ColorEnum.ORANGE)
 
 def main(args=None):
     """Generate Neck"""
