@@ -28,15 +28,15 @@ WORM_SLIT = ['-wah','-wsl','35']
 WORM    = ['-t','worm'   ,'-e','90'] + WORM_SLIT
 BIGWORM = ['-t','bigworm','-e','90','-fbt','35'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
-TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10','-cbr','1.5']
+TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10']
 
 CONFIGURATIONS = {
         'default'        : [],
         'worm'           : WORM    , # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE,
-        'travelele'      : TRAVEL + ['-t','turnaround','-e','50'] + WORM_SLIT + TUNEBRIDGE
+        'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + ['-cbr','1.2'],
+        'travelele'      : TRAVEL + ['-t','turnaround','-e','50','-cbr','1.5','-fbt','20'] + WORM_SLIT + TUNEBRIDGE
     }
 
 class AttrDict(dict):
