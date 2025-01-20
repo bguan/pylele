@@ -61,7 +61,7 @@ class LeleTexts(LeleBase):
         """Generate Texts"""
 
         scLen = float(self.cli.scale_length)
-        backRat = self.cfg.CHM_BACK_RATIO
+        backRat = self.cli.chamber_back_ratio
         dep = self.cfg.EMBOSS_DEP
 
         tsf = self.cli.texts_size_font

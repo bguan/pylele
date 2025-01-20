@@ -11,7 +11,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.solid import main_maker, test_loop
-from pylele.pylele2.config import LeleBodyType, Implementation
+from pylele.pylele2.config import LeleBodyType, Implementation, TunerType
 from b13d.api.constants import FIT_TOL
 from b13d.api.core import Shape
 from pylele.pylele2.base import LeleBase
@@ -96,19 +96,15 @@ class LeleBottomAssembly(LeleBase):
             body -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(2*FIT_TOL, 0, 0)
 
         ## Tuners
-        tuners = LeleTuners(cli=self.cli, isCut=True)
-        if not self.cli.separate_end:
-            body -= tuners
+        body -= LeleTuners(cli=self.cli, isCut=True)
 
         ## Tail, not ideal for non worm but possible
         if self.cli.separate_end:
             body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             tail = LeleTail(cli=self.cli)
-            tail -= tuners
-            if spines is not None:
-                tail -= spines
-            if chamber is not None:
-                tail -= chamber
+            # tail -= tuners
+            # tail -= spines
+            # tail -= chamber
             self.add_part(tail)
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
