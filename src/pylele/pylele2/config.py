@@ -24,6 +24,14 @@ class LeleBodyType(StringEnum):
     HOLLOW = 'hollow'
     TRAVEL = 'travel'
 
+    def is_flat(self) -> bool:
+        """ Is Flat Body """
+        return self in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]
+    
+    def is_solid(self) -> bool:
+        """ Is Flat Body """
+        return self in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]
+
 WORM_SLIT = ['-wah','-wsl','35']
 WORM    = ['-t','worm'   ,'-e','90'] + WORM_SLIT
 BIGWORM = ['-t','bigworm','-e','90','-fbt','35'] + WORM_SLIT

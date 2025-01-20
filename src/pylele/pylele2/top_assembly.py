@@ -71,7 +71,7 @@ class LeleTopAssembly(LeleBase):
             if fretbd.has_parts():
                 self.add_parts(top.parts)
 
-        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+        if not self.cli.body_type.is_solid():
             # soundhole
             sh  = LeleSoundhole(cli=self.cli, isCut=True)
             top -= sh
@@ -92,7 +92,7 @@ class LeleTopAssembly(LeleBase):
         if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
             chm = LeleChamber(cli=self.cli,isCut=True)
             # cut Brace from chamber
-            if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+            if not self.cli.body_type.is_solid():
                 chm -= LeleBrace(cli=self.cli)
             top -= chm
 

@@ -51,7 +51,7 @@ class LeleTail(LeleBase):
         assert tail_width > 0, f"tail_width too small! {tail_width}, should be larger than 0"
 
         ## flat middle section
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
+        if self.cli.body_type.is_flat():
             midBotTck = self.cli.flat_body_thickness
         else:
             midBotTck = cfg.extMidBotTck + 2*cutAdj
@@ -63,11 +63,10 @@ class LeleTail(LeleBase):
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             tail = extTop + inrTop.mv(jcTol, 0, 0)
 
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
+        if self.cli.body_type.is_flat():
             # flat bodies do not have rounded bottom
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
                 tail = tail.mv(5,0,0) # for whatever reason...
-            pass
         else:
             # rounded bottom
             extBot = self.api.cylinder_x(10 if self.isCut else rimWth, endWth/2)\

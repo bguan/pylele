@@ -148,7 +148,7 @@ class LeleBody(LeleBase):
                 bot <<= (0, 0, joinTol - midTck)
                 bot += self.gourd_flat_extrusion(thickness=-midTck)
 
-        elif self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+        elif self.cli.body_type.is_solid():
 
             bot_below = self.gen_flat_body_bottom()
 

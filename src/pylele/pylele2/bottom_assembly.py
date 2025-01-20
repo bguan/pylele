@@ -77,14 +77,9 @@ class LeleBottomAssembly(LeleBase):
             body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
 
         ## Neck Bend
-        if self.cli.body_type in [
-            LeleBodyType.FLAT,
-            LeleBodyType.HOLLOW,
-            LeleBodyType.TRAVEL
-        ]:
-            if self.cli.implementation == Implementation.CADQUERY and (
-                self.cli.body_type == LeleBodyType.FLAT or
-                self.cli.body_type == LeleBodyType.HOLLOW):
+        if self.cli.body_type.is_flat():
+            if self.cli.implementation == Implementation.CADQUERY and \
+                self.cli.body_type.is_flat():
                 print('# WARNING: not generating neck bend, because does not work with cadquery and flat body')
             else:
                 body += LeleNeckBend(cli=self.cli)
