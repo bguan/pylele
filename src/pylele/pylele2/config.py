@@ -267,11 +267,11 @@ class LeleConfig:
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.CHM_BACK_RATIO * self.chmFront
         (tnrFront, tnrBack, _, _, _, _) = tnrType.dims()
-        if self.cli.body_type in [LeleBodyType.TRAVEL, LeleBodyType.FLAT]:
-            # shorter back for solid bodies
-            self.bodyBackLen = self.chmBack
-        else:
-            self.bodyBackLen = self.chmBack + wallTck + tnrFront + tnrBack
+
+        self.bodyBackLen = self.chmBack
+        if not self.cli.body_type in [LeleBodyType.TRAVEL]:
+            self.bodyBackLen += wallTck + tnrFront + tnrBack
+
         self.tailX = scaleLen + self.bodyBackLen
         self.nutWth = max(2,numStrs) * nutStrGap
         tnrSetback = tnrType.tailAllow()
