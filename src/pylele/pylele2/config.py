@@ -28,14 +28,15 @@ WORM_SLIT = ['-wah','-wsl','35']
 WORM    = ['-t','worm'   ,'-e','90'] + WORM_SLIT
 BIGWORM = ['-t','bigworm','-e','90','-fbt','35'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
+TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10','-cbr','1.5']
 
 CONFIGURATIONS = {
         'default'        : [],
         'worm'           : WORM    , # gourd
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + ['-bt', LeleBodyType.TRAVEL,'-wt','25'] + TUNEBRIDGE,
-        'travelele'      : ['-bt', LeleBodyType.TRAVEL,'-wt','25','-t','turnaround','-e','50'] + WORM_SLIT + TUNEBRIDGE
+        'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE,
+        'travelele'      : TRAVEL + ['-t','turnaround','-e','50'] + WORM_SLIT + TUNEBRIDGE
     }
 
 class AttrDict(dict):
@@ -75,6 +76,8 @@ def pylele_config_parser(parser = None):
                         type=int, default=3, choices=[*range(4)])
     parser.add_argument("-mnwa", "--min_neck_wide_angle", help="Minimum Neck Widening angle [deg]",
                         type=float, default=1.2)
+    parser.add_argument("-cbr", "--chamber_bridge_ratio", help="Chamber/Bridge width",
+                        type=float, default=3)
 
     ## Body Type config options ###########################################
 
@@ -131,7 +134,7 @@ class LeleConfig:
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
     CHM_BACK_RATIO = 1/2 # to chmFront
-    CHM_BRDG_RATIO = 3  # to chmWth
+    # CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     FRET_HT = 1
     FRETBD_RATIO = 0.635  # to scaleLen
@@ -302,7 +305,8 @@ class LeleConfig:
             tan(radians(self.fretbdRiseAng)) * self.fretbdLen
 
         # Chamber Configs
-        self.chmWth = self.brdgWth if self.cli.body_type==LeleBodyType.TRAVEL else self.brdgWth * self.CHM_BRDG_RATIO
+        # self.chmWth = self.brdgWth if self.cli.body_type==LeleBodyType.TRAVEL else self.brdgWth * self.CHM_BRDG_RATIO
+        self.chmWth = self.brdgWth * self.cli.chamber_bridge_ratio
         self.rimWth = wallTck/2
 
         # Head configs

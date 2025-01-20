@@ -54,7 +54,7 @@ class LeleTuners(LeleBase):
             for i in range(ceil(self.cli.num_strings/2)):
                 tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
                 peg_cfg = TunerType[self.cli.tuner_type].value.peg_config
-                tnr <<= (0,0,peg_cfg.midTck)
+                tnr <<= (0,0,peg_cfg.botLen)
                 tnr.rotate_x(90).mv(self.cli.scale_length - 35 * (1 + i),
                                     self.cfg.bodyWth/2,
                                     -self.cli.flat_body_thickness/2)
