@@ -125,7 +125,25 @@ class BlenderShapeAPI(ShapeAPI):
 
     def cylinder_z(self, h: float, rad: float) -> BlenderShape:
         return BlenderRodZ(h, rad, self)
+    
+    def cylinder_rounded_x(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        stemLen = l - 2 * rad * domeRatio
+        rod = self.cylinder_x(stemLen, rad)
+        for bx in [stemLen / 2, -stemLen / 2]:
+            ball = self.sphere(rad).scale(domeRatio, 1, 1)
+            ball <<= (bx, 0, 0)
+            rod += ball
+        return rod
 
+    def cylinder_rounded_y(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
+        stemLen = l - 2 * rad * domeRatio
+        rod = self.cylinder_y(stemLen, rad)
+        for by in [stemLen / 2, -stemLen / 2]:
+            ball = self.sphere(rad).scale(1, domeRatio, 1)
+            ball <<= (0, by, 0)
+            rod += ball
+        return rod
+        
     def polygon_extrusion(
         self, path: list[tuple[float, float]], ht: float
     ) -> BlenderShape:

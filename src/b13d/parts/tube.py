@@ -9,7 +9,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from b13d.api.solid import Solid, test_loop, main_maker
-from b13d.api.core import Shape
+from b13d.api.core import Shape, Direction
 
 class Tube(Solid):
     """ Generate a Tube """
@@ -19,11 +19,19 @@ class Tube(Solid):
         parser.add_argument("-out", "--out_diameter", help="Outer diameter [mm]", type=float, default=5)
         parser.add_argument("-in", "--in_diameter", help="Inner diameter [mm]", type=float, default=3)
         parser.add_argument("-H", "--heigth", help="Height [mm]", type=float, default=5)
+        parser.add_argument("-d", "--direction", help="Direction", type=Direction, choices=Direction.list(), default=Direction.X.name)
+        parser.add_argument("-rr", "--rounding_ratio", help="Rounding Ratio", type=float, default=None)
         return parser
 
     def gen(self) -> Shape:
-        outer = self.api.cylinder_x(self.cli.heigth, self.cli.out_diameter/2)
-        inner = self.api.cylinder_x(self.cli.heigth+1, self.cli.in_diameter/2)
+        outer = self.api.cylinder(l=self.cli.heigth,
+                                  rad=self.cli.out_diameter/2,
+                                  direction=self.cli.direction,
+                                  dome_ratio=self.cli.rounding_ratio)
+        inner = self.api.cylinder(l=self.cli.heigth+1,
+                                  rad=self.cli.in_diameter/2,
+                                  direction=self.cli.direction,
+                                  dome_ratio=self.cli.rounding_ratio)
         return outer - inner
 
 def main(args=None):

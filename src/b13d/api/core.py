@@ -162,6 +162,9 @@ class Direction(StringEnum):
     def eval(self):
         return DIRECTION_TO_TUPLE[self.value]
 
+    def list():
+        return Direction._member_names_
+
     def __add__(self, operand):
         return map(lambda x: operand * x, self.eval() )
 
@@ -455,19 +458,18 @@ class ShapeAPI(ABC):
         return mask
 
     def cylinder_rounded_x(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
-        rndRodZ = self.cylinder_rounded_z(l, rad, domeRatio)
-        return rndRodZ.rotate_y(90)
+        return self.cylinder_rounded_z(l, rad, domeRatio).rotate_y(90)
 
     def cylinder_rounded_y(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
-        rndRodX = self.cylinder_rounded_x(l, rad, domeRatio)
-        return rndRodX.rotate_z(90)
+        return self.cylinder_rounded_x(l, rad, domeRatio).rotate_z(90)
 
     def cylinder_rounded_z(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         stemLen = l - 2 * rad * domeRatio
         rod = self.cylinder_z(stemLen, rad)
         for bz in [stemLen / 2, -stemLen / 2]:
-            ball = self.sphere(rad).scale(1, 1, domeRatio).mv(0, 0, bz)
-            rod = rod.join(ball)
+            ball = self.sphere(rad).scale(1, 1, domeRatio)
+            ball <<= (0, 0, bz)
+            rod += ball
         return rod
 
     @abstractmethod
