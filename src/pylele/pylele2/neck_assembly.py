@@ -60,11 +60,6 @@ class LeleNeckAssembly(LeleBase):
             if self.cli.separate_fretboard or self.cli.separate_top:
                 neck -= LeleNut(cli=self.cli, isCut=True)
 
-            ## Fretboard Spines, needed as fbspines in Fretboard assembly and not in Fretboad
-            if (self.cli.separate_fretboard or self.cli.separate_top) \
-                and self.cli.num_spines > 0:
-                neck -= LeleFretboardSpines(cli=self.cli, isCut=True)
-
             ## Spines
             if self.cli.num_spines > 0:
                 neck -= LeleSpines(cli=self.cli, isCut=True)

@@ -21,7 +21,7 @@ from pylele.pylele2.fretboard import LeleFretboard
 from pylele.pylele2.top import LeleTop
 from pylele.pylele2.fretboard_spines import LeleFretboardSpines
 from pylele.pylele2.fretboard_joint import LeleFretboardJoint
-
+from pylele.pylele2.body import LeleBody
 
 def pylele_fretboard_assembly_parser(parser=None):
     """
@@ -79,12 +79,13 @@ class LeleFretboardAssembly(LeleBase):
         else:
             fretbd += nut
 
-        if self.cli.separate_fretboard or self.cli.separate_neck:
-            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
-            fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
-
         if (self.cli.separate_fretboard or self.cli.separate_top) and self.cli.num_spines > 0:
             fretbd += LeleFretboardSpines(cli=self.cli).mv(0, 0, jcTol)
+
+        if self.cli.separate_fretboard or self.cli.separate_neck:
+            fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
+            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
+            fretbd -= LeleBody(isCut=True,cli=self.cli)
 
         return fretbd.gen_full()
 
