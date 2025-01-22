@@ -28,8 +28,6 @@ from pylele.pylele2.tuners import LeleTuners
 from pylele.pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele.pylele2.neck_assembly import LeleNeckAssembly
 from pylele.pylele2.worm import pylele_worm_parser
-from pylele.pylele2.neck_bend import LeleNeckBend
-
 
 class LeleBottomAssembly(LeleBase):
     """Pylele Body Bottom Assembly Generator class"""
@@ -66,6 +64,8 @@ class LeleBottomAssembly(LeleBase):
         neck = LeleNeckAssembly(cli=self.cli, isCut=False)
         neck.gen_full()
         if self.cli.separate_neck:
+            neck_cut = LeleNeckAssembly(cli=self.cli, isCut=True)
+            body -= neck_cut
             self.add_part(neck)
         else:
             body += neck.mv(jcTol, 0, 0)
@@ -75,15 +75,7 @@ class LeleBottomAssembly(LeleBase):
         ## Neck Joint
         if self.cli.separate_neck:
             body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
-
-        ## Neck Bend
-        if self.cli.body_type.is_flat():
-            if self.cli.implementation == Implementation.CADQUERY and \
-                self.cli.body_type.is_flat():
-                print('# WARNING: not generating neck bend, because does not work with cadquery and flat body')
-            else:
-                body += LeleNeckBend(cli=self.cli)
-
+                
         ## Fretboard Spines
         if (self.cli.separate_fretboard or
             self.cli.separate_neck or

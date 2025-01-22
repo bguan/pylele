@@ -64,7 +64,6 @@ class PyleleTestMethods(B13DTestMethods):
     from pylele.pylele2.tail import test_tail, test_tail_mock
     from pylele.pylele2.brace import test_brace, test_brace_mock
     from pylele.pylele2.soundhole import test_soundhole, test_soundhole_mock
-    from pylele.pylele2.neck_bend import test_neck_bend, test_neck_bend_mock
 
     ## Assemblies
     from pylele.pylele2.fretboard_assembly import (

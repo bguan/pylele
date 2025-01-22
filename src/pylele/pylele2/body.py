@@ -27,7 +27,7 @@ def genBodyPath(
                  endWth: float,
                  neckWideAng: float,
                  isCut: bool = False,
-                 is_travel: bool  = False,
+                 body_type: LeleBodyType = LeleBodyType.GOURD,
                 ) -> list[tuple[float, float, float, float]]:
     
     cutAdj = FIT_TOL if isCut else 0
@@ -40,16 +40,31 @@ def genBodyPath(
     neckDX = 1
     neckDY = neckDX * tan(radians(neckWideAng))
 
+    body_origin = (nkLen,0)
 
-    if is_travel:
+    if body_type == LeleBodyType.TRAVEL:
+        body_start = (nkLen - nkWth/2,0)
         bodySpline = [
             #                x,                y,         dx/dy, dx              , dy
+            (nkLen - nkWth/2  ,                0,            inf,                 0),
             (nkLen + neckDX   , nkWth/2         , neckDY/neckDX),
             (nkLen+50         , bWth/2          , neckDY/neckDX),
             (scaleLen         , bWth/2          , 0            , .6              ),
             (scaleLen + bBkLen, eWth/2 +.1      , -inf         , (1-eWth/bWth)/2),
         ]
+
+    elif body_type.is_flat():
+        body_start = (nkLen - nkWth/2,0)
+        bodySpline = [
+            #                x,                y,         dx/dy, dx              , dy
+            (nkLen - nkWth/2  ,                0,            inf,                 0),
+            (nkLen + neckDX   , nkWth/2 + neckDY, neckDY/neckDX, .5              , .3),
+            (scaleLen         , bWth/2          , 0            , .6              ),
+            (scaleLen + bBkLen, eWth/2 +.1      , -inf         , (1-eWth/bWth)/2),
+        ]
+
     else:
+        body_start  = (nkLen, nkWth/2)
         bodySpline = [
             #                x,                y,         dx/dy, dx              , dy
             (nkLen + neckDX   , nkWth/2 + neckDY, neckDY/neckDX, .5              , .3),
@@ -58,7 +73,7 @@ def genBodyPath(
         ]
 
     bodyPath = [
-        (nkLen            , nkWth/2),
+        body_start,
         bodySpline,
         (scaleLen + bBkLen, eWth/2),
     ]
@@ -66,7 +81,7 @@ def genBodyPath(
     if eWth > 0:
         bodyPath.insert(3,(scaleLen + bBkLen, 0))
 
-    return bodyPath
+    return body_origin, bodyPath
 
 def pylele_body_parser(parser=None):
     """
@@ -79,9 +94,6 @@ def pylele_body_parser(parser=None):
 
 class LeleBody(LeleBase):
     """Pylele Body Generator class"""
-
-    body_origin = ()
-    body_path = []
 
     def gourd_shape(self, top: bool = True, custom_ratio = None):
         """generate the top or bottom of a gourd body"""
@@ -115,8 +127,7 @@ class LeleBody(LeleBase):
     def configure(self):
         LeleBase.configure(self)
 
-        self.cfg.body_origin = (self.cfg.neckLen,0)
-        self.cfg.body_path = genBodyPath(
+        self.cfg.body_origin, self.cfg.body_path = genBodyPath(
                  scaleLen = float(self.cli.scale_length),
                  neckLen = self.cfg.neckLen,
                  neckWth = self.cfg.neckWth,
@@ -125,7 +136,7 @@ class LeleBody(LeleBase):
                  endWth = self.cli.end_flat_width,
                  neckWideAng = self.cfg.neckWideAng,
                  isCut = self.isCut,
-                 is_travel=self.cli.body_type == LeleBodyType.TRAVEL
+                 body_type=self.cli.body_type
                  )
 
     def gen_flat_body_bottom(self):
