@@ -27,6 +27,8 @@ from b13d.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR
 from b13d.api.utils import make_or_exist_path
 from b13d.conversion.scad2stl import scad2stl_parser
 
+MAX_SECTION = 1000
+
 def main_maker(module_name, class_name, args=None):
     """Generate a main function for a Solid instance"""
     module = importlib.import_module(module_name)
@@ -235,6 +237,24 @@ def lele_solid_parser(parser=None):
         action="store_true",
     )
     parser.add_argument(
+        '-secx','--section_x',
+        help="List of coordinates to section solid along x axis",
+        nargs='+', type=float,
+        default = [-MAX_SECTION, MAX_SECTION]
+    )
+    parser.add_argument(
+        '-secy','--section_y',
+        help="List of coordinates to section solid along y axis",
+        nargs='+', type=float,
+        default = [-MAX_SECTION, MAX_SECTION]
+    )
+    parser.add_argument(
+        '-secz','--section_z',
+        help="List of coordinates to section solid along z axis",
+        nargs='+', type=float,
+        default = [-MAX_SECTION, MAX_SECTION]
+    )
+    parser.add_argument(
         "-stlc",
         "--stl_check_en",
         help="Calculate output mesh volume for report",
@@ -365,6 +385,17 @@ class Solid(ABC):
         else:
             self.parts = parts
 
+    def gen_section(self):
+        """Generate the volume that selcts the section of the solid"""
+        xlen = abs(self.cli.section_x[1] - self.cli.section_x[0])
+        ylen = abs(self.cli.section_y[1] - self.cli.section_y[0])
+        zlen = abs(self.cli.section_z[1] - self.cli.section_z[0])
+        return self.api.box(xlen, ylen, zlen).mv(
+            min(self.cli.section_x)+xlen/2,
+            min(self.cli.section_y)+ylen/2,
+            min(self.cli.section_z)+zlen/2
+            )
+
     def gen_full(self):
         """ Generate shape if attribute not present """
         if not self.has_shape():
@@ -379,7 +410,9 @@ class Solid(ABC):
             self.shape = self.gen()
             print(f"# Done generating shape! {self.fileNameBase}")
         self.check_has_shape()
-        return self.shape
+        section = self.gen_section()
+        # return self.shape.join(section) 
+        return self.shape.intersection(section)
 
     def gen_parser(self, parser=None):
         """

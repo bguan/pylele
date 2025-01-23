@@ -12,7 +12,7 @@ from b13d.api.solid import Solid, test_loop, main_maker, Implementation
 from b13d.api.core import Shape
 
 class RoundedRectangle(Solid):
-    """ Generate a Tube """
+    """ Generate a Rounded Rectangle extruded along Z """
 
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
@@ -93,9 +93,15 @@ class RoundedRectangle(Solid):
                     edge = self.api.cylinder_z(self.cli.z,self.cli.r)
                     edge <<= (x,y,0)
                     box = edge + box
-        
-        # hull from the corners
-        return box.hull()
+
+        if box is None:
+            # no rounding
+            return self.api.box(self.cli.x,
+                              self.cli.y,
+                              self.cli.z)
+        else:
+            # hull from the corners
+            return box.hull()
 
     def gen(self) -> Shape:
         """ generate rounded box """
@@ -120,6 +126,9 @@ def test_rounded_rectangle(self,apis=None):
     tests={'x':['-rx'],
            'y':['-ry'],
            'z':['-rz'],
+           'secx':['-secx','0','10'],
+           'secy':['-secy','0','10'],
+           'secz':['-secz','0','10'],
            }
     test_loop(module=__name__,tests=tests,apis=apis)
 
