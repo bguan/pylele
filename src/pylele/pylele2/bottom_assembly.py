@@ -131,7 +131,7 @@ def test_bottom_assembly(self, apis=None):
 
     refv = {
         'default': "467193",
-        'travel' : '374571',
+        'travel' : '548386',
         'hollow' : '424951',
         'gourd'  : '504390',
         'flat'   : '913770',

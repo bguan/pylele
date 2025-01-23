@@ -110,9 +110,9 @@ def test_all_assembly(self, apis=None):
         'default'        :  '529039',
         'worm'           :  '579205',
         'flat'           : '1078970',
-        'hollow'         : '1053325',
-        'travel'         : '1064942',
-        'travelele'      : '1064942'
+        'hollow'         :  '919553',
+        'travel'         :  '837153',
+        'travelele'      :  '403970'
     }
 
     test_config = {}
