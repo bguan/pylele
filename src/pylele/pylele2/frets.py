@@ -16,7 +16,7 @@ from b13d.api.solid import test_loop, main_maker, ColorEnum
 from b13d.api.utils import radians, accumDiv
 
 from pylele.config_common import SEMI_RATIO
-from pylele2.base import LeleBase
+from pylele.pylele2.base import LeleBase
 
 
 FRET_WIRE_WIDTH = 0.5
