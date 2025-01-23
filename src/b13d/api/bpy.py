@@ -501,7 +501,7 @@ class BlenderBall(BlenderShape):
         api: BlenderShapeAPI,
     ):
         super().__init__(api)
-        segs = self._smoothing_segments(2 * pi * rad)
+        segs = ceil(self._smoothing_segments(2 * pi * rad)/2)
         bpy.ops.mesh.primitive_uv_sphere_add(radius=rad, segments=segs, ring_count=segs)
         self.solid = bpy.context.object
 
