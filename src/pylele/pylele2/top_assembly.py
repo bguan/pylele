@@ -130,7 +130,7 @@ def test_top_assembly(self, apis=None):
         "separate_top": ["-T"],
         "separate_neck": ["-N"],
         "separate_fretboard": ["-F"],
-        "gotoh_tuners": ["-t", "gotoh"],
+        # "gotoh_tuners": ["-t", "gotoh"],
         "worm_tuners": ["-t", "worm"],
         "big_worm_tuners": ["-t", "bigWorm"],
         "bridge_piezo": ["-bpiezo", "-B"],

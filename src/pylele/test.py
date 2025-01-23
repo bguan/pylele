@@ -5,15 +5,8 @@
 """
 
 import unittest
+
 import os
-import csv
-
-from json_tricks import load
-from prettytable import from_csv
-
-from openpyxl import Workbook
-from openpyxl.worksheet.table import Table, TableStyleInfo
-
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
