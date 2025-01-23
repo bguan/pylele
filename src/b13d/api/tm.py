@@ -151,7 +151,7 @@ class TMShape(Shape):
     Y_AXIS = (0, 1, 0)
     Z_AXIS = (0, 0, 1)
 
-    def __init__(self, api: TMShapeAPI):
+    def __init__(self, api: TMShapeAPI = TMShapeAPI):
         super().__init__(api)
         self.solid: tm.Trimesh = None
 
