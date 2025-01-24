@@ -577,7 +577,7 @@ class TMImport(TMShape):
         self,
         infile: str,
         extrude: float = None,
-        api: TMShapeAPI = TMShapeAPI,
+        api: TMShapeAPI = TMShapeAPI(implementation=Implementation.TRIMESH),
     ):
         super().__init__(api)
         assert os.path.isfile(infile) or os.path.isdir(
