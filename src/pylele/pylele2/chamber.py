@@ -56,12 +56,10 @@ class LeleChamber(LeleBase):
 
     def gen_extruded_oval(self, x1, x2, y_width, z_thick):
         chm = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
-        chm1 = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
-        chm = chm.join(chm1)
+        chm += self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
         box_len = abs(x1 - x2)
         box_pos = (x1 + x2) / 2
-        chm_box = self.api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
-        chm = chm.join(chm_box)
+        chm += self.api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
         return chm
 
     def gen(self) -> Shape:
@@ -100,17 +98,17 @@ class LeleChamber(LeleBase):
             topBack = (
                 self.api.sphere_quadrant(rad, True, False)
                 .scale(backRat, 1, topChmRat)
-                .mv(0, 0, -jcTol)
+                .mv(jcTol, 0, -jcTol)
             )
             botFront = (
                 self.api.sphere_quadrant(rad, False, True)
                 .scale(frontRat, 1, botRat)
-                .mv(jcTol, 0, 0)
+                .mv(-jcTol, 0, jcTol)
             )
             botBack = (
                 self.api.sphere_quadrant(rad, False, False)
                 .scale(backRat, 1, botRat)
-                .mv(0, 0, 0)
+                .mv(-jcTol, 0, jcTol)
             )
             chm = topFront + topBack + botFront + botBack
 
