@@ -20,36 +20,39 @@ from b13d.conversion.svg2dxf import svg2dxf_wrapper
     Encapsulate CAD Query implementation specific calls
 """
 
+CQ_EXPORTERS = {
+    ".stl": cq.exporters.ExportTypes.STL,
+    ".step": cq.exporters.ExportTypes.STEP,
+    ".svg": cq.exporters.ExportTypes.SVG,
+    ".dxf": cq.exporters.ExportTypes.DXF,
+    ".tjs": cq.exporters.ExportTypes.TJS,
+    ".vrml": cq.exporters.ExportTypes.VRML,
+}
 
 class CQShapeAPI(ShapeAPI):
 
-    def export(self, shape: CQShape, path: Union[str, Path],fmt=".stl") -> None:
-        assert fmt in [".stl",".step"]
-        if fmt == ".stl":
-            self.export_stl(shape=shape,path=path)
-        elif fmt == ".step":
-            self.export_step(shape=shape,path=path)
-        else:
-            assert False
+    def export(self, shape: CQShape, path: Union[str, Path], fmt=".stl") -> None:
+        cq.exporters.export(
+            shape.solid,
+            file_ensure_extension(path, fmt),
+            CQ_EXPORTERS[fmt],
+            tolerance=self.fidelity.tolerance(),
+            opt={
+                "showAxes": False,
+                "projectionDir": (0, 0, 1),
+                #"strokeWidth": 0.25,
+                #"strokeColor": (255, 0, 0),
+                #"hiddenColor": (0, 0, 255),
+                "showHidden": False,
+                "showOrigin": False,
+                },
+        )
 
     def export_best(self, shape: CQShape, path: Union[str, Path]) -> None:
-        self.export_step(shape=shape,path=path)
+        self.export(shape=shape,path=path,fmt=".step")
 
     def export_stl(self, shape: CQShape, path: Union[str, Path]) -> None:
-        cq.exporters.export(
-            shape.solid,
-            file_ensure_extension(path, ".stl"),
-            cq.exporters.ExportTypes.STL,
-            tolerance=self.fidelity.tolerance(),
-        )
-
-    def export_step(self, shape: CQShape, path: Union[str, Path]) -> None:
-        cq.exporters.export(
-            shape.solid,
-            file_ensure_extension(path, ".step"),
-            cq.exporters.ExportTypes.STEP,
-            tolerance=self.fidelity.tolerance(),
-        )
+        self.export(shape=shape,path=path,fmt=".stl")
 
     def export_best_multishapes(
         self,
