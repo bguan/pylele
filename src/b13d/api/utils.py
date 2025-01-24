@@ -479,10 +479,9 @@ def gen_svg_foo(outpath: str) -> str:
 
     stlstr = """<?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE svg>
-        <svg xmlns="http://www.w3.org/2000/svg"
-            width="304" height="290">
-        <path d="M2,111 h300 l-242.7,176.3 92.7,-285.3 92.7,285.3 z"
-            style="fill:#FB2;stroke:#BBB;stroke-width:15;stroke-linejoin:round"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+        <!-- A red circle -->
+        <circle cx="100" cy="100" r="50" fill="red" />
         </svg>
         """
 
