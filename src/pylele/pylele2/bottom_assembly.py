@@ -10,7 +10,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from b13d.api.solid import main_maker, test_loop
+from b13d.api.solid import main_maker, test_loop, Implementation
 from pylele.pylele2.config import LeleBodyType
 from b13d.api.constants import FIT_TOL
 from b13d.api.core import Shape
@@ -40,10 +40,6 @@ class LeleBottomAssembly(LeleBase):
         ## Body
         body = LeleBody(cli=self.cli)
 
-        ## Text
-        if not self.cli.no_text:
-            body -= LeleTexts(cli=self.cli, isCut=True)
-
         ## Chamber
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
             body -= LeleChamber(cli=self.cli, isCut=True)
@@ -57,23 +53,23 @@ class LeleBottomAssembly(LeleBase):
             body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
 
         ## Neck
-        neck = LeleNeckAssembly(cli=self.cli, isCut=False)            
+        neck = LeleNeckAssembly(cli=self.cli, isCut=False)
+        neck.gen_full()
         if self.cli.separate_neck:
             body -= LeleNeckAssembly(cli=self.cli, isCut=True)
-            self.add_part(neck)
+            if not self.api.implementation == Implementation.BLENDER:
+                # god knows why blender does not like this
+                self.add_part(neck)
         else:
             body += neck.mv(jcTol, 0, 0)
-
-        neck.gen_full()
-        if neck.has_parts():
             self.add_parts(neck.parts)
 
         ## Neck Joint
-        if self.cli.separate_neck:
+        if not self.cli.separate_neck:
             body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
                 
         ## Fretboard Spines
-        if (self.cli.separate_fretboard or
+        if  (self.cli.separate_fretboard or
             self.cli.separate_neck or
             self.cli.separate_top) and self.cli.num_spines > 0:
             body -= LeleFretboardSpines(cli=self.cli, isCut=True).mv(2*FIT_TOL, 0, 0)
@@ -89,6 +85,10 @@ class LeleBottomAssembly(LeleBase):
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
             body += LeleTail(cli=self.cli)
+
+        ## Text (buggy for blender)
+        if not self.cli.no_text:
+            body -= LeleTexts(cli=self.cli, isCut=True)
 
         return body.gen_full()
 
@@ -116,9 +116,9 @@ def test_bottom_assembly(self, apis=None):
     """Test Bottom Assembly"""
 
     tests = {
-        "separate_top": ["-T"],
-        "separate_neck": ["-N"],
-        "separate_fretboard": ["-F"],
+        "separate_top": ["-T","-X"],
+        "separate_neck": ["-N","-X"],
+        "separate_fretboard": ["-F","-X"],
         "text": ["-x", "TEST:30"],
     }
 
