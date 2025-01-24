@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 import argparse
 
 from b13d.api.core import Shape
-from b13d.api.solid import main_maker, test_loop
+from b13d.api.solid import main_maker, test_loop, Implementation
 from pylele.pylele2.config import LeleBodyType
 from pylele.pylele2.base import LeleBase
 
@@ -93,23 +93,30 @@ class LeleChamber(LeleBase):
             topFront = (
                 self.api.sphere_quadrant(rad, True, True)
                 .scale(frontRat, 1, topChmRat)
-                .mv(jcTol, 0, -jcTol)
             )
             topBack = (
                 self.api.sphere_quadrant(rad, True, False)
                 .scale(backRat, 1, topChmRat)
-                .mv(jcTol, 0, -jcTol)
             )
             botFront = (
                 self.api.sphere_quadrant(rad, False, True)
                 .scale(frontRat, 1, botRat)
-                .mv(-jcTol, 0, jcTol)
             )
             botBack = (
                 self.api.sphere_quadrant(rad, False, False)
                 .scale(backRat, 1, botRat)
-                .mv(-jcTol, 0, jcTol)
             )
+
+            if self.cli.implementation == Implementation.BLENDER:
+                topFront <<= ( jcTol, 0, -jcTol)
+                topBack  <<= ( jcTol, 0, -jcTol)
+                botFront <<= (-jcTol, 0,  jcTol)
+                botBack  <<= (-jcTol, 0,  jcTol)
+            else:
+                topFront <<= ( jcTol, 0, -jcTol)
+                topBack  <<= (     0, 0, -jcTol)
+                botFront <<= ( jcTol, 0,      0)
+
             chm = topFront + topBack + botFront + botBack
 
         if rotY != 0:
