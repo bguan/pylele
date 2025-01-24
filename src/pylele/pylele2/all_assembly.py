@@ -44,8 +44,8 @@ class LeleAllAssembly(LeleBase):
             self.add_part(top)
         else:
             body += top.mv(0, 0, -jcTol)
-            if top.has_parts():
-                self.add_parts(top.parts)
+        if top.has_parts():
+            self.add_parts(top.parts)
 
         ## Strings
         if self.cli.show_strings:
