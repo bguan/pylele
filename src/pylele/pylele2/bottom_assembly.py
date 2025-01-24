@@ -11,7 +11,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 from b13d.api.solid import main_maker, test_loop
-from pylele.pylele2.config import LeleBodyType, Implementation, TunerType
+from pylele.pylele2.config import LeleBodyType
 from b13d.api.constants import FIT_TOL
 from b13d.api.core import Shape
 from pylele.pylele2.base import LeleBase
@@ -45,32 +45,28 @@ class LeleBottomAssembly(LeleBase):
             body -= LeleTexts(cli=self.cli, isCut=True)
 
         ## Chamber
-        chamber = None
         if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW]:
-            chamber = LeleChamber(cli=self.cli, isCut=True)
-            body -= chamber
+            body -= LeleChamber(cli=self.cli, isCut=True)
 
         ## Rim
         if self.cli.separate_top:
             body -= LeleRim(cli=self.cli, isCut=True)
 
         ## Spines
-        spines = None
         if self.cli.num_spines > 0:
-            spines = LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
-            body -= spines
+            body -= LeleSpines(cli=self.cli, isCut=True).mv(0, 0, jcTol)
 
         ## Neck
-        neck = LeleNeckAssembly(cli=self.cli, isCut=False)
-        neck.gen_full()
+        neck = LeleNeckAssembly(cli=self.cli, isCut=False)            
         if self.cli.separate_neck:
-            neck_cut = LeleNeckAssembly(cli=self.cli, isCut=True)
-            body -= neck_cut
+            body -= LeleNeckAssembly(cli=self.cli, isCut=True)
             self.add_part(neck)
         else:
             body += neck.mv(jcTol, 0, 0)
-            if neck.has_parts():
-                self.add_parts(neck.parts)
+
+        neck.gen_full()
+        if neck.has_parts():
+            self.add_parts(neck.parts)
 
         ## Neck Joint
         if self.cli.separate_neck:
@@ -89,9 +85,6 @@ class LeleBottomAssembly(LeleBase):
         if self.cli.separate_end:
             body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             tail = LeleTail(cli=self.cli)
-            # tail -= tuners
-            # tail -= spines
-            # tail -= chamber
             self.add_part(tail)
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
