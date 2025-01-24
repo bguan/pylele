@@ -360,30 +360,32 @@ class Solid(ABC):
 
     def add_part(self, part):
         """Add a solid part to the parts list of this assembly"""
-        assert isinstance(part, Solid)
+        assert isinstance(part, Solid) or part is None
 
-        if self.has_parts():
-            self.parts.append(part)
-        else:
-            self.parts = [part]
+        if not part is None:
+            if self.has_parts():
+                self.parts.append(part)
+            else:
+                self.parts = [part]
 
-        if part.has_parts():
-            self.parts.append(part.parts)
+            if part.has_parts():
+                self.parts.append(part.parts)
 
     def add_parts(self, parts):
         """Add a list of solid parts to the parts list of this assembly"""
-        assert isinstance(parts, list) or isinstance(parts, Solid), print(parts)
+        assert isinstance(parts, list) or isinstance(parts, Solid) or (parts is None), print(parts)
 
-        if isinstance(parts, Solid):
-            if parts.has_parts():
-                parts = parts.parts
+        if not parts is None:
+            if isinstance(parts, Solid):
+                if parts.has_parts():
+                    parts = parts.parts
+                else:
+                    print("# Warning: Solid has no parts!")
+
+            if self.has_parts():
+                self.parts += parts
             else:
-                print("# Warning: Solid has no parts!")
-
-        if self.has_parts():
-            self.parts += parts
-        else:
-            self.parts = parts
+                self.parts = parts
 
     def gen_section(self):
         """Generate the volume that selcts the section of the solid"""
