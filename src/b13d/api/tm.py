@@ -14,7 +14,7 @@ from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from b13d.api.core import ShapeAPI, Shape, test_api
+from b13d.api.core import ShapeAPI, Shape, test_api, Implementation
 from b13d.api.utils import (
     dimXY,
     ensureClosed2DPath,
@@ -151,10 +151,9 @@ class TMShape(Shape):
     Y_AXIS = (0, 1, 0)
     Z_AXIS = (0, 0, 1)
 
-    def __init__(self, api: TMShapeAPI = TMShapeAPI):
+    def __init__(self, api: TMShapeAPI = TMShapeAPI(implementation=Implementation.TRIMESH)):
         super().__init__(api)
         self.solid: tm.Trimesh = None
-
 
     def ensureVolume(self) -> None:
         if self.solid.is_volume:
@@ -503,7 +502,7 @@ class TMTextZ(TMShape):
     ):
         super().__init__(api)
 
-        jcTol = self.api.tolerance()
+        jcTol = self.api.implementation.tolerance()
 
         self.txt = txt
         self.fontSize = fontSize
