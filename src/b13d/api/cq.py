@@ -26,9 +26,9 @@ class CQShapeAPI(ShapeAPI):
     def export(self, shape: CQShape, path: Union[str, Path],fmt=".stl") -> None:
         assert fmt in [".stl",".step"]
         if fmt == ".stl":
-            self.export_stl(path)
+            self.export_stl(shape=shape,path=path)
         elif fmt == ".step":
-            self.export_step(path)
+            self.export_step(shape=shape,path=path)
         else:
             assert False
 

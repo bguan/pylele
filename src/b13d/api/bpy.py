@@ -34,9 +34,9 @@ class BlenderShapeAPI(ShapeAPI):
     def export(self, shape: BlenderShape, path: Union[str, Path],fmt=".stl") -> None:
         assert fmt in [".stl",".glb"]
         if fmt == ".stl":
-            self.export_stl(path)
+            self.export_stl(shape=shape,path=path)
         elif fmt == ".glb":
-            self.export_glb(path)
+            self.export_glb(shape=shape,path=path)
         else:
             assert False
 

@@ -35,11 +35,11 @@ class Sp2ShapeAPI(ShapeAPI):
         """ Export any of all supported filetypes """
         assert fmt in [".stl",".scad",".csg"]
         if fmt == ".stl":
-            self.export_stl(path)
+            self.export_stl(shape=shape,path=path)
         elif fmt == ".scad":
-            self.export_scad(path)
+            self.export_scad(shape=shape,path=path)
         elif fmt == ".csg":
-            self.export_csg(path)
+            self.export_csg(shape=shape,path=path)
         else:
             assert False
 

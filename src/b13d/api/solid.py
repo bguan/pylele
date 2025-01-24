@@ -36,6 +36,8 @@ def main_maker(module_name, class_name, args=None):
     solid = class_(args=args)
     solid.export_args()  # includes export_configuration for LeleBase
     out_fname = solid.export_stl()
+    if not solid.cli.export is None:
+        solid.export(fmt=solid.cli.export)
     return solid, out_fname
 
 def test_iteration(module, component, test, api, args=None):
@@ -229,6 +231,13 @@ def lele_solid_parser(parser=None):
         "--outdir_date_off",
         help="Disable appending name to output directory",
         action="store_true",
+    )
+    parser.add_argument(
+        "-exp",
+        "--export",
+        help="Export Format",
+        type=str,
+        default=None,
     )
     parser.add_argument(
         "-C",
@@ -481,38 +490,11 @@ class Solid(ABC):
         report_en=True,
     ) -> str:
         """Generate .stl output file"""
-        if out_path is None:
-            out_path = self._make_out_path()
-        out_fname = os.path.join(out_path, self.fileNameBase + ".stl")
-        print(f"Output File: {out_fname}")
-
         start_time = time.time()
-        self.gen_full()
 
-        self.api.export_stl(self.shape, out_fname)
+        out_fname=self.export(fmt='.stl', out_path=out_path)
+        out_path, _ = os.path.split(out_fname)
 
-        # potential timing issues with generating STL files
-        retry = 0
-        timeout = 1
-        while retry < 3 and not os.path.isfile(out_fname):
-            print(
-                f"Failed to detect stl file {out_fname}, retry after {timeout} seconds..."
-            )
-            time.sleep(timeout)
-            timeout *= 2
-            retry += 1
-
-        assert os.path.isfile(out_fname), f"Failed to generate stl file {out_fname}"
-
-        if self.has_parts():
-            # this is an assembly, generate other parts
-            for part in self.parts:
-                if isinstance(part, Solid):
-                    part.export_stl(out_path=out_path)
-                else:
-                    print(
-                        f"# WARNING: Cannot export .stl of class {part} in assembly {self}"
-                    )
         # checks
         rpt = stl_check_volume(
             out_fname=out_fname,
@@ -535,6 +517,45 @@ class Solid(ABC):
             export_dict2text(
                 outpath=out_path, fname=self.fileNameBase + "_rpt", dictdata=rpt,fmt='.json'
             )
+
+        return out_fname
+
+    def export(
+        self,
+        fmt: str,
+        out_path=None,
+    ) -> str:
+        """Generate output file"""
+        if out_path is None:
+            out_path = self._make_out_path()
+        out_fname = os.path.join(out_path, self.fileNameBase + fmt)
+        print(f"Output File: {out_fname}")
+
+        self.gen_full()
+        self.api.export(self.shape, path=out_fname, fmt=fmt)
+
+        # potential timing issues with generating STL files
+        retry = 0
+        timeout = 1
+        while retry < 3 and not os.path.isfile(out_fname):
+            print(
+                f"Failed to detect {fmt} file {out_fname}, retry after {timeout} seconds..."
+            )
+            time.sleep(timeout)
+            timeout *= 2
+            retry += 1
+
+        assert os.path.isfile(out_fname), f"Failed to generate {fmt} file {out_fname}"
+
+        if self.has_parts():
+            # this is an assembly, generate other parts
+            for part in self.parts:
+                if isinstance(part, Solid):
+                    part.export(fmt=fmt, out_path=out_path)
+                else:
+                    print(
+                        f"# WARNING: Cannot export {fmt} of class {part} in assembly {self}"
+                    )
 
         return out_fname
 
