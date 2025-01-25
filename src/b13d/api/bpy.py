@@ -29,6 +29,18 @@ from b13d.api.utils import (
 """
 
 
+def gen_box_points(x: float, y: float, z: float) -> list[tuple[float, float, float]]:
+    return [
+        (0, 0, 0),
+        (x, 0, 0),
+        (x, y, 0),
+        (0, y, 0),
+        (0, 0, z),
+        (x, 0, z),
+        (x, y, z),
+        (0, y, z),
+    ]
+
 class BlenderShapeAPI(ShapeAPI):
 
     def export(self, shape: BlenderShape, path: Union[str, Path],fmt=".stl") -> None:
@@ -93,11 +105,15 @@ class BlenderShapeAPI(ShapeAPI):
     def sphere(self, r: float) -> BlenderShape:
         return BlenderBall(r, self)
 
-    def box(self, ln: float, wth: float, ht: float, center: bool = True) -> BlenderShape:
-        retval = BlenderBox(ln, wth, ht, self)
+    def box(self, l: float, wth: float, ht: float, center: bool = True) -> BlenderShape:
+        if False:
+            # bpy.ops operation are supposedly slower than bpy.data
+            retval = BlenderBoxOps(l, wth, ht, self)
+        else:
+            retval = BlenderBoxData(l, wth, ht, self)
         if center:
             return retval
-        return retval.mv(-ln / 2, -wth / 2, -ht / 2)
+        return retval.mv(-l / 2, -wth / 2, -ht / 2)
 
     def cone_x(self, h: float, r1: float, r2: float) -> BlenderShape:
         return BlenderConeX(h, r1, r2, self).mv(h / 2, 0, 0)
@@ -292,7 +308,7 @@ class BlenderShape(Shape):
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(type="EDGE")
             bpy.ops.mesh.select_all(action="SELECT")
-            bpy.ops.mesh.bevel(offset=rad / 4, segments=segs)
+            bpy.ops.mesh.bevel(offset=rad, segments=segs)
             bpy.ops.object.mode_set(mode="OBJECT")
         else:
             for p in nearestPts:
@@ -304,7 +320,7 @@ class BlenderShape(Shape):
                 if idx >= 0:
                     self.solid.data.edges[idx].select = True
                     bpy.ops.object.mode_set(mode="EDIT")
-                    bpy.ops.mesh.bevel(offset=rad / 4, segments=segs)
+                    bpy.ops.mesh.bevel(offset=rad, segments=segs)
                     bpy.ops.object.mode_set(mode="OBJECT")
         return self.repairMesh()
 
@@ -506,7 +522,7 @@ class BlenderBall(BlenderShape):
         self.solid = bpy.context.object
 
 
-class BlenderBox(BlenderShape):
+class BlenderBoxOps(BlenderShape):
     def __init__(
         self,
         ln: float,
@@ -519,6 +535,65 @@ class BlenderBox(BlenderShape):
         self.solid = bpy.context.object
         self.scale(ln, wth, ht)
 
+class BlenderBoxData(BlenderShape):
+    def __init__(
+        self,
+        ln: float,
+        wth: float,
+        ht: float,
+        api: BlenderShapeAPI,
+    ):
+        """
+        Create a box (cube) in Blender using bpy.data interface.
+
+        Args:
+            name (str): The name of the box object.
+            location (tuple): The (x, y, z) coordinates for the box's location.
+            x (float): The width of the box along the X-axis.
+            y (float): The depth of the box along the Y-axis.
+            z (float): The height of the box along the Z-axis.
+        """
+
+        super().__init__(api)
+
+        # Create a new mesh and object
+        name="Box"
+        mesh = bpy.data.meshes.new(name + "_mesh")
+        box_object = bpy.data.objects.new(name, mesh)
+        
+        # Link the object to the scene collection
+        bpy.context.collection.objects.link(box_object)
+        
+        # Define the vertices and faces of a cube
+        half_x, half_y, half_z = ln / 2, wth / 2, ht / 2
+        vertices = [
+            (-half_x, -half_y, -half_z),  # 0: Bottom-left-back
+            (half_x, -half_y, -half_z),  # 1: Bottom-right-back
+            (half_x, half_y, -half_z),   # 2: Bottom-right-front
+            (-half_x, half_y, -half_z),  # 3: Bottom-left-front
+            (-half_x, -half_y, half_z),  # 4: Top-left-back
+            (half_x, -half_y, half_z),   # 5: Top-right-back
+            (half_x, half_y, half_z),    # 6: Top-right-front
+            (-half_x, half_y, half_z),   # 7: Top-left-front
+        ]
+        faces = [
+            (3, 2, 1, 0),  # Bottom face (clockwise)
+            (4, 5, 6, 7),  # Top face (clockwise)
+            (0, 1, 5, 4),  # Back face (clockwise)
+            (1, 2, 6, 5),  # Right face (clockwise)
+            (2, 3, 7, 6),  # Front face (clockwise)
+            (3, 0, 4, 7),  # Left face (clockwise)
+        ]
+        edges = []
+        # Create the mesh from the defined vertices and faces
+        mesh.from_pydata(vertices, edges, faces)
+        mesh.update()
+        
+        # Set the location of the object
+        box_object.location = (0, 0, 0)
+        # show both sides of the faces
+        box_object.data.use_fake_user = True
+        self.solid = box_object
 
 class BlenderConeZ(BlenderShape):
     def __init__(
