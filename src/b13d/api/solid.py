@@ -28,6 +28,7 @@ from b13d.api.utils import make_or_exist_path
 from b13d.conversion.scad2stl import scad2stl_parser
 
 MAX_SECTION = 1000
+SECTION_LIMITS = [-MAX_SECTION, MAX_SECTION]
 
 def main_maker(module_name, class_name, args=None):
     """Generate a main function for a Solid instance"""
@@ -249,19 +250,19 @@ def lele_solid_parser(parser=None):
         '-secx','--section_x',
         help="List of coordinates to section solid along x axis",
         nargs='+', type=float,
-        default = [-MAX_SECTION, MAX_SECTION]
+        default = SECTION_LIMITS
     )
     parser.add_argument(
         '-secy','--section_y',
         help="List of coordinates to section solid along y axis",
         nargs='+', type=float,
-        default = [-MAX_SECTION, MAX_SECTION]
+        default = SECTION_LIMITS
     )
     parser.add_argument(
         '-secz','--section_z',
         help="List of coordinates to section solid along z axis",
         nargs='+', type=float,
-        default = [-MAX_SECTION, MAX_SECTION]
+        default = SECTION_LIMITS
     )
     parser.add_argument(
         "-stlc",
@@ -397,15 +398,19 @@ class Solid(ABC):
                 self.parts = parts
 
     def gen_section(self):
-        """Generate the volume that selcts the section of the solid"""
-        xlen = abs(self.cli.section_x[1] - self.cli.section_x[0])
-        ylen = abs(self.cli.section_y[1] - self.cli.section_y[0])
-        zlen = abs(self.cli.section_z[1] - self.cli.section_z[0])
-        return self.api.box(xlen, ylen, zlen).mv(
-            min(self.cli.section_x)+xlen/2,
-            min(self.cli.section_y)+ylen/2,
-            min(self.cli.section_z)+zlen/2
-            )
+        """Section the volume as specified by cli"""
+        all_sections = [self.cli.section_x, self.cli.section_y, self.cli.section_z]
+        if any(item != SECTION_LIMITS for item in all_sections):
+            # Do not execute section if all limits are default
+            xlen = abs(self.cli.section_x[1] - self.cli.section_x[0])
+            ylen = abs(self.cli.section_y[1] - self.cli.section_y[0])
+            zlen = abs(self.cli.section_z[1] - self.cli.section_z[0])
+            section =  self.api.box(xlen, ylen, zlen).mv(
+                min(self.cli.section_x)+xlen/2,
+                min(self.cli.section_y)+ylen/2,
+                min(self.cli.section_z)+zlen/2
+                )
+            self.shape = self.shape.intersection(section)
 
     def gen_full(self):
         """ Generate shape if attribute not present """
@@ -421,9 +426,8 @@ class Solid(ABC):
             self.shape = self.gen()
             print(f"# Done generating shape! {self.fileNameBase}")
         self.check_has_shape()
-        section = self.gen_section()
-        # return self.shape.join(section) 
-        return self.shape.intersection(section)
+        self.gen_section()
+        return self.shape
 
     def gen_parser(self, parser=None):
         """
