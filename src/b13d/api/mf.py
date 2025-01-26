@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import sys
 from typing import Union
+from svgpathtools import svg2paths, Arc
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
@@ -167,7 +168,9 @@ class MFShapeAPI(ShapeAPI):
 
     def tolerance(self) -> float:
         return self.implementation.tolerance()
-
+    
+    def genImport(self, infile: str, extrude: float = None) -> MFShape:
+        return MFImport(infile, extrude=extrude)
 
 class MFShape(Shape):
 
@@ -408,6 +411,78 @@ class MFTextZ(MFShape):
             print('# WARNING! Text Generation failed!!! ')
             self.solid = Manifold.cube((fontSize, fontSize, tck)).translate((-fontSize / 2, -fontSize / 2, -tck / 2))
 
+def arc_to_points(arc, num_points=100):
+    """
+    Approximate an Arc object as a series of points.
+    
+    Parameters:
+        arc (svgpathtools.path.Arc): The Arc object to approximate.
+        num_points (int): Number of points to sample along the arc.
+        
+    Returns:
+        List[Tuple[float, float]]: List of (x, y) points.
+    """
+    points = []
+    for t in np.linspace(0, 1, num_points):
+        point = arc.point(t)  # Get a point along the arc using its parameter t (0 to 1)
+        points.append((point.real, point.imag))
+    return points
+
+def svg_to_extruded_geometry(svg_path: str, extrusion_height: float):
+    """
+    Reads an SVG file and converts it into a z-extruded 3D geometry.
+    
+    Parameters:
+        svg_path (str): Path to the SVG file.
+        extrusion_height (float): Height to extrude the 2D geometry along the z-axis.
+    
+    Returns:
+        Mesh: A manifold3d Mesh object representing the extruded geometry.
+    """
+    # Step 1: Parse paths from the SVG file
+    paths, _ = svg2paths(svg_path)
+    
+    # Step 2: Extract 2D points from the paths
+    all_points = []
+    for path in paths:
+        for segment in path:
+            if isinstance(segment, Arc):
+                # Approximate arcs with points
+                arc_points = arc_to_points(segment)
+                all_points.extend(arc_points)
+            else:
+                # Handle Line, CubicBezier, QuadraticBezier
+                points = [segment.point(t) for t in np.linspace(0, 1, 100)]
+                all_points.extend([(p.real, p.imag) for p in points])
+    
+    # Step 3: Use manifold3d to extrude the points into a 3D geometry
+    if not all_points:
+        raise ValueError("No valid paths found in SVG file.")
+    
+    # Create a 2D polygon from the points
+    # polygon = CrossSection(all_points, FillRule.EvenOdd)
+    # polygon.add_polygon(all_points)
+    
+    # Extrude the 2D polygon along the z-axis
+    # extruded_geometry = Manifold.extrude(polygon, extrusion_height)
+    
+    return all_points
+
+class MFImport(MFShape):
+    def __init__(
+        self,
+        infile: str,
+        extrude: float = None,
+        api: MFShapeAPI = MFShapeAPI,
+    ):
+        super().__init__(api)
+        assert os.path.isfile(infile) or os.path.isdir(
+            infile
+        ), f"ERROR: file/directory {infile} does not exist!"
+        self.infile = infile
+        path = svg_to_extruded_geometry(svg_path=infile,extrusion_height=extrude)
+        polygon = CrossSection([path], FillRule.EvenOdd)
+        self.solid = Manifold.extrude(polygon, extrude)
 
 if __name__ == "__main__":
     test_api(Implementation.MANIFOLD)

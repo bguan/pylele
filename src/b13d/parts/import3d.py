@@ -23,10 +23,13 @@ class Import3d(Solid):
         return parser
 
     def gen(self) -> Shape:
+        """
         assert self.cli.implementation in [Implementation.SOLID2,
                                            Implementation.CADQUERY,
                                            Implementation.TRIMESH,
-                                           Implementation.BLENDER]
+                                           Implementation.BLENDER, 
+                                           Implementation.MANIFOLD]
+        """
         return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
 
 def main(args=None):
@@ -35,10 +38,7 @@ def main(args=None):
                 class_name='Import3d',
                 args=args)
 
-def test_import3d(self,apis=[Implementation.BLENDER,
-                             Implementation.TRIMESH,
-                             Implementation.CADQUERY,
-                             Implementation.SOLID2]):
+def test_import3d(self,apis=None):
     
     """ Test Import 3d geometry """
     test_fname=os.path.join(DEFAULT_TEST_DIR,'test')
@@ -69,6 +69,10 @@ def test_import3d(self,apis=[Implementation.BLENDER,
     tests[Implementation.BLENDER]={
         'bpy_stl' : ['-imp',test_stl],
         'bpy_svg' : ['-imp',test_svg, '-eh', '10'],
+        }
+    
+    tests[Implementation.MANIFOLD]={
+        'mf_svg': ['-imp',test_svg, '-eh', '10'],
         }
 
     for api in apis:
