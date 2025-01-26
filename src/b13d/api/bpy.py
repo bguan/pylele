@@ -106,7 +106,7 @@ class BlenderShapeAPI(ShapeAPI):
         return BlenderBall(r, self)
 
     def box(self, l: float, wth: float, ht: float, center: bool = True) -> BlenderShape:
-        if False:
+        if True:
             # bpy.ops operation are supposedly slower than bpy.data
             retval = BlenderBoxOps(l, wth, ht, self)
         else:
