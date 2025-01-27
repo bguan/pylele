@@ -42,6 +42,7 @@ setup(
         "prettytable",
         # b1scad dependencies
         "sly",
+        "svgpathtools",
         "svg2dxf @ git+https://github.com/multigcs/svg2dxf@main"
       ],
     entry_points={

@@ -24,6 +24,6 @@ prettytable
 
 # b1scad
 sly
-
+svgpathtools
 # svg2dxf
 svg2dxf @ git+https://github.com/multigcs/svg2dxf@main
