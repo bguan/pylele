@@ -45,31 +45,29 @@ class BlenderShapeAPI(ShapeAPI):
 
     def export(self, shape: BlenderShape, path: Union[str, Path],fmt=".stl") -> None:
         assert fmt in [".stl",".glb"]
+        
+        shape.repairMesh()
+        
+        bpy.ops.object.select_all(action="DESELECT")
+        shape.solid.select_set(True)
+        bpy.context.view_layer.objects.active = shape.solid
+        
         if fmt == ".stl":
-            self.export_stl(shape=shape,path=path)
+            bpy.ops.export_mesh.stl(
+            filepath=file_ensure_extension(path, ".stl"), use_selection=True
+            )
         elif fmt == ".glb":
-            self.export_glb(shape=shape,path=path)
+            bpy.ops.export_scene.gltf(
+            filepath=file_ensure_extension(path, ".glb"), use_selection=True
+            )
         else:
             assert False
 
     def export_best(self, shape: BlenderShape, path: Union[str, Path]) -> None:
-        self.export_glb(shape=shape,path=path)
+        self.export(shape=shape,path=path,fmt=".glb")
 
     def export_stl(self, shape: BlenderShape, path: Union[str, Path]) -> None:
-        bpy.ops.object.select_all(action="DESELECT")
-        shape.solid.select_set(True)
-        bpy.context.view_layer.objects.active = shape.solid
-        bpy.ops.export_mesh.stl(
-            filepath=file_ensure_extension(path, ".stl"), use_selection=True
-        )
-
-    def export_glb(self, shape: BlenderShape, path: Union[str, Path]) -> None:
-        bpy.ops.object.select_all(action="DESELECT")
-        shape.solid.select_set(True)
-        bpy.context.view_layer.objects.active = shape.solid
-        bpy.ops.export_scene.gltf(
-            filepath=file_ensure_extension(path, ".glb"), use_selection=True
-        )
+        self.export(shape=shape,path=path,fmt=".stl")
 
     def export_best_multishapes(
         self,
