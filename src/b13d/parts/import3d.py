@@ -33,12 +33,11 @@ class Import3d(Solid):
         return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
 
 def main(args=None):
-    """ Generate a solid from an imported file """
     return main_maker(module_name=__name__,
                 class_name='Import3d',
                 args=args)
 
-def test_import3d(self,apis=None):
+def test_import3d(self,apis=supported_apis()):
     
     """ Test Import 3d geometry """
     test_fname=os.path.join(DEFAULT_TEST_DIR,'test')
