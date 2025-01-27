@@ -23,13 +23,6 @@ class Import3d(Solid):
         return parser
 
     def gen(self) -> Shape:
-        """
-        assert self.cli.implementation in [Implementation.SOLID2,
-                                           Implementation.CADQUERY,
-                                           Implementation.TRIMESH,
-                                           Implementation.BLENDER, 
-                                           Implementation.MANIFOLD]
-        """
         return self.api.genImport(self.cli.import_file, extrude=self.cli.extrude_heigth)
 
 def main(args=None):
@@ -73,10 +66,18 @@ def test_import3d(self,apis=supported_apis()):
     tests[Implementation.MANIFOLD]={
         'mf_svg': ['-imp',test_svg, '-eh', '10'],
         }
+    
+    tests[Implementation.MOCK]={
+        'mock_svg': ['-imp',test_svg, '-eh', '10'],
+        }
 
     for api in apis:
-        if api in supported_apis():
+        if api in supported_apis()+[Implementation.MOCK]:
             test_loop(module=__name__,tests=tests[api],apis=[api])
+
+def test_import3d_mock(self):
+    """ Test Mock import 3d geometry """
+    test_import3d(self,apis=[Implementation.MOCK])
 
 if __name__ == '__main__':
     main()

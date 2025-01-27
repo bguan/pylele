@@ -212,7 +212,7 @@ class B13DTestMethods(unittest.TestCase):
     ## Solid Parts
     from b13d.parts.tube import test_tube, test_tube_mock
     from b13d.parts.screw import test_screw, test_screw_mock
-    from b13d.parts.import3d import test_import3d
+    from b13d.parts.import3d import test_import3d, test_import3d_mock
     from b13d.parts.scad_example import test_scad_example
     from b13d.parts.rounded_box import test_rounded_box, test_rounded_box_mock
     from b13d.parts.rounded_rectangle_extrusion import test_rounded_rectangle, test_rounded_rectangle_mock

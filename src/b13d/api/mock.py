@@ -87,6 +87,11 @@ class MockShapeAPI(ShapeAPI):
 
     def text(self, txt: str, fontSize: float, tck: float, font: str) -> MockShape:
         return MockShape(self)
+    
+    def genImport(self, infile: str, extrude: float = None) -> MockShape:
+        assert os.path.exists(infile)
+        assert isinstance(extrude, (int, float))
+        return MockShape(self)
 
 class MockShape(Shape):
     """
