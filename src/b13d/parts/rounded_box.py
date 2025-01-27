@@ -121,7 +121,9 @@ class RoundedBox(Solid):
             # apis that support fillet
             return self.gen_cadquery()
             # apis that support hull
-        elif self.cli.implementation in [ Implementation.SOLID2, Implementation.TRIMESH, Implementation.MANIFOLD ]:
+        elif self.cli.implementation in [ Implementation.SOLID2,
+                                          Implementation.TRIMESH,
+                                          Implementation.MANIFOLD]:
             return self.gen_solidpython()
         else:
             # apis not supporting fillet or hull

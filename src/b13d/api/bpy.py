@@ -46,7 +46,7 @@ class BlenderShapeAPI(ShapeAPI):
     def export(self, shape: BlenderShape, path: Union[str, Path],fmt=".stl") -> None:
         assert fmt in [".stl",".glb"]
         
-        shape.repairMesh()
+        # shape.repairMesh()
         
         bpy.ops.object.select_all(action="DESELECT")
         shape.solid.select_set(True)
@@ -300,13 +300,13 @@ class BlenderShape(Shape):
     ) -> BlenderShape:
         if rad <= 0:
             return self
-        segs = self._smoothing_segments(rad / 4)
+        segs = self._smoothing_segments(rad/4)
         bpy.context.view_layer.objects.active = self.solid
         if nearestPts is None or len(nearestPts) == 0:
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(type="EDGE")
             bpy.ops.mesh.select_all(action="SELECT")
-            bpy.ops.mesh.bevel(offset=rad, segments=segs)
+            bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
             bpy.ops.object.mode_set(mode="OBJECT")
         else:
             for p in nearestPts:
@@ -318,7 +318,7 @@ class BlenderShape(Shape):
                 if idx >= 0:
                     self.solid.data.edges[idx].select = True
                     bpy.ops.object.mode_set(mode="EDIT")
-                    bpy.ops.mesh.bevel(offset=rad, segments=segs)
+                    bpy.ops.mesh.bevel(offset=rad/4, segments=segs)
                     bpy.ops.object.mode_set(mode="OBJECT")
         return self.repairMesh()
 
