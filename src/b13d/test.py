@@ -20,6 +20,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 from b13d.api.core import test_api, DEFAULT_TEST_DIR, Implementation
 from b13d.api.utils import make_or_exist_path
 
+TEST_NAME_DEFAULT = "default"
+TEST_NAME_B13D = "b13d"
+
 REPORT_COLS=["subdir_level_1",
              "subdir_level_2", 
              "subdir_level_3",
@@ -181,6 +184,17 @@ def csv_to_xls(csv_file, xls_file):
 
     print(f"Data from '{csv_file}' has been saved to '{xls_file}' with default filtering enabled.")
 
+def test_report(name=TEST_NAME_DEFAULT):
+    """ Generate Test Report """
+    print("# Generate .xlsx Test Report")
+
+    basefname = os.path.join(DEFAULT_TEST_DIR,f"test_report_{name}")
+    csvfname = basefname + '.csv'
+    xlsfname = basefname + '.xlsx'
+    json_to_csv(DEFAULT_TEST_DIR, csvfname)
+    print_csv(csvfname)
+    csv_to_xls(csvfname, xlsfname)
+
 class B13DTestMethods(unittest.TestCase):
     """Pylele Test Class"""
 
@@ -220,16 +234,9 @@ class B13DTestMethods(unittest.TestCase):
 
     def test_zz_report(self):
         """ Generate Test Report """
-        print("# Generate .xlsx Test Report")
+        test_report(name=TEST_NAME_B13D)
 
-        basefname = os.path.join(DEFAULT_TEST_DIR,"test_report")
-        csvfname = basefname + '.csv'
-        xlsfname = basefname + '.xlsx'
-        json_to_csv(DEFAULT_TEST_DIR, csvfname)
-        print_csv(csvfname)
-        csv_to_xls(csvfname, xlsfname)
-
-def test_main():
+def test_main(name=TEST_NAME_DEFAULT):
     """ Launch all tests """      
     
     if os.getenv("GITHUB_ACTIONS") == "true":
@@ -237,7 +244,7 @@ def test_main():
 
         # text test report
         make_or_exist_path(DEFAULT_TEST_DIR)
-        with open(os.path.join(DEFAULT_TEST_DIR,"test_log.txt"), "w") as f:
+        with open(os.path.join(DEFAULT_TEST_DIR,f"test_log_{name}.txt"), "w") as f:
             runner = unittest.TextTestRunner(stream=f, verbosity=3)
             unittest.main(testRunner=runner)
 
@@ -246,4 +253,4 @@ def test_main():
         unittest.main()
 
 if __name__ == "__main__":
-    test_main()
+    test_main(TEST_NAME_B13D)

@@ -12,9 +12,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 
 from b13d.api.core import test_api, DEFAULT_TEST_DIR
 from b13d.api.utils import make_or_exist_path
-from b13d.test import B13DTestMethods
+from b13d.test import test_report, test_main
 
-class PyleleTestMethods(B13DTestMethods):
+TEST_NAME="pylele2"
+
+class PyleleTestMethods(unittest.TestCase):
     """Pylele Test Class"""
 
     ## Solid Parts
@@ -72,21 +74,9 @@ class PyleleTestMethods(B13DTestMethods):
     )
     from pylele.pylele2.all_assembly import test_all_assembly, test_all_assembly_mock
 
-def test_main():
-    """ Launch all tests """      
-    
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        print("Running in GitHub Actions: simplified output to log file")
-
-        # text test report
-        make_or_exist_path(DEFAULT_TEST_DIR)
-        with open(os.path.join(DEFAULT_TEST_DIR,"test_log.txt"), "w") as f:
-            runner = unittest.TextTestRunner(stream=f, verbosity=3)
-            unittest.main(testRunner=runner)
-
-    else:
-        print("Running Locally: all output to shell")
-        unittest.main()
+    def test_zz_report(self):
+        """ Generate Test Report """
+        test_report(name=TEST_NAME)
 
 if __name__ == "__main__":
-    test_main()
+    test_main(TEST_NAME)
