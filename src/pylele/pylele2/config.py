@@ -44,7 +44,11 @@ CONFIGURATIONS = {
         'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
         'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + ['-cbr','1.2'],
-        'travelele'      : TRAVEL + ['-t','turnaround','-e','50','-cbr','1.5','-cbar','0.125','-fbt','20'] + WORM_SLIT + TUNEBRIDGE
+        'travelele'      : TRAVEL  + ['-t','turnaround',
+                                      '-e','50',
+                                      '-cbr','1.5',
+                                      '-cbar','0.125','-fbt','20',
+                                      '-x','PyTravelele:8:Arial,Merlin-2025:8:Arial'] + WORM_SLIT + TUNEBRIDGE
     }
 
 class AttrDict(dict):
