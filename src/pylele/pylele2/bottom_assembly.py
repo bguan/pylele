@@ -63,11 +63,7 @@ class LeleBottomAssembly(LeleBase):
         else:
             body += neck.mv(jcTol, 0, 0)
             self.add_parts(neck.parts)
-
-        ## Neck Joint
-        if not self.cli.separate_neck:
-            body -= LeleNeckJoint(cli=self.cli, isCut=True).mv(-jcTol, 0, jcTol)
-                
+ 
         ## Fretboard Spines
         if  (self.cli.separate_fretboard or
             self.cli.separate_neck or

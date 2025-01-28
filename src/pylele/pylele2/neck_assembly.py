@@ -40,7 +40,7 @@ class LeleNeckAssembly(LeleBase):
 
         ## Neck Joint
         if self.cli.separate_neck:
-            neck += LeleNeckJoint(cli=self.cli, isCut=False).mv(0, 0, -jcTol)
+            neck += LeleNeckJoint(cli=self.cli, isCut=self.isCut).mv(0, 0, -jcTol)
 
         if not self.isCut:
             ## Head
