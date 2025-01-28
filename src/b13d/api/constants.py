@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from enum import Enum
 
-FIT_TOL = 0.1
+FIT_TOL = 0.3
 FILLET_RAD = 0.4
 
 DEFAULT_TEST_DIR = "test"
