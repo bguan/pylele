@@ -56,7 +56,7 @@ class LeleBottomAssembly(LeleBase):
         neck = LeleNeckAssembly(cli=self.cli, isCut=False)
         neck.gen_full()
         if self.cli.separate_neck:
-            body -= LeleNeckAssembly(cli=self.cli, isCut=True)
+            body -= LeleNeckAssembly(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             if not self.api.implementation == Implementation.BLENDER:
                 # god knows why blender does not like this
                 self.add_part(neck)
