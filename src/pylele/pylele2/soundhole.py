@@ -41,7 +41,7 @@ class LeleSoundhole(LeleBase):
     def configure(self):
         LeleBase.configure(self)
         self.cfg.sh_cfg = soundhole_config(
-                     scaleLen = self.cli.scale_length,
+                     scaleLen = float(self.cli.scale_length),
                      chmFront = self.cfg.chmFront,
                      chmWth = self.cfg.chmWth,
                      neckWth = self.cfg.neckWth)
