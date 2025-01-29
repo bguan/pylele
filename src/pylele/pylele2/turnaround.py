@@ -36,10 +36,6 @@ class LeleTurnaround(LeleWorm):
             axl += self.api.box(100, c.axlLen, 2 * c.axlRad).mv(
                 50 + axlX, axlY, axlZ
             )
-            if self.cli.worm_axle_hole:
-                axl += self.api.cylinder_y(100.0, self.cli.worm_axle_hole_radius).mv(
-                    axlX, axlY, axlZ
-                )
         turnaround = axl
 
         ## Disk
@@ -78,6 +74,16 @@ class LeleTurnaround(LeleWorm):
                     ]
                 ).gen_full()
             turnaround -= torus
+
+        ## Axle hole
+        if self.cli.worm_axle_hole:
+            axle_hole_len = 100 if self.isCut else c.axlLen
+            axl_hole = self.api.cylinder_y(axle_hole_len, self.cli.worm_axle_hole_radius)
+            axl_hole <<= ( axlX, axlY, axlZ )
+            if self.isCut:
+                turnaround += axl_hole
+            else:
+                turnaround -= axl_hole
 
         ## Slit
         if self.isCut:
