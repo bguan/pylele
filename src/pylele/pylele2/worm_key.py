@@ -82,4 +82,5 @@ def test_worm_key_mock(self):
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:]+["-t","worm"])
+
