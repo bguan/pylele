@@ -214,7 +214,7 @@ class TurnaroundConfig(WormConfig):
         diskTck: float = 5,
         diskRad: float = 7.7,
         axleRad: float = 3,
-        axleLen: float = 6,  # original worm tuner has 8mm axle
+        axleLen: float = 8,
         driveRad: float = 0,
         driveLen: float = 0,
         driveOffset: float = 0,

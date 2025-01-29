@@ -16,6 +16,8 @@ from b13d.parts.torus import Torus
 from b13d.parts.tube import Tube
 from pylele.pylele2.worm import LeleWorm
 
+TURNAROUND_ARG = ["-t","turnaround"]
+
 class LeleTurnaround(LeleWorm):
     """Pylele turnaround Generator class"""
 
@@ -42,8 +44,8 @@ class LeleTurnaround(LeleWorm):
         dskX = axlX
         dskY = axlY # axlY - c.axlLen / 2 - c.dskTck / 2
         dskZ = axlZ
-        if self.cli.implementation == Implementation.BLENDER:
-            dskY = axlY -0.25
+        # if self.cli.implementation == Implementation.BLENDER:
+        #    dskY = axlY -0.25
 
         if self.isCut:
             dsk = self.api.cylinder_y(c.dskTck, c.dskRad).mv(dskX, dskY, dskZ)
@@ -94,11 +96,17 @@ class LeleTurnaround(LeleWorm):
             slit += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
                 .mv(-c.front, 0, c.sltHt - 2*c.axlRad) # dx was -c.sltLen/2
             # lower vertical slit
-            slit += self.api.box(c.sltLen, c.sltWth, c.sltHt)\
-                .mv(c.sltLen/2 - c.front, 0, -c.sltHt/2 + 2*c.axlRad)
-            # upper diagonal slit
+            slit += self.api.box(c.sltLen, c.sltWth, 2*c.dskRad)\
+                .mv(c.sltLen/2 - c.front, 0, axlZ - c.dskRad)
+                # .mv(c.sltLen/2 - c.front, 0, -c.sltHt/2 + 2*c.axlRad)
+            # lower diagonal slit
             slit += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
-                .mv(-c.front, 0, -c.sltHt + 2*c.axlRad)
+                .mv(-c.front, 0, axlZ - 2*c.dskRad)
+            #    # .mv(-c.front, 0, -c.sltHt + 2*c.axlRad)
+            # lower tube
+            tube_len = 100
+            slit += self.api.cylinder_x(tube_len, c.sltWth/2)\
+                .mv(-tube_len/2, 0, axlZ - 2*c.dskRad)
             turnaround += slit
 
         return turnaround
@@ -110,10 +118,9 @@ def main(args=None):
 def test_turnaround(self, apis=None):
     """Test turnaround"""
 
-    DEFAULT = ["-t","turnaround"]
     tests = {
-        "default": DEFAULT,
-        "cut"    : DEFAULT + ["-C"]
+        "default": TURNAROUND_ARG,
+        "cut"    : TURNAROUND_ARG + ["-C"]
         }
     test_loop(module=__name__, tests=tests, apis=apis)
 
@@ -122,4 +129,4 @@ def test_turnaround_mock(self):
     test_turnaround(self, apis=["mock"])
 
 if __name__ == "__main__":
-    main(sys.argv[1:]+["-t","turnaround"])
+    main(sys.argv[1:]+TURNAROUND_ARG)
