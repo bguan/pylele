@@ -116,6 +116,6 @@ def test_tail_mock(self):
     """Test Tail"""
     test_tail(self, apis=["mock"])
 
-
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:]+["-E"])
+

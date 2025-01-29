@@ -45,7 +45,7 @@ CONFIGURATIONS = {
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
         'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + ['-cbr','1.2'],
         'travelele'      : TRAVEL  + ['-t','turnaround',
-                                      '-e','50',
+                                      '-e','65',
                                       '-cbr','1.5',
                                       '-cbar','0.125','-fbt','20',
                                       '-x','PyTravelele:8:Arial,Merlin-2025:8:Arial'] + WORM_SLIT + TUNEBRIDGE
@@ -82,8 +82,8 @@ def pylele_config_parser(parser = None):
                         type=float, default=2)
     parser.add_argument("-g", "--nut_string_gap", help="Strings gap at nut [mm], default 9",
                         type=float, default=9)
-    parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm], default 0",
-                        type=float, default=0)
+    parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm]",
+                        type=float, default=90)
     parser.add_argument("-nsp", "--num_spines", help="Number of neck spines",
                         type=int, default=3, choices=[*range(4)])
     parser.add_argument("-mnwa", "--min_neck_wide_angle", help="Minimum Neck Widening angle [deg]",
