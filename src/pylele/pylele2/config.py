@@ -36,7 +36,7 @@ WORM_SLIT = ['-wah','-wsl','35']
 WORM    = ['-t','worm'   ,'-e','65'] + WORM_SLIT
 BIGWORM = ['-t','bigworm','-e','90','-fbt','33','-g','11'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
-TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10','-cbar','0.125']
+TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '6','-cbar','0.125']
 
 CONFIGURATIONS = {
         'default'        : [],

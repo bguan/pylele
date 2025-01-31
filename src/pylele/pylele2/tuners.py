@@ -56,7 +56,7 @@ class LeleTuners(LeleBase):
                 peg_cfg = TunerType[self.cli.tuner_type].value.peg_config
                 tnr <<= (0,0,peg_cfg.botLen)
                 tnr.rotate_x(90).mv(float(self.cli.scale_length) - 35 * (1 + i),
-                                    self.cfg.bodyWth/2,
+                                    self.cfg.bodyWth/2 + 5,
                                     -self.cli.flat_body_thickness/2)
                 ta_tnr = tnr + ta_tnr
             ta_tnr += ta_tnr.mirror_and_join()
