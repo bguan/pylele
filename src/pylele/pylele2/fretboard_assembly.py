@@ -97,8 +97,8 @@ class LeleFretboardAssembly(LeleBase):
 
         if self.cli.separate_fretboard or self.cli.separate_neck:
             fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
-            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
-            fretbd -= LeleBody(isCut=True,cli=self.cli)
+            # fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
+            # fretbd -= LeleBody(isCut=True,cli=self.cli)
 
         return fretbd.gen_full()
 

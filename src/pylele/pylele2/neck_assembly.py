@@ -53,7 +53,7 @@ class LeleNeckAssembly(LeleBase):
                 fretbd.gen_full()
                 if self.cli.separate_fretboard:
                     if self.cli.all:
-                        fretbd <<= (0, 0, self.cli.all_distance)
+                        fretbd <<= (-self.cli.all_distance, 0, self.cli.all_distance)
                         neck += fretbd
                     else:
                         self.add_part(fretbd)
