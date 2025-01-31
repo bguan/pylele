@@ -358,7 +358,7 @@ class Solid(ABC):
 
     def has_parts(self) -> bool:
         """Return True if Solid is an assembly with a list of parts attribute"""
-        if hasattr(self, "parts") and isinstance(self.parts, list):
+        if hasattr(self, "parts") and isinstance(self.parts, list) and len(self.parts) > 0:
             return True
         return False
 
@@ -558,8 +558,9 @@ class Solid(ABC):
                     part.export(fmt=fmt, out_path=out_path)
                 else:
                     print(
-                        f"# WARNING: Cannot export {fmt} of class {part} in assembly {self}"
+                        f"# WARNING: Cannot export {fmt} of class {type(part)} in assembly {self}"
                     )
+                    print(self.parts)
 
         return out_fname
 

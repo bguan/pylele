@@ -61,13 +61,22 @@ class LeleFretboardAssembly(LeleBase):
         if self.cli.separate_dots:
             fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
             fretbd -= fdotsCut
-            self.add_part(fdotsCut)
+            fdots   = LeleFretboardDots(cli=self.cli)
+            if self.cli.all:
+                fdots <<= (0, 0, self.cli.all_distance)
+                fretbd += fdots
+            else:
+                self.add_part(fdots)
 
         ## frets
         frets = LeleFrets(cli=self.cli)
         if self.cli.separate_frets:
             fretbd -= frets
-            self.add_part(frets)
+            if self.cli.all:
+                frets <<= (0, 0, self.cli.all_distance)
+                fretbd += frets
+            else:
+                self.add_part(frets)
         else:
             fretbd += frets
 
@@ -75,7 +84,11 @@ class LeleFretboardAssembly(LeleBase):
         nut = LeleNut(cli=self.cli,isCut=self.cli.separate_nut)
         if self.cli.separate_nut:
             fretbd -= nut
-            self.add_part(nut)
+            if self.cli.all:
+                nut <<= (0, 0, self.cli.all_distance)
+                fretbd += nut
+            else:
+                self.add_part(nut)
         else:
             fretbd += nut
 

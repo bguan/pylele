@@ -57,7 +57,10 @@ class LeleBottomAssembly(LeleBase):
         neck.gen_full()
         if self.cli.separate_neck:
             body -= LeleNeckAssembly(cli=self.cli, isCut=True).mv(0, 0, jcTol)
-            if not self.api.implementation == Implementation.BLENDER:
+            if self.cli.all:
+                neck <<= (-5*self.cli.all_distance,0,0)
+                body += neck
+            elif not self.api.implementation == Implementation.BLENDER:
                 # god knows why blender does not like this
                 self.add_part(neck)
         else:
@@ -77,7 +80,11 @@ class LeleBottomAssembly(LeleBase):
         if self.cli.separate_end:
             body -= LeleTail(cli=self.cli, isCut=True).mv(0, 0, jcTol)
             tail = LeleTail(cli=self.cli)
-            self.add_part(tail)
+            if self.cli.all:
+                tail <<= (5*self.cli.all_distance, 0, self.cli.all_distance/2)
+                body += tail
+            else:
+                self.add_part(tail)
         elif self.cli.body_type in [LeleBodyType.HOLLOW]:
             # join tail to body if flat hollow and not separate end
             body += LeleTail(cli=self.cli)

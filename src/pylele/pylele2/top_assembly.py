@@ -51,14 +51,23 @@ class LeleTopAssembly(LeleBase):
             top = tuners.worm_fillet(top)
 
             if self.cli.worm_has_key:
-                self.add_part(LeleWormKey(cli=self.cli))
+                worm_key = LeleWormKey(cli=self.cli)
+                if self.cli.all:
+                    worm_key <<= (0, 0, self.cli.all_distance)
+                    top += worm_key
+                else:
+                    self.add_part(worm_key)
 
         elif tuners.is_peg():
             # gen guide if using tuning pegs
             guide = LeleGuide(cli=self.cli)
             if self.cli.separate_guide:
                 top -= LeleGuide(cli=self.cli, isCut=True)
-                self.add_part(guide)
+                if self.cli.all:
+                    guide <<= (0, 0, self.cli.all_distance)
+                    top += guide
+                else:
+                    self.add_part(guide)
             else:
                 top +=guide
 
@@ -87,7 +96,11 @@ class LeleTopAssembly(LeleBase):
         brdg = LeleBridgeAssembly(cli=self.cli)
         if self.cli.separate_bridge:
             top -= LeleBridgeAssembly(cli=self.cli, isCut=True)
-            self.add_part(brdg)
+            if self.cli.all:
+                brdg <<= (0, 0, self.cli.all_distance)
+                top += brdg
+            else:
+                self.add_part(brdg)
         else:
             top += brdg
 

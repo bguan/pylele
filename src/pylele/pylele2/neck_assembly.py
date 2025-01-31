@@ -52,7 +52,11 @@ class LeleNeckAssembly(LeleBase):
                 fretbd = LeleFretboardAssembly(cli=self.cli)
                 fretbd.gen_full()
                 if self.cli.separate_fretboard:
-                    self.add_part(fretbd)
+                    if self.cli.all:
+                        fretbd <<= (0, 0, self.cli.all_distance)
+                        neck += fretbd
+                    else:
+                        self.add_part(fretbd)
                 else:
                     neck += fretbd.mv(max(0.01, jcTol), 0, -jcTol) # HACK cadquery bug needs this
                     self.add_parts(fretbd.get_parts())

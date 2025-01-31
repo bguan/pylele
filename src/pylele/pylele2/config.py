@@ -149,6 +149,12 @@ def pylele_config_parser(parser = None):
     parser.add_argument("-E", "--separate_end",
                         help="Split end block from body.",
                         action='store_true')
+    parser.add_argument("-all",
+                        "--all",
+                        help="Show all cut part in assembly",
+                        action="store_true",)
+    parser.add_argument("-ad", "--all_distance", help="Distance between parts when showing all",
+                        type=float, default=10)
 
     return parser
 

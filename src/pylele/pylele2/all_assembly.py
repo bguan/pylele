@@ -40,10 +40,14 @@ class LeleAllAssembly(LeleBase):
         ## Top
         top = LeleTopAssembly(cli=self.cli)
         top.gen_full()
-        if self.cli.separate_top:
+        if self.cli.separate_top and not self.cli.all:
             self.add_part(top)
         else:
-            body += top.mv(0, 0, -jcTol)
+            if self.cli.all:
+                top <<= (0, 0, self.cli.all_distance)
+            else:
+                top <<= (0, 0, -jcTol)
+            body += top
         if top.has_parts():
             self.add_parts(top.parts)
 
