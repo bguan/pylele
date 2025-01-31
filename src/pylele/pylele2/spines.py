@@ -4,6 +4,8 @@
     Pylele Spines
 """
 
+from math import floor
+
 import os
 import sys
 
@@ -32,10 +34,10 @@ class LeleSpines(LeleBase):
             self.cfg.spineLen += self.cfg.chmBack + self.cfg.rimWth
         self.cfg.spineGap = (1 if self.cfg.is_odd_strs() else 2)*self.cli.nut_string_gap
         self.cfg.spineY = []
-        if self.cli.num_spines in [1,3]:
+        if (self.cli.num_spines % 2) != 0:
             self.cfg.spineY.append(0)
-        if self.cli.num_spines in [2,3]:
-            self.cfg.spineY += [-self.cfg.spineGap/2, self.cfg.spineGap/2]
+        for i in range(1,floor(self.cli.num_spines/2)+1):
+            self.cfg.spineY += [-i*self.cfg.spineGap/2, i*self.cfg.spineGap/2]
 
     def gen(self) -> Shape:
         """Generate Spines"""

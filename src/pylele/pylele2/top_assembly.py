@@ -62,7 +62,7 @@ class LeleTopAssembly(LeleBase):
             else:
                 top +=guide
 
-        if self.cli.separate_top and self.cli.body_type in [LeleBodyType.GOURD]:
+        if self.cli.separate_top: # and self.cli.body_type in [LeleBodyType.GOURD]:
             top += LeleRim(cli=self.cli, isCut=False)
 
         if self.cli.separate_top and not self.cli.separate_fretboard and not self.cli.separate_neck:

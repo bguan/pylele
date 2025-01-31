@@ -50,17 +50,17 @@ def pylele_chamber_parser(parser=None) -> argparse.ArgumentParser:
 
     return parser
 
+def gen_extruded_oval(api, x1, x2, y_width, z_thick):
+    """ Generate an oval shaped vertical extrusion"""
+    chm = api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
+    chm += api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
+    box_len = abs(x1 - x2)
+    box_pos = (x1 + x2) / 2
+    chm += api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
+    return chm
 
 class LeleChamber(LeleBase):
     """Pylele Chamber Generator class"""
-
-    def gen_extruded_oval(self, x1, x2, y_width, z_thick):
-        chm = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
-        chm += self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
-        box_len = abs(x1 - x2)
-        box_pos = (x1 + x2) / 2
-        chm += self.api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
-        return chm
 
     def gen(self) -> Shape:
         """Generate Chamber"""
@@ -86,7 +86,7 @@ class LeleChamber(LeleBase):
             chm_front = -self.cfg.chmFront + rad
             chm_back = chm_front + self.cfg.chmFront - 2 * rad - self.cfg.brdgLen
 
-            chm = self.gen_extruded_oval(chm_front, chm_back, 2 * rad - self.cli.travel_body_width, chm_thickness)
+            chm = gen_extruded_oval(self.api, chm_front, chm_back, 2 * rad - self.cli.travel_body_width, chm_thickness)
             chm = chm.mv(jcTol, 0, -self.cli.flat_body_thickness / 2)
 
         else:

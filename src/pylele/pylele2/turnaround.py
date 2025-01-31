@@ -96,17 +96,17 @@ class LeleTurnaround(LeleWorm):
             slit += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
                 .mv(-c.front, 0, c.sltHt - 2*c.axlRad) # dx was -c.sltLen/2
             # lower vertical slit
-            slit += self.api.box(c.sltLen, c.sltWth, 2*c.dskRad)\
+            slit += self.api.box(c.sltLen, c.sltWth, c.dskRad)\
                 .mv(c.sltLen/2 - c.front, 0, axlZ - c.dskRad)
                 # .mv(c.sltLen/2 - c.front, 0, -c.sltHt/2 + 2*c.axlRad)
             # lower diagonal slit
-            slit += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
-                .mv(-c.front, 0, axlZ - 2*c.dskRad)
+            #slit += self.api.regpoly_extrusion_y(c.sltWth, c.sltWth * 2, 4)\
+            #    .mv(-c.front, 0, axlZ - 2*c.dskRad)
             #    # .mv(-c.front, 0, -c.sltHt + 2*c.axlRad)
             # lower tube
             tube_len = 100
             slit += self.api.cylinder_x(tube_len, c.sltWth/2)\
-                .mv(-tube_len/2, 0, axlZ - 2*c.dskRad)
+                .mv(c.sltLen/2 -tube_len/2, 0, axlZ - c.dskRad)
             turnaround += slit
 
         return turnaround

@@ -33,22 +33,31 @@ class LeleBodyType(StringEnum):
         return self in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]
 
 WORM_SLIT = ['-wah','-wsl','35']
-WORM    = ['-t','worm'   ,'-e','90'] + WORM_SLIT
-BIGWORM = ['-t','bigworm','-e','90','-fbt','35'] + WORM_SLIT
+WORM    = ['-t','worm'   ,'-e','65'] + WORM_SLIT
+BIGWORM = ['-t','bigworm','-e','90','-fbt','33','-g','11'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
-TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10']
+TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '10','-cbar','0.125']
 
 CONFIGURATIONS = {
         'default'        : [],
         'worm'           : WORM    , # gourd
-        'flat'           : WORM    + ['-bt', LeleBodyType.FLAT] + TUNEBRIDGE,
+        'flat'           : BIGWORM    + 
+                           TUNEBRIDGE +
+                            ['-bt', LeleBodyType.FLAT,
+                            '-cbar','0.125',
+                            '-cbr','1.8',
+                            '-s',LeleScaleEnum.SOPRANINO.name],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
-        'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + ['-cbr','1.2'],
-        'travelele'      : TRAVEL  + ['-t','turnaround',
-                                      '-e','65',
-                                      '-cbr','1.5',
-                                      '-cbar','0.125','-fbt','20',
-                                      '-x','PyTravelele:8:Arial,Merlin-2025:8:Arial'] + WORM_SLIT + TUNEBRIDGE
+        'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + 
+                           ['-cbr','1.2','-nsr','0.45','-fbsr','0.55'],
+                            # '-s',LeleScaleEnum.CONCERT.name],
+        'travelele'      : TRAVEL  + 
+                            ['-t','turnaround',
+                            '-nsp', '1',
+                            '-e','65',
+                            '-cbr','1.5',
+                            '-fbt','20',
+                            '-x','PyTravelele:8:Arial,Merlin-2025:8:Arial'] + WORM_SLIT + TUNEBRIDGE
     }
 
 class AttrDict(dict):
@@ -83,7 +92,7 @@ def pylele_config_parser(parser = None):
     parser.add_argument("-g", "--nut_string_gap", help="Strings gap at nut [mm], default 9",
                         type=float, default=9)
     parser.add_argument("-e", "--end_flat_width", help="Flat width at tail end [mm]",
-                        type=float, default=90)
+                        type=float, default=0)
     parser.add_argument("-nsp", "--num_spines", help="Number of neck spines",
                         type=int, default=3, choices=[*range(4)])
     parser.add_argument("-mnwa", "--min_neck_wide_angle", help="Minimum Neck Widening angle [deg]",
@@ -92,6 +101,10 @@ def pylele_config_parser(parser = None):
                         type=float, default=3)
     parser.add_argument("-cbar", "--chamber_back_ratio", help="Chamber Back/Front length",
                         type=float, default=1/2)
+    parser.add_argument("-fbsr", "--fretboard_ratio", help="Fretboad/Scale length ratio",
+                        type=float, default=0.635)
+    parser.add_argument("-nsr", "--neck_ratio", help="Neck/Scale length ratio",
+                        type=float, default=0.55)
 
     ## Body Type config options ###########################################
 
@@ -102,7 +115,8 @@ def pylele_config_parser(parser = None):
                     default=LeleBodyType.GOURD
                     )
 
-    parser.add_argument("-fbt", "--flat_body_thickness", help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
+    parser.add_argument("-fbt", "--flat_body_thickness", 
+                        help=f"Body thickness [mm] when flat body, default {DEFAULT_FLAT_BODY_THICKNESS}",
                         type=float, default=DEFAULT_FLAT_BODY_THICKNESS)
 
     ## Chamber config options ###########################################
@@ -147,17 +161,12 @@ class LeleConfig:
     """ Pylele Configuration Class """
     TOP_RATIO = 1/8
     BOT_RATIO = 2/3
-    # CHM_BACK_RATIO = 1/2 # to chmFront
-    # CHM_BRDG_RATIO = 3  # to chmWth
     EMBOSS_DEP = .5
     FRET_HT = 1
-    FRETBD_RATIO = 0.635  # to scaleLen
     FRETBD_SPINE_TCK = 2
     FRETBD_TCK = 2
     GUIDE_RAD = 1.55
     GUIDE_SET = 0
-    # MIN_NECK_WIDE_ANG = 1.2
-    NECK_RATIO = .55  # to scaleLen
     MAX_FRETS = 24
     NUT_HT = 1.5
     SPINE_HT = 10
@@ -271,13 +280,12 @@ class LeleConfig:
         action=self.cli.action
         numStrs=self.cli.num_strings
         nutStrGap=self.cli.nut_string_gap
-        endWth=self.cli.end_flat_width
         wallTck=self.cli.wall_thickness
         self.tolerance = self.cli.implementation.tolerance()
         tnrType=TunerType[self.cli.tuner_type].value
 
         # Length based configs
-        self.fretbdLen = scaleLen * self.FRETBD_RATIO
+        self.fretbdLen = scaleLen * self.cli.fretboard_ratio
         self.fretbdRiseAng = 1 + numStrs/10
         self.chmFront = scaleLen - self.fretbdLen - wallTck
         self.chmBack = self.cli.chamber_back_ratio * self.chmFront
@@ -306,7 +314,7 @@ class LeleConfig:
         brdgStrGap = self.brdgWth / (numStrs-.5)
         self.brdgStrGap = brdgStrGap
 
-        self.neckLen = scaleLen * self.NECK_RATIO
+        self.neckLen = scaleLen * self.cli.neck_ratio
         self.extMidBotTck = max(0, 10 - numStrs**1.25)
 
         # Neck configs

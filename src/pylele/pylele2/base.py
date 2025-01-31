@@ -86,7 +86,7 @@ class LeleBase(Solid):
         cli = parser.parse_args(args=args)
 
         if isinstance(cli.configuration, str):
-            print("### Overriding configuration: {cli.configuration}")
+            print(f"### Overriding configuration: {cli.configuration}")
             cfgargs = CONFIGURATIONS[cli.configuration]
             cfgargs += sys.argv[1:]
             if isinstance(args, list):
