@@ -22,6 +22,7 @@ class PyleleTestMethods(unittest.TestCase):
     ## Solid Parts
     from pylele.parts.tunable_saddle import test_tunable_saddle, test_tunable_saddle_mock
     from pylele.parts.tunable_bridge import test_tunable_bridge, test_tunable_bridge_mock
+    from pylele.parts.worm_gear import test_worm_gear, test_worm_gear_mock
 
     ## Pylele Individual Parts
     from pylele.pylele2.frets import test_frets, test_frets_mock

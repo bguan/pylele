@@ -50,13 +50,13 @@ class MockShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> MockShape:
         return MockShape(self)
 
-    def cylinder_x(self, h: float, rad: float) -> MockShape:
+    def cylinder_x(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def cylinder_y(self, h: float, rad: float) -> MockShape:
+    def cylinder_y(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
-    def cylinder_z(self, h: float, rad: float) -> MockShape:
+    def cylinder_z(self, l: float, rad: float) -> MockShape:
         return MockShape(self)
 
     def polygon_extrusion(
@@ -91,6 +91,10 @@ class MockShapeAPI(ShapeAPI):
     def genImport(self, infile: str, extrude: float = None) -> MockShape:
         assert os.path.exists(infile)
         assert isinstance(extrude, (int, float))
+        return MockShape(self)
+
+    def genShape(self, solid) -> MockShape:
+        """ Currently just mimics SolidPython2 implementation """
         return MockShape(self)
 
 class MockShape(Shape):

@@ -405,7 +405,7 @@ class ShapeAPI(ABC):
                 if not dome_ratio is None:
                     return self.cylinder_rounded_x(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_x(h=l,rad=rad)
+                    return self.cylinder_x(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_x(l=l,rad=rad, sides=sides)
 
@@ -414,7 +414,7 @@ class ShapeAPI(ABC):
                 if not dome_ratio is None:
                     return self.cylinder_rounded_y(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_y(h=l,rad=rad)
+                    return self.cylinder_y(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_y(l=l,rad=rad, sides=sides)
 
@@ -423,7 +423,7 @@ class ShapeAPI(ABC):
                 if not dome_ratio is None:
                     return self.cylinder_rounded_z(l=l,rad=rad,domeRatio=dome_ratio)
                 else:
-                    return self.cylinder_z(h=l,rad=rad)
+                    return self.cylinder_z(l=l,rad=rad)
             else:
                 return self.regpoly_extrusion_z(l=l,rad=rad, sides=sides)
 

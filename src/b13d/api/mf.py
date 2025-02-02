@@ -124,14 +124,14 @@ class MFShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> MFShape:
         return MFRodZ(l, rad, sides, self)
 
-    def cylinder_x(self, h: float, rad: float) -> MFShape:
-        return MFRodZ(h, rad, None, self).rotate_y(90)
+    def cylinder_x(self, l: float, rad: float) -> MFShape:
+        return MFRodZ(l, rad, None, self).rotate_y(90)
 
-    def cylinder_y(self, h: float, rad: float) -> MFShape:
-        return MFRodZ(h, rad, None, self).rotate_x(90)
+    def cylinder_y(self, l: float, rad: float) -> MFShape:
+        return MFRodZ(l, rad, None, self).rotate_x(90)
 
-    def cylinder_z(self, h: float, rad: float) -> MFShape:
-        return MFRodZ(h, rad, None, self)
+    def cylinder_z(self, l: float, rad: float) -> MFShape:
+        return MFRodZ(l, rad, None, self)
 
     def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> MFShape:
         return MFPolyExtrusionZ(path, ht, self)

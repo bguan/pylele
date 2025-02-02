@@ -100,14 +100,14 @@ class TMShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> TMShape:
         return TMRod(l, rad, sides, None, self)
 
-    def cylinder_x(self, h: float, rad: float) -> TMShape:
-        return TMRod(h, rad, None, self.rotZtoX, self)
+    def cylinder_x(self, l: float, rad: float) -> TMShape:
+        return TMRod(l, rad, None, self.rotZtoX, self)
 
-    def cylinder_y(self, h: float, rad: float) -> TMShape:
-        return TMRod(h, rad, None, self.rotZtoY, self)
+    def cylinder_y(self, l: float, rad: float) -> TMShape:
+        return TMRod(l, rad, None, self.rotZtoY, self)
 
-    def cylinder_z(self, h: float, rad: float) -> TMShape:
-        return TMRod(h, rad, None, None, self)
+    def cylinder_z(self, l: float, rad: float) -> TMShape:
+        return TMRod(l, rad, None, None, self)
 
     def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> TMShape:
         return TMPolyExtrusionZ(path, ht, self)

@@ -131,14 +131,14 @@ class BlenderShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> BlenderShape:
         return BlenderPolyRodZ(ln, rad, sides, self)
 
-    def cylinder_x(self, h: float, rad: float) -> BlenderShape:
-        return BlenderRodX(h, rad, self)
+    def cylinder_x(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodX(l, rad, self)
 
-    def cylinder_y(self, h: float, rad: float) -> BlenderShape:
-        return BlenderRodY(h, rad, self)
+    def cylinder_y(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodY(l, rad, self)
 
-    def cylinder_z(self, h: float, rad: float) -> BlenderShape:
-        return BlenderRodZ(h, rad, self)
+    def cylinder_z(self, l: float, rad: float) -> BlenderShape:
+        return BlenderRodZ(l, rad, self)
     
     def cylinder_rounded_x(self, l: float, rad: float, domeRatio: float = 1) -> Shape:
         stemLen = l - 2 * rad * domeRatio

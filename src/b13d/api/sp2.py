@@ -95,14 +95,14 @@ class Sp2ShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, l: float, rad: float, sides: int) -> Sp2Shape:
         return Sp2Cone(l, r1=rad, r2=rad, sides=sides, direction="Z", api=self)
 
-    def cylinder_x(self, h: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(h, r1=rad, r2=rad, direction="X", sides=None, api=self)
+    def cylinder_x(self, l: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(l, r1=rad, r2=rad, direction="X", sides=None, api=self)
 
-    def cylinder_y(self, h: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(h, r1=rad, r2=rad, direction="Y", sides=None, api=self)
+    def cylinder_y(self, l: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(l, r1=rad, r2=rad, direction="Y", sides=None, api=self)
 
-    def cylinder_z(self, h: float, rad: float) -> Sp2Shape:
-        return Sp2Cone(h, r1=rad, r2=rad, direction="Z", sides=None, api=self)
+    def cylinder_z(self, l: float, rad: float) -> Sp2Shape:
+        return Sp2Cone(l, r1=rad, r2=rad, direction="Z", sides=None, api=self)
 
     def cylinder_rounded_z(self, l: float, rad: float, domeRatio: float = 1) -> Sp2Shape:
         return Sp2RndRodZ(l, rad, domeRatio, api=self)

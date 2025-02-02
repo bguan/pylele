@@ -101,14 +101,14 @@ class CQShapeAPI(ShapeAPI):
     def regpoly_extrusion_z(self, ln: float, rad: float, sides: int) -> CQShape:
         return CQPolyRod(ln, rad, sides, "XY", self)
 
-    def cylinder_x(self, h: float, rad: float) -> CQShape:
-        return CQRod(h, rad, "YZ", self)
+    def cylinder_x(self, l: float, rad: float) -> CQShape:
+        return CQRod(l, rad, "YZ", self)
 
-    def cylinder_y(self, h: float, rad: float) -> CQShape:
-        return CQRod(h, rad, "XZ", self)
+    def cylinder_y(self, l: float, rad: float) -> CQShape:
+        return CQRod(l, rad, "XZ", self)
 
-    def cylinder_z(self, h: float, rad: float) -> CQShape:
-        return CQRod(h, rad, "XY", self)
+    def cylinder_z(self, l: float, rad: float) -> CQShape:
+        return CQRod(l, rad, "XY", self)
 
     def polygon_extrusion(self, path: list[tuple[float, float]], ht: float) -> CQShape:
         return CQPolyExtrusionZ(path, ht, self)
