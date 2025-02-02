@@ -263,6 +263,16 @@ GOTOH_PEG_CFG = PegConfig(
     tailAdj=-2,
     code = 'G',
 )
+PEG_90 = PegConfig(
+    majRad=7.7,
+    minRad=3.3,
+    botLen=9,
+    btnRad=9.5,
+    midTck=11,
+    holeHt=10,
+    tailAdj=-2,
+    code = 'P',
+)
 WORM_TUNER_CFG = WormConfig()
 BIGWORM_TUNER_CFG = WormConfig(
     slitHt=43,

@@ -49,6 +49,7 @@ class PyleleTestMethods(unittest.TestCase):
     from pylele.pylele2.guide import test_guide, test_guide_mock
     from pylele.pylele2.chamber import test_chamber, test_chamber_mock
     from pylele.pylele2.peg import test_peg, test_peg_mock
+    from pylele.pylele2.peg90 import test_peg90, test_peg90_mock
     from pylele.pylele2.worm import test_worm, test_worm_mock
     from pylele.pylele2.turnaround import test_turnaround,test_turnaround_mock
     from pylele.pylele2.tuners import test_tuners, test_tuners_mock
