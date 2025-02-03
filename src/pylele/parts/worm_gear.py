@@ -22,6 +22,37 @@ from b13d.parts.torus import Torus
 
 class WormGear(Solid):
     """ Generate Worm Gear """
+
+    def configure(self):
+        Solid.configure(self)
+        
+        # gear parameters
+        self.modulus = 2
+        self.worm_pitch = 3
+        self.worm_diam = 10
+        self.worm_starts = 1
+        self.teeth = 15
+        self.pressure_angle = 35
+
+        # inferred parameters
+        self.gear_diam = 14.6
+        self.worm_drive_teeth = 1.43
+        self.gear_teeth = 1.4
+
+        # shaft parameters
+        self.shaft_h = 10
+        self.shaft_diam = 8
+
+        # string hole
+        self.string_diam = 2
+
+        # drive parameters
+        self.drive_h = 10
+        self.drive_teeth_l = 0.98
+
+        # drive cylindrical extension
+        self.disk_h = (self.gear_diam - self.drive_h + 2)/2
+
     def gen(self) -> Shape:
         assert self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK]
         
@@ -37,58 +68,43 @@ class WormGear(Solid):
         vnf = worm_gear(mod=, teeth=, worm_diam=, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=])
         """
 
-        modulus = 2
-        worm_pitch = 3
-        worm_diam = 10
-        worm_starts = 1
-        teeth = 15
-        pressure_angle = 35
-
-        # inferred parameters
-        gear_diam = 14.6
-        worm_drive_teeth = 1.43
-        gear_teeth = 1.4
-
         ## gear
         if self.isCut:
-            gear = self.api.cylinder_z(worm_diam-2*worm_drive_teeth,
-                                   gear_diam/2 + gear_teeth)
+            gear = self.api.cylinder_z(self.worm_diam-2*self.worm_drive_teeth,
+                                   self.gear_diam/2 + self.gear_teeth)
         else:
             gear = self.api.genShape(
-                    solid=worm_gear(pitch=worm_pitch,
-                                    teeth=teeth,
-                                    worm_diam=worm_diam,
-                                    worm_starts=worm_starts,
-                                    pressure_angle=pressure_angle,
+                    solid=worm_gear(pitch=self.worm_pitch,
+                                    teeth=self.teeth,
+                                    worm_diam=self.worm_diam,
+                                    worm_starts=self.worm_starts,
+                                    pressure_angle=self.pressure_angle,
                                     # modulus = modulus
                                     )
                 ).rotate_z(5)
     
         # shaft
-        shaft_h = 10
-        shaft_diam = 8
-        shaft = self.api.cylinder_z(l=shaft_h, rad=shaft_diam/2)
+        shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2)
 
         if not self.isCut:
             # string hole
-            string_diam = 2
-            string_cut = self.api.cylinder_x(l=2*worm_diam, rad=string_diam/2)
-            string_cut <<= (0,0,shaft_h/2-string_diam)
+            string_cut = self.api.cylinder_x(l=2*self.worm_diam, rad=self.string_diam/2)
+            string_cut <<= (0,0,self.shaft_h/2-self.string_diam)
             shaft -= string_cut
 
             # torus to shape shaft
-            torus_rad = shaft_diam/4
+            torus_rad = self.shaft_diam/4
             torus = Torus(
                 args = ['-i', self.cli.implementation,
                         '-r1', f'{torus_rad}',
-                        '-r2', f'{shaft_diam/2+torus_rad/2}'
+                        '-r2', f'{self.shaft_diam/2+torus_rad/2}'
                         ]
             ).gen_full()
             torus = torus.rotate_x(90)
-            torus <<= (0,0,shaft_h/2 - string_diam)
+            torus <<= (0,0,self.shaft_h/2 - self.string_diam)
             shaft -= torus
             
-        shaft <<= (0,0,shaft_h/2)
+        shaft <<= (0,0,self.shaft_h/2)
         gear += shaft
 
         """    
@@ -104,27 +120,24 @@ class WormGear(Solid):
         """
 
         ## drive
-        drive_h = 10
-        drive_teeth_l = 0.98
         if self.isCut:
-            drive = self.api.cylinder_z(drive_h,rad=worm_diam/2+drive_teeth_l)
+            drive = self.api.cylinder_z(self.drive_h,rad=self.worm_diam/2+self.drive_teeth_l)
         else:
             drive = self.api.genShape(
-                    solid=worm(pitch=worm_pitch,
-                            d=worm_diam,
-                            starts=worm_starts,
-                            l=drive_h,
-                            pressure_angle=pressure_angle,
+                    solid=worm(pitch=self.worm_pitch,
+                            d=self.worm_diam,
+                            starts=self.worm_starts,
+                            l=self.drive_h,
+                            pressure_angle=self.pressure_angle,
                             # modulus = modulus
                             )
                 )
                 
         # drive cylindrical extension
-        disk_h = (gear_diam - drive_h + 2)/2
-        disk_low = self.api.cylinder_z(l=disk_h, rad=worm_diam/2)
+        disk_low = self.api.cylinder_z(l=self.disk_h, rad=self.worm_diam/2)
         disk_high = disk_low.dup()
-        disk_low  <<= (0,0,-(drive_h+disk_h)/2)
-        disk_high <<= (0,0, (drive_h+disk_h)/2)
+        disk_low  <<= (0,0,-(self.drive_h+self.disk_h)/2)
+        disk_high <<= (0,0, (self.drive_h+self.disk_h)/2)
         drive += disk_low + disk_high
 
         if not self.isCut:
@@ -139,7 +152,7 @@ class WormGear(Solid):
             drive -= hex_cut.rotate_y(90)
         
         # align drive with gear
-        drive = drive.rotate_x(90).mv((gear_diam+worm_diam)/2,0,0)
+        drive = drive.rotate_x(90).mv((self.gear_diam+self.worm_diam)/2,0,0)
         
         return drive + gear
 
