@@ -8,7 +8,6 @@
     https://www.thingiverse.com/thing:6664561
 """
 
-from solid2 import import_scad
 from solid2.extensions.bosl2.gears import worm_gear, worm
 
 import os
@@ -53,8 +52,11 @@ class WormGear(Solid):
         # drive cylindrical extension
         self.disk_h = (self.gear_diam - self.drive_h + 2)/2
 
+        # cut tolerance
+        self.cut_tolerance = 0.3
+
     def gen(self) -> Shape:
-        assert self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK]
+        assert self.isCut or (self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK])
         
         """
         Usage: As a Module
@@ -121,7 +123,9 @@ class WormGear(Solid):
 
         ## drive
         if self.isCut:
-            drive = self.api.cylinder_z(self.drive_h,rad=self.worm_diam/2+self.drive_teeth_l)
+            drive = self.api.cylinder_z(self.drive_h,
+                                        rad=self.worm_diam/2+self.drive_teeth_l
+                                        )
         else:
             drive = self.api.genShape(
                     solid=worm(pitch=self.worm_pitch,
@@ -134,7 +138,8 @@ class WormGear(Solid):
                 )
                 
         # drive cylindrical extension
-        disk_low = self.api.cylinder_z(l=self.disk_h, rad=self.worm_diam/2)
+        tol = self.cut_tolerance if self.isCut else 0
+        disk_low = self.api.cylinder_z(l=self.disk_h+tol, rad=(self.worm_diam+tol)/2)
         disk_high = disk_low.dup()
         disk_low  <<= (0,0,-(self.drive_h+self.disk_h)/2)
         disk_high <<= (0,0, (self.drive_h+self.disk_h)/2)
