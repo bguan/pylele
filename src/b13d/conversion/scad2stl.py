@@ -7,6 +7,12 @@ import os
 import argparse
 from packaging import version
 
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
+
+from b13d.api.utils import wait_assert_file_exist
+
 OPENSCAD='openscad --export-format binstl'
 IMPLICITCAD='~/.cabal/bin/extopenscad'
 
@@ -81,7 +87,7 @@ def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
     cmdstr = f'{command} {manifold} -o {fout} {infile}'
     os.system(cmdstr)
 
-    assert os.path.isfile(fout), f'ERROR: file {fout} does not exist!'
+    wait_assert_file_exist(fname=fout)
     return fout
 
 def scad2stl_main(args:list) -> None:

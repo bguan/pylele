@@ -24,7 +24,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
                 
 from b13d.api.core import ShapeAPI, Shape, Fidelity, Implementation, StringEnum, supported_apis
 from b13d.api.constants import ColorEnum, FIT_TOL, FILLET_RAD, DEFAULT_BUILD_DIR, DEFAULT_TEST_DIR, ColorEnum
-from b13d.api.utils import make_or_exist_path
+from b13d.api.utils import make_or_exist_path, wait_assert_file_exist
 from b13d.conversion.scad2stl import scad2stl_parser
 
 MAX_SECTION = 1000
@@ -539,17 +539,7 @@ class Solid(ABC):
         self.api.export(self.shape, path=out_fname, fmt=fmt)
 
         # potential timing issues with generating STL files
-        retry = 0
-        timeout = 1
-        while retry < 3 and not os.path.isfile(out_fname):
-            print(
-                f"Failed to detect {fmt} file {out_fname}, retry after {timeout} seconds..."
-            )
-            time.sleep(timeout)
-            timeout *= 2
-            retry += 1
-
-        assert os.path.isfile(out_fname), f"Failed to generate {fmt} file {out_fname}"
+        wait_assert_file_exist(fname=out_fname)
 
         if self.has_parts():
             # this is an assembly, generate other parts

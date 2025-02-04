@@ -44,7 +44,7 @@ class Sp2ShapeAPI(ShapeAPI):
             assert False
 
     def export_best(self, shape: Sp2Shape, path: Union[str, Path]) -> None:
-        self.export_scad(shape=shape,path=path)
+        return self.export_scad(shape=shape,path=path)
 
     def export_stl(self, shape: Sp2Shape, path: str) -> None:
         """ Export .stl mesh """

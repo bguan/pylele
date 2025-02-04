@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import sys
 from typing import Callable, Union
-
+import time
 
 def radians(deg: float = 0) -> float:
     return deg * pi / 180
@@ -773,3 +773,19 @@ def distance(p0, p1):
         square_sum  += (p0[i] - p1[i])**2
 
     return sqrt( square_sum )
+
+def wait_assert_file_exist(fname, timeout=1, nretry=10):
+    """ Wait a bit for a file, assert if not available after timeout """
+
+    retry = 0
+    while retry < nretry and not os.path.isfile(fname):
+        print(
+            f"Failed to detect file {fname}, retry after {timeout} seconds..."
+        )
+        time.sleep(timeout)
+        timeout *= 2
+        retry += 1
+        if os.path.isfile(fname):
+            break
+
+    assert os.path.isfile(fname), f"Failed to detect file {fname}"
