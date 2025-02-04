@@ -79,12 +79,13 @@ def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
     fname, fext = os.path.splitext(infile)
     assert fext in ['.scad','.csg']
     fout = fname+'.stl'
+    log = fname+'_openscad.log'
 
     if implicit:
         command = IMPLICITCAD
 
     manifold = openscad_manifold_opt(command=command)
-    cmdstr = f'{command} {manifold} -o {fout} {infile}'
+    cmdstr = f'{command} {manifold} -o {fout} {infile} 2>&1 | cat > {log}'
     os.system(cmdstr)
 
     wait_assert_file_exist(fname=fout)
