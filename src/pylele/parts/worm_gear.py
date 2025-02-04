@@ -181,7 +181,7 @@ def main(args=None):
 
 def test_worm_gear(self,apis=[Implementation.SOLID2]):
     """ Test worm gear """
-    tests = {'default':[],
+    tests = {'default':None,
              'cut':['-C']}
     test_loop(module=__name__,apis=apis, tests=tests)
 

@@ -70,7 +70,7 @@ class WormGearHolder(WormGear):
             ]
         ).gen_full()
 
-        if True:
+        if True and self.cli.implementation == Implementation.SOLID2:
             holder += WormGear( args = [
                 '-i', self.cli.implementation,
                 ]
