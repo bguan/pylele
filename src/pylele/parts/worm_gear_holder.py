@@ -21,11 +21,11 @@ class WormGearHolder(WormGear):
 
     def configure(self):
         WormGear.configure(self)
-        self.wall_thickness = 2
+        self.wall_thickness = 2.4
         self.holder_thickness = max([
-            self.worm_diam-2*self.worm_drive_teeth + 2*self.wall_thickness, # from gear
-            self.worm_diam/2+self.drive_teeth_l    + 2*self.wall_thickness, # from drive
-        ])
+            self.worm_diam-2*self.worm_drive_teeth, # from gear
+            self.worm_diam/2+self.drive_teeth_l   , # from drive
+        ]) + 2*self.wall_thickness + 2*self.cut_tolerance
         self.holder_width = 2*(self.gear_diam/2 + self.gear_teeth + self.wall_thickness)
 
     def gen(self) -> Shape:
@@ -70,7 +70,7 @@ class WormGearHolder(WormGear):
             ]
         ).gen_full()
 
-        if False:
+        if True:
             holder += WormGear( args = [
                 '-i', self.cli.implementation,
                 ]

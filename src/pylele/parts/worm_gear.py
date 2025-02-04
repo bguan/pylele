@@ -42,6 +42,9 @@ class WormGear(Solid):
         self.shaft_h = 10
         self.shaft_diam = 8
 
+        # hex hole
+        self.hex_hole = 4.3
+
         # string hole
         self.string_diam = 2
 
@@ -70,10 +73,14 @@ class WormGear(Solid):
         vnf = worm_gear(mod=, teeth=, worm_diam=, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=])
         """
 
+        tol = self.cut_tolerance if self.isCut else 0
+
         ## gear
         if self.isCut:
-            gear = self.api.cylinder_z(self.worm_diam-2*self.worm_drive_teeth,
-                                   self.gear_diam/2 + self.gear_teeth)
+            gear = self.api.cylinder_z(
+                    self.worm_diam-2*self.worm_drive_teeth,
+                    self.gear_diam/2 + self.gear_teeth
+                    )
         else:
             gear = self.api.genShape(
                     solid=worm_gear(pitch=self.worm_pitch,
@@ -86,7 +93,7 @@ class WormGear(Solid):
                 ).rotate_z(5)
     
         # shaft
-        shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2)
+        shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2 + tol)
 
         if not self.isCut:
             # string hole
@@ -123,8 +130,8 @@ class WormGear(Solid):
 
         ## drive
         if self.isCut:
-            drive = self.api.cylinder_z(self.drive_h,
-                                        rad=self.worm_diam/2+self.drive_teeth_l
+            drive = self.api.cylinder_z(self.drive_h+2*tol,
+                                        rad=self.worm_diam/2+self.drive_teeth_l+tol
                                         )
         else:
             drive = self.api.genShape(
@@ -138,18 +145,23 @@ class WormGear(Solid):
                 )
                 
         # drive cylindrical extension
-        tol = self.cut_tolerance if self.isCut else 0
-        disk_low = self.api.cylinder_z(l=self.disk_h+tol, rad=(self.worm_diam+tol)/2)
+        disk_low = self.api.cylinder_z(l=self.disk_h+tol, rad=self.worm_diam/2+tol)
         disk_high = disk_low.dup()
         disk_low  <<= (0,0,-(self.drive_h+self.disk_h)/2)
         disk_high <<= (0,0, (self.drive_h+self.disk_h)/2)
         drive += disk_low + disk_high
 
+        # drive extension
+        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*tol + 2*2, 
+                                        rad=self.hex_hole/2+2+2*tol
+                                        )
+        drive += drive_ext
+
+        # hex key hole
         if not self.isCut:
-            # hex key hole
             hex_cut = Pencil(
                 args = ['-i', self.cli.implementation,
-                        '-s', '4.3',
+                        '-s', f'{self.hex_hole}',
                         '-d','0',
                         '-fh','0'
                         ]
