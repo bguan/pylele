@@ -31,7 +31,7 @@ class WormGear(Solid):
         self.worm_diam = 10
         self.worm_starts = 1
         self.teeth = 15
-        self.pressure_angle = 35
+        self.pressure_angle = 32
 
         # inferred parameters
         self.gear_diam = 14.6
@@ -83,12 +83,12 @@ class WormGear(Solid):
                     )
         else:
             gear = self.api.genShape(
-                    solid=worm_gear(pitch=self.worm_pitch,
+                    solid=worm_gear(circ_pitch=self.worm_pitch,
                                     teeth=self.teeth,
                                     worm_diam=self.worm_diam,
                                     worm_starts=self.worm_starts,
                                     pressure_angle=self.pressure_angle,
-                                    # modulus = modulus
+                                    mod = self.modulus
                                     )
                 ).rotate_z(5)
     
@@ -135,12 +135,12 @@ class WormGear(Solid):
                                         )
         else:
             drive = self.api.genShape(
-                    solid=worm(pitch=self.worm_pitch,
+                    solid=worm(circ_pitch=self.worm_pitch,
                             d=self.worm_diam,
                             starts=self.worm_starts,
                             l=self.drive_h,
                             pressure_angle=self.pressure_angle,
-                            # modulus = modulus
+                            mod = self.modulus
                             )
                 )
                 

@@ -72,6 +72,17 @@ def openscad_manifold_opt(command=OPENSCAD) -> str:
         return '--enable=manifold'
     return ''
 
+def assert_if_log_contains_error(file_path):
+    """
+    Checks if the given file contains the string 'ERROR:'.
+
+    :param file_path: Path to the text file.
+    :return: True if 'ERROR:' is found, otherwise False.
+    """
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            assert not "ERROR:" in line, line
+
 def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
     """ Converts a .scad/.csg file into a .stl mesh """
     assert os.path.isfile(infile), f'File {infile} does not exist!!!'
@@ -87,6 +98,10 @@ def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
     manifold = openscad_manifold_opt(command=command)
     cmdstr = f'{command} {manifold} -o {fout} {infile} 2>&1 | cat > {log}'
     os.system(cmdstr)
+
+    # make sure logfile exist
+    wait_assert_file_exist(fname=log)
+    assert_if_log_contains_error(log)
 
     wait_assert_file_exist(fname=fout)
     return fout
