@@ -81,6 +81,8 @@ def assert_if_log_contains_error(file_path):
     """
     with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
+            if "ECHO:" in line:
+                print(line)
             assert not "ERROR:" in line, line
 
 def scad2stl(infile, command=OPENSCAD, implicit = False) -> str:
