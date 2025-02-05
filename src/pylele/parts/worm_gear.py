@@ -8,7 +8,7 @@
     https://www.thingiverse.com/thing:6664561
 """
 
-from solid2.extensions.bosl2.gears import worm_gear, worm
+from solid2.extensions.bosl2.gears import worm_gear, worm, enveloping_worm, worm_gear_thickness, worm_dist
 
 import os
 import sys
@@ -26,12 +26,12 @@ class WormGear(Solid):
         Solid.configure(self)
         
         # gear parameters
-        self.modulus = 2
-        self.worm_pitch = 3
+        self.modulus = 1.5
+        self.circ_pitch = 3      # The circular pitch, the distance between teeth centers around the pitch circle. Default: 5
         self.worm_diam = 10
         self.worm_starts = 1
-        self.teeth = 15
-        self.pressure_angle = 32
+        self.teeth = 14          # The number of teeth in the mated worm gear.
+        self.pressure_angle = 25 # 32
 
         # inferred parameters
         self.gear_diam = 14.6
@@ -61,18 +61,6 @@ class WormGear(Solid):
     def gen(self) -> Shape:
         assert self.isCut or (self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK])
         
-        """
-        Usage: As a Module
-
-        worm_gear(circ_pitch, teeth, worm_diam, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=], [shaft_diam=]) [ATTACHMENTS];
-        worm_gear(mod=, teeth=, worm_diam=, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=], [shaft_diam=]) [ATTACHMENTS];
-
-        Usage: As a Function
-
-        vnf = worm_gear(circ_pitch, teeth, worm_diam, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=]);
-        vnf = worm_gear(mod=, teeth=, worm_diam=, [worm_starts=], [worm_arc=], [crowning=], [left_handed=], [pressure_angle=], [backlash=], [clearance=], [slices=])
-        """
-
         tol = self.cut_tolerance if self.isCut else 0
 
         ## gear
@@ -83,15 +71,22 @@ class WormGear(Solid):
                     )
         else:
             gear = self.api.genShape(
-                    solid=worm_gear(circ_pitch=self.worm_pitch,
+                    solid=worm_gear(circ_pitch=self.circ_pitch,
                                     teeth=self.teeth,
                                     worm_diam=self.worm_diam,
                                     worm_starts=self.worm_starts,
                                     pressure_angle=self.pressure_angle,
-                                    mod = self.modulus
+                                    # mod = self.modulus,
+                                    spin = 12,
+                                    worm_arc = 59
                                     )
-                ).rotate_z(5)
-    
+                )
+            gear_h = worm_gear_thickness(
+                circ_pitch=self.circ_pitch,
+                teeth=self.teeth,
+                worm_diam=self.worm_diam,
+            )
+
         # shaft
         shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2 + tol)
 
@@ -116,32 +111,40 @@ class WormGear(Solid):
         shaft <<= (0,0,self.shaft_h/2)
         gear += shaft
 
-        """    
-        Usage: As a Module
-
-        worm(circ_pitch, d, l, [starts=], [left_handed=], [pressure_angle=], [backlash=], [clearance=]);
-        worm(mod=, d=, l=, [starts=], [left_handed=], [pressure_angle=], [backlash=], [clearance=]);
-
-        Usage: As a Function
-
-        vnf = worm(circ_pitch, d, l, [starts=], [left_handed=], [pressure_angle=], [backlash=], [clearance=]);
-        vnf = worm(mod=, d=, l=, [starts=], [left_handed=], [pressure_angle=], [backlash=], [clearance=]);
-        """
-
         ## drive
         if self.isCut:
             drive = self.api.cylinder_z(self.drive_h+2*tol,
                                         rad=self.worm_diam/2+self.drive_teeth_l+tol
                                         )
         else:
+
+            if True:
+                bworm = worm(circ_pitch=self.circ_pitch,
+                                d=self.worm_diam,
+                                starts=self.worm_starts,
+                                l=self.drive_h,
+                                pressure_angle=self.pressure_angle,
+                                mod = self.modulus
+                                )
+            else:
+                # bworm = enveloping_worm(circ_pitch=8, mate_teeth=45, d=30, _fn=72)
+                bworm = enveloping_worm(circ_pitch=self.circ_pitch,
+                                        mate_teeth=self.teeth,
+                                        d=self.worm_diam,
+                                        pressure_angle=self.pressure_angle)
+                # bworm = enveloping_worm(
+                                # circ_pitch=self.circ_pitch,
+                                # d=self.worm_diam,
+                                # starts=self.worm_starts,
+                                # l=self.drive_h,
+                                # pressure_angle=self.pressure_angle,
+                                # mod = self.modulus,
+                                # mate_teeth = 0.5
+                #                )
+                
+
             drive = self.api.genShape(
-                    solid=worm(circ_pitch=self.worm_pitch,
-                            d=self.worm_diam,
-                            starts=self.worm_starts,
-                            l=self.drive_h,
-                            pressure_angle=self.pressure_angle,
-                            mod = self.modulus
-                            )
+                    solid=bworm
                 )
                 
         # drive cylindrical extension
@@ -152,7 +155,7 @@ class WormGear(Solid):
         drive += disk_low + disk_high
 
         # drive extension
-        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*tol + 2*2, 
+        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*tol + 2*2,
                                         rad=self.hex_hole/2+2+2*tol
                                         )
         drive += drive_ext
@@ -169,7 +172,15 @@ class WormGear(Solid):
             drive -= hex_cut.rotate_y(90)
         
         # align drive with gear
-        drive = drive.rotate_x(90).mv((self.gear_diam+self.worm_diam)/2,0,0)
+        dist = worm_dist(circ_pitch=self.circ_pitch,
+                    d=self.worm_diam,
+                    starts=self.worm_starts,
+                    teeth=self.teeth, 
+                    # [profile_shift],
+                    pressure_angle=self.pressure_angle
+                    )
+        # drive = drive.rotate_x(90).mv((self.gear_diam+self.worm_diam)/2,0,0)
+        drive = drive.rotate_x(90).mv(dist,0,0)
         
         return drive + gear
 
