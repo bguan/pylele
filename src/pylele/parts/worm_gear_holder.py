@@ -84,7 +84,7 @@ def main(args=None):
                 class_name='WormGearHolder',
                 args=args)
 
-def test_worm_gear_holder(self,apis=[Implementation.SOLID2]]):
+def test_worm_gear_holder(self,apis=[Implementation.SOLID2]):
     """ Test worm gear """
     test_loop(module=__name__,apis=apis)
 
