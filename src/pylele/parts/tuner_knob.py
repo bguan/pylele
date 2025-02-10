@@ -19,22 +19,32 @@ class TunerKnob(Solid):
 
     def gen_parser(self, parser=None):
         parser = super().gen_parser(parser=parser)
-        parser.add_argument("-d", "--knob_diameter", help="knob diameter [mm]", type=float, default=8)
+        parser.add_argument("-d", "--knob_diameter", help="knob diameter [mm]", type=float, default=8.5)
         parser.add_argument("-z", "--knob_height", help="knob height", type=float, default=16)
-        parser.add_argument("-rd", "--round_hole_diameter", help="round hole diameter", type=float, default=4.3)
-        parser.add_argument("-sd", "--square_hole_diam", help="squared hole size", type=float, default=3.6)
+        parser.add_argument("-bc", "--bottom_cut_height", help="bottom cut height", type=float, default=2)
+        parser.add_argument("-rd", "--round_hole_diameter", help="round hole diameter", type=float, default=4.5)
+        parser.add_argument("-sd", "--square_hole_diam", help="squared hole size", type=float, default=3.8)
         parser.add_argument("-gd", "--grip_diameter", help="grip hole diameter", type=float, default=1.5)
-        parser.add_argument("-ng", "--ngrip", help="number of grip holes", type=int, default=10)
+        parser.add_argument("-ng", "--ngrip", help="number of grip holes", type=int, default=6)
         return parser
 
     def gen(self) -> Shape:
         """ generate tuner knob """
+        tol = self.api.tolerance()
+
         # main knob
         knob = self.api.cylinder_rounded_z(l=self.cli.knob_height,
                                         rad=self.cli.knob_diameter/2,
                                         domeRatio=0.5)
         
-        tol = self.api.tolerance()
+        # knob bottom cut
+        bottom_cut = self.api.box(
+            self.cli.knob_diameter + 2*tol,
+            self.cli.knob_diameter + 2*tol,
+            self.cli.bottom_cut_height,
+        )
+        bottom_cut <<= (0,0,-self.cli.knob_height/2+self.cli.bottom_cut_height/2)
+        knob -= bottom_cut
         
         # round hole
         round_hole = self.api.cylinder_z(
