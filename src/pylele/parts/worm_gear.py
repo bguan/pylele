@@ -49,7 +49,7 @@ class WormGear(Solid):
         self.string_diam = 2
 
         # drive parameters
-        self.drive_h = 10
+        self.drive_h = self.worm_diam + self.gear_teeth
         self.drive_teeth_l = 0.98
 
         # drive cylindrical extension
@@ -58,10 +58,30 @@ class WormGear(Solid):
         # cut tolerance
         self.cut_tolerance = 0.3
 
+        self.tol = self.cut_tolerance if self.isCut else 0
+
+    def gen_parser(self, parser=None):
+        parser = super().gen_parser(parser=parser)
+        parser.add_argument("-g", "--gear_disable", help="Disable Generation of gear", action="store_true")
+        parser.add_argument("-d", "--drive_disable", help="Disable Generation of gear", action="store_true")
+        return parser
+
     def gen(self) -> Shape:
         assert self.isCut or (self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK])
         
-        tol = self.cut_tolerance if self.isCut else 0
+        if self.cli.gear_disable:
+            gear = None
+        else:
+            gear = self.gen_gear()
+
+        if self.cli.drive_disable:
+            return gear
+        else:
+            drive = self.gen_drive()
+            return drive + gear
+
+    def gen_gear(self) -> Shape:
+        """ Generate Gear """
 
         ## gear
         if self.isCut:
@@ -77,18 +97,19 @@ class WormGear(Solid):
                                     worm_starts=self.worm_starts,
                                     pressure_angle=self.pressure_angle,
                                     # mod = self.modulus,
-                                    spin = 12,
+                                    spin = 19,
                                     worm_arc = 59
                                     )
                 )
-            gear_h = worm_gear_thickness(
-                circ_pitch=self.circ_pitch,
-                teeth=self.teeth,
-                worm_diam=self.worm_diam,
-            )
+            if False:
+                gear_h = worm_gear_thickness(
+                    circ_pitch=self.circ_pitch,
+                    teeth=self.teeth,
+                    worm_diam=self.worm_diam,
+                )
 
         # shaft
-        shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2 + tol)
+        shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2 + self.tol)
 
         if not self.isCut:
             # string hole
@@ -111,10 +132,15 @@ class WormGear(Solid):
         shaft <<= (0,0,self.shaft_h/2)
         gear += shaft
 
+        return gear
+
+    def gen_drive(self) -> Shape:
+        """ Generate Drive """
+
         ## drive
         if self.isCut:
-            drive = self.api.cylinder_z(self.drive_h+2*tol,
-                                        rad=self.worm_diam/2+self.drive_teeth_l+tol
+            drive = self.api.cylinder_z(self.drive_h+2*self.tol,
+                                        rad=self.worm_diam/2+self.drive_teeth_l+self.tol
                                         )
         else:
 
@@ -148,15 +174,15 @@ class WormGear(Solid):
                 )
                 
         # drive cylindrical extension
-        disk_low = self.api.cylinder_z(l=self.disk_h+tol, rad=self.worm_diam/2+tol)
+        disk_low = self.api.cylinder_z(l=self.disk_h+self.tol, rad=self.worm_diam/2+self.tol)
         disk_high = disk_low.dup()
         disk_low  <<= (0,0,-(self.drive_h+self.disk_h)/2)
         disk_high <<= (0,0, (self.drive_h+self.disk_h)/2)
         drive += disk_low + disk_high
 
         # drive extension
-        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*tol + 2*2,
-                                        rad=self.hex_hole/2+2+2*tol
+        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*self.tol + 2*2,
+                                        rad=self.hex_hole/2+2+2*self.tol
                                         )
         drive += drive_ext
 
@@ -182,7 +208,7 @@ class WormGear(Solid):
         # drive = drive.rotate_x(90).mv((self.gear_diam+self.worm_diam)/2,0,0)
         drive = drive.rotate_x(90).mv(dist,0,0)
         
-        return drive + gear
+        return drive
 
 def main(args=None):
     """ Generate a Tube """
