@@ -10,9 +10,10 @@ SEMI_RATIO = 2**(1/12)
 
 class LeleScaleEnum(IntEnum):
     """ Enumerator for Scale Length Names """
-    SOPRANINO = 260
-    SOPRANO   = 330
-    CONCERT   = 370
+    # SOPRANINO = 260
+    TRAVEL    = 330
+    SOPRANO   = 350
+    CONCERT   = 380
     TENOR     = 430
     GUITAR    = 650
 
