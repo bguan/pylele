@@ -10,7 +10,10 @@ SEMI_RATIO = 2**(1/12)
 
 class LeleScaleEnum(IntEnum):
     """ Enumerator for Scale Length Names """
-    # SOPRANINO = 260
+
+    # https://ukeplanet.com/ukulele-sizes-the-ultimate-guide/
+    
+    SOPRANINO = 280
     TRAVEL    = 330
     SOPRANO   = 350
     CONCERT   = 380

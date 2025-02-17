@@ -36,7 +36,7 @@ WORM_SLIT = ['-wah','-wsl','35']
 WORM    = ['-t','worm'   ,'-e','65'] + WORM_SLIT
 BIGWORM = ['-t','bigworm','-e','90','-fbt','33','-g','11'] + WORM_SLIT
 TUNEBRIDGE = ['-brt','tunable',"-bta"]
-TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '6','-cbar','0.125']
+TRAVEL = ['-bt', LeleBodyType.TRAVEL,'-wt', '6','-cbar','0.125', '-s', LeleScaleEnum.TRAVEL.name]
 
 CONFIGURATIONS = {
         'default'        : [],
@@ -46,7 +46,7 @@ CONFIGURATIONS = {
                             ['-bt', LeleBodyType.FLAT,
                             '-cbar','0.125',
                             '-cbr','1.8',
-                            '-s',LeleScaleEnum.SOPRANINO.name],
+                            '-s',LeleScaleEnum.CONCERT.name],
         'hollow'         : BIGWORM + ['-bt', LeleBodyType.HOLLOW],
         'travel'         : BIGWORM + TRAVEL + TUNEBRIDGE + 
                            ['-cbr','1.2','-nsr','0.45','-fbsr','0.55'],
