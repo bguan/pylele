@@ -12,7 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 from b13d.api.core import Shape
 from b13d.api.constants import FIT_TOL
 from b13d.api.solid import main_maker, test_loop
-from pylele.config_common import PegConfig, TunerType, PEG_90
+from pylele.config_common import PegConfig, TunerType, PEG_90_CFG
 from pylele.pylele2.base import LeleBase
 
 class LelePeg90(LeleBase):
@@ -22,8 +22,8 @@ class LelePeg90(LeleBase):
         """Generate Peg"""
         cutAdj = FIT_TOL if self.isCut else 0
         if TunerType[self.cli.tuner_type].value.is_peg():
-            cfg: PegConfig = PEG_90 # TunerType[self.cli.tuner_type].value
-        elif TunerType[self.cli.tuner_type] == TunerType.TURNAROUND:
+            cfg: PegConfig = PEG_90_CFG # TunerType[self.cli.tuner_type].value
+        elif TunerType[self.cli.tuner_type] in [TunerType.TURNAROUND, TunerType.TURNAROUND90] :
             cfg: PegConfig = TunerType[self.cli.tuner_type].value.peg_config
         else:
             assert f"Unsupported Peg for tuner type {self.cli.tuner_type}"

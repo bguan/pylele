@@ -267,7 +267,7 @@ GOTOH_PEG_CFG = PegConfig(
     tailAdj=-2,
     code = 'G',
 )
-PEG_90 = PegConfig(
+PEG_90_CFG = PegConfig(
     majRad=7.7,
     minRad=3.3,
     botLen=9,
@@ -294,6 +294,7 @@ BIGWORM_TUNER_CFG = WormConfig(
 )
 
 TURNAROUND_CFG = TurnaroundConfig()
+TURNAROUND90_CFG = TurnaroundConfig(peg_config=PEG_90_CFG)
 
 class TunerType(Enum):
     """ Tuner Type Enumerator """
@@ -302,6 +303,7 @@ class TunerType(Enum):
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
     TURNAROUND = TURNAROUND_CFG
+    TURNAROUND90 = TURNAROUND90_CFG
 
     def list()->list:
         """ Return List of enumerated names """
