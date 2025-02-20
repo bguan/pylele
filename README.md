@@ -8,10 +8,12 @@ Python based Ukulele and other String Instrument 3D Model Generator similar to p
 
 The Pylele repository is currently composed of 3 subprojects:
 * *pylele*: a collection of tools to design and customize ukulele and other stringed instruments. It currently only targets headless instrument. Two implementation are available:
-** pylele1: first monolithic implementation that is no longer actively developed, and therefore supposedly stable
-** pylele2: second modular implementation, that is actively developed and therefore a bit experimental
 * *B13D*: 3d design library underlying pylele. Also provide unit-testing, and lots of helping functions. The "B1" prefix is a tribute to Brian Guan who started this repository.
 * *B1scad*: .scad file interpreter based on B13D. Still VERY experimental! 
+
+Pylele ukulele generation has two main implementations:
+* pylele1: first monolithic implementation that is no longer actively developed, and therefore (supposedly) stable
+* pylele2: second modular implementation, that is actively developed with more options some of which a bit experimental
 
 B13D is a portable Python 3D Modeling Library that acts as a common wrapper around the following backends:
 
