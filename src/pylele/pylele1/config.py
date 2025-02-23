@@ -7,9 +7,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Fidelity, Implementation, StringEnum, ShapeAPI
-from pylele.api.constants import FIT_TOL
-from pylele.api.utils import radians, degrees
+from b13d.api.core import Fidelity, Implementation, StringEnum, ShapeAPI
+from b13d.api.constants import FIT_TOL
+from b13d.api.utils import radians, degrees
 from pylele.config_common import LeleScaleEnum, WormConfig, TunerType
 
 """

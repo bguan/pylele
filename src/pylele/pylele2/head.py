@@ -4,19 +4,45 @@
     Pylele Head
 """
 
+from math import tan, inf
+
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape, Direction
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape, Direction
+from b13d.api.solid import main_maker, test_loop
+from b13d.api.utils import radians
 from pylele.pylele2.base import LeleBase
 
 from pylele.pylele2.strings import LeleStrings
 
 class LeleHead(LeleBase):
     """Pylele Head Generator class"""
+    TOP_HEAD_RATIO = 1/6
+    HEAD_WTH_RATIO = 1.1  # to nutWth
+
+    def configure_head(self):
+        """ Configure head """
+        
+        self.cfg.headWth = self.cfg.nutWth * self.HEAD_WTH_RATIO
+        headDX = 1
+        headDY = headDX * tan(radians(self.cfg.neckWideAng))
+        self.cfg.headOrig = (0, 0)
+        self.cfg.headPath = [
+            (0, self.cfg.nutWth/2),
+            [
+                (-headDX, self.cfg.nutWth/2 + headDY, headDY/headDX),
+                (-self.cfg.headLen/2, self.cfg.headWth/2, 0),
+                (-self.cfg.headLen, self.cfg.headWth/6, -inf),
+            ],
+            (-self.cfg.headLen, 0),
+        ]
+
+    def configure(self):
+        LeleBase.configure(self)
+        self.configure_head()
 
     def gen(self) -> Shape:
         """Generate Head"""
@@ -27,7 +53,7 @@ class LeleHead(LeleBase):
         fbTck = self.cfg.FRETBD_TCK
         spHt = self.cfg.SPINE_HT
         fspTck = self.cfg.FRETBD_SPINE_TCK
-        topRat = self.cfg.TOP_HEAD_RATIO
+        topRat = self.TOP_HEAD_RATIO
         midTck = self.cfg.extMidBotTck
         botRat = self.cfg.BOT_RATIO
         orig = self.cfg.headOrig

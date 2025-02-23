@@ -10,8 +10,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.body import LeleBody
 
@@ -55,17 +55,18 @@ def pylele_texts_parser(parser=None):
 
 class LeleTexts(LeleBase):
     """Pylele Texts Generator class"""
+    TEXT_TCK = 30
 
     def gen(self) -> Shape:
         """Generate Texts"""
 
         scLen = float(self.cli.scale_length)
-        backRat = self.cfg.CHM_BACK_RATIO
+        backRat = self.cli.chamber_back_ratio
         dep = self.cfg.EMBOSS_DEP
 
         tsf = self.cli.texts_size_font
 
-        txtTck = self.cfg.TEXT_TCK
+        txtTck = self.TEXT_TCK
         bodyWth = self.cfg.bodyWth
         botRat = self.cfg.BOT_RATIO
         midBotTck = self.cfg.extMidBotTck

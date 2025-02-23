@@ -9,8 +9,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.texts import pylele_texts_parser
 from pylele.pylele2.top_assembly import LeleTopAssembly
@@ -19,8 +19,9 @@ from pylele.pylele2.fretboard_assembly import pylele_fretboard_assembly_parser
 from pylele.pylele2.worm import pylele_worm_parser
 from pylele.pylele2.config import CONFIGURATIONS
 from pylele.pylele2.bottom_assembly import LeleBottomAssembly
-from pylele.pylele2.bridge import pylele_bridge_parser
+from pylele.pylele2.bridge_assembly import pylele_bridge_assembly_parser
 from pylele.pylele2.strings import LeleStrings
+from pylele.pylele2.tuners import LeleTuners
 
 class LeleAllAssembly(LeleBase):
     """Pylele All Assembly Generator class"""
@@ -39,16 +40,24 @@ class LeleAllAssembly(LeleBase):
         ## Top
         top = LeleTopAssembly(cli=self.cli)
         top.gen_full()
-        if self.cli.separate_top:
+        if self.cli.separate_top and not self.cli.all:
             self.add_part(top)
         else:
-            body += top.mv(0, 0, -jcTol)
-            if top.has_parts():
-                self.add_parts(top.parts)
+            if self.cli.all:
+                top <<= (0, 0, self.cli.all_distance)
+            else:
+                top <<= (0, 0, -jcTol)
+            body += top
+        if top.has_parts():
+            self.add_parts(top.parts)
 
         ## Strings
         if self.cli.show_strings:
             body += LeleStrings(cli=self.cli)
+
+        ## Tuners
+        if self.cli.show_tuners:
+            body += LeleTuners(cli=self.cli)
 
         return body.gen_full()
 
@@ -60,12 +69,19 @@ class LeleAllAssembly(LeleBase):
         parser = pylele_chamber_parser(parser=parser)
         parser = pylele_texts_parser(parser=parser)
         parser = pylele_worm_parser(parser=parser)
-        parser = pylele_bridge_parser(parser=parser)
+        parser = pylele_bridge_assembly_parser(parser=parser)
 
         parser.add_argument(
             "-str",
             "--show_strings",
             help="Show strings in all assembly, just to look nice",
+            action="store_true",
+        )
+
+        parser.add_argument(
+            "-tnr",
+            "--show_tuners",
+            help="Show tuners in all assembly, just to look nice",
             action="store_true",
         )
 
@@ -98,8 +114,9 @@ def test_all_assembly(self, apis=None):
         'default'        :  '529039',
         'worm'           :  '579205',
         'flat'           : '1078970',
-        'hollow'         : '1053325',
-        'travel'         :  '922530'
+        'hollow'         :  '919553',
+        'travel'         :  '837153',
+        'travelele'      :  '403970'
     }
 
     test_config = {}

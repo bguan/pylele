@@ -56,7 +56,15 @@ jobs:
     #      name: pylele_glb_out_${{ matrix.python-version }}_${{ matrix.os }}
     #      path: build/LeleAllAssembly/LeleAllAssembly.glb
     #      # compression-level: 0 # no compression
-    - name: test
+    - name: test_b1scad
+      run: |
+        python3 ./src/b1scad/test.py
+      continue-on-error: true
+    - name: test_b13d
+      run: |
+        python3 ./src/b13d/test.py
+      continue-on-error: true
+    - name: test_pylele
       run: |
         source ./src/test.sh
       continue-on-error: true
@@ -66,7 +74,6 @@ jobs:
           # path depends on the tag and the module name
           name: pylele_test_out_${{ matrix.python-version }}_${{ matrix.os }}_${{ env.timestamp }}
           path: test/**/**/**/* #find ./test/fretboard_assembly/cadquery/*
-
     # - name: Authenticate gdrive with service account
     #  env:
     #    GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}

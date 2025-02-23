@@ -10,14 +10,15 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.constants import FIT_TOL
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.constants import FIT_TOL
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.chamber import pylele_chamber_parser
 from pylele.pylele2.tuners import pylele_worm_parser
 from pylele.pylele2.config import WORM, BIGWORM, LeleBodyType
-
+from pylele.pylele2.tuners import LeleTuners
+from pylele.pylele2.spines import LeleSpines
 
 class LeleTail(LeleBase):
     """Pylele Tail Generator class"""
@@ -41,12 +42,16 @@ class LeleTail(LeleBase):
         tailX = cfg.tailX
         chmBackX = float(self.cli.scale_length) + cfg.chmBack
         tailLen = tailX - chmBackX + 2 * cutAdj
+        assert tailLen > 0, f"tailLen too small! {tailLen}, should be larger than 0"
+
         endWth = self.cli.end_flat_width + 2 * cutAdj
         botRat = cfg.BOT_RATIO
         rimWth = cfg.rimWth+ 2*cutAdj
+        tail_width = endWth -2*rimWth
+        assert tail_width > 0, f"tail_width too small! {tail_width}, should be larger than 0"
 
         ## flat middle section
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
+        if self.cli.body_type.is_flat():
             midBotTck = self.cli.flat_body_thickness
         else:
             midBotTck = cfg.extMidBotTck + 2*cutAdj
@@ -54,11 +59,11 @@ class LeleTail(LeleBase):
         if midBotTck > 0:
             extTop = self.api.box(10 if self.isCut else rimWth, endWth, midBotTck)\
                 .mv(tailX + (5 - rimWth if self.isCut else -rimWth/2), 0, -midBotTck/2)
-            inrTop = self.api.box(2*tailLen, endWth -2*rimWth, midBotTck)\
+            inrTop = self.api.box(2*tailLen, tail_width, midBotTck)\
                 .mv(tailX -rimWth -tailLen, 0, -midBotTck/2)
             tail = extTop + inrTop.mv(jcTol, 0, 0)
 
-        if self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.HOLLOW, LeleBodyType.TRAVEL]:
+        if self.cli.body_type.is_flat():
             # flat bodies do not have rounded bottom
             if self.cli.body_type in [LeleBodyType.TRAVEL]:
                 tail = tail.mv(5,0,0) # for whatever reason...
@@ -73,6 +78,10 @@ class LeleTail(LeleBase):
             tail += extBot + inrBot.mv(jcTol, 0, 0)
             # remove upper section of the rounde bodies
             tail -= self.api.box(2000, 2000, 2000).mv(0,0,1000)
+
+        if not self.isCut:
+            tail -= LeleTuners(cli=self.cli, isCut=True).gen_full()
+            tail -= LeleSpines(cli=self.cli, isCut=True).gen_full()
 
         return tail
 
@@ -107,6 +116,6 @@ def test_tail_mock(self):
     """Test Tail"""
     test_tail(self, apis=["mock"])
 
-
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:]+["-E"])
+

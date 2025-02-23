@@ -10,7 +10,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.solid import Solid, export_dict2text
+from b13d.api.solid import Solid, export_dict2text
 from pylele.pylele2.config import LeleConfig, pylele_config_parser, CONFIGURATIONS
 
 
@@ -86,7 +86,7 @@ class LeleBase(Solid):
         cli = parser.parse_args(args=args)
 
         if isinstance(cli.configuration, str):
-            print("### Overriding configuration: {cli.configuration}")
+            print(f"### Overriding configuration: {cli.configuration}")
             cfgargs = CONFIGURATIONS[cli.configuration]
             cfgargs += sys.argv[1:]
             if isinstance(args, list):

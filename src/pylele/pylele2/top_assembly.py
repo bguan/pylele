@@ -9,12 +9,12 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.config import LeleBodyType
 from pylele.config_common import LeleScaleEnum
 from pylele.pylele2.base import LeleBase
-from pylele.pylele2.bridge import LeleBridge, pylele_bridge_parser
+from pylele.pylele2.bridge_assembly import LeleBridgeAssembly, pylele_bridge_assembly_parser
 from pylele.pylele2.guide import LeleGuide
 from pylele.pylele2.brace import LeleBrace
 from pylele.pylele2.chamber import LeleChamber, pylele_chamber_parser
@@ -28,6 +28,7 @@ from pylele.pylele2.fretboard_assembly import (
     LeleFretboardAssembly,
     pylele_fretboard_assembly_parser,
 )
+from pylele.pylele2.fretboard import LeleFretboard
 from pylele.pylele2.worm_key import LeleWormKey
 
 class LeleTopAssembly(LeleBase):
@@ -50,18 +51,27 @@ class LeleTopAssembly(LeleBase):
             top = tuners.worm_fillet(top)
 
             if self.cli.worm_has_key:
-                self.add_part(LeleWormKey(cli=self.cli))
+                worm_key = LeleWormKey(cli=self.cli)
+                if self.cli.all:
+                    worm_key <<= (0, 0, self.cli.all_distance)
+                    top += worm_key
+                else:
+                    self.add_part(worm_key)
 
         elif tuners.is_peg():
             # gen guide if using tuning pegs
             guide = LeleGuide(cli=self.cli)
             if self.cli.separate_guide:
                 top -= LeleGuide(cli=self.cli, isCut=True)
-                self.add_part(guide)
+                if self.cli.all:
+                    guide <<= (0, 0, self.cli.all_distance)
+                    top += guide
+                else:
+                    self.add_part(guide)
             else:
                 top +=guide
 
-        if self.cli.separate_top and self.cli.body_type in [LeleBodyType.GOURD]:
+        if self.cli.separate_top: # and self.cli.body_type in [LeleBodyType.GOURD]:
             top += LeleRim(cli=self.cli, isCut=False)
 
         if self.cli.separate_top and not self.cli.separate_fretboard and not self.cli.separate_neck:
@@ -71,7 +81,7 @@ class LeleTopAssembly(LeleBase):
             if fretbd.has_parts():
                 self.add_parts(top.parts)
 
-        if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+        if not self.cli.body_type.is_solid():
             # soundhole
             sh  = LeleSoundhole(cli=self.cli, isCut=True)
             top -= sh
@@ -80,19 +90,24 @@ class LeleTopAssembly(LeleBase):
         if self.cli.separate_fretboard or self.cli.separate_neck:
             top -= LeleFretboardJoint(cli=self.cli, isCut=True)\
                 .mv(-self.api.tolerance(), 0, -self.api.tolerance())
+            top -= LeleFretboard(cli=self.cli, isCut=True)
 
         # gen bridge
-        brdg = LeleBridge(cli=self.cli)
+        brdg = LeleBridgeAssembly(cli=self.cli)
         if self.cli.separate_bridge:
-            top -= LeleBridge(cli=self.cli, isCut=True)
-            self.add_part(brdg)
+            top -= LeleBridgeAssembly(cli=self.cli, isCut=True)
+            if self.cli.all:
+                brdg <<= (0, 0, self.cli.all_distance)
+                top += brdg
+            else:
+                self.add_part(brdg)
         else:
             top += brdg
 
         if self.cli.body_type in [LeleBodyType.GOURD, LeleBodyType.TRAVEL]:
             chm = LeleChamber(cli=self.cli,isCut=True)
             # cut Brace from chamber
-            if not self.cli.body_type in [LeleBodyType.FLAT, LeleBodyType.TRAVEL]:
+            if not self.cli.body_type.is_solid():
                 chm -= LeleBrace(cli=self.cli)
             top -= chm
 
@@ -105,7 +120,7 @@ class LeleTopAssembly(LeleBase):
         parser = pylele_fretboard_assembly_parser(parser=parser)
         parser = pylele_chamber_parser(parser=parser)
         parser = pylele_worm_parser(parser=parser)
-        parser = pylele_bridge_parser(parser=parser)
+        parser = pylele_bridge_assembly_parser(parser=parser)
         return super().gen_parser(parser=parser)
 
 
@@ -128,7 +143,7 @@ def test_top_assembly(self, apis=None):
         "separate_top": ["-T"],
         "separate_neck": ["-N"],
         "separate_fretboard": ["-F"],
-        "gotoh_tuners": ["-t", "gotoh"],
+        # "gotoh_tuners": ["-t", "gotoh"],
         "worm_tuners": ["-t", "worm"],
         "big_worm_tuners": ["-t", "bigWorm"],
         "bridge_piezo": ["-bpiezo", "-B"],

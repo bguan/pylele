@@ -11,11 +11,12 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from api.core import StringEnum, Shape, ShapeAPI
-from api.solid import test_loop, main_maker
-from api.utils import radians, accumDiv
+from b13d.api.core import StringEnum, Shape, ShapeAPI
+from b13d.api.solid import test_loop, main_maker, ColorEnum
+from b13d.api.utils import radians, accumDiv
+
 from pylele.config_common import SEMI_RATIO
-from pylele2.base import LeleBase
+from pylele.pylele2.base import LeleBase
 
 
 FRET_WIRE_WIDTH = 0.5
@@ -58,6 +59,7 @@ def gen_fret(api:ShapeAPI, y, h, ftype:FretType = FretType.ROUND):
         fret += api.box(FRET_WIRE_WIDTH, 2*y, h).mv(0,0,-h/2)
 
     return fret
+
 class LeleFrets(LeleBase):
     """Pylele Frets Generator class"""
 
@@ -93,7 +95,7 @@ class LeleFrets(LeleBase):
             if count > maxFrets:  # prevent runaway loop
                 break
 
-        return frets
+        return frets.set_color(ColorEnum.LITE_GRAY)
 
     def gen_parser(self, parser=None):
         """Generate Fret Parser"""

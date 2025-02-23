@@ -11,8 +11,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
 import argparse
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop, Implementation
 from pylele.pylele2.config import LeleBodyType
 from pylele.pylele2.base import LeleBase
 
@@ -50,19 +50,17 @@ def pylele_chamber_parser(parser=None) -> argparse.ArgumentParser:
 
     return parser
 
+def gen_extruded_oval(api, x1, x2, y_width, z_thick):
+    """ Generate an oval shaped vertical extrusion"""
+    chm = api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
+    chm += api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
+    box_len = abs(x1 - x2)
+    box_pos = (x1 + x2) / 2
+    chm += api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
+    return chm
 
 class LeleChamber(LeleBase):
     """Pylele Chamber Generator class"""
-
-    def gen_extruded_oval(self, x1, x2, y_width, z_thick):
-        chm = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x1, 0, 0)
-        chm1 = self.api.cylinder_z(z_thick, rad=y_width / 2).mv(x2, 0, 0)
-        chm = chm.join(chm1)
-        box_len = abs(x1 - x2)
-        box_pos = (x1 + x2) / 2
-        chm_box = self.api.box(box_len, y_width, z_thick).mv(box_pos, 0, 0)
-        chm = chm.join(chm_box)
-        return chm
 
     def gen(self) -> Shape:
         """Generate Chamber"""
@@ -88,30 +86,37 @@ class LeleChamber(LeleBase):
             chm_front = -self.cfg.chmFront + rad
             chm_back = chm_front + self.cfg.chmFront - 2 * rad - self.cfg.brdgLen
 
-            chm = self.gen_extruded_oval(chm_front, chm_back, 2 * rad - self.cli.travel_body_width, chm_thickness)
+            chm = gen_extruded_oval(self.api, chm_front, chm_back, 2 * rad - self.cli.travel_body_width, chm_thickness)
             chm = chm.mv(jcTol, 0, -self.cli.flat_body_thickness / 2)
 
         else:
             topFront = (
                 self.api.sphere_quadrant(rad, True, True)
                 .scale(frontRat, 1, topChmRat)
-                .mv(jcTol, 0, -jcTol)
             )
             topBack = (
                 self.api.sphere_quadrant(rad, True, False)
                 .scale(backRat, 1, topChmRat)
-                .mv(0, 0, -jcTol)
             )
             botFront = (
                 self.api.sphere_quadrant(rad, False, True)
                 .scale(frontRat, 1, botRat)
-                .mv(jcTol, 0, 0)
             )
             botBack = (
                 self.api.sphere_quadrant(rad, False, False)
                 .scale(backRat, 1, botRat)
-                .mv(0, 0, 0)
             )
+
+            if self.cli.implementation == Implementation.BLENDER:
+                topFront <<= ( jcTol, 0, -jcTol)
+                topBack  <<= ( jcTol, 0, -jcTol)
+                botFront <<= (-jcTol, 0,  jcTol)
+                botBack  <<= (-jcTol, 0,  jcTol)
+            else:
+                topFront <<= ( jcTol, 0, -jcTol)
+                topBack  <<= (     0, 0, -jcTol)
+                botFront <<= ( jcTol, 0,      0)
+
             chm = topFront + topBack + botFront + botBack
 
         if rotY != 0:
@@ -138,7 +143,7 @@ def test_chamber(self, apis=None):
     tests = {
         "default": ["-refv","642213"], 
         "cut"    : ["-C","-refv","642213"], 
-        "travel" : ["-bt", LeleBodyType.TRAVEL,"-refv","553407"]
+        "travel" : ["-bt", LeleBodyType.TRAVEL,"-refv","1867542"]
         }
     test_loop(module=__name__, tests=tests, apis=apis)
 

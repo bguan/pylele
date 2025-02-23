@@ -37,7 +37,7 @@ jobs:
     #    source pylele.sh
     - name: test pylele2.sh
       run: |
-        source ./src/pylele2.sh -odoff -str
+        source ./src/pylele2.sh -odoff -str -tnr
 
     - name: Copy STL file to GitHub Pages
       run: |

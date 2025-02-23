@@ -10,9 +10,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape, Implementation
-from pylele.api.constants import FILLET_RAD
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape, Implementation
+from b13d.api.constants import FILLET_RAD
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.frets import LeleFrets, pylele_frets_parser, FretType
 from pylele.pylele2.nut import LeleNut, pylele_nut_parser, NutType
@@ -21,7 +21,7 @@ from pylele.pylele2.fretboard import LeleFretboard
 from pylele.pylele2.top import LeleTop
 from pylele.pylele2.fretboard_spines import LeleFretboardSpines
 from pylele.pylele2.fretboard_joint import LeleFretboardJoint
-
+from pylele.pylele2.body import LeleBody
 
 def pylele_fretboard_assembly_parser(parser=None):
     """
@@ -61,13 +61,22 @@ class LeleFretboardAssembly(LeleBase):
         if self.cli.separate_dots:
             fdotsCut = LeleFretboardDots(isCut=True,cli=self.cli)
             fretbd -= fdotsCut
-            self.add_part(fdotsCut)
+            fdots   = LeleFretboardDots(cli=self.cli)
+            if self.cli.all:
+                fdots <<= (0, 0, self.cli.all_distance)
+                fretbd += fdots
+            else:
+                self.add_part(fdots)
 
         ## frets
         frets = LeleFrets(cli=self.cli)
         if self.cli.separate_frets:
             fretbd -= frets
-            self.add_part(frets)
+            if self.cli.all:
+                frets <<= (0, 0, self.cli.all_distance)
+                fretbd += frets
+            else:
+                self.add_part(frets)
         else:
             fretbd += frets
 
@@ -75,16 +84,21 @@ class LeleFretboardAssembly(LeleBase):
         nut = LeleNut(cli=self.cli,isCut=self.cli.separate_nut)
         if self.cli.separate_nut:
             fretbd -= nut
-            self.add_part(nut)
+            if self.cli.all:
+                nut <<= (0, 0, self.cli.all_distance)
+                fretbd += nut
+            else:
+                self.add_part(nut)
         else:
             fretbd += nut
 
-        if self.cli.separate_fretboard or self.cli.separate_neck:
-            fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
-            fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
-
         if (self.cli.separate_fretboard or self.cli.separate_top) and self.cli.num_spines > 0:
             fretbd += LeleFretboardSpines(cli=self.cli).mv(0, 0, jcTol)
+
+        if self.cli.separate_fretboard or self.cli.separate_neck:
+            fretbd += LeleFretboardJoint(cli=self.cli).mv(-jcTol, 0, 0)
+            # fretbd -= LeleTop(isCut=True,cli=self.cli).mv(0, 0, -jcTol)
+            # fretbd -= LeleBody(isCut=True,cli=self.cli)
 
         return fretbd.gen_full()
 

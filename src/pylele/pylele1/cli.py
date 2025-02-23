@@ -6,7 +6,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Implementation, Fidelity
+from b13d.api.core import Implementation, Fidelity
 from pylele.pylele1.config import (
     LeleScaleEnum,
     DEFAULT_LABEL_SIZE,
@@ -180,7 +180,7 @@ def parseCLI():
         help="Model labeling choices, default short",
         type=ModelLabel,
         choices=list(ModelLabel),
-        default="none",
+        default=ModelLabel.NONE,
     )
 
     ## other options ######################################################
@@ -188,10 +188,10 @@ def parseCLI():
     parser.add_argument(
         "-i",
         "--implementation",
-        help="Underlying engine implementation, default cadquery",
+        help="Underlying engine implementation",
         type=Implementation,
         choices=list(Implementation),
-        default="manifold",
+        default=Implementation.MANIFOLD,
     )
 
     parser.add_argument(
@@ -200,7 +200,7 @@ def parseCLI():
         help="Mesh fidelity for smoothness, default low",
         type=Fidelity,
         choices=list(Fidelity),
-        default="low",
+        default=Fidelity.LOW,
     )
 
     parser.add_argument(

@@ -4,18 +4,22 @@
     Pylele Tuners
 """
 
+from math import ceil
+
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.solid import main_maker, test_loop
 from pylele.config_common import TunerType
 from pylele.pylele2.base import LeleBase
 from pylele.pylele2.peg import LelePeg
+from pylele.pylele2.peg90 import LelePeg90
 from pylele.pylele2.worm import LeleWorm, pylele_worm_parser
 from pylele.pylele2.worm_key import LeleWormKey
+from pylele.pylele2.turnaround import LeleTurnaround
 
 
 class LeleTuners(LeleBase):
@@ -28,25 +32,46 @@ class LeleTuners(LeleBase):
     def is_worm(self):
         tuners = TunerType[self.cli.tuner_type].value
         return tuners.is_worm()
+    
+    def is_turnaround(self):
+        return self.cli.tuner_type in [TunerType.TURNAROUND.name,
+                                       TunerType.TURNAROUND90.name ]
 
     def gen(self) -> Shape:
         """Generate Tuners"""
 
-        tXYZs = self.cfg.tnrXYZs
-
         tnrs = None
-        for txyz in tXYZs:
+        for txyz in self.cfg.tnrXYZs:
             if self.is_peg():
                 tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
             else: # if tuners.is_worm():
-                tnr = LeleWorm(isCut=self.isCut, cli=self.cli).gen_full()
+                if self.is_turnaround():
+                    tnr = LeleTurnaround(isCut=self.isCut, cli=self.cli).gen_full()
+                else:
+                    tnr = LeleWorm(isCut=self.isCut, cli=self.cli).gen_full()
             # if not tnr is None:
             tnr = tnr.mv(txyz[0], txyz[1], txyz[2])
             tnrs = tnr + tnrs
 
+        # generate pegs for turnaround
+        if self.is_turnaround():
+            ta_tnr = None
+            for i in range(ceil(self.cli.num_strings/2)):
+                if self.cli.tuner_type == TunerType.TURNAROUND90.name:
+                    tnr = LelePeg90(isCut=self.isCut, cli=self.cli).gen_full()
+                else:
+                    tnr = LelePeg(isCut=self.isCut, cli=self.cli).gen_full()
+                peg_cfg = TunerType[self.cli.tuner_type].value.peg_config
+                tnr <<= (0,0,peg_cfg.botLen)
+                tnr.rotate_x(90).mv(float(self.cli.scale_length) - 35 * (1 + i),
+                                    self.cfg.bodyWth/2 + 5,
+                                    -self.cli.flat_body_thickness/2)
+                ta_tnr = tnr + ta_tnr
+            ta_tnr += ta_tnr.mirror_and_join()
+            tnrs += ta_tnr
+
         if self.is_worm() and self.cli.worm_has_key:
             tnrs += LeleWormKey(cli=self.cli,isCut=self.isCut).gen_full()
-
 
         return tnrs
 

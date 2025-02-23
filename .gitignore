@@ -176,3 +176,8 @@ get-pip.py
 *.stl
 *.scad
 *.csg
+
+# b1scad
+src/b1scad/old/*
+src/b1scad/scad/*.py
+parser.out

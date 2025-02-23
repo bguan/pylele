@@ -10,9 +10,13 @@ SEMI_RATIO = 2**(1/12)
 
 class LeleScaleEnum(IntEnum):
     """ Enumerator for Scale Length Names """
-    SOPRANINO = 260
-    SOPRANO   = 330
-    CONCERT   = 370
+
+    # https://ukeplanet.com/ukulele-sizes-the-ultimate-guide/
+    
+    SOPRANINO = 280
+    TRAVEL    = 330
+    SOPRANO   = 350
+    CONCERT   = 380
     TENOR     = 430
     GUITAR    = 650
 
@@ -90,6 +94,7 @@ class PegConfig(TunerConfig):
         midTck: float = 10,
         holeHt: float = 8,
         tailAdj: float = -5,
+        topCutTck: float = 100,
         code: str = 'P',
     ):
         super().__init__(code = code)
@@ -100,6 +105,7 @@ class PegConfig(TunerConfig):
         self.btnRad = btnRad
         self.midTck = midTck
         self.tailAdj = tailAdj
+        self.topCutTck = topCutTck
 
     def minGap(self) -> float:
         return 2*max(self.majRad, self.btnRad) + .5
@@ -127,7 +133,6 @@ class PegConfig(TunerConfig):
     def tailAllow(self):
         (_, back, _, _, _, _) = self.dims()
         return back
-
 
 class WormConfig(TunerConfig):
 
@@ -204,6 +209,52 @@ class WormConfig(TunerConfig):
         (front, back, _, _, _, _) = self.dims()
         return (front + back) / 2
 
+class TurnaroundConfig(WormConfig):
+    def __init__(
+        self,
+        slitHt: float = 31,
+        slitLen: float = 10,
+        slitWth: float = 3,
+        diskTck: float = 5,
+        diskRad: float = 7.7,
+        axleRad: float = 3,
+        axleLen: float = 8,
+        driveRad: float = 0,
+        driveLen: float = 0,
+        driveOffset: float = 0,
+        gapAdj: float = 1,
+        tailAdj: float = 0,
+        buttonTck: float = 9.5,
+        buttonWth: float = 16,
+        buttonHt: float = 8,
+        buttonKeyLen: float = 6,
+        buttonKeyRad: float = 2.25,
+        buttonKeybaseRad: float = 3.8,
+        buttonKeybaseHt: float = 3,
+        code: str = 'T',
+        peg_config = PegConfig(topCutTck=25)
+    ):
+        super().__init__(code = code)
+        self.slitHt = slitHt
+        self.slitLen = slitLen
+        self.slitWth = slitWth
+        self.diskTck = diskTck
+        self.diskRad = diskRad
+        self.axleRad = axleRad
+        self.axleLen = axleLen
+        self.driveRad = driveRad
+        self.driveLen = driveLen
+        self.driveOffset = driveOffset
+        self.gapAdj = gapAdj
+        self.tailAdj = tailAdj
+        self.buttonTck = buttonTck
+        self.buttonWth = buttonWth
+        self.buttonHt = buttonHt
+        self.buttonKeyRad = buttonKeyRad
+        self.buttonKeyLen = buttonKeyLen
+        self.buttonKeybaseRad = buttonKeybaseRad
+        self.buttonKeybaseHt = buttonKeybaseHt
+        self.peg_config = peg_config
 
 FRICTION_PEG_CFG = PegConfig()
 GOTOH_PEG_CFG = PegConfig(
@@ -215,6 +266,16 @@ GOTOH_PEG_CFG = PegConfig(
     holeHt=10,
     tailAdj=-2,
     code = 'G',
+)
+PEG_90_CFG = PegConfig(
+    majRad=7.7,
+    minRad=3.3,
+    botLen=9,
+    btnRad=9.5,
+    midTck=11,
+    holeHt=10,
+    tailAdj=-2,
+    code = 'P',
 )
 WORM_TUNER_CFG = WormConfig()
 BIGWORM_TUNER_CFG = WormConfig(
@@ -232,12 +293,17 @@ BIGWORM_TUNER_CFG = WormConfig(
     code = 'B',
 )
 
+TURNAROUND_CFG = TurnaroundConfig()
+TURNAROUND90_CFG = TurnaroundConfig(peg_config=PEG_90_CFG)
+
 class TunerType(Enum):
     """ Tuner Type Enumerator """
     FRICTION = FRICTION_PEG_CFG
     GOTOH = GOTOH_PEG_CFG
     WORM = WORM_TUNER_CFG
     BIGWORM = BIGWORM_TUNER_CFG
+    TURNAROUND = TURNAROUND_CFG
+    TURNAROUND90 = TURNAROUND90_CFG
 
     def list()->list:
         """ Return List of enumerated names """

@@ -9,9 +9,9 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.constants import FIT_TOL
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.constants import FIT_TOL
+from b13d.api.solid import main_maker, test_loop
 from pylele.config_common import PegConfig, TunerType
 from pylele.pylele2.base import LeleBase
 
@@ -22,8 +22,12 @@ class LelePeg(LeleBase):
     def gen(self) -> Shape:
         """Generate Peg"""
         cutAdj = FIT_TOL if self.isCut else 0
-        assert TunerType[self.cli.tuner_type].value.is_peg()
-        cfg: PegConfig = TunerType[self.cli.tuner_type].value
+        if TunerType[self.cli.tuner_type].value.is_peg():
+            cfg: PegConfig = TunerType[self.cli.tuner_type].value
+        elif TunerType[self.cli.tuner_type] == TunerType.TURNAROUND:
+            cfg: PegConfig = TunerType[self.cli.tuner_type].value.peg_config
+        else:
+            assert f"Unsupported Peg for tuner type {self.cli.tuner_type}"
         joinTol = 2 * self.cfg.tolerance
         strRad = self.cfg.STR_RAD + cutAdj
         holeHt = cfg.holeHt
@@ -32,19 +36,11 @@ class LelePeg(LeleBase):
         midTck = cfg.midTck
         botLen = cfg.botLen
         btnRad = cfg.btnRad + cutAdj
-        topCutTck = 100 if self.isCut else 2  # big value for cutting
+        topCutTck = cfg.topCutTck if self.isCut else 2  # big value for cutting
         botCutTck = botLen - midTck / 3 if self.isCut else 2
 
         top = self.api.cylinder_z(topCutTck + joinTol, majRad).mv(0, 0, topCutTck / 2)
-
-        if not self.isCut:
-            stemHt = holeHt + 4 * strRad
-            stem = self.api.cylinder_z(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
-            hole = self.api.cylinder_x(2 * minRad, strRad).mv(0, 0, holeHt)
-            stem = stem.cut(hole)
-            top = top.join(stem)
-
-        mid = self.api.cylinder_z(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)
+        mid = self.api.cylinder_z(midTck + joinTol, minRad).mv(0, 0, -midTck / 2)       
 
         if self.isCut:
             btnConeTck = botLen - midTck - 2 * cutAdj
@@ -59,28 +55,32 @@ class LelePeg(LeleBase):
                 .scale(1, 1, 0.5 if self.cli.separate_end else 1)
                 .mv(0, 0, -botLen - botCutTck)
             )
-            bot = bot.join(botEnd)
+            bot += botEnd
         else:
+            stemHt = holeHt + 4 * strRad
+            
+            # top stem
+            top  += self.api.cylinder_z(stemHt + joinTol, minRad / 2).mv(0, 0, stemHt / 2)
+            # top stem hole
+            top  -= self.api.cylinder_x(2 * minRad, strRad).mv(0, 0, holeHt)
+
             bot = self.api.cylinder_z(botCutTck + joinTol, majRad).mv(
                 0, 0, -midTck - botCutTck / 2
             )
-            stem = self.api.cylinder_z(botLen + joinTol, minRad / 2).mv(
+            bot += self.api.cylinder_z(botLen + joinTol, minRad / 2).mv(
                 0, 0, -midTck - botLen / 2
             )
-            bot = bot.join(stem)
+
+            # handle
             btn = self.api.box(btnRad * 2, btnRad / 2, btnRad).mv(
                 0, 0, -midTck - botLen - botCutTck / 2 + btnRad / 2
             )
 
-        peg = top.join(mid).join(btn).join(bot)
-
-        return peg
-
+        return top + mid + btn + bot
 
 def main(args=None):
     """Generate Peg"""
     return main_maker(module_name=__name__, class_name="LelePeg", args=args)
-
 
 def test_peg(self, apis=None):
     """Test Peg"""

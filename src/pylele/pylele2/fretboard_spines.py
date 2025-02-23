@@ -9,14 +9,25 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.constants import FIT_TOL
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.constants import FIT_TOL
+from b13d.api.solid import main_maker, test_loop
 from pylele.pylele2.base import LeleBase
+from pylele.pylele2.spines import LeleSpines
+from pylele.pylele2.fretboard_joint import LeleNeckJoint
 
 
-class LeleFretboardSpines(LeleBase):
+class LeleFretboardSpines(LeleSpines,LeleNeckJoint):
     """Pylele Fretboard Spines Generator class"""
+
+    def configure(self):
+        LeleBase.configure(self)
+        self.configure_spines()
+        self.configure_neck_joint()
+
+    def fretboard_spine_len(self) -> float:
+        """ Spine Length """
+        return self.cfg.neckLen - self.cfg.NUT_HT + self.cfg.neckJntLen
 
     def gen(self) -> Shape:
         """Generate Fretboard Spines"""
@@ -28,7 +39,7 @@ class LeleFretboardSpines(LeleBase):
 
         spWth = self.cfg.SPINE_WTH + 2 * cutAdj  # to align with spine cuts
         fspLen = (
-            self.cfg.fbSpineLen()
+            self.fretboard_spine_len()
             + 2 * cutAdj
             + 2 * (self.api.tolerance() if self.isCut else 0)
         )

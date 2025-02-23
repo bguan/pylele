@@ -11,10 +11,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 
-from pylele.api.core import Shape
-from pylele.api.constants import FIT_TOL
-from pylele.api.utils import accumDiv, radians
-from pylele.api.solid import main_maker, test_loop
+from b13d.api.core import Shape
+from b13d.api.constants import FIT_TOL
+from b13d.api.utils import accumDiv, radians
+from b13d.api.solid import main_maker, test_loop, ColorEnum
 from pylele.config_common import SEMI_RATIO
 from pylele.pylele2.base import LeleBase
 
@@ -86,7 +86,7 @@ class LeleFretboardDots(LeleBase):
             acclen += flen
             n += 1
     
-        return dots
+        return dots.set_color(ColorEnum.WHITE)
 
     def gen_parser(self, parser=None):
         """
