@@ -26,68 +26,62 @@ class WormGear(Solid):
         Solid.configure(self)
         
         # gear parameters
-        self.modulus = 1.5
-        self.circ_pitch = 3      # The circular pitch, the distance between teeth centers around the pitch circle. Default: 5
+        self.modulus = 3/2
+        self.circ_pitch = 4      # The circular pitch, the distance between teeth centers around the pitch circle. Default: 5
         self.worm_diam = 10
         self.worm_starts = 1
         self.teeth = 14          # The number of teeth in the mated worm gear.
-        self.pressure_angle = 25 # 32
+        # self.pressure_angle = 25 # 32
+        self.pressure_angle = 29
 
         # inferred parameters
         self.gear_diam = 14.6
         self.worm_drive_teeth = 1.43
-        self.gear_teeth = 1.4
+        self.gear_teeth = 3
 
         # shaft parameters
         self.shaft_h = 10
         self.shaft_diam = 8
 
-        # hex hole
-        self.hex_hole = 4.3
-
         # string hole
         self.string_diam = 2
-
-        # drive parameters
-        self.drive_h = self.worm_diam + self.gear_teeth
-        self.drive_teeth_l = 0.98
-
-        # drive cylindrical extension
-        self.disk_h = (self.gear_diam - self.drive_h + 2)/2
 
         # cut tolerance
         self.cut_tolerance = 0.3
 
-        self.tol = self.cut_tolerance if self.isCut else 0
+        # distance between worm and gear
+        self.dist = worm_dist(circ_pitch=self.circ_pitch,
+                    d=self.worm_diam,
+                    starts=self.worm_starts,
+                    teeth=self.teeth,
+                    # [profile_shift],
+                    pressure_angle=self.pressure_angle
+                    )
 
-    def gen_parser(self, parser=None):
-        parser = super().gen_parser(parser=parser)
-        parser.add_argument("-g", "--gear_disable", help="Disable Generation of gear", action="store_true")
-        parser.add_argument("-d", "--drive_disable", help="Disable Generation of gear", action="store_true")
-        return parser
+        # if False:
+        self.gear_h = worm_gear_thickness(
+                circ_pitch=self.circ_pitch,
+                teeth=self.teeth,
+                worm_diam=self.worm_diam,
+            )
+
+        self.tol = self.cut_tolerance if self.isCut else 0
 
     def gen(self) -> Shape:
         assert self.isCut or (self.cli.implementation in [Implementation.SOLID2, Implementation.MOCK])
         
-        if self.cli.gear_disable:
-            gear = None
-        else:
-            gear = self.gen_gear()
-
-        if self.cli.drive_disable:
-            return gear
-        else:
-            drive = self.gen_drive()
-            return drive + gear
-
+        return self.gen_gear()
+    
     def gen_gear(self) -> Shape:
         """ Generate Gear """
 
         ## gear
         if self.isCut:
             gear = self.api.cylinder_z(
-                    self.worm_diam-2*self.worm_drive_teeth,
-                    self.gear_diam/2 + self.gear_teeth
+                    # l   = self.gear_h,
+                    # rad = self.gear_diam/2 + self.tol + int(self.dist)
+                    l   = self.worm_diam-2*self.worm_drive_teeth + 2*self.tol,
+                    rad = self.gear_diam/2 + self.gear_teeth + self.tol
                     )
         else:
             gear = self.api.genShape(
@@ -101,12 +95,7 @@ class WormGear(Solid):
                                     worm_arc = 59
                                     )
                 )
-            if False:
-                gear_h = worm_gear_thickness(
-                    circ_pitch=self.circ_pitch,
-                    teeth=self.teeth,
-                    worm_diam=self.worm_diam,
-                )
+
 
         # shaft
         shaft = self.api.cylinder_z(l=self.shaft_h, rad=self.shaft_diam/2 + self.tol)
@@ -133,82 +122,6 @@ class WormGear(Solid):
         gear += shaft
 
         return gear
-
-    def gen_drive(self) -> Shape:
-        """ Generate Drive """
-
-        ## drive
-        if self.isCut:
-            drive = self.api.cylinder_z(self.drive_h+2*self.tol,
-                                        rad=self.worm_diam/2+self.drive_teeth_l+self.tol
-                                        )
-        else:
-
-            if True:
-                bworm = worm(circ_pitch=self.circ_pitch,
-                                d=self.worm_diam,
-                                starts=self.worm_starts,
-                                l=self.drive_h,
-                                pressure_angle=self.pressure_angle,
-                                mod = self.modulus
-                                )
-            else:
-                # bworm = enveloping_worm(circ_pitch=8, mate_teeth=45, d=30, _fn=72)
-                bworm = enveloping_worm(circ_pitch=self.circ_pitch,
-                                        mate_teeth=self.teeth,
-                                        d=self.worm_diam,
-                                        pressure_angle=self.pressure_angle)
-                # bworm = enveloping_worm(
-                                # circ_pitch=self.circ_pitch,
-                                # d=self.worm_diam,
-                                # starts=self.worm_starts,
-                                # l=self.drive_h,
-                                # pressure_angle=self.pressure_angle,
-                                # mod = self.modulus,
-                                # mate_teeth = 0.5
-                #                )
-                
-
-            drive = self.api.genShape(
-                    solid=bworm
-                )
-                
-        # drive cylindrical extension
-        disk_low = self.api.cylinder_z(l=self.disk_h+self.tol, rad=self.worm_diam/2+self.tol)
-        disk_high = disk_low.dup()
-        disk_low  <<= (0,0,-(self.drive_h+self.disk_h)/2)
-        disk_high <<= (0,0, (self.drive_h+self.disk_h)/2)
-        drive += disk_low + disk_high
-
-        # drive extension
-        drive_ext = self.api.cylinder_z(l=self.drive_h+2*self.disk_h+2*20*self.tol + 2*2,
-                                        rad=self.hex_hole/2+2+2*self.tol
-                                        )
-        drive += drive_ext
-
-        # hex key hole
-        if not self.isCut:
-            hex_cut = Pencil(
-                args = ['-i', self.cli.implementation,
-                        '-s', f'{self.hex_hole}',
-                        '-d','0',
-                        '-fh','0'
-                        ]
-            ).gen_full()
-            drive -= hex_cut.rotate_y(90)
-        
-        # align drive with gear
-        dist = worm_dist(circ_pitch=self.circ_pitch,
-                    d=self.worm_diam,
-                    starts=self.worm_starts,
-                    teeth=self.teeth, 
-                    # [profile_shift],
-                    pressure_angle=self.pressure_angle
-                    )
-        # drive = drive.rotate_x(90).mv((self.gear_diam+self.worm_diam)/2,0,0)
-        drive = drive.rotate_x(90).mv(dist,0,0)
-        
-        return drive
 
 def main(args=None):
     """ Generate a Tube """

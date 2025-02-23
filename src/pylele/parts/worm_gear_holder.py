@@ -14,18 +14,24 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 from b13d.api.solid import Solid, test_loop, main_maker, Implementation
 from b13d.api.core import Shape
-from pylele.parts.worm_gear import WormGear
+from pylele.parts.worm_drive import WormDrive
 
-class WormGearHolder(WormGear):
+class WormGearHolder(WormDrive):
     """ Generate Worm Gear Holder"""
 
     def configure(self):
-        WormGear.configure(self)
-        self.wall_thickness = 2.4
+        WormDrive.configure(self)
+
+        self.wall_thickness = 1.4
+        
+        """
         self.holder_thickness = max([
             self.worm_diam-2*self.worm_drive_teeth, # from gear
             self.worm_diam/2+self.drive_teeth_l   , # from drive
         ]) + 2*self.wall_thickness + 2*self.cut_tolerance
+        """
+        self.holder_thickness = self.worm_diam + 2*self.wall_thickness + 2*self.cut_tolerance
+
         self.holder_width = 2*(self.gear_diam/2 + self.gear_teeth + self.wall_thickness)
 
     def gen(self) -> Shape:
@@ -49,14 +55,15 @@ class WormGearHolder(WormGear):
         """
 
         ## drive
+        holder_x = self.worm_diam + 2*self.worm_drive_teeth + self.gear_diam/2 + self.wall_thickness
         drive = self.api.box(
-                           2*self.disk_h + 2*self.wall_thickness,
-            self.drive_h + 2*self.disk_h + 2*self.wall_thickness,
+            holder_x,
+            self.holder_width,
             self.holder_thickness,
             )
 
         # align drive with gear
-        drive = drive.mv((self.gear_diam+self.worm_diam+self.wall_thickness)/2,0,0)
+        drive = drive.mv(holder_x/2,0,0)
 
         # assemble holder
         holder = drive + gear
@@ -64,15 +71,17 @@ class WormGearHolder(WormGear):
             holder = holder.hull()
 
         # carve tuner hole
-        holder -= WormGear( args = [
+        holder -= WormDrive( args = [
             '-i', self.cli.implementation,
+            '-g',
             '-C'
             ]
         ).gen_full()
 
         if True and self.cli.implementation == Implementation.SOLID2:
-            holder += WormGear( args = [
+            holder += WormDrive( args = [
                 '-i', self.cli.implementation,
+                '-g'
                 ]
             ).gen_full()
 
@@ -93,6 +102,6 @@ def test_worm_gear_holder_mock(self):
     test_loop(module=__name__,apis=[Implementation.MOCK])
 
 if __name__ == '__main__':
-    # main(args=sys.argv[1:]+['-i',Implementation.SOLID2])
-    main()
+    main(args=sys.argv[1:]+['-i',Implementation.SOLID2])
+    # main()
 
